@@ -24,7 +24,7 @@
 | `SignalGrid` | Faint CSS grid with a fine-pointer local light response | Resting touch, active pointer and offscreen-paused |
 | `ReachSection` | Practical found, trusted and chosen business-value chapter | Entered, revealed and expanded examples |
 | `SelectedWorkRunway` | Responsive portfolio chapter ending in an expanding chapter 04 card | Vertical-driven horizontal movement on every breakpoint, centred stop, card expansion, progress, keyboard focus and reversible interlude handoff |
-| `QuietInterlude` | Full long-term-value chapter aligned directly beneath the expanded runway card | Seamless takeover, centre-bottom particle release and reverse |
+| `QuietInterlude` | Full long-term-value chapter aligned directly beneath the expanded runway card | Seamless takeover, section-owned point formation, top-point dispersion and reverse |
 | `ProcessTimeline` | Semantic four-stage process with line fill, early point-contact intake and centred outlet geometry | Waiting, absorbing, active, complete, emitting and reverse |
 | `ClosingCallToAction` | Final momentum scene and primary contact route | Resting grid and opaque section-anchored particle arrow |
 

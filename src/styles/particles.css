@@ -18,12 +18,22 @@
 }
 
 .home-page .hero-section {
+  isolation: isolate;
   background: transparent;
+}
+
+.home-page .hero-section .signal-grid {
+  z-index: 0;
+}
+
+.home-page .hero-section__grid {
+  position: relative;
+  z-index: 2;
 }
 
 .particle-narrative-layer {
   position: fixed;
-  inset: var(--header-height) 0 0;
+  inset: 0;
   z-index: 1;
   overflow: hidden;
   pointer-events: none;

@@ -8,12 +8,16 @@ export const particleVertexShader = `
   attribute float particleAmbient;
 
   uniform float uProgress;
-  uniform float uReachTransition;
-  uniform float uWorkExitProgress;
-  uniform float uInterludeTransition;
+  uniform float uHeroExitProgress;
+  uniform float uReachFormationProgress;
+  uniform float uReachExitProgress;
+  uniform float uInterludeFormationProgress;
   uniform float uInterludeExitProgress;
   uniform float uTimelineIntakeProgress;
   uniform float uTimelineReleaseProgress;
+  uniform float uClosingFormationProgress;
+  uniform float uClosingExitProgress;
+  uniform float uStoryVisibility;
   uniform float uPointSize;
   uniform float uTime;
   uniform float uAmbientDrift;
@@ -27,18 +31,6 @@ export const particleVertexShader = `
   varying float vAmbient;
   varying float vNarrativeVisibility;
 
-  vec3 scatterMorph(
-    vec3 fromTarget,
-    vec3 toTarget,
-    vec3 scatterTarget,
-    float progress
-  ) {
-    float leaveProgress = smoothstep(0.0, 0.5, progress);
-    float formProgress = smoothstep(0.5, 1.0, progress);
-    vec3 dispersed = mix(fromTarget, scatterTarget, leaveProgress);
-    return mix(dispersed, toTarget, formProgress);
-  }
-
   float particleHash(float value) {
     return fract(sin(value) * 43758.5453123);
   }
@@ -46,48 +38,89 @@ export const particleVertexShader = `
   void main() {
     float easedProgress = smoothstep(0.0, 1.0, uProgress);
     float transitionWave = sin(easedProgress * 3.14159265);
-    vec3 scatterTarget = position * 1.2;
-    scatterTarget.x += sin(particleRandom * 21.0) * 0.38;
-    scatterTarget.y += cos(particleRandom * 17.0) * 0.28;
-    scatterTarget.z *= 1.35;
+    vec3 explosionDirection = normalize(position + vec3(
+      sin(particleRandom * 21.0) * 0.34,
+      cos(particleRandom * 17.0) * 0.28,
+      sin(particleRandom * 29.0) * 0.22 + 0.001
+    ));
+    float explosionRadius = mix(2.7, 5.1, particleHash(
+      particleRandom * 83.7 + 5.0
+    ));
+    vec3 scatterTarget = explosionDirection * explosionRadius;
+    scatterTarget.x *= 1.28;
+    scatterTarget.y *= 0.86;
+    scatterTarget.z *= 0.72;
 
-    vec3 narrativeTarget = scatterMorph(
-      targetPosition,
-      targetReach,
-      scatterTarget,
-      uReachTransition
-    );
+    vec3 narrativeTarget = targetPosition;
     float narrativeVisibility = 1.0;
+    float dispersedParticle = step(0.42, particleRandom);
 
-    if (uWorkExitProgress > 0.0) {
+    if (uHeroExitProgress > 0.0) {
+      float heroBurst = 1.0 + sin(uHeroExitProgress * 3.14159265) * 0.55;
       narrativeTarget = mix(
-        targetReach,
-        scatterTarget,
-        smoothstep(0.0, 0.62, uWorkExitProgress)
+        targetPosition,
+        scatterTarget * heroBurst,
+        smoothstep(0.0, 1.0, uHeroExitProgress)
       );
-      narrativeVisibility = 1.0 - smoothstep(
-        0.18,
-        0.72,
-        uWorkExitProgress
+      narrativeVisibility = mix(
+        1.0,
+        dispersedParticle,
+        smoothstep(0.0, 1.0, uHeroExitProgress)
       );
     }
 
-    if (uInterludeTransition > 0.0) {
+    if (uReachFormationProgress > 0.0) {
+      narrativeTarget = mix(
+        scatterTarget,
+        targetReach,
+        smoothstep(0.0, 1.0, uReachFormationProgress)
+      );
+      narrativeVisibility = mix(
+        dispersedParticle,
+        1.0,
+        smoothstep(0.0, 1.0, uReachFormationProgress)
+      );
+    }
+
+    if (uReachExitProgress > 0.0) {
+      float reachBurst = 1.0 + sin(uReachExitProgress * 3.14159265) * 0.55;
+      narrativeTarget = mix(
+        targetReach,
+        scatterTarget * reachBurst,
+        smoothstep(0.0, 1.0, uReachExitProgress)
+      );
+      narrativeVisibility = mix(
+        1.0,
+        dispersedParticle,
+        smoothstep(0.0, 1.0, uReachExitProgress)
+      );
+    }
+
+    if (uInterludeFormationProgress > 0.0) {
       narrativeTarget = mix(
         scatterTarget,
         targetOrbit,
-        smoothstep(0.28, 1.0, uInterludeTransition)
+        smoothstep(0.0, 1.0, uInterludeFormationProgress)
       );
-      narrativeVisibility = smoothstep(0.0, 0.24, uInterludeTransition);
+      narrativeVisibility = mix(
+        dispersedParticle,
+        1.0,
+        smoothstep(0.0, 1.0, uInterludeFormationProgress)
+      );
     }
 
     if (uInterludeExitProgress > 0.0) {
+      float interludeBurst = 1.0 + sin(uInterludeExitProgress * 3.14159265) * 0.55;
       narrativeTarget = mix(
         targetOrbit,
-        scatterTarget,
-        smoothstep(0.0, 0.72, uInterludeExitProgress)
+        scatterTarget * interludeBurst,
+        smoothstep(0.0, 1.0, uInterludeExitProgress)
       );
-      narrativeVisibility = 1.0;
+      narrativeVisibility = mix(
+        1.0,
+        dispersedParticle,
+        smoothstep(0.0, 1.0, uInterludeExitProgress)
+      );
     }
 
     if (uTimelineIntakeProgress > 0.0) {
@@ -117,7 +150,7 @@ export const particleVertexShader = `
         uTimelineIntakeProgress
       );
       narrativeTarget = mix(intakeField, vec3(0.0), gatherProgress);
-      narrativeVisibility = 1.0 - contactProgress;
+      narrativeVisibility = dispersedParticle * (1.0 - contactProgress);
     }
 
     vec3 releaseDirection = normalize(vec3(
@@ -140,14 +173,41 @@ export const particleVertexShader = `
       vec3 releaseCloud = releaseDirection * releaseRadius * releaseDepth;
       narrativeTarget = mix(
         releaseCloud,
-        targetClosing,
-        smoothstep(0.52, 0.92, uTimelineReleaseProgress)
+        scatterTarget,
+        smoothstep(0.18, 0.72, uTimelineReleaseProgress)
       );
       float emissionThreshold = particleRandom * 0.22;
       narrativeVisibility = smoothstep(
         emissionThreshold,
         emissionThreshold + 0.11,
         uTimelineReleaseProgress
+      ) * dispersedParticle;
+    }
+
+    if (uClosingFormationProgress > 0.0) {
+      narrativeTarget = mix(
+        scatterTarget,
+        targetClosing,
+        smoothstep(0.0, 1.0, uClosingFormationProgress)
+      );
+      narrativeVisibility = mix(
+        dispersedParticle,
+        1.0,
+        smoothstep(0.0, 1.0, uClosingFormationProgress)
+      );
+    }
+
+    if (uClosingExitProgress > 0.0) {
+      float closingBurst = 1.0 + sin(uClosingExitProgress * 3.14159265) * 0.55;
+      narrativeTarget = mix(
+        targetClosing,
+        scatterTarget * closingBurst,
+        smoothstep(0.0, 1.0, uClosingExitProgress)
+      );
+      narrativeVisibility = mix(
+        1.0,
+        dispersedParticle,
+        smoothstep(0.0, 1.0, uClosingExitProgress)
       );
     }
 
@@ -215,7 +275,7 @@ export const particleVertexShader = `
     vShade = particleShade;
     vPointerInfluence = pointerInfluence;
     vAmbient = particleAmbient;
-    vNarrativeVisibility = narrativeVisibility;
+    vNarrativeVisibility = narrativeVisibility * uStoryVisibility;
   }
 `;
 
@@ -223,10 +283,8 @@ export const particleFragmentShader = `
   uniform vec3 uCyanColour;
   uniform vec3 uBlueColour;
   uniform vec3 uDeepColour;
-  uniform vec3 uSlateColour;
   uniform float uTime;
   uniform float uColourCycleSpeed;
-  uniform float uLightThemeProgress;
 
   varying float vRandom;
   varying float vShade;
@@ -269,16 +327,6 @@ export const particleFragmentShader = `
       colour,
       cyclingColour,
       mix(0.34, 0.68, vAmbient)
-    );
-    vec3 lightSectionColour = mix(
-      uDeepColour,
-      uSlateColour,
-      0.52 + vShade * 0.26
-    );
-    colour = mix(
-      colour,
-      lightSectionColour,
-      uLightThemeProgress * 0.72
     );
     colour = mix(colour, uCyanColour, vPointerInfluence * 0.24);
     float particleVariation = 0.9 + vRandom * 0.1;

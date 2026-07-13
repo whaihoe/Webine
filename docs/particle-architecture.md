@@ -13,7 +13,7 @@ registered HTML scene
   → entrance and scroll-exit shader uniforms
 ```
 
-`ParticleSceneController` measures registered sections through normal document coordinates. It exposes per-scene presence, the active scene, live section-local anchors and a reversible exit value derived from each section bottom. The exit value stays zero until `rect.bottom === viewportHeight / 2`, then reaches one as the bottom leaves the viewport. ScrollSmoother is only a desktop scroll surface. It is not the source of particle progress.
+`ParticleSceneController` measures registered sections through normal document coordinates. It exposes per-scene presence, the active scene, live section-local anchors and independent point-based formation and dispersion values. ScrollSmoother is only a desktop scroll surface. It is not the source of particle progress.
 
 ## Geometry contract
 
@@ -28,19 +28,23 @@ The persistent geometry contains:
 - `particleShade`, stable cyan, blue and deep-blue facet treatment
 - `particleAmbient`, a stable mask that keeps a small subset outside the folded form
 
-The geometry remains mounted while the coordinated hero entrance changes `uProgress`. The hero section-bottom exit value later releases the completed mark into the reach transition, so returning upward restores the completed mark instead of replaying its formation. A fine pointer creates local depth displacement plus restrained whole-object travel and tilt.
+The geometry remains mounted while the coordinated hero entrance changes `uProgress`. The hero point later owns its dispersion, so returning upward restores the completed mark without replaying the entrance timeline. A fine pointer creates local depth displacement plus restrained whole-object travel and tilt.
 
 After formation, the complete folded object uses bounded 3D yaw, pitch, roll and depth floating. It never spins far enough to lose the Webine silhouette. A stable 4.5 percent desktop or 3.5 percent mobile subset remains loose and drifts around the form, producing USTA-inspired ambient depth without adding a second geometry. The fragment shader cycles slowly through the existing cyan, blue and deep-blue tokens over 18 seconds. All amplitudes, ratios and timing live in `experienceConfig.particles`.
 
-All post-hero targets are sampled as rounded 3D tubes, toruses or capsules with meaningful depth. Thin lines and flat sharp outlines are superseded. A transition never directly interpolates one settled form into another. It first returns the stable particle indices to the seeded dispersed field, then forms the next target and holds it until the section-bottom centre threshold.
+All post-hero targets are sampled as rounded 3D tubes, toruses or capsules with meaningful depth. Thin lines and flat sharp outlines are superseded. A transition never directly interpolates one settled form into another. Each visual section owns formation and dispersion progress derived from its own point. The next target forms around that point from viewport entry to viewport centre, holds there and disperses after the point crosses the top.
 
-The timeline handoff keeps the same particles allocated. The interlude section-exit value first releases the orbit into its dispersed field at the common section-bottom threshold. An intake approach begins later, before line fill, and converges particles into the moving HTML inlet point. Particles then remain invisible while they appear to move through the semantic line. A separate release progress starts exactly when the line bottom reaches viewport centre, fades particles back in from that point, disperses them and forms the rounded closing target. All values are geometry-derived and reversible. No section mounts its own canvas or replaces the geometry during normal scroll.
+The timeline handoff keeps the same particles allocated. The interlude point first disperses the orbit after crossing the viewport top. Intake converges particles into the moving HTML inlet point and fades them on contact. Particles remain invisible while they appear to move through the semantic line. A separate release starts exactly when the line bottom reaches viewport centre, fades particles back in from that point and disperses them. It does not form the arrow. The closing section's own point later gathers and forms that target. All values are geometry-derived and reversible. No section mounts its own canvas or replaces the geometry during normal scroll.
 
 Superseding intake detail: particle absorption begins in a measured approach zone before line progress starts. The DOM line supplies a normalised inlet position on each scroll update. Stable particle randomness gives every particle its own contact threshold, so particles gather into the moving inlet and fade only when they reach it. Most are already hidden at the viewport-centre crossing. Release keeps its centre trigger, but opacity returns per particle from the outlet before the dispersed field travels to the closing anchor and forms.
 
-The work runway does not render live particles. The same allocated population is moved to its dispersed target and its narrative visibility reaches zero before work. It stays hidden while the final centred card expands into chapter 04, then returns dispersed at the interlude anchor after the real section takes over. This avoids a second canvas or population while keeping portfolio content and the card expansion completely unobstructed.
+Between settled targets, the same allocated population expands into a wide radial field with a short overshoot. A stable random mask shows 58 percent of particles while fully dispersed, then returns the complete population as a form gathers. After Section 2, visibility fades from 18 to 78 percent of reach dispersion so the field is gone before Selected Work. It fades back during chapter 04 expansion and forms at the real interlude point while that point is still below the viewport.
 
-Every visible settled form uses the same section-local anchor contract. React combines the responsive anchor fraction in `particleSceneConfig` with the live section rectangle, stores the resulting normalised viewport point and converts it into canvas coordinates each frame. Hero, reach and interlude therefore move with their own sections while held instead of remaining fixed to the viewport. The closing arrow uses the same system, stays opaque and leaves with its section when the footer enters.
+Particle progress uniforms ease toward their geometry-derived values. This adds enough visual breathing room for fast wheel and trackpad input without intercepting wheel events. Desktop ScrollSmoother uses slightly more inertia, while the pinned runway uses the same modest scrub delay across desktop, tablet and mobile.
+
+Reverse ownership uses exact endpoints. When a geometry-derived value reaches zero, its shader uniform is set to exact zero instead of approaching it forever. This prevents a later `if (progress > 0)` branch from continuing to override the earlier shape after the visitor scrolls back.
+
+Every visible settled form uses the same anchor measurement contract but keeps independent motion settings. React combines each responsive anchor fraction with the live section rectangle, stores the resulting viewport point and calculates that section's formation and dispersion values. The renderer keeps the object's centre on the point while formed. Shared shader properties provide one cyan-to-blue colour cycle, hover bulge, whole-object tilt, floating and rotation across every section.
 
 The hero target samples a closed volumetric Webine mark. Particle positions cover connected front and back faces plus the perimeter side walls, so rotation reads as one solid logo rather than two independent planes.
 
@@ -51,9 +55,10 @@ Fine-pointer response has two layers. The whole object follows the pointer by a 
 | Profile | Count | Ambient share | Point size | Pixel-ratio cap | Object scale |
 |---|---:|---:|---:|---:|---:|
 | Desktop | 6,000 | 4.5% | 3.2 | 1.5 | 1 |
-| Mobile | 1,800 | 3.5% | 5.4 | 1.25 | 1.22 |
+| Tablet | 1,800 | 3.5% | 4.2 | 1.25 | 1.22 |
+| Mobile | 1,800 | 3.5% | 3.8 | 1.25 | 1.22 |
 
-Tablets from 600 to 1023 px use the lower mobile render profile with their own composition position, so the folded mark stays out of the copy without paying the desktop particle cost. These are starting values inside the blueprint limits. Stage 5 real-device testing decides whether they remain final.
+Tablets from 600 to 1023 px use the reduced 1,800-particle profile with a separate 4.2 point size. Mobile uses 3.8, so both compact breakpoints can be tuned without changing desktop. These remain starting values until real-device testing.
 
 ## Loading and failure
 

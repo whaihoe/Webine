@@ -111,3 +111,36 @@
 - Applied vertical-driven horizontal movement on desktop, tablet and mobile rather than keeping a native nested carousel on smaller screens.
 - Locked horizontal travel when the final card reaches the viewport centre. Remaining scrub progress changes only the card size, position, corner radius and compact-to-full content state.
 - Aligned the real interlude beneath the full-screen card so pin release is a seamless takeover and reverse scrolling restores the card and runway.
+
+## 2026-07-13, section-owned particle points supersede centre-bottom exits
+
+- Replaced the shared section-bottom release rule with independent point motion settings for hero, reach, interlude and closing.
+- Each section now defines when its point begins formation, reaches a complete form at viewport centre and begins dispersion after crossing the viewport top.
+- Kept colour cycling, pointer bulge, whole-object pointer travel, floating and rotation as shared rendering properties so every form belongs to one visual system.
+- Kept Selected Work without a settled target. Reach disperses and leaves before the runway, while interlude formation begins only from its own entering point.
+- Preserved the live timeline inlet and per-particle contact fade. Changed the outlet to emit and disperse only, then moved arrow formation into the closing section's independent point logic.
+- Expanded the fixed canvas to the full viewport so DOM point coordinates and particle centres use the same coordinate space.
+
+## 2026-07-13, viewport-following explosion and clean chapter handoff
+
+- Enlarged the dispersed target into a radial explosion with a short overshoot instead of keeping particles inside a small local cloud.
+- Moved the dispersed group to the viewport centre between point-owned forms. It follows the viewport until the next point enters, then gathering starts at that point.
+- Added restrained damping to particle progress. Increased desktop scroll weight slightly and applied a 1.25 second runway scrub across breakpoints, giving transitions time to read without intercepting wheel or touch input.
+- Removed the duplicate full interlude content from the expanding card. The card now acts as the expanding shell, other work cards fade and one real Section 4 instance owns the handoff.
+- Made the hero stack explicit: Signal Grid at layer 0, particles at layer 1 and hero typography and controls at layer 2.
+
+## 2026-07-13, reversible work fade and early chapter formation
+
+- Fixed reverse shape restoration by setting inactive progress uniforms to exact zero. This releases the later shader branch immediately instead of leaving an asymptotic non-zero value that overrides earlier forms.
+- Reduced fully dispersed density to a stable 58 percent subset. All particles return progressively as a target gathers.
+- Restored the particle-free Selected Work sequence. Visibility fades out during the first tenth of runway progress, remains zero during horizontal work and fades back while the final card expands.
+- Added a reversible card-owned formation value from 78 to 94 percent of runway progress. The interlude orbit forms at `0.67` viewport height, then hands off to the real section point.
+- Desktop forward and reverse review confirmed the work fade, expansion return, early orbit and folded hero restoration. A 390 px check confirmed the same work and expansion states with zero page-level overflow.
+
+## 2026-07-13, pre-work fade, offscreen formation and weighted scrolling
+
+- Moved the Section 2 fade into reach dispersion. Visibility falls between 18 and 78 percent, so particles are already absent before Selected Work begins.
+- Replaced the temporary lower-screen chapter anchor with the real interlude point. Card expansion forms the orbit from 70 to 88 percent while that point is still below the viewport.
+- Increased public scroll weight to 1.35 smoothing and 0.88 speed on pointer layouts, with a restrained 0.12 touch smoothing value. Increased runway scrub to 1.45 seconds and particle progress damping to 3.
+- Split compact point sizing into tablet 4.2 and mobile 3.8 values. Both retain the 1,800-particle performance profile.
+- Browser review confirmed the early Section 2 fade, offscreen Section 4 formation, weighted mobile scroll surface and zero page-level overflow at 390 px.

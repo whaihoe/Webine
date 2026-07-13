@@ -14,10 +14,12 @@ import {
 } from "../../config/experience";
 import {
   createStoryProgressStore,
-  getSceneExitProgress,
+  getPointDispersionProgress,
+  getPointFormationProgress,
   getScenePresence,
   type ParticleSceneAnchorId,
   type ParticleSceneAnchorPositions,
+  type ParticleSceneMotionProgressMap,
   type StoryActivitySnapshot,
   type StoryProgressStore,
 } from "../../three/story-progress";
@@ -90,7 +92,9 @@ export function ParticleSceneController({
       const viewportHeight = window.innerHeight;
       const layout = getParticleLayout(window.innerWidth);
       const scenePresence: Record<string, number> = {};
-      const sceneExitProgress: Record<string, number> = {};
+      const sceneMotionProgress: ParticleSceneMotionProgressMap = {
+        ...store.getSnapshot().sceneMotionProgress,
+      };
       let activeSceneId: string | null = null;
       let closestDistance = Number.POSITIVE_INFINITY;
       let hasVisibleScene = false;
@@ -102,17 +106,32 @@ export function ParticleSceneController({
         const rect = element.getBoundingClientRect();
         const visible = rect.bottom > 0 && rect.top < viewportHeight;
         scenePresence[id] = getScenePresence(rect, viewportHeight);
-        sceneExitProgress[id] = getSceneExitProgress(rect, viewportHeight);
 
         if (particleAnchorSceneIds.has(id as ParticleSceneAnchorId)) {
           const anchorId = id as ParticleSceneAnchorId;
           const sceneConfig = particleSceneConfig[anchorId][layout];
+          const pointViewportY =
+            (rect.top + rect.height * sceneConfig.anchorY) /
+            Math.max(viewportHeight, 1);
           sceneAnchorPositions[anchorId] = {
             x: sceneConfig.anchorX,
-            y:
-              (rect.top + rect.height * sceneConfig.anchorY) /
-              Math.max(viewportHeight, 1),
+            y: pointViewportY,
           };
+          const motionProgress = {
+            formation: getPointFormationProgress(
+              pointViewportY,
+              particleSceneConfig[anchorId].motion.formation,
+            ),
+            dispersion: getPointDispersionProgress(
+              pointViewportY,
+              particleSceneConfig[anchorId].motion.dispersion,
+            ),
+          };
+          sceneMotionProgress[anchorId] = motionProgress;
+          element.dataset.particleFormation =
+            motionProgress.formation.toFixed(3);
+          element.dataset.particleDispersion =
+            motionProgress.dispersion.toFixed(3);
         }
 
         if (visible) {
@@ -130,11 +149,15 @@ export function ParticleSceneController({
 
       store.update({
         introProgress: store.getSnapshot().introProgress,
-        sceneExitProgress,
+        sceneMotionProgress,
         timelineIntakeProgress:
           store.getSnapshot().timelineIntakeProgress,
         timelineReleaseProgress:
           store.getSnapshot().timelineReleaseProgress,
+        workParticleVisibility:
+          store.getSnapshot().workParticleVisibility,
+        workChapterFormationProgress:
+          store.getSnapshot().workChapterFormationProgress,
         timelineInletPosition:
           store.getSnapshot().timelineInletPosition,
         timelineOutletPosition:

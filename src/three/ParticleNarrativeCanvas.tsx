@@ -67,10 +67,7 @@ export default function ParticleNarrativeCanvas({
     };
   }, []);
   const profile = useMemo(
-    () =>
-      layout === "desktop"
-        ? experienceConfig.particles.desktop
-        : experienceConfig.particles.mobile,
+    () => experienceConfig.particles[layout],
     [layout],
   );
 

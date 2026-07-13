@@ -50,12 +50,16 @@ export function ParticlePoints({
   const uniforms = useMemo(
     () => ({
       uProgress: { value: 0 },
-      uReachTransition: { value: 0 },
-      uWorkExitProgress: { value: 0 },
-      uInterludeTransition: { value: 0 },
+      uHeroExitProgress: { value: 0 },
+      uReachFormationProgress: { value: 0 },
+      uReachExitProgress: { value: 0 },
+      uInterludeFormationProgress: { value: 0 },
       uInterludeExitProgress: { value: 0 },
       uTimelineIntakeProgress: { value: 0 },
       uTimelineReleaseProgress: { value: 0 },
+      uClosingFormationProgress: { value: 0 },
+      uClosingExitProgress: { value: 0 },
+      uStoryVisibility: { value: 1 },
       uPointSize: { value: profile.pointSize },
       uTime: { value: 0 },
       uAmbientDrift: { value: ambientMotion.drift },
@@ -63,13 +67,11 @@ export function ParticlePoints({
       uColourCycleSpeed: {
         value: (Math.PI * 2) / ambientMotion.colourCycleSeconds,
       },
-      uLightThemeProgress: { value: 0 },
       uPointer: { value: pointerUniformRef.current },
       uPointerStrength: { value: 0 },
       uCyanColour: { value: getTokenColour("--primitive-cyan-400") },
       uBlueColour: { value: getTokenColour("--primitive-blue-500") },
       uDeepColour: { value: getTokenColour("--primitive-blue-700") },
-      uSlateColour: { value: getTokenColour("--primitive-slate-800") },
     }),
     [
       ambientMotion.colourCycleSeconds,
@@ -123,18 +125,26 @@ export function ParticlePoints({
 
     const snapshot = progressStore.getSnapshot();
     const introProgress = snapshot.introProgress;
-    const interludePresence = snapshot.scenePresence.interlude ?? 0;
-    const reachTransition = snapshot.sceneExitProgress.hero ?? 0;
-    const workExitProgress = snapshot.sceneExitProgress.reach ?? 0;
-    const interludeExitProgress =
-      snapshot.sceneExitProgress.interlude ?? 0;
-    const interludeTransition = MathUtils.smoothstep(
-      interludePresence,
-      0.46,
-      0.62,
-    );
+    const heroMotion = snapshot.sceneMotionProgress.hero;
+    const reachMotion = snapshot.sceneMotionProgress.reach;
+    const interludeMotion = snapshot.sceneMotionProgress.interlude;
+    const closingMotion = snapshot.sceneMotionProgress.closing;
     const intakeProgress = snapshot.timelineIntakeProgress;
     const releaseProgress = snapshot.timelineReleaseProgress;
+    const storyVisibility = snapshot.workParticleVisibility;
+    const chapterFormation = snapshot.workChapterFormationProgress;
+    const interludeFormation = Math.max(
+      interludeMotion.formation,
+      chapterFormation,
+    );
+    const reachExitVisibility =
+      chapterFormation > 0 || interludeMotion.formation > 0
+        ? 1
+        : 1 - MathUtils.smoothstep(reachMotion.dispersion, 0.18, 0.78);
+    const effectiveStoryVisibility = Math.min(
+      storyVisibility,
+      reachExitVisibility,
+    );
     const toWorldX = (normalisedX: number) =>
       (normalisedX - 0.5) * viewport.width;
     const toWorldY = (normalisedY: number) =>
@@ -142,26 +152,46 @@ export function ParticlePoints({
     const heroAnchor = snapshot.sceneAnchorPositions.hero;
     const reachAnchor = snapshot.sceneAnchorPositions.reach;
     const interludeAnchor = snapshot.sceneAnchorPositions.interlude;
-    let sceneX = MathUtils.lerp(
-      toWorldX(heroAnchor.x),
-      toWorldX(reachAnchor.x),
-      reachTransition,
-    );
-    let sceneY = MathUtils.lerp(
-      toWorldY(heroAnchor.y),
-      toWorldY(reachAnchor.y),
-      reachTransition,
-    );
-    let sceneScale = MathUtils.lerp(
-      heroScene.scale,
-      reachScene.scale,
-      reachTransition,
-    );
+    let sceneX = toWorldX(heroAnchor.x);
+    let sceneY = toWorldY(heroAnchor.y);
+    let sceneScale: number = heroScene.scale;
 
-    if (interludeTransition > 0) {
+    const heroIsDispersed =
+      heroMotion.dispersion > 0 && reachMotion.formation <= 0;
+    const reachIsDispersed =
+      reachMotion.dispersion > 0 && interludeMotion.formation <= 0;
+    const interludeIsDispersed =
+      interludeMotion.dispersion > 0 && intakeProgress <= 0;
+    const closingIsDispersed = closingMotion.dispersion > 0;
+
+    if (heroIsDispersed) {
+      sceneX = 0;
+      sceneY = 0;
+      sceneScale = processPosition.scale;
+    }
+
+    if (reachMotion.formation > 0) {
+      sceneX = toWorldX(reachAnchor.x);
+      sceneY = toWorldY(reachAnchor.y);
+      sceneScale = reachScene.scale;
+    }
+
+    if (reachIsDispersed) {
+      sceneX = 0;
+      sceneY = 0;
+      sceneScale = processPosition.scale;
+    }
+
+    if (interludeFormation > 0) {
       sceneX = toWorldX(interludeAnchor.x);
       sceneY = toWorldY(interludeAnchor.y);
       sceneScale = interludeScene.scale;
+    }
+
+    if (interludeIsDispersed) {
+      sceneX = 0;
+      sceneY = 0;
+      sceneScale = processPosition.scale;
     }
 
     const inletX =
@@ -200,40 +230,50 @@ export function ParticlePoints({
         (snapshot.timelineOutletPosition.x - 0.5) * viewport.width;
       const outletY =
         (0.5 - snapshot.timelineOutletPosition.y) * viewport.height;
+      sceneX = outletX;
+      sceneY = outletY;
+      sceneScale = processPosition.scale;
+    }
+
+    if (closingMotion.formation > 0) {
       const closingAnchor = snapshot.sceneAnchorPositions.closing;
-      const closingX = toWorldX(closingAnchor.x);
-      const closingY = toWorldY(closingAnchor.y);
-      const closingTravel = MathUtils.smoothstep(
-        releaseProgress,
-        0.16,
-        0.64,
-      );
-      sceneX = MathUtils.lerp(outletX, closingX, closingTravel);
-      sceneY = MathUtils.lerp(outletY, closingY, closingTravel);
-      sceneScale = MathUtils.lerp(
-        processPosition.scale,
-        closingPosition.scale,
-        closingTravel,
-      );
+      sceneX = toWorldX(closingAnchor.x);
+      sceneY = toWorldY(closingAnchor.y);
+      sceneScale = closingPosition.scale;
+    }
+
+    if (closingIsDispersed) {
+      sceneX = 0;
+      sceneY = 0;
+      sceneScale = processPosition.scale;
     }
 
     const scenePosition = { x: sceneX, y: sceneY, scale: sceneScale };
     const targetScale = profile.objectScale * scenePosition.scale;
     const transitionStrength = Math.max(
-      Math.abs(Math.sin(reachTransition * Math.PI)),
-      Math.abs(Math.sin(workExitProgress * Math.PI)),
-      Math.abs(Math.sin(interludeTransition * Math.PI)),
-      Math.abs(Math.sin(interludeExitProgress * Math.PI)),
+      Math.abs(Math.sin(heroMotion.dispersion * Math.PI)),
+      Math.abs(Math.sin(reachMotion.formation * Math.PI)),
+      Math.abs(Math.sin(reachMotion.dispersion * Math.PI)),
+      Math.abs(Math.sin(interludeFormation * Math.PI)),
+      Math.abs(Math.sin(interludeMotion.dispersion * Math.PI)),
       Math.abs(Math.sin(intakeProgress * Math.PI)),
       Math.abs(Math.sin(releaseProgress * Math.PI)),
+      Math.abs(Math.sin(closingMotion.formation * Math.PI)),
+      Math.abs(Math.sin(closingMotion.dispersion * Math.PI)),
     );
     const pointer = pointerRef.current;
-    const settledProgress = MathUtils.smoothstep(
+    const introSettledProgress = MathUtils.smoothstep(
       material.uniforms.uProgress.value,
       0.72,
       1,
     );
-    const idleStrength = settledProgress * (1 - transitionStrength);
+    const formedStrength = Math.max(
+      introSettledProgress * (1 - heroMotion.dispersion),
+      reachMotion.formation * (1 - reachMotion.dispersion),
+      interludeFormation * (1 - interludeMotion.dispersion),
+      closingMotion.formation * (1 - closingMotion.dispersion),
+    );
+    const idleStrength = formedStrength * (1 - transitionStrength);
     const elapsed = clock.elapsedTime;
     const localPointerX =
       (pointer.x * viewport.width * 0.5 - group.position.x) /
@@ -248,15 +288,33 @@ export function ParticlePoints({
       7,
       delta,
     );
-    material.uniforms.uReachTransition.value = reachTransition;
-    material.uniforms.uWorkExitProgress.value = workExitProgress;
-    material.uniforms.uInterludeTransition.value = interludeTransition;
-    material.uniforms.uInterludeExitProgress.value = interludeExitProgress;
-    material.uniforms.uTimelineIntakeProgress.value = intakeProgress;
-    material.uniforms.uTimelineReleaseProgress.value = releaseProgress;
-    const workIsHidden = workExitProgress > 0.02 && interludeTransition <= 0;
+    const dampProgress = (uniformName: string, target: number) => {
+      if (target === 0) {
+        material.uniforms[uniformName].value = 0;
+        return;
+      }
+
+      const nextValue = MathUtils.damp(
+        material.uniforms[uniformName].value,
+        target,
+        3,
+        delta,
+      );
+      material.uniforms[uniformName].value =
+        Math.abs(nextValue - target) < 0.01 ? target : nextValue;
+    };
+    dampProgress("uHeroExitProgress", heroMotion.dispersion);
+    dampProgress("uReachFormationProgress", reachMotion.formation);
+    dampProgress("uReachExitProgress", reachMotion.dispersion);
+    dampProgress("uInterludeFormationProgress", interludeFormation);
+    dampProgress("uInterludeExitProgress", interludeMotion.dispersion);
+    dampProgress("uTimelineIntakeProgress", intakeProgress);
+    dampProgress("uTimelineReleaseProgress", releaseProgress);
+    dampProgress("uClosingFormationProgress", closingMotion.formation);
+    dampProgress("uClosingExitProgress", closingMotion.dispersion);
+    dampProgress("uStoryVisibility", effectiveStoryVisibility);
     const ambientStrength =
-      workIsHidden || interludeExitProgress > 0 || intakeProgress > 0
+      intakeProgress > 0
       ? 0
       : releaseProgress > 0 && releaseProgress < 0.92
         ? 0
@@ -267,15 +325,6 @@ export function ParticlePoints({
       material.uniforms.uAmbientStrength.value,
       ambientStrength,
       7,
-      delta,
-    );
-    material.uniforms.uLightThemeProgress.value = MathUtils.damp(
-      material.uniforms.uLightThemeProgress.value,
-      snapshot.activeSceneId === "reach" ||
-        snapshot.activeSceneId === "interlude"
-        ? 1
-        : 0,
-      6,
       delta,
     );
     material.uniforms.uPointer.value.x = MathUtils.damp(

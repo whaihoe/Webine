@@ -65,8 +65,8 @@ export function PublicSmoothScroll({ children }: PublicSmoothScrollProps) {
           wrapper: wrapperRef.current,
           content: contentRef.current,
           smooth: config.desktopSmoothness,
-          speed: 1,
-          smoothTouch: false,
+          speed: config.desktopSpeed,
+          smoothTouch: config.touchSmoothness,
           effects: false,
         });
 

@@ -3,8 +3,10 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { featuredProjects } from "../../content/featured-projects";
 import { homeInterludeContent } from "../../content/home-interlude";
-import { InterludeChapterContent } from "./InterludeChapterContent";
-import { useParticleSceneAnchor } from "./ParticleSceneController";
+import {
+  useParticleController,
+  useParticleSceneAnchor,
+} from "./ParticleSceneController";
 
 type ScrollBoundTween = {
   kill: () => void;
@@ -22,8 +24,8 @@ export function SelectedWorkRunway() {
   const headerRef = useRef<HTMLDivElement>(null);
   const chapterRef = useRef<HTMLElement>(null);
   const chapterCompactRef = useRef<HTMLDivElement>(null);
-  const chapterExpandedRef = useRef<HTMLDivElement>(null);
   const scrollTweenRef = useRef<ScrollBoundTween | null>(null);
+  const { store } = useParticleController();
   const registerScene = useParticleSceneAnchor("work");
   const [currentIndex, setCurrentIndex] = useState(0);
   const totalFrames = featuredProjects.length + 1;
@@ -34,18 +36,14 @@ export function SelectedWorkRunway() {
     const header = headerRef.current;
     const chapter = chapterRef.current;
     const chapterCompact = chapterCompactRef.current;
-    const chapterExpanded = chapterExpandedRef.current;
 
-    if (
-      !section ||
-      !track ||
-      !header ||
-      !chapter ||
-      !chapterCompact ||
-      !chapterExpanded
-    ) {
+    if (!section || !track || !header || !chapter || !chapterCompact) {
       return;
     }
+
+    const projectCards = Array.from(
+      track.querySelectorAll<HTMLElement>(".work-card"),
+    );
 
     let cancelled = false;
     let tween: ScrollBoundTween | null = null;
@@ -61,7 +59,9 @@ export function SelectedWorkRunway() {
       scrollTweenRef.current = null;
       delete section.dataset.scrollMode;
       delete section.dataset.scrollPhase;
-      gsap.set([track, header, chapter, chapterCompact, chapterExpanded], {
+      delete section.dataset.particleVisibility;
+      delete section.dataset.chapterFormation;
+      gsap.set([track, header, chapter, chapterCompact, ...projectCards], {
         clearProps: "all",
       });
     };
@@ -101,7 +101,7 @@ export function SelectedWorkRunway() {
           start: "top top",
           end: () => `+=${getDistance()}`,
           pin: true,
-          scrub: 1,
+          scrub: 1.45,
           invalidateOnRefresh: true,
           onUpdate: (self) => {
             const runwayProgress = Math.min(self.progress / horizontalEnd, 1);
@@ -117,6 +117,38 @@ export function SelectedWorkRunway() {
                 : self.progress < 0.98
                   ? "expanding"
                   : "expanded";
+            const fadeOutEnd = 0.1;
+            const fadeInEnd = 0.84;
+            const chapterFormationStart = horizontalEnd;
+            const chapterFormationEnd = 0.88;
+            const visibility =
+              self.progress < fadeOutEnd
+                ? 1 - self.progress / fadeOutEnd
+                : self.progress < horizontalEnd
+                  ? 0
+                  : Math.min(
+                      Math.max(
+                        (self.progress - horizontalEnd) /
+                          (fadeInEnd - horizontalEnd),
+                        0,
+                      ),
+                      1,
+                    );
+            const chapterFormationProgress = Math.min(
+              Math.max(
+                (self.progress - chapterFormationStart) /
+                  (chapterFormationEnd - chapterFormationStart),
+                0,
+              ),
+              1,
+            );
+            store.setWorkParticleState({
+              visibility,
+              chapterFormationProgress,
+            });
+            section.dataset.particleVisibility = visibility.toFixed(3);
+            section.dataset.chapterFormation =
+              chapterFormationProgress.toFixed(3);
           },
         },
       });
@@ -131,6 +163,11 @@ export function SelectedWorkRunway() {
         .to(
           chapterCompact,
           { autoAlpha: 0, duration: 0.08, ease: "none" },
+          horizontalEnd,
+        )
+        .to(
+          projectCards,
+          { autoAlpha: 0, duration: 0.12, ease: "none" },
           horizontalEnd,
         )
         .to(
@@ -150,11 +187,6 @@ export function SelectedWorkRunway() {
             ease: "power2.inOut",
           },
           horizontalEnd,
-        )
-        .to(
-          chapterExpanded,
-          { autoAlpha: 1, duration: 0.2, ease: "power1.inOut" },
-          0.76,
         );
 
       tween = timeline as ScrollBoundTween;
@@ -170,8 +202,12 @@ export function SelectedWorkRunway() {
     return () => {
       cancelled = true;
       stop();
+      store.setWorkParticleState({
+        visibility: 1,
+        chapterFormationProgress: 0,
+      });
     };
-  }, [totalFrames]);
+  }, [store, totalFrames]);
 
   const focusFrame = (index: number) => {
     setCurrentIndex(index);
@@ -269,13 +305,6 @@ export function SelectedWorkRunway() {
               <a className="work-runway__chapter-link" href="#interlude-heading">
                 Expand the chapter <span aria-hidden="true">↓</span>
               </a>
-            </div>
-            <div
-              ref={chapterExpandedRef}
-              className="work-runway__chapter-expanded"
-              aria-hidden="true"
-            >
-              <InterludeChapterContent headingId="work-interlude-heading" />
             </div>
           </article>
         </div>

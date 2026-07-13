@@ -16,11 +16,23 @@ export type ParticleSceneAnchorPositions = Record<
   ViewportPoint
 >;
 
+export type ParticleSceneMotionProgress = {
+  formation: number;
+  dispersion: number;
+};
+
+export type ParticleSceneMotionProgressMap = Record<
+  ParticleSceneAnchorId,
+  ParticleSceneMotionProgress
+>;
+
 export type StoryProgressSnapshot = {
   introProgress: number;
-  sceneExitProgress: SceneProgress;
+  sceneMotionProgress: ParticleSceneMotionProgressMap;
   timelineIntakeProgress: number;
   timelineReleaseProgress: number;
+  workParticleVisibility: number;
+  workChapterFormationProgress: number;
   timelineInletPosition: ViewportPoint;
   timelineOutletPosition: ViewportPoint;
   sceneAnchorPositions: ParticleSceneAnchorPositions;
@@ -41,6 +53,10 @@ export type StoryProgressStore = {
     outletPosition: ViewportPoint;
     releaseProgress: number;
   }) => void;
+  setWorkParticleState: (state: {
+    visibility: number;
+    chapterFormationProgress: number;
+  }) => void;
   update: (next: StoryProgressSnapshot) => void;
 };
 
@@ -51,9 +67,16 @@ export type StoryActivitySnapshot = Pick<
 
 const initialSnapshot: StoryProgressSnapshot = {
   introProgress: 0,
-  sceneExitProgress: {},
+  sceneMotionProgress: {
+    hero: { formation: 1, dispersion: 0 },
+    reach: { formation: 0, dispersion: 0 },
+    interlude: { formation: 0, dispersion: 0 },
+    closing: { formation: 0, dispersion: 0 },
+  },
   timelineIntakeProgress: 0,
   timelineReleaseProgress: 0,
+  workParticleVisibility: 1,
+  workChapterFormationProgress: 0,
   timelineInletPosition: { x: 0.5, y: 0.5 },
   timelineOutletPosition: { x: 0.5, y: 0.5 },
   sceneAnchorPositions: {
@@ -109,6 +132,17 @@ export function createStoryProgressStore(): StoryProgressStore {
       };
       progressListeners.forEach((listener) => listener());
     },
+    setWorkParticleState: ({ visibility, chapterFormationProgress }) => {
+      snapshot = {
+        ...snapshot,
+        workParticleVisibility: Math.min(Math.max(visibility, 0), 1),
+        workChapterFormationProgress: Math.min(
+          Math.max(chapterFormationProgress, 0),
+          1,
+        ),
+      };
+      progressListeners.forEach((listener) => listener());
+    },
     update: (next) => {
       const shouldNotify =
         snapshot.isActive !== next.isActive ||
@@ -132,10 +166,40 @@ export function getScenePresence(rect: DOMRect, viewportHeight: number) {
   return Math.min(Math.max((viewportHeight - rect.top) / travel, 0), 1);
 }
 
-export function getSceneExitProgress(rect: DOMRect, viewportHeight: number) {
-  const exitTravel = Math.max(viewportHeight / 2, 1);
+type PointFormationRange = {
+  enterViewportY: number;
+  formedViewportY: number;
+};
+
+type PointDispersionRange = {
+  startViewportY: number;
+  completeViewportY: number;
+};
+
+export function getPointFormationProgress(
+  pointViewportY: number,
+  range: PointFormationRange,
+) {
+  const travel = Math.max(
+    range.enterViewportY - range.formedViewportY,
+    0.001,
+  );
   return Math.min(
-    Math.max((viewportHeight / 2 - rect.bottom) / exitTravel, 0),
+    Math.max((range.enterViewportY - pointViewportY) / travel, 0),
+    1,
+  );
+}
+
+export function getPointDispersionProgress(
+  pointViewportY: number,
+  range: PointDispersionRange,
+) {
+  const travel = Math.max(
+    range.startViewportY - range.completeViewportY,
+    0.001,
+  );
+  return Math.min(
+    Math.max((range.startViewportY - pointViewportY) / travel, 0),
     1,
   );
 }
