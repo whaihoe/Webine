@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { experienceMode } from "../config/experience";
+import { PublicSmoothScroll } from "./PublicSmoothScroll";
 import { SiteFooter } from "./SiteFooter";
 import { SiteHeader } from "./SiteHeader";
 
@@ -18,8 +19,12 @@ export function SiteShell({
         Skip to main content
       </a>
       <SiteHeader theme={headerTheme} />
-      <main id="main-content">{children}</main>
-      <SiteFooter />
+      <PublicSmoothScroll>
+        <main className="site-main" id="main-content" tabIndex={-1}>
+          {children}
+        </main>
+        <SiteFooter />
+      </PublicSmoothScroll>
     </div>
   );
 }

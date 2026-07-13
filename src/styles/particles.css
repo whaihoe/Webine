@@ -1,0 +1,119 @@
+.home-page {
+  position: relative;
+  background: hsl(var(--primitive-slate-950));
+}
+
+.home-page > section,
+.site-footer {
+  position: relative;
+  z-index: 2;
+}
+
+.home-page .hero-section {
+  background: transparent;
+}
+
+.particle-narrative-layer {
+  position: fixed;
+  inset: var(--header-height) 0 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.particle-canvas,
+.particle-poster {
+  position: absolute;
+  inset: 0;
+}
+
+.particle-canvas {
+  opacity: 0;
+  transition: opacity var(--primitive-duration-standard) var(--primitive-ease-standard);
+}
+
+.particle-narrative-layer[data-particle-state="live"] .particle-canvas {
+  opacity: 1;
+}
+
+.particle-canvas > div,
+.particle-canvas canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.particle-poster {
+  display: grid;
+  place-items: center;
+  opacity: 1;
+  transition: opacity var(--primitive-duration-standard) var(--primitive-ease-standard);
+}
+
+.particle-poster[data-particle-poster-state="live"] {
+  opacity: 0;
+}
+
+.particle-poster__frame {
+  position: relative;
+  width: min(70vw, 23rem);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: var(--primitive-rule) solid hsl(var(--particle-poster-border));
+  border-radius: 50%;
+  background: hsl(var(--particle-poster-surface) / 0.07);
+}
+
+.particle-poster__frame::before,
+.particle-poster__frame::after {
+  content: "";
+  position: absolute;
+  background: hsl(var(--particle-poster-guide));
+}
+
+.particle-poster__frame::before {
+  width: 130%;
+  height: var(--primitive-rule);
+}
+
+.particle-poster__frame::after {
+  width: var(--primitive-rule);
+  height: 130%;
+}
+
+.particle-poster__frame img {
+  position: relative;
+  z-index: 1;
+  width: 46%;
+  filter: drop-shadow(0 1.5rem 3rem hsl(var(--particle-primary) / 0.28));
+}
+
+.particle-poster__index,
+.particle-poster__caption {
+  position: absolute;
+  color: hsl(var(--primitive-slate-400));
+  font-size: var(--label);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.particle-poster__index {
+  top: var(--primitive-space-4);
+  left: var(--space-page-x);
+}
+
+.particle-poster__caption {
+  right: var(--space-page-x);
+  bottom: var(--primitive-space-4);
+}
+
+@media (min-width: 80rem) {
+  .particle-poster {
+    justify-items: end;
+    padding-right: var(--space-page-x);
+  }
+
+  .particle-poster__frame {
+    width: min(38vw, 34rem);
+  }
+}

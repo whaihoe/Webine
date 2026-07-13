@@ -15,6 +15,11 @@
 | `WorkspaceShell` | Reserved Admin application frame | Mobile strip and desktop sidebar |
 | `RouteEffects` | Page title, route announcement, scroll and heading focus | Push, replace and browser history |
 | `AppErrorBoundary` | Application failure fallback | Error |
+| `PublicSmoothScroll` | Optional desktop scroll surface that preserves native mobile scrolling | Enabled desktop and native fallback |
+| `HomeParticleExperience` | Home-only boundary for the persistent visual layer | Mounted and unmounted by route |
+| `ParticleSceneController` | Section registration and normalised story progress | Scroll, resize, visibility and cleanup |
+| `ParticleNarrativeCanvas` | One lazy React Three Fiber canvas for the Home story | Loading, live, paused and failed |
+| `ParticlePosterFallback` | Visible composition before WebGL and after failure | Loading, fallback and hidden-live |
 
 ## Route compositions
 
@@ -27,4 +32,4 @@
 
 ## Later components
 
-The following components remain outside Stage 2: live particles, smooth scrolling, project filters, project case-study panels, the enquiry pipeline, CMS-generated forms, media upload controls, process timeline and route transitions.
+The following components remain outside Stage 3: the approved hero poster and final static hero composition, breathing entrance, reach scene, project filters, project case-study panels, the enquiry pipeline, CMS-generated forms, media upload controls, process timeline and route transitions.

@@ -49,6 +49,6 @@ The content canvas is capped at 1504 px. Mobile layouts are recomposed by readin
 
 Interactive components include default, hover, active, focus and disabled treatments where relevant. Focus is always visible. Touch controls have a minimum 44 px target. Disabled fields use both the native `disabled` attribute and a visible inactive treatment.
 
-## Stage 2 boundary
+## Current experience boundary
 
-The shell uses only fast control feedback. Particles, smooth scrolling, the live Signal Grid and route transitions remain disabled in `src/config/experience.ts` until their dedicated stages.
+Stage 3 enables the persistent particles and desktop smooth-scroll configuration. The live Signal Grid response, route transitions and general reveal system remain disabled until their dedicated stages. The particle canvas reads its colours from the CSS token layer and never introduces a second visual palette.

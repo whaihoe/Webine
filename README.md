@@ -1,6 +1,6 @@
 # Webine website
 
-Webine's website runs as a local React application. Stage 2 now includes the responsive public shell, design tokens, accessible navigation, light and dark themes, an Admin frame and central configuration for later signature effects.
+Webine's website runs as a local React application. Stage 3 adds the lazy persistent particle architecture, normalised story progress, poster fallback and restrained desktop smooth scrolling to the responsive Stage 2 shell.
 
 ## Run locally
 
@@ -32,6 +32,8 @@ Admin and preview are route placeholders only. They are not protected until the 
 
 ## Current scope
 
-Stages 0 to 2 establish the implementation inputs, local application, design tokens and responsive site shell. Particles, smooth scrolling, live page transitions, the CMS and the enquiry pipeline remain disabled or reserved for their dedicated stages.
+Stages 0 to 3 establish the implementation inputs, local application, design tokens, responsive site shell and persistent particle foundation. The Home route now lazy-loads one reduced-density mobile or desktop particle geometry and morphs it between the scattered field and folded Webine targets. Desktop smooth scrolling is enabled for fine-pointer layouts while mobile remains native.
 
-See `docs/implementation-inputs.md` for available and missing inputs. See `docs/design-system.md`, `docs/component-inventory.md` and `docs/motion-scenes.md` for the Stage 2 system. Important changes are recorded in `docs/decision-log.md`.
+The current logo composition is the loading and failure fallback. Stage 4 will replace it with the approved desktop and mobile particle poster while keeping the same fallback component. Live page transitions, the Signal Grid response, the CMS and the enquiry pipeline remain disabled or reserved for their dedicated stages.
+
+See `docs/implementation-inputs.md` for available and missing inputs. See `docs/design-system.md`, `docs/component-inventory.md`, `docs/motion-scenes.md` and `docs/particle-architecture.md` for the current system. Important changes are recorded in `docs/decision-log.md`.

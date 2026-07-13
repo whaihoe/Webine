@@ -1,4 +1,6 @@
 import { ButtonLink } from "../components/ButtonLink";
+import { HomeParticleExperience } from "../components/home/HomeParticleExperience";
+import { useParticleSceneAnchor } from "../components/home/ParticleSceneController";
 import { SectionHeading } from "../components/SectionHeading";
 import { SiteShell } from "../components/SiteShell";
 
@@ -23,7 +25,24 @@ const foundations = [
 export function HomePage() {
   return (
     <SiteShell>
-      <section className="hero-section theme-dark" aria-labelledby="home-heading">
+      <HomeParticleExperience>
+        <HomeContent />
+      </HomeParticleExperience>
+    </SiteShell>
+  );
+}
+
+function HomeContent() {
+  const heroSceneRef = useParticleSceneAnchor("hero");
+
+  return (
+    <>
+      <section
+        ref={heroSceneRef}
+        className="hero-section theme-dark"
+        aria-labelledby="home-heading"
+        data-particle-scene="hero"
+      >
         <div className="signal-grid signal-grid--resting" aria-hidden="true" />
         <div className="site-container hero-section__grid">
           <div className="hero-section__copy">
@@ -40,14 +59,6 @@ export function HomePage() {
                 View our work
               </ButtonLink>
             </div>
-          </div>
-
-          <div className="hero-object" aria-hidden="true">
-            <span className="hero-object__index">W / 01</span>
-            <div className="hero-object__frame">
-              <img src="/webine-logo-primary.png" alt="" width="174" height="103" />
-            </div>
-            <span className="hero-object__caption">Identity taking shape</span>
           </div>
 
           <p className="hero-section__scroll-cue">Scroll to explore</p>
@@ -78,6 +89,6 @@ export function HomePage() {
           </p>
         </div>
       </section>
-    </SiteShell>
+    </>
   );
 }

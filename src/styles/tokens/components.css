@@ -19,4 +19,8 @@
   --project-media-radius: var(--primitive-radius-default);
   --dialog-background: var(--primitive-slate-950);
   --status-radius: var(--primitive-radius-pill);
+  --particle-poster-border: var(--primitive-slate-700);
+  --particle-poster-guide: var(--primitive-slate-700);
+  --particle-poster-surface: var(--primitive-blue-500);
+  --particle-primary: var(--primitive-blue-500);
 }
