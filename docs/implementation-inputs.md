@@ -20,7 +20,7 @@ This document records the Stage 0 inputs without turning placeholders into final
 - Final privacy wording and retention period
 - Three real projects with approved copy, results, credits and media
 - Final logo variants and wordmark
-- Production Cloudflare bindings and domain
+- Future hosting decision, production configuration and domain
 
 Arial remains the development fallback behind the primary-font token. No substitute Railway file will be downloaded or committed. Missing contact and project details will remain visibly marked development data until approved material is supplied.
 

@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --canvas: #020617;
@@ -37,26 +39,6 @@ a {
   -webkit-tap-highlight-color: transparent;
 }
 
-button {
-  margin-top: 2rem;
-  padding: 0.85rem 1.1rem;
-  border: 1px solid var(--brand);
-  background: transparent;
-  color: var(--text);
-  font: inherit;
-  cursor: pointer;
-}
-
-button:hover,
-button:focus-visible {
-  background: var(--brand);
-}
-
-button:focus-visible {
-  outline: 2px solid var(--text);
-  outline-offset: 3px;
-}
-
 .foundation-page {
   min-height: 100svh;
   padding: clamp(1.25rem, 3vw, 2.5rem);
@@ -74,7 +56,7 @@ button:focus-visible {
   display: flex;
   flex-direction: column;
   border: 1px solid var(--line);
-  background: color-mix(in srgb, var(--canvas) 92%, transparent);
+  background: rgba(2, 6, 23, 0.92);
 }
 
 .foundation-header {

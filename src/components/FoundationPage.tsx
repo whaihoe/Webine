@@ -1,5 +1,4 @@
-import Image from "next/image";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 
 const routes = [
   { href: "/", label: "Home" },
@@ -18,25 +17,22 @@ export function FoundationPage({
   title,
   description,
 }: FoundationPageProps) {
-  const environment = process.env.WEBINE_ENV ?? "local";
-
   return (
     <main className="foundation-page">
       <div className="foundation-shell">
         <header className="foundation-header">
-          <Link className="foundation-brand" href="/" aria-label="Webine home">
-            <Image
+          <Link className="foundation-brand" to="/" aria-label="Webine home">
+            <img
               src="/webine-logo-primary.png"
               alt=""
-              width={174}
-              height={103}
-              priority
+              width="174"
+              height="103"
             />
             <span>Webine</span>
           </Link>
           <nav className="foundation-nav" aria-label="Primary navigation">
             {routes.map((route) => (
-              <Link key={route.href} href={route.href}>
+              <Link key={route.href} to={route.href}>
                 {route.label}
               </Link>
             ))}
@@ -53,7 +49,7 @@ export function FoundationPage({
 
         <footer className="foundation-footer">
           <span>Digital agency / Singapore</span>
-          <span>{environment} environment</span>
+          <span>Local development</span>
         </footer>
       </div>
     </main>
