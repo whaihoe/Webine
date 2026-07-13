@@ -10,7 +10,7 @@ type SiteHeaderProps = {
 
 export function SiteHeader({ theme }: SiteHeaderProps) {
   return (
-    <header className={`site-header site-header--${theme}`}>
+    <header className={`site-header site-header--${theme}`} data-site-header>
       <div className="site-container site-header__inner">
         <WebineBrand />
 

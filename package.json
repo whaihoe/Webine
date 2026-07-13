@@ -14,7 +14,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 127.0.0.1",
     "lint": "eslint src --ext .ts,.tsx --max-warnings 0",
-    "test": "npm run build && node --test tests/foundation.test.mjs"
+    "test": "npm run build && node tests/foundation.test.mjs"
   },
   "dependencies": {
     "@react-three/fiber": "8.18.0",

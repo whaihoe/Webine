@@ -25,7 +25,7 @@ export function SiteFooter() {
         <div className="site-footer__column">
           <span className="eyebrow">Based in</span>
           <p>Singapore</p>
-          <p className="site-footer__placeholder">Contact details pending</p>
+          <Link to="/contact">Start a conversation</Link>
         </div>
 
         <div className="site-footer__bottom">

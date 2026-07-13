@@ -62,7 +62,6 @@ export function ParticleNarrativeLayer() {
     "loading" | "fallback" | "live"
   >("loading");
   const config = experienceConfig.particles;
-
   useEffect(() => {
     if (!config.enabled || !getParticleCapability().supported) {
       setRenderState("fallback");

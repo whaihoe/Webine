@@ -9,11 +9,39 @@ import {
   type ReactNode,
 } from "react";
 import {
+  experienceConfig,
+  particleSceneConfig,
+} from "../../config/experience";
+import {
   createStoryProgressStore,
-  getSceneProgress,
+  getSceneExitProgress,
+  getScenePresence,
+  type ParticleSceneAnchorId,
+  type ParticleSceneAnchorPositions,
   type StoryActivitySnapshot,
   type StoryProgressStore,
 } from "../../three/story-progress";
+
+type ParticleLayout = "mobile" | "tablet" | "desktop";
+
+const particleAnchorSceneIds = new Set<ParticleSceneAnchorId>([
+  "hero",
+  "reach",
+  "interlude",
+  "closing",
+]);
+
+function getParticleLayout(viewportWidth: number): ParticleLayout {
+  if (viewportWidth >= experienceConfig.particles.desktop.minWidth) {
+    return "desktop";
+  }
+
+  if (viewportWidth > experienceConfig.particles.mobile.maxWidth) {
+    return "tablet";
+  }
+
+  return "mobile";
+}
 
 type ParticleSceneControllerProps = {
   children: ReactNode;
@@ -55,23 +83,37 @@ export function ParticleSceneController({
 
   useEffect(() => {
     let frame = 0;
+    let measureUntil = 0;
 
     const measure = () => {
       frame = 0;
       const viewportHeight = window.innerHeight;
-      const maximumScroll = Math.max(
-        document.documentElement.scrollHeight - viewportHeight,
-        1,
-      );
-      const sceneProgress: Record<string, number> = {};
+      const layout = getParticleLayout(window.innerWidth);
+      const scenePresence: Record<string, number> = {};
+      const sceneExitProgress: Record<string, number> = {};
       let activeSceneId: string | null = null;
       let closestDistance = Number.POSITIVE_INFINITY;
       let hasVisibleScene = false;
+      const sceneAnchorPositions: ParticleSceneAnchorPositions = {
+        ...store.getSnapshot().sceneAnchorPositions,
+      };
 
       scenesRef.current.forEach((element, id) => {
         const rect = element.getBoundingClientRect();
         const visible = rect.bottom > 0 && rect.top < viewportHeight;
-        sceneProgress[id] = getSceneProgress(rect, viewportHeight);
+        scenePresence[id] = getScenePresence(rect, viewportHeight);
+        sceneExitProgress[id] = getSceneExitProgress(rect, viewportHeight);
+
+        if (particleAnchorSceneIds.has(id as ParticleSceneAnchorId)) {
+          const anchorId = id as ParticleSceneAnchorId;
+          const sceneConfig = particleSceneConfig[anchorId][layout];
+          sceneAnchorPositions[anchorId] = {
+            x: sceneConfig.anchorX,
+            y:
+              (rect.top + rect.height * sceneConfig.anchorY) /
+              Math.max(viewportHeight, 1),
+          };
+        }
 
         if (visible) {
           hasVisibleScene = true;
@@ -87,14 +129,29 @@ export function ParticleSceneController({
       });
 
       store.update({
-        pageProgress: Math.min(Math.max(window.scrollY / maximumScroll, 0), 1),
-        sceneProgress,
+        introProgress: store.getSnapshot().introProgress,
+        sceneExitProgress,
+        timelineIntakeProgress:
+          store.getSnapshot().timelineIntakeProgress,
+        timelineReleaseProgress:
+          store.getSnapshot().timelineReleaseProgress,
+        timelineInletPosition:
+          store.getSnapshot().timelineInletPosition,
+        timelineOutletPosition:
+          store.getSnapshot().timelineOutletPosition,
+        sceneAnchorPositions,
+        scenePresence,
         activeSceneId,
         isActive: !document.hidden && hasVisibleScene,
       });
+
+      if (!document.hidden && performance.now() < measureUntil) {
+        frame = window.requestAnimationFrame(measure);
+      }
     };
 
     const scheduleMeasure = () => {
+      measureUntil = performance.now() + 1200;
       if (!frame) {
         frame = window.requestAnimationFrame(measure);
       }

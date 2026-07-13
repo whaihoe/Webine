@@ -1,3 +1,4 @@
+import { gsap } from "gsap";
 import { useEffect, useRef, type ReactNode } from "react";
 import { experienceConfig } from "../config/experience";
 
@@ -50,12 +51,10 @@ export function PublicSmoothScroll({ children }: PublicSmoothScrollProps) {
       }
 
       try {
-        const [{ gsap }, { ScrollTrigger }, { ScrollSmoother }] =
-          await Promise.all([
-            import("gsap"),
-            import("gsap/ScrollTrigger"),
-            import("gsap/ScrollSmoother"),
-          ]);
+        const [{ ScrollTrigger }, { ScrollSmoother }] = await Promise.all([
+          import("gsap/ScrollTrigger"),
+          import("gsap/ScrollSmoother"),
+        ]);
 
         if (cancelled || !media.matches) {
           return;

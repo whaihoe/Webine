@@ -2,6 +2,7 @@ export type ParticleTargetId = "scattered-field" | "folded-webine";
 
 export type ParticleRenderProfile = {
   count: number;
+  ambientRatio: number;
   pointSize: number;
   pixelRatioCap: number;
   objectScale: number;

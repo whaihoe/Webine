@@ -4,6 +4,20 @@ import { experienceConfig } from "../config/experience";
 import { ParticlePoints } from "./ParticlePoints";
 import type { StoryProgressStore } from "./story-progress";
 
+type ParticleLayout = "mobile" | "tablet" | "desktop";
+
+function getParticleLayout(): ParticleLayout {
+  if (window.innerWidth <= experienceConfig.particles.mobile.maxWidth) {
+    return "mobile";
+  }
+
+  if (window.innerWidth < experienceConfig.particles.desktop.minWidth) {
+    return "tablet";
+  }
+
+  return "desktop";
+}
+
 type ParticleNarrativeCanvasProps = {
   active: boolean;
   progressStore: StoryProgressStore;
@@ -41,26 +55,23 @@ export default function ParticleNarrativeCanvas({
   onReady,
   onFailure,
 }: ParticleNarrativeCanvasProps) {
-  const media = useMemo(
-    () =>
-      window.matchMedia(
-        `(max-width: ${experienceConfig.particles.desktop.minWidth - 1}px)`,
-      ),
-    [],
-  );
-  const [mobile, setMobile] = useState(media.matches);
+  const [layout, setLayout] = useState<ParticleLayout>(getParticleLayout);
 
   useEffect(() => {
-    const handleChange = () => setMobile(media.matches);
-    media.addEventListener("change", handleChange);
-    return () => media.removeEventListener("change", handleChange);
-  }, [media]);
+    const handleResize = () => setLayout(getParticleLayout());
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("orientationchange", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleResize);
+    };
+  }, []);
   const profile = useMemo(
     () =>
-      mobile
-        ? experienceConfig.particles.mobile
-        : experienceConfig.particles.desktop,
-    [mobile],
+      layout === "desktop"
+        ? experienceConfig.particles.desktop
+        : experienceConfig.particles.mobile,
+    [layout],
   );
 
   return (
@@ -80,7 +91,7 @@ export default function ParticleNarrativeCanvas({
       <ParticlePoints
         profile={profile}
         progressStore={progressStore}
-        mobile={mobile}
+        layout={layout}
       />
     </Canvas>
   );

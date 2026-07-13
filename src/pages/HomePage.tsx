@@ -1,26 +1,15 @@
+import { useCallback, useRef } from "react";
 import { ButtonLink } from "../components/ButtonLink";
+import { HeroEntranceTimeline } from "../components/home/HeroEntranceTimeline";
 import { HomeParticleExperience } from "../components/home/HomeParticleExperience";
+import { ClosingCallToAction } from "../components/home/ClosingCallToAction";
 import { useParticleSceneAnchor } from "../components/home/ParticleSceneController";
-import { SectionHeading } from "../components/SectionHeading";
+import { ProcessTimeline } from "../components/home/ProcessTimeline";
+import { QuietInterlude } from "../components/home/QuietInterlude";
+import { ReachSection } from "../components/home/ReachSection";
+import { SelectedWorkRunway } from "../components/home/SelectedWorkRunway";
+import { SignalGrid } from "../components/home/SignalGrid";
 import { SiteShell } from "../components/SiteShell";
-
-const foundations = [
-  {
-    index: "01",
-    title: "A clear system",
-    description: "One token structure now controls colour, type, spacing and component behaviour.",
-  },
-  {
-    index: "02",
-    title: "Made for every screen",
-    description: "The layout recomposes from a four-column mobile grid to a twelve-column desktop grid.",
-  },
-  {
-    index: "03",
-    title: "Expression with purpose",
-    description: "The static shell stays complete before particles, smooth scrolling and transitions are enabled.",
-  },
-];
 
 export function HomePage() {
   return (
@@ -34,26 +23,45 @@ export function HomePage() {
 
 function HomeContent() {
   const heroSceneRef = useParticleSceneAnchor("hero");
+  const heroRef = useRef<HTMLElement | null>(null);
+  const connectHero = useCallback(
+    (element: HTMLElement | null) => {
+      heroRef.current = element;
+      heroSceneRef(element);
+    },
+    [heroSceneRef],
+  );
 
   return (
     <>
+      <HeroEntranceTimeline rootRef={heroRef} />
       <section
-        ref={heroSceneRef}
+        ref={connectHero}
         className="hero-section theme-dark"
         aria-labelledby="home-heading"
         data-particle-scene="hero"
       >
-        <div className="signal-grid signal-grid--resting" aria-hidden="true" />
+        <SignalGrid className="signal-grid--hero" />
         <div className="site-container hero-section__grid">
           <div className="hero-section__copy">
-            <p className="eyebrow">Digital agency / Singapore</p>
+            <p className="eyebrow" data-hero-intro="eyebrow">
+              Digital agency / Singapore
+            </p>
             <h1 id="home-heading">
-              Make the ordinary <em>unmistakable.</em>
+              <span className="hero-intro-line" data-hero-intro="headline-line">
+                Make the ordinary
+              </span>
+              <span className="hero-intro-line" data-hero-intro="headline-line">
+                <em>unmistakable.</em>
+              </span>
             </h1>
-            <p className="hero-section__description">
+            <p
+              className="hero-section__description"
+              data-hero-intro="description"
+            >
               Webine designs and develops premium, responsive websites that help businesses look credible, stand out and grow.
             </p>
-            <div className="hero-section__actions">
+            <div className="hero-section__actions" data-hero-intro="actions">
               <ButtonLink href="/contact">Start a project</ButtonLink>
               <ButtonLink href="/works" variant="quiet">
                 View our work
@@ -61,34 +69,20 @@ function HomeContent() {
             </div>
           </div>
 
-          <p className="hero-section__scroll-cue">Scroll to explore</p>
-        </div>
-      </section>
-
-      <section className="foundation-section theme-light">
-        <div className="site-container">
-          <SectionHeading
-            index="02"
-            eyebrow="Foundation system"
-            title="A precise workshop, built before the spectacle."
-            description="Webine's visual foundation is now separate from its future motion layer, so the website remains clear and credible in its simplest form."
-          />
-
-          <div className="foundation-list">
-            {foundations.map((item) => (
-              <article key={item.index} className="foundation-list__item">
-                <span>{item.index}</span>
-                <h3>{item.title}</h3>
-                <p>{item.description}</p>
-              </article>
-            ))}
-          </div>
-
-          <p className="font-status" role="status">
-            Development typography: Arial fallback active. Licensed Railway files are still required before launch.
+          <p
+            className="hero-section__scroll-cue"
+            data-hero-intro="scroll-cue"
+          >
+            Scroll to explore
           </p>
         </div>
       </section>
+
+      <ReachSection />
+      <SelectedWorkRunway />
+      <QuietInterlude />
+      <ProcessTimeline />
+      <ClosingCallToAction />
     </>
   );
 }
