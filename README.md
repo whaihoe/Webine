@@ -1,6 +1,6 @@
 # Webine website
 
-Webine's website currently runs as a local React application. It includes the Home, Works, Contact, Admin and preview foundations without any OpenAI Sites or Cloudflare deployment configuration.
+Webine's website runs as a local React application. Stage 2 now includes the responsive public shell, design tokens, accessible navigation, light and dark themes, an Admin frame and central configuration for later signature effects.
 
 ## Run locally
 
@@ -32,6 +32,6 @@ Admin and preview are route placeholders only. They are not protected until the 
 
 ## Current scope
 
-Stages 0 and 1 establish the implementation inputs, application routes, error handling and local development foundation. Design tokens, the final site shell, particles, CMS and forms belong to later stages.
+Stages 0 to 2 establish the implementation inputs, local application, design tokens and responsive site shell. Particles, smooth scrolling, live page transitions, the CMS and the enquiry pipeline remain disabled or reserved for their dedicated stages.
 
-See `docs/implementation-inputs.md` for available and missing inputs. See `docs/decision-log.md` for implementation decisions.
+See `docs/implementation-inputs.md` for available and missing inputs. See `docs/design-system.md`, `docs/component-inventory.md` and `docs/motion-scenes.md` for the Stage 2 system. Important changes are recorded in `docs/decision-log.md`.

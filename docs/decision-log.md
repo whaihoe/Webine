@@ -16,3 +16,13 @@
 - Kept Home, Works, Contact, Admin, preview, error handling and the existing visual foundation.
 - Lowered the local runtime requirement to Node.js 18 so the project works with the user's current terminal setup.
 - Future hosting will be selected and configured separately when the website is ready to publish.
+
+## 2026-07-13, Stage 2 design foundation and site shell
+
+- Added three-layer primitive, semantic and component tokens for colour, typography, spacing, layout, radius and motion.
+- Kept Railway as the intended primary typeface and displayed the Arial development fallback clearly instead of substituting another font.
+- Built the four, eight and twelve-column responsive grid with the blueprint's 320, 390, 768, 1280 and 1440 px target widths in mind.
+- Replaced the generic route placeholder with a dark Home hero, light Works shell, dark Contact split, separate Admin frame, preview shell and designed error states.
+- Added accessible current-page navigation, a labelled native-dialog mobile menu, a skip link, route announcements and destination heading focus.
+- Added a central configuration for particles, smooth scrolling, Signal Grid, motion presets and page transitions. Every advanced effect remains disabled.
+- Kept all project, contact and font gaps visible and honest. No clients, results, email addresses or project claims were invented.

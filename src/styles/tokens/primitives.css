@@ -1,0 +1,59 @@
+:root {
+  /* Colour primitives, stored as HSL channels for controlled opacity. */
+  --primitive-white: 0 0% 100%;
+  --primitive-slate-50: 210 40% 98%;
+  --primitive-slate-100: 210 40% 96%;
+  --primitive-slate-200: 214 32% 91%;
+  --primitive-slate-300: 213 27% 84%;
+  --primitive-slate-400: 215 20% 65%;
+  --primitive-slate-500: 215 16% 47%;
+  --primitive-slate-600: 215 19% 35%;
+  --primitive-slate-700: 215 25% 27%;
+  --primitive-slate-800: 217 33% 17%;
+  --primitive-slate-900: 222 47% 11%;
+  --primitive-slate-950: 229 84% 5%;
+  --primitive-blue-400: 213 94% 68%;
+  --primitive-blue-500: 217 91% 60%;
+  --primitive-blue-600: 221 83% 53%;
+  --primitive-blue-700: 224 76% 48%;
+  --primitive-cyan-400: 188 86% 53%;
+  --primitive-red-500: 0 84% 60%;
+
+  /* Four-pixel spacing foundation. */
+  --primitive-space-1: 0.25rem;
+  --primitive-space-2: 0.5rem;
+  --primitive-space-3: 0.75rem;
+  --primitive-space-4: 1rem;
+  --primitive-space-5: 1.25rem;
+  --primitive-space-6: 1.5rem;
+  --primitive-space-8: 2rem;
+  --primitive-space-10: 2.5rem;
+  --primitive-space-12: 3rem;
+  --primitive-space-16: 4rem;
+  --primitive-space-20: 5rem;
+  --primitive-space-24: 6rem;
+  --primitive-space-32: 8rem;
+  --primitive-space-40: 10rem;
+
+  /* Typography primitives. */
+  --primitive-font-primary: "Railway", Arial, sans-serif;
+  --primitive-font-accent: Georgia, "Times New Roman", serif;
+  --primitive-display-xl: clamp(3rem, 9vw, 10rem);
+  --primitive-display-l: clamp(2.5rem, 7vw, 7rem);
+  --primitive-heading-2: clamp(2rem, 4.5vw, 4.5rem);
+  --primitive-heading-3: clamp(1.5rem, 2.5vw, 2.5rem);
+  --primitive-body-l: clamp(1.125rem, 1.4vw, 1.5rem);
+  --primitive-body: clamp(1rem, 1vw, 1.125rem);
+  --primitive-label: clamp(0.6875rem, 0.8vw, 0.8125rem);
+
+  /* Shape, rule and motion primitives. */
+  --primitive-radius-small: 0.25rem;
+  --primitive-radius-default: 0.5rem;
+  --primitive-radius-media: 0.75rem;
+  --primitive-radius-pill: 999px;
+  --primitive-rule: 1px;
+  --primitive-duration-fast: 160ms;
+  --primitive-duration-standard: 240ms;
+  --primitive-duration-chapter: 620ms;
+  --primitive-ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+}

@@ -1,0 +1,22 @@
+:root {
+  --header-background: var(--color-canvas);
+  --header-border: var(--color-rule);
+  --button-height: 3rem;
+  --button-height-small: 2.5rem;
+  --button-padding-x: var(--primitive-space-5);
+  --button-gap: var(--primitive-space-4);
+  --button-radius: var(--primitive-radius-small);
+  --button-primary-bg: var(--color-brand);
+  --button-primary-text: var(--primitive-white);
+  --button-primary-hover: var(--color-brand-hover);
+  --button-outline-border: var(--color-rule-strong);
+  --button-outline-text: var(--color-text-primary);
+  --input-background: var(--color-surface);
+  --input-border: var(--color-rule-strong);
+  --input-text: var(--color-text-primary);
+  --input-placeholder: var(--color-text-secondary);
+  --input-radius: var(--primitive-radius-small);
+  --project-media-radius: var(--primitive-radius-default);
+  --dialog-background: var(--primitive-slate-950);
+  --status-radius: var(--primitive-radius-pill);
+}

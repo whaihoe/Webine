@@ -1,0 +1,75 @@
+:root,
+.theme-dark {
+  --color-canvas: var(--primitive-slate-950);
+  --color-surface: var(--primitive-slate-900);
+  --color-surface-raised: var(--primitive-slate-800);
+  --color-text-primary: var(--primitive-slate-50);
+  --color-text-secondary: var(--primitive-slate-400);
+  --color-rule: var(--primitive-slate-800);
+  --color-rule-strong: var(--primitive-slate-700);
+  --color-focus-offset: var(--primitive-slate-950);
+  --color-brand: var(--primitive-blue-500);
+  --color-brand-hover: var(--primitive-blue-400);
+  --color-brand-active: var(--primitive-blue-600);
+  --color-highlight: var(--primitive-cyan-400);
+  --color-error: var(--primitive-red-500);
+}
+
+.theme-light {
+  --color-canvas: var(--primitive-slate-50);
+  --color-surface: var(--primitive-white);
+  --color-surface-raised: var(--primitive-slate-100);
+  --color-text-primary: var(--primitive-slate-950);
+  --color-text-secondary: var(--primitive-slate-600);
+  --color-rule: var(--primitive-slate-200);
+  --color-rule-strong: var(--primitive-slate-300);
+  --color-focus-offset: var(--primitive-slate-50);
+  --color-brand: var(--primitive-blue-600);
+  --color-brand-hover: var(--primitive-blue-700);
+  --color-brand-active: var(--primitive-blue-700);
+  --color-highlight: var(--primitive-cyan-400);
+  --color-error: var(--primitive-red-500);
+}
+
+:root {
+  --font-primary: var(--primitive-font-primary);
+  --font-accent: var(--primitive-font-accent);
+  --display-xl: var(--primitive-display-xl);
+  --display-l: var(--primitive-display-l);
+  --heading-2: var(--primitive-heading-2);
+  --heading-3: var(--primitive-heading-3);
+  --body-l: var(--primitive-body-l);
+  --body: var(--primitive-body);
+  --label: var(--primitive-label);
+  --space-page-x: var(--primitive-space-4);
+  --space-section-y: clamp(3.5rem, 8vw, 7rem);
+  --layout-max: 94rem;
+  --layout-gutter: var(--primitive-space-3);
+  --header-height: 4rem;
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 3px;
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --space-page-x: var(--primitive-space-8);
+    --space-section-y: clamp(4.5rem, 8vw, 8rem);
+    --layout-gutter: var(--primitive-space-5);
+    --header-height: 4.5rem;
+  }
+}
+
+@media (min-width: 80rem) {
+  :root {
+    --space-page-x: var(--primitive-space-12);
+    --space-section-y: clamp(6rem, 9vw, 10rem);
+    --layout-gutter: var(--primitive-space-6);
+  }
+}
+
+@media (min-width: 100rem) {
+  :root {
+    --space-page-x: max(var(--primitive-space-16), calc((100vw - var(--layout-max)) / 2));
+    --layout-gutter: 1.75rem;
+  }
+}

@@ -25,17 +25,18 @@ export class AppErrorBoundary extends Component<
   render() {
     if (this.state.hasError) {
       return (
-        <main className="foundation-page">
-          <div className="foundation-shell">
-            <section className="foundation-content">
-              <div className="foundation-copy">
-                <p className="foundation-eyebrow">Application error</p>
-                <h1 className="foundation-title">Something did not load.</h1>
-                <p className="foundation-description">
-                  Refresh the browser to restart the local Webine website.
-                </p>
-              </div>
-            </section>
+        <main className="reserved-page reserved-page--dark theme-dark">
+          <div className="site-container reserved-page__grid">
+            <p className="eyebrow">Application error</p>
+            <h1>Something did not load.</h1>
+            <p>Refresh the browser to restart the local Webine website.</p>
+            <button
+              className="button-link button-link--outline"
+              type="button"
+              onClick={() => window.location.reload()}
+            >
+              Refresh website
+            </button>
           </div>
         </main>
       );

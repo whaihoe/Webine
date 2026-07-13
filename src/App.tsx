@@ -1,47 +1,23 @@
-import { useEffect } from "react";
-import { Route, Routes, useLocation } from "react-router-dom";
-import { FoundationPage } from "./components/FoundationPage";
-import { pageContent } from "./content/pageContent";
-
-function PageTitle() {
-  const location = useLocation();
-  const page = pageContent.find((item) => item.path === location.pathname);
-
-  useEffect(() => {
-    document.title = page ? `${page.browserTitle} | Webine` : "Not found | Webine";
-  }, [page]);
-
-  return null;
-}
+import { Route, Routes } from "react-router-dom";
+import { RouteEffects } from "./components/RouteEffects";
+import { AdminPage } from "./pages/AdminPage";
+import { ContactPage } from "./pages/ContactPage";
+import { HomePage } from "./pages/HomePage";
+import { NotFoundPage } from "./pages/NotFoundPage";
+import { PreviewPage } from "./pages/PreviewPage";
+import { WorksPage } from "./pages/WorksPage";
 
 export function App() {
   return (
     <>
-      <PageTitle />
+      <RouteEffects />
       <Routes>
-        {pageContent.map((page) => (
-          <Route
-            key={page.path}
-            path={page.path}
-            element={
-              <FoundationPage
-                eyebrow={page.eyebrow}
-                title={page.title}
-                description={page.description}
-              />
-            }
-          />
-        ))}
-        <Route
-          path="*"
-          element={
-            <FoundationPage
-              eyebrow="404 / Not found"
-              title="This page has not taken shape."
-              description="The address does not match an available Webine page. Use the main navigation to return to the website."
-            />
-          }
-        />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/works" element={<WorksPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/preview" element={<PreviewPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </>
   );
