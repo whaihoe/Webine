@@ -179,3 +179,45 @@
 
 - Replaced the Section 6 closing arrow target with one rounded 3D telephone handset. The handset now follows a sculpted C-shaped centreline with a thicker lower curve and separate raised rounded-rectangular receiver pads, matching the soft classic telephone reference more closely. The existing persistent particle geometry, closing anchor and formation timing remain unchanged.
 - Kept the runway chapter decoration as the existing `::after` layer, but exposed its opacity through `--chapter-decoration-opacity` and scrubbed that value down during the chapter expansion so the rings fade instead of disappearing abruptly.
+
+## 2026-07-14, closing Concorde mesh target
+
+- Replaced the closing telephone target with the supplied Concorde GLB as the real `targetClosing` mesh source.
+- Added largest-dimension fitting to the generic model target pipeline so long aircraft geometry can be normalised without scaling from its much smaller vertical height.
+- Baked the closing target to `[82, 18, -28]` degrees so the nose rises toward the upper right and the delta wing remains readable in a front-right three-quarter particle view.
+- Reduced settled ambient rotation to 22 percent so the plane keeps the chosen showcase angle while retaining the shared floating and pointer response.
+- Removed the unused phone particle GLB.
+- Rebuilt the 20 MB source aircraft as a geometry-only particle derivative with 9,228 vertices and 22,707 faces. Textures and materials are excluded because the WebGL layer samples positions only.
+
+
+
+## 2026-07-14, Webine hero mesh and downward Concorde mirror
+
+- Replaced the hero's procedural W target with the supplied `webine_w_logo_3d(3).glb` as the real `targetHero` mesh source.
+- Thickened the prepared hero mesh by 2.5x on its local Z axis before area-weighted surface sampling so the particle W has clearer 3D depth.
+- Mirrored the already baked Concorde target vertically with `[1, -1, 1]`, preserving its three-quarter view while sending the nose downward instead of upward.
+- Removed the separate mirror flag and kept axis transforms in the existing generic `localScale` model-preparation contract.
+- Fixed the model preload so the hero and Concorde GLBs are each loaded exactly once before their target buffers are sampled.
+
+## 2026-07-14, level Concorde closing target
+
+- Changed the Concorde baked particle orientation from the downward mirrored pose to `[82, 18, -90]` with a neutral `[1, 1, 1]` local scale. This preserves the visible delta-wing depth while laying the aircraft almost horizontally across the screen with the nose pointing right.
+
+
+## 2026-07-14, colony planet closing target
+
+- Replaced the Concorde closing target with the supplied `Colony_Planet_Art.glb` mesh.
+- Built a geometry-only `colony-planet-particle.glb` derivative for surface sampling and removed the aircraft asset from production.
+- Fit the planet by its largest dimension and baked `[58, -22, 0]` degrees so its upper colony surface and rounded planetary depth are both visible in the closing scene.
+- Increased settled ambient rotation from the aircraft-specific 22 percent to 42 percent because the planet silhouette remains readable through a wider slow rotational drift.
+- Kept the Webine hero GLB target and its 2.5x local Z thickening unchanged.
+
+## 2026-07-14 — Mobile particle performance pass
+
+- Reduced the mobile particle profile to 640 points, 2.45 point size and a 0.9 DPR cap.
+- Added precomputed scatter and release target buffers so direction/hash work is not repeated in the vertex shader every frame.
+- Added a simplified mobile shader path without pointer deformation, per-particle ambient trigonometry or animated fragment colour cycling.
+- Replaced the permanent mobile particle RAF loop with short demand-render bursts driven by story progress changes. The canvas stops rendering after the morph settles.
+- Coarse-pointer phones use native touch scrolling instead of driving Lenis from the GSAP ticker continuously.
+- Disabled mobile particle-group idle rotation and float work, and use mediump shader precision on mobile.
+- Rebalanced mobile-only particle anchors and scales so the hero W, reach rings, interlude rings and closing planet remain inside a 390 px class viewport.

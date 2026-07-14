@@ -16,7 +16,12 @@ import {
   createParticleTargetBuffers,
   createProceduralParticleTargets,
 } from "./particle-targets";
-import { particleFragmentShader, particleVertexShader } from "./shaders";
+import {
+  mobileParticleFragmentShader,
+  mobileParticleVertexShader,
+  particleFragmentShader,
+  particleVertexShader,
+} from "./shaders";
 import type { StoryProgressStore } from "./story-progress";
 import type { ParticleRenderProfile } from "./types";
 
@@ -32,6 +37,7 @@ type ParticlePointsProps = {
   profile: ParticleRenderProfile;
   progressStore: StoryProgressStore;
   layout: "mobile" | "tablet" | "desktop";
+  heroTarget: Float32Array;
   closingTarget: Float32Array;
   onReady: () => void;
 };
@@ -40,6 +46,7 @@ export function ParticlePoints({
   profile,
   progressStore,
   layout,
+  heroTarget,
   closingTarget,
   onReady,
 }: ParticlePointsProps) {
@@ -54,10 +61,16 @@ export function ParticlePoints({
     [profile.ambientRatio, profile.count],
   );
   const targets = useMemo(
-    () => createParticleTargetBuffers(proceduralTargets, closingTarget),
-    [closingTarget, proceduralTargets],
+    () =>
+      createParticleTargetBuffers(
+        proceduralTargets,
+        heroTarget,
+        closingTarget,
+      ),
+    [closingTarget, heroTarget, proceduralTargets],
   );
   const ambientMotion = experienceConfig.particles.ambientMotion;
+  const isMobile = layout === "mobile";
   const uniforms = useMemo(
     () => ({
       uProgress: { value: 0 },
@@ -388,18 +401,24 @@ export function ParticlePoints({
       group.position.y,
       scenePosition.y +
         pointerOffsetY +
-        Math.sin(elapsed * 0.34) * ambientMotion.floatY * idleStrength,
+        (isMobile
+          ? 0
+          : Math.sin(elapsed * 0.34) * ambientMotion.floatY * idleStrength),
       releaseProgress > 0.92 ? 14 : 4,
       delta,
     );
     group.position.z = MathUtils.damp(
       group.position.z,
-      Math.cos(elapsed * 0.27) * ambientMotion.floatZ * idleStrength,
+      isMobile
+        ? 0
+        : Math.cos(elapsed * 0.27) * ambientMotion.floatZ * idleStrength,
       4,
       delta,
     );
-    rotationPhaseRef.current +=
-      delta * ((Math.PI * 2) / ambientMotion.fullRotationSeconds) * idleStrength;
+    if (!isMobile) {
+      rotationPhaseRef.current +=
+        delta * ((Math.PI * 2) / ambientMotion.fullRotationSeconds) * idleStrength;
+    }
     const pointerTiltX = pointer.active
       ? -pointer.y * ambientMotion.pointerTilt
       : 0;
@@ -408,29 +427,35 @@ export function ParticlePoints({
       : 0;
     group.rotation.x = MathUtils.damp(
       group.rotation.x,
-      Math.sin(elapsed * 0.2) *
-        ambientMotion.rotationX *
-        idleStrength *
-        ambientRotationScale +
+      (isMobile
+        ? 0
+        : Math.sin(elapsed * 0.2) *
+          ambientMotion.rotationX *
+          idleStrength *
+          ambientRotationScale) +
         pointerTiltX,
       3,
       delta,
     );
     group.rotation.y = MathUtils.damp(
       group.rotation.y,
-      Math.sin(rotationPhaseRef.current) *
-        ambientMotion.rotationY *
-        ambientRotationScale +
+      (isMobile
+        ? 0
+        : Math.sin(rotationPhaseRef.current) *
+          ambientMotion.rotationY *
+          ambientRotationScale) +
         pointerTiltY,
       3,
       delta,
     );
     group.rotation.z = MathUtils.damp(
       group.rotation.z,
-      Math.cos(elapsed * 0.13) *
-        ambientMotion.rotationZ *
-        idleStrength *
-        ambientRotationScale +
+      (isMobile
+        ? 0
+        : Math.cos(elapsed * 0.13) *
+          ambientMotion.rotationZ *
+          idleStrength *
+          ambientRotationScale) +
         (pointer.active ? pointer.x * ambientMotion.pointerTilt * 0.34 : 0),
       3,
       delta,
@@ -451,6 +476,14 @@ export function ParticlePoints({
           <bufferAttribute
             attach="attributes-position"
             args={[targets.source, 3]}
+          />
+          <bufferAttribute
+            attach="attributes-targetScatter"
+            args={[targets.scatter, 3]}
+          />
+          <bufferAttribute
+            attach="attributes-targetRelease"
+            args={[targets.release, 3]}
           />
           <bufferAttribute
             attach="attributes-targetHero"
@@ -483,9 +516,14 @@ export function ParticlePoints({
         </bufferGeometry>
         <shaderMaterial
           ref={materialRef}
-          vertexShader={particleVertexShader}
-          fragmentShader={particleFragmentShader}
+          vertexShader={
+            layout === "mobile" ? mobileParticleVertexShader : particleVertexShader
+          }
+          fragmentShader={
+            layout === "mobile" ? mobileParticleFragmentShader : particleFragmentShader
+          }
           uniforms={uniforms}
+          precision={layout === "mobile" ? "mediump" : "highp"}
           transparent
           depthWrite={false}
           blending={NormalBlending}

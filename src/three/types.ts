@@ -5,6 +5,8 @@ export type ParticleRenderProfile = {
   pixelRatioCap: number;
   objectScale: number;
   maxFrameRate: number;
+  settledFrameRate?: number;
+  renderBurstMs?: number;
 };
 
 export type SceneProgress = Record<string, number>;

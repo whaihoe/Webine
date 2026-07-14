@@ -21,12 +21,23 @@ export const experienceConfig = {
       pointerTravel: 0.16,
       pointerTilt: 0.1,
     },
-    closingModel: {
-      url: "/models/cell-phone-retro-particle.glb",
-      targetHeight: 4,
-      rotationDegrees: [-4, 156, 0],
+    heroModel: {
+      url: "/models/webine-logo-particle.glb",
+      targetSize: 5.2,
+      fit: "largest",
+      rotationDegrees: [0, 0, 0],
       offset: [0, 0, 0],
-      ambientRotationScale: 0.35,
+      localScale: [1, 1, 2.5],
+      seed: 20260715,
+    },
+    closingModel: {
+      url: "/models/colony-planet-particle.glb",
+      targetSize: 4.8,
+      fit: "largest",
+      rotationDegrees: [58, -22, 0],
+      offset: [0, 0, 0],
+      localScale: [1, 1, 1],
+      ambientRotationScale: 0.42,
       seed: 20260714,
     },
     desktop: {
@@ -50,13 +61,15 @@ export const experienceConfig = {
     },
     mobile: {
       maxWidth: 599,
-      count: 900,
-      ambientRatio: 0.025,
-      pointSize: 3.8,
-      pixelRatioCap: 1,
-      objectScale: 1.22,
+      count: 640,
+      ambientRatio: 0,
+      pointSize: 2.45,
+      pixelRatioCap: 0.9,
+      objectScale: 1.08,
       maxFrameRate: 30,
-      measurementSettleMs: 240,
+      settledFrameRate: 12,
+      renderBurstMs: 360,
+      measurementSettleMs: 180,
     },
   },
   smoothScroll: {
@@ -65,6 +78,7 @@ export const experienceConfig = {
     wheelMultiplier: 0.88,
     syncTouch: true,
     syncTouchLerp: 0.12,
+    nativeTouchMaxWidth: 599,
   },
   signalGrid: {
     enabled: true,
@@ -91,7 +105,7 @@ export const particleSceneConfig = {
     },
     desktop: { anchorX: 0.75, anchorY: 0.46, scale: 0.82 },
     tablet: { anchorX: 0.76, anchorY: 0.46, scale: 0.46 },
-    mobile: { anchorX: 0.88, anchorY: 0.46, scale: 0.38 },
+    mobile: { anchorX: 0.68, anchorY: 0.42, scale: 0.34 },
   },
   reach: {
     id: "reach",
@@ -102,7 +116,7 @@ export const particleSceneConfig = {
     },
     desktop: { anchorX: 0.8, anchorY: 0.2, scale: 0.86 },
     tablet: { anchorX: 0.86, anchorY: 0.2, scale: 0.62 },
-    mobile: { anchorX: 0.94, anchorY: 0.2, scale: 0.34 },
+    mobile: { anchorX: 0.68, anchorY: 0.22, scale: 0.3 },
   },
   interlude: {
     id: "interlude",
@@ -113,14 +127,14 @@ export const particleSceneConfig = {
     },
     desktop: { anchorX: 0.8, anchorY: 0.9, scale: 0.78 },
     tablet: { anchorX: 0.84, anchorY: 0.9, scale: 0.58 },
-    mobile: { anchorX: 0.82, anchorY: 0.92, scale: 0.34 },
+    mobile: { anchorX: 0.66, anchorY: 0.8, scale: 0.3 },
   },
   process: {
     id: "process",
     theme: "dark",
     desktop: { scale: 0.82 },
     tablet: { scale: 0.68 },
-    mobile: { scale: 0.62 },
+    mobile: { scale: 0.54 },
   },
   closing: {
     id: "closing",
@@ -131,7 +145,7 @@ export const particleSceneConfig = {
     },
     desktop: { anchorX: 0.76, anchorY: 0.5, scale: 1.06 },
     tablet: { anchorX: 0.76, anchorY: 0.5, scale: 0.72 },
-    mobile: { anchorX: 0.8, anchorY: 0.87, scale: 0.38 },
+    mobile: { anchorX: 0.68, anchorY: 0.76, scale: 0.34 },
   },
 } as const;
 

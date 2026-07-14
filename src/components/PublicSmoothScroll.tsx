@@ -23,6 +23,14 @@ export function PublicSmoothScroll({ children }: PublicSmoothScrollProps) {
       return;
     }
 
+    const useNativeTouchScroll =
+      window.innerWidth <= config.nativeTouchMaxWidth &&
+      window.matchMedia("(pointer: coarse)").matches;
+
+    if (useNativeTouchScroll) {
+      return;
+    }
+
     let cancelled = false;
     let removeScrollTriggerSync = () => {};
 

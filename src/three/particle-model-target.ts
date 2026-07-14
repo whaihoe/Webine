@@ -16,9 +16,11 @@ type SeedableMeshSurfaceSampler = MeshSurfaceSampler & {
 };
 
 export type ParticleModelTargetOptions = {
-  targetHeight: number;
+  targetSize: number;
+  fit: "height" | "largest";
   rotationDegrees: readonly [number, number, number];
   offset: readonly [number, number, number];
+  localScale: readonly [number, number, number];
   seed: number;
 };
 
@@ -72,17 +74,26 @@ function prepareModelGeometry(
   const centre = boundingBox.getCenter(new Vector3());
   const size = boundingBox.getSize(new Vector3());
 
-  if (size.y <= 0) {
+  const fitSize = options.fit === "height"
+    ? size.y
+    : Math.max(size.x, size.y, size.z);
+
+  if (fitSize <= 0) {
     geometry.dispose();
-    throw new Error("The particle model has no measurable height.");
+    throw new Error("The particle model has no measurable bounds.");
   }
 
-  const scale = options.targetHeight / size.y;
+  const scale = options.targetSize / fitSize;
   geometry.translate(-centre.x, -centre.y, -centre.z);
   geometry.scale(scale, scale, scale);
   geometry.rotateX(MathUtils.degToRad(options.rotationDegrees[0]));
   geometry.rotateY(MathUtils.degToRad(options.rotationDegrees[1]));
   geometry.rotateZ(MathUtils.degToRad(options.rotationDegrees[2]));
+  geometry.scale(
+    options.localScale[0],
+    options.localScale[1],
+    options.localScale[2],
+  );
   geometry.translate(options.offset[0], options.offset[1], options.offset[2]);
 
   return geometry;

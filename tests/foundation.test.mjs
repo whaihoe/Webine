@@ -49,19 +49,20 @@ test("enables the approved homepage experience layers", async () => {
   assert.match(config, /count:\s*1800/);
   assert.match(config, /pixelRatioCap:\s*1\.25/);
   assert.match(config, /pointSize:\s*4\.2/);
-  assert.match(config, /pointSize:\s*3\.8/);
+  assert.match(config, /pointSize:\s*2\.45/);
   assert.match(
     config,
-    /mobile:\s*{[^}]*count:\s*900[^}]*pixelRatioCap:\s*1[^}]*maxFrameRate:\s*30[^}]*measurementSettleMs:\s*240/s,
+    /mobile:\s*{[^}]*count:\s*640[^}]*pointSize:\s*2\.45[^}]*pixelRatioCap:\s*0\.9[^}]*maxFrameRate:\s*30[^}]*renderBurstMs:\s*360[^}]*measurementSettleMs:\s*180/s,
   );
   assert.match(config, /syncTouchLerp:\s*0\.12/);
+  assert.match(config, /nativeTouchMaxWidth:\s*599/);
   assert.match(config, /minWidth:\s*1024/);
   assert.match(config, /maxWidth:\s*599/);
   assert.match(config, /tablet:/);
   assert.match(config, /ambientMotion:/);
   assert.match(config, /colourCycleSeconds:\s*18/);
-  assert.match(config, /rotationDegrees:\s*\[-4, 156, 0\]/);
-  assert.match(config, /ambientRotationScale:\s*0\.35/);
+  assert.match(config, /heroModel:\s*{[^}]*url:\s*"\/models\/webine-logo-particle\.glb"[^}]*targetSize:\s*5\.2[^}]*fit:\s*"largest"[^}]*localScale:\s*\[1, 1, 2\.5\]/s);
+  assert.match(config, /closingModel:\s*{[^}]*url:\s*"\/models\/colony-planet-particle\.glb"[^}]*targetSize:\s*4\.8[^}]*fit:\s*"largest"[^}]*rotationDegrees:\s*\[58, -22, 0\][^}]*localScale:\s*\[1, 1, 1\][^}]*ambientRotationScale:\s*0\.42/s);
   assert.equal((config.match(/formation:\s*{/g) ?? []).length, 4);
   assert.equal((config.match(/dispersion:\s*{/g) ?? []).length, 4);
   assert.match(config, /enterViewportY:\s*1/);
@@ -81,6 +82,7 @@ test("uses one lazy persistent particle geometry", async () => {
     shaders,
     entrance,
     cover,
+    smoothScroll,
   ] = await Promise.all([
     readFile(new URL("src/pages/HomePage.tsx", projectRoot), "utf8"),
     readFile(
@@ -107,6 +109,10 @@ test("uses one lazy persistent particle geometry", async () => {
       new URL("src/components/home/HeroCoverTransition.tsx", projectRoot),
       "utf8",
     ),
+    readFile(
+      new URL("src/components/PublicSmoothScroll.tsx", projectRoot),
+      "utf8",
+    ),
   ]);
 
   assert.match(home, /HomeParticleExperience/);
@@ -129,6 +135,8 @@ test("uses one lazy persistent particle geometry", async () => {
   assert.equal((canvas.match(/<Canvas(?:\s|>)/g) ?? []).length, 1);
   assert.equal((points.match(/<bufferGeometry>/g) ?? []).length, 1);
   assert.match(points, /attributes-position/);
+  assert.match(points, /attributes-targetScatter/);
+  assert.match(points, /attributes-targetRelease/);
   assert.match(points, /attributes-targetHero/);
   assert.match(points, /attributes-targetReach/);
   assert.match(points, /attributes-targetInterlude/);
@@ -139,9 +147,11 @@ test("uses one lazy persistent particle geometry", async () => {
   assert.match(points, /attributes-particleAmbient/);
   assert.match(points, /closingSettledStrength/);
   assert.match(points, /ambientRotationScale/);
+  assert.match(points, /precision={layout === "mobile" \? "mediump" : "highp"}/);
   assert.match(canvas, /MobileDemandFrameLoop/);
   assert.match(canvas, /frameloop={isMobile \? "demand" : active \? "always" : "never"}/);
-  assert.match(canvas, /frameRate={profile\.maxFrameRate}/);
+  assert.match(canvas, /progressStore={progressStore}/);
+  assert.match(canvas, /renderBurstMs={experienceConfig\.particles\.mobile\.renderBurstMs}/);
   assert.match(progress, /introProgress/);
   assert.match(progress, /sceneMotionProgress/);
   assert.match(progress, /getPointFormationProgress/);
@@ -161,9 +171,10 @@ test("uses one lazy persistent particle geometry", async () => {
   }
   assert.match(progress, /setTimelineGeometry/);
   assert.doesNotMatch(progress, /closingVisibility/);
-  assert.match(targets, /WEBINE_SILHOUETTE/);
-  assert.match(targets, /WEBINE_PERIMETER/);
-  assert.match(targets, /sampleWebineSolid/);
+  assert.match(targets, /scatter/);
+  assert.match(targets, /release/);
+  assert.match(targets, /hero:\s*heroTarget/);
+  assert.match(targets, /createHeroFacetShades/);
   assert.match(targets, /facetShade/);
   assert.match(targets, /sampleEllipticalTorus/);
   assert.match(targets, /createProceduralParticleTargets/);
@@ -177,11 +188,23 @@ test("uses one lazy persistent particle geometry", async () => {
   assert.match(modelTarget, /MeshSurfaceSampler/);
   assert.match(modelTarget, /mergeGeometries/);
   assert.match(modelTarget, /sampleParticleModelSurface/);
+  assert.match(modelTarget, /options\.fit === "height"/);
+  assert.match(modelTarget, /Math\.max\(size\.x, size\.y, size\.z\)/);
+  assert.match(modelTarget, /localScale/);
+  assert.doesNotMatch(modelTarget, /mirrorX/);
   assert.match(modelTarget, /setRandomGenerator/);
   assert.match(canvas, /loadParticleModel/);
   assert.match(canvas, /sampleParticleModelSurface/);
+  assert.match(canvas, /Promise\.all\(/);
+  assert.equal((canvas.match(/loadParticleModel\(heroModelConfig\.url\)/g) ?? []).length, 1);
+  assert.equal((canvas.match(/loadParticleModel\(closingModelConfig\.url\)/g) ?? []).length, 1);
+  assert.match(canvas, /heroTarget={heroTarget}/);
   assert.match(canvas, /closingTarget={closingTarget}/);
-  await access(new URL("public\/models\/cell-phone-retro-particle.glb", projectRoot));
+  await access(new URL("public\/models\/webine-logo-particle.glb", projectRoot));
+  await access(new URL("public\/models\/colony-planet-particle.glb", projectRoot));
+  await assert.rejects(
+    access(new URL("public\/models\/cell-phone-retro-particle.glb", projectRoot)),
+  );
   assert.match(shaders, /attribute vec3 targetHero/);
   assert.match(shaders, /attribute vec3 targetReach/);
   assert.match(shaders, /attribute vec3 targetInterlude/);
@@ -202,7 +225,9 @@ test("uses one lazy persistent particle geometry", async () => {
   assert.match(shaders, /dispersedParticle/);
   assert.match(shaders, /contactThreshold/);
   assert.match(shaders, /gatherProgress/);
-  assert.match(shaders, /particleHash/);
+  assert.doesNotMatch(shaders, /float particleHash/);
+  assert.match(shaders, /mobileParticleVertexShader/);
+  assert.match(shaders, /mobileParticleFragmentShader/);
   assert.match(shaders, /releaseCloud/);
   assert.match(shaders, /mix\(\s*releaseCloud,\s*scatterTarget/);
   assert.doesNotMatch(shaders, /uLightThemeProgress/);
@@ -213,6 +238,8 @@ test("uses one lazy persistent particle geometry", async () => {
   assert.match(home, /HeroCoverTransition/);
   assert.match(cover, /pin:\s*true/);
   assert.match(cover, /pinSpacing:\s*false/);
+  assert.match(smoothScroll, /useNativeTouchScroll/);
+  assert.match(smoothScroll, /\(pointer: coarse\)/);
 
   const [processTimeline, controller, selectedWork, interlude] = await Promise.all([
     readFile(
