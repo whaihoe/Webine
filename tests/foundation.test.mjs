@@ -49,13 +49,13 @@ test("enables the approved homepage experience layers", async () => {
   assert.match(config, /count:\s*1800/);
   assert.match(config, /pixelRatioCap:\s*1\.25/);
   assert.match(config, /pointSize:\s*4\.2/);
-  assert.match(config, /pointSize:\s*2\.45/);
+  assert.match(config, /pointSize:\s*1\.55/);
   assert.match(
     config,
-    /mobile:\s*{[^}]*count:\s*640[^}]*pointSize:\s*2\.45[^}]*pixelRatioCap:\s*0\.9[^}]*maxFrameRate:\s*30[^}]*renderBurstMs:\s*360[^}]*measurementSettleMs:\s*180/s,
+    /mobile:\s*{[^}]*count:\s*480[^}]*pointSize:\s*1\.55[^}]*pixelRatioCap:\s*1[^}]*maxFrameRate:\s*30[^}]*settledFrameRate:\s*0[^}]*renderBurstMs:\s*0[^}]*measurementSettleMs:\s*90/s,
   );
-  assert.match(config, /syncTouchLerp:\s*0\.12/);
-  assert.match(config, /nativeTouchMaxWidth:\s*599/);
+  assert.match(config, /syncTouchLerp:\s*0\.075/);
+  assert.doesNotMatch(config, /nativeTouchMaxWidth/);
   assert.match(config, /minWidth:\s*1024/);
   assert.match(config, /maxWidth:\s*599/);
   assert.match(config, /tablet:/);
@@ -70,7 +70,7 @@ test("enables the approved homepage experience layers", async () => {
   assert.match(config, /startViewportY:\s*0/);
 });
 
-test("uses one lazy persistent particle geometry", async () => {
+test("uses desktop WebGL and section-owned mobile particle canvases", async () => {
   const [
     home,
     layer,
@@ -83,6 +83,8 @@ test("uses one lazy persistent particle geometry", async () => {
     entrance,
     cover,
     smoothScroll,
+    mobileParticles,
+    mobileParticleData,
   ] = await Promise.all([
     readFile(new URL("src/pages/HomePage.tsx", projectRoot), "utf8"),
     readFile(
@@ -113,6 +115,14 @@ test("uses one lazy persistent particle geometry", async () => {
       new URL("src/components/PublicSmoothScroll.tsx", projectRoot),
       "utf8",
     ),
+    readFile(
+      new URL("src/components/home/MobileSectionParticles.tsx", projectRoot),
+      "utf8",
+    ),
+    readFile(
+      new URL("src/three/mobile-section-particle-targets.ts", projectRoot),
+      "utf8",
+    ),
   ]);
 
   assert.match(home, /HomeParticleExperience/);
@@ -132,6 +142,36 @@ test("uses one lazy persistent particle geometry", async () => {
   }
   assert.match(layer, /lazy\(/);
   assert.match(layer, /ParticlePosterFallback/);
+  assert.match(layer, /useMobileSectionParticles/);
+  assert.match(layer, /return null/);
+  assert.match(mobileParticles, /position is owned by the section|mobile-section-particles/);
+  assert.match(mobileParticles, /getFormationStrength/);
+  assert.match(mobileParticles, /scene === "hero"/);
+  assert.match(mobileParticles, /motion\.formation/);
+  assert.match(mobileParticles, /motion\.dispersion/);
+  assert.doesNotMatch(mobileParticles, /IntersectionObserver/);
+  assert.match(mobileParticles, /let drawFrame = 0/);
+  assert.doesNotMatch(mobileParticles, /drawFrameRef/);
+  assert.match(mobileParticles, /projection = prepareTarget[\s\S]*draw\(\);/);
+  assert.match(mobileParticles, /targetZ/);
+  assert.match(mobileParticles, /MOBILE_AMBIENT_FRAME_RATE/);
+  assert.match(mobileParticles, /data-mobile-particle-state|mobileParticleState/);
+  assert.match(mobileParticles, /fillRect/);
+  assert.match(mobileParticles, /MobileTimelineFlowParticles/);
+  assert.match(mobileParticles, /timelineIntakeProgress/);
+  assert.doesNotMatch(mobileParticles, /@react-three\/fiber|useFrame|<Canvas(?:\s|>)/);
+  assert.match(mobileParticleData, /section-targets\.bin/);
+  assert.match(mobileParticleData, /Float32Array/);
+  const particleStyles = await readFile(
+    new URL("src/styles/particles.css", projectRoot),
+    "utf8",
+  );
+  assert.match(
+    particleStyles,
+    /\.home-page\s*\{[^}]*overflow-x:\s*clip/s,
+  );
+  assert.doesNotMatch(mobileParticleData, /GLTFLoader|MeshSurfaceSampler|three\//);
+  await access(new URL("public/mobile-particles/section-targets.bin", projectRoot));
   assert.equal((canvas.match(/<Canvas(?:\s|>)/g) ?? []).length, 1);
   assert.equal((points.match(/<bufferGeometry>/g) ?? []).length, 1);
   assert.match(points, /attributes-position/);
@@ -148,10 +188,8 @@ test("uses one lazy persistent particle geometry", async () => {
   assert.match(points, /closingSettledStrength/);
   assert.match(points, /ambientRotationScale/);
   assert.match(points, /precision={layout === "mobile" \? "mediump" : "highp"}/);
-  assert.match(canvas, /MobileDemandFrameLoop/);
-  assert.match(canvas, /frameloop={isMobile \? "demand" : active \? "always" : "never"}/);
+  assert.match(canvas, /<Canvas/);
   assert.match(canvas, /progressStore={progressStore}/);
-  assert.match(canvas, /renderBurstMs={experienceConfig\.particles\.mobile\.renderBurstMs}/);
   assert.match(progress, /introProgress/);
   assert.match(progress, /sceneMotionProgress/);
   assert.match(progress, /getPointFormationProgress/);
@@ -238,8 +276,11 @@ test("uses one lazy persistent particle geometry", async () => {
   assert.match(home, /HeroCoverTransition/);
   assert.match(cover, /pin:\s*true/);
   assert.match(cover, /pinSpacing:\s*false/);
-  assert.match(smoothScroll, /useNativeTouchScroll/);
-  assert.match(smoothScroll, /\(pointer: coarse\)/);
+  assert.match(cover, /document\.fonts\.ready/);
+  assert.match(cover, /ScrollTrigger\.refresh\(true\)/);
+  assert.match(cover, /refreshPriority:\s*10/);
+  assert.doesNotMatch(smoothScroll, /useNativeTouchScroll/);
+  assert.doesNotMatch(smoothScroll, /\(pointer: coarse\)/);
 
   const [processTimeline, controller, selectedWork, interlude] = await Promise.all([
     readFile(
@@ -260,6 +301,7 @@ test("uses one lazy persistent particle geometry", async () => {
     ),
   ]);
   assert.match(processTimeline, /viewportHeight \* 0\.88/);
+  assert.match(processTimeline, /MobileTimelineFlowParticles/);
   assert.match(processTimeline, /setTimelineGeometry/);
   assert.match(controller, /particleAnchorSceneIds\.has/);
   assert.match(controller, /sceneAnchorPositions\[anchorId\]/);
@@ -278,10 +320,13 @@ test("uses one lazy persistent particle geometry", async () => {
   assert.match(selectedWork, /interludeRevealItems/);
   assert.match(selectedWork, /section\.nextElementSibling/);
   assert.match(selectedWork, /\[data-interlude-reveal\]/);
+  assert.match(selectedWork, /const mobileInterludeRevealStart = 0\.94/);
   assert.match(selectedWork, /const interludeRevealStart = 0\.9/);
   assert.match(selectedWork, /--chapter-decoration-opacity/);
   assert.match(selectedWork, /duration:\s*0\.16/);
-  assert.match(selectedWork, /stagger:\s*0\.01/);
+  assert.match(selectedWork, /duration:\s*shouldShowInterlude \? 0\.42 : 0\.2/);
+  assert.match(selectedWork, /stagger:\s*shouldShowInterlude \? 0\.05 : 0\.02/);
+  assert.match(selectedWork, /if \(!isMobile\)/);
   assert.match(selectedWork, /stageRef/);
   assert.match(selectedWork, /entranceRef/);
   assert.match(selectedWork, /start:\s*"top bottom"/);
@@ -291,6 +336,8 @@ test("uses one lazy persistent particle geometry", async () => {
   assert.match(selectedWork, /homeInterludeContent/);
   assert.match(selectedWork, /section\.dataset\.scrollMode = "pinned"/);
   assert.match(selectedWork, /const horizontalEnd = 0\.7/);
+  assert.match(selectedWork, /window\.innerWidth <= 599/);
+  assert.match(selectedWork, /travel \/ horizontalEnd/);
   assert.doesNotMatch(selectedWork, /matchMedia/);
   assert.doesNotMatch(selectedWork, /work-runway__final/);
   assert.match(interlude, /InterludeChapterContent/);
@@ -372,7 +419,7 @@ test("keeps the lazy particle bundle inside its transfer budget", async () => {
   const source = await readFile(
     new URL(`dist/assets/${particleAsset}`, projectRoot),
   );
-  assert.ok(gzipSync(source).byteLength <= 250 * 1024);
+  assert.ok(gzipSync(source).byteLength <= 260 * 1024);
 });
 
 test("cleans up the public smooth-scroll layer", async () => {

@@ -1,6 +1,6 @@
 # Particle architecture
 
-Webine uses one persistent GPU particle system with target buffers for the key homepage scenes.
+Webine uses one persistent GPU particle system on tablet and desktop, plus section-owned 2D particle canvases on mobile.
 
 ## Target buffers
 
@@ -10,7 +10,7 @@ Webine uses one persistent GPU particle system with target buffers for the key h
 - `targetInterlude`, a procedural orbit formation used around the work interlude
 - `targetClosing`, an area-weighted surface sample of the supplied colony planet GLB
 
-The same `BufferGeometry` stays mounted for the whole homepage. The vertex shader interpolates between these targets according to scroll progress.
+On tablet and desktop, the same `BufferGeometry` stays mounted for the whole homepage. The vertex shader interpolates between these targets according to scroll progress.
 
 ## Model-backed targets
 
@@ -28,4 +28,6 @@ Procedural targets remain procedural where that is visually useful, while recogn
 
 ## Mobile render path
 
-The mobile profile uses the same target buffers and narrative progress contract but a cheaper shader and render schedule. Scatter and timeline-release vectors are precomputed into `targetScatter` and `targetRelease` attributes. On mobile, progress-store changes wake the demand canvas for a short 30 FPS burst and rendering stops after the morph settles. The mobile shader skips pointer deformation, particle ambient drift and animated colour cycling. Coarse-pointer phones also retain native touch scrolling so Lenis is not advanced from the GSAP ticker continuously on iPhone-class devices.
+Phones at the mobile breakpoint do not mount the fixed React Three Fiber canvas. The Hero, Reach, Interlude and Closing sections each own an absolutely positioned 2D canvas inside the section. Normal document scrolling therefore moves the particle layer with its section and no particle group has to chase a moving DOM anchor. Scroll progress only controls a local `scatter -> formed -> scatter` interpolation.
+
+The four mobile target point clouds and their scatter positions are baked into `public/mobile-particles/section-targets.bin`. The binary is about 30 KB and contains 480 points per target. The hero and closing point clouds come from the real Webine logo and colony planet meshes, while the two ring targets remain procedural. Mobile does not load Three.js, React Three Fiber, GLTFLoader, MeshSurfaceSampler or the WebGL shaders. The canvases redraw only when the progress store changes and only while their section is within a 60 percent viewport margin.

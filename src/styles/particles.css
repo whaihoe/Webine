@@ -8,6 +8,7 @@
 
 .home-page {
   position: relative;
+  overflow-x: clip;
   background: hsl(var(--primitive-slate-950));
 }
 
@@ -161,5 +162,69 @@
 
   .particle-poster__frame {
     width: min(38vw, 34rem);
+  }
+}
+
+.mobile-section-particles,
+.mobile-timeline-flow-particles {
+  display: none;
+}
+
+@media (max-width: 37.4375rem) {
+  .mobile-section-particles,
+  .mobile-timeline-flow-particles {
+    position: absolute;
+    display: block;
+    pointer-events: none;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .mobile-section-particles--hero {
+    top: 50%;
+    left: 50%;
+    width: 40rem;
+    height: 53svh;
+    z-index: 1;
+    transform: translate(-50%, -50%);
+  }
+
+  .mobile-section-particles--reach {
+    top: 5rem;
+    right: -18vw;
+    width: 92vw;
+    height: 44svh;
+    z-index: var(--layer-reach-particles);
+  }
+
+  .mobile-section-particles--interlude {
+    top: 3rem;
+    right: -12vw;
+    width: 68vw;
+    height: 34svh;
+    z-index: 1;
+  }
+
+  .mobile-section-particles--closing {
+    top: 25%;
+    right: -13vw;
+    width: 64vw;
+    height: 36svh;
+    z-index: 1;
+  }
+
+  .mobile-timeline-flow-particles {
+    top: 0;
+    left: calc(var(--space-page-x) + 0.5rem);
+    width: 116vw;
+    height: 52svh;
+    z-index: 1;
+    transform: translate(-50%, -50%);
+  }
+
+  .quiet-interlude__frame,
+  .closing-cta__layout {
+    position: relative;
+    z-index: 2;
   }
 }

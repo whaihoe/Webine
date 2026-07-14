@@ -67,8 +67,12 @@ export function SelectedWorkRunway() {
     let cancelled = false;
     let tween: ScrollBoundTween | null = null;
     let entranceTween: ScrollBoundTween | null = null;
+    let mobileInterludeTween: gsap.core.Tween | null = null;
+    let mobileInterludeVisible = false;
     let resizeObserver: ResizeObserver | null = null;
     const horizontalEnd = 0.7;
+    const isMobile = window.innerWidth <= 599;
+    const mobileInterludeRevealStart = 0.94;
     const interludeRevealStart = 0.9;
 
     const stop = () => {
@@ -80,6 +84,9 @@ export function SelectedWorkRunway() {
       entranceTween?.scrollTrigger?.kill(true);
       entranceTween?.kill();
       entranceTween = null;
+      mobileInterludeTween?.kill();
+      mobileInterludeTween = null;
+      mobileInterludeVisible = false;
       scrollTweenRef.current = null;
       delete section.dataset.scrollMode;
       delete section.dataset.scrollPhase;
@@ -111,7 +118,10 @@ export function SelectedWorkRunway() {
 
       gsap.registerPlugin(ScrollTrigger);
       section.dataset.scrollMode = "pinned";
-      gsap.set(interludeRevealItems, { autoAlpha: 0, y: 24 });
+      gsap.set(interludeRevealItems, {
+        autoAlpha: 0,
+        y: 24,
+      });
 
       entranceTween = gsap.fromTo(
         entrance,
@@ -137,14 +147,24 @@ export function SelectedWorkRunway() {
 
         return Math.max(chapterCenter - window.innerWidth / 2, 0);
       };
-      const getDistance = () =>
-        Math.min(
+      const getDistance = () => {
+        const travel = getTravel();
+
+        if (window.innerWidth <= 599) {
+          return Math.max(
+            travel / horizontalEnd,
+            window.innerHeight * 1.45,
+          );
+        }
+
+        return Math.min(
           Math.max(
-            getTravel() * 1.08 + window.innerHeight * 1.25,
+            travel * 1.08 + window.innerHeight * 1.25,
             window.innerHeight * 3.25,
           ),
           window.innerHeight * 5,
         );
+      };
 
       const timeline = gsap.timeline({
         scrollTrigger: {
@@ -162,12 +182,33 @@ export function SelectedWorkRunway() {
                 Math.round(runwayProgress * (totalFrames - 1)),
               ),
             );
+            const expandedThreshold = isMobile
+              ? mobileInterludeRevealStart
+              : 0.98;
             section.dataset.scrollPhase =
               self.progress < horizontalEnd
                 ? "horizontal"
-                : self.progress < 0.98
+                : self.progress < expandedThreshold
                   ? "expanding"
                   : "expanded";
+
+            if (isMobile) {
+              const shouldShowInterlude =
+                self.progress >= mobileInterludeRevealStart;
+
+              if (shouldShowInterlude !== mobileInterludeVisible) {
+                mobileInterludeVisible = shouldShowInterlude;
+                mobileInterludeTween?.kill();
+                mobileInterludeTween = gsap.to(interludeRevealItems, {
+                  autoAlpha: shouldShowInterlude ? 1 : 0,
+                  y: shouldShowInterlude ? 0 : 24,
+                  duration: shouldShowInterlude ? 0.42 : 0.2,
+                  stagger: shouldShowInterlude ? 0.05 : 0.02,
+                  ease: "power2.out",
+                  overwrite: true,
+                });
+              }
+            }
             const fadeOutEnd = 0.1;
             const fadeInEnd = 0.84;
             const chapterFormationStart = horizontalEnd;
@@ -247,8 +288,10 @@ export function SelectedWorkRunway() {
             ease: "power2.inOut",
           },
           horizontalEnd,
-        )
-        .to(
+        );
+
+      if (!isMobile) {
+        timeline.to(
           interludeRevealItems,
           {
             autoAlpha: 1,
@@ -259,6 +302,7 @@ export function SelectedWorkRunway() {
           },
           interludeRevealStart,
         );
+      }
 
       tween = timeline as ScrollBoundTween;
       scrollTweenRef.current = timeline as ScrollBoundTween;

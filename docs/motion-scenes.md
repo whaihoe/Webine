@@ -38,7 +38,7 @@ When runway progress reaches the completed `expanded` phase, the generated pin s
 
 The expanding card also owns a reversible formation value from 70 to 88 percent of runway progress. It forms the interlude orbit at the real section point while that point is still below the viewport. The point therefore enters already formed, with no virtual position or second particle target.
 
-Particle uniforms use a restrained damping value and the runway uses a 1.45 second scrub. Lenis uses a 1.35 smoothing value and 0.88 wheel speed. Touch layouts use a small 0.12 sync lerp, which adds weight without heavily delaying direct input. Mobile particle rendering is demand-driven at 30 FPS and its scene measurement loop settles after 240 ms instead of continuing for 1.2 seconds.
+Particle uniforms use a restrained damping value and the runway uses a 1.45 second scrub. Lenis uses a 1.75 smoothing value and 0.78 wheel speed. Touch layouts use a 0.075 sync lerp, which adds weight without heavily delaying direct input. Mobile particle rendering is demand-driven at 30 FPS and its scene measurement loop settles after 240 ms instead of continuing for 1.2 seconds.
 
 Zero-valued formation and dispersion uniforms release shader ownership immediately. Values still ease inside an active range, but a later scene cannot remain active through an asymptotic value after reverse scrolling.
 

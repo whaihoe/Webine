@@ -9,6 +9,7 @@ import {
   useParticleController,
   useParticleSceneAnchor,
 } from "./ParticleSceneController";
+import { MobileSectionParticles } from "./MobileSectionParticles";
 
 const principles = [
   {
@@ -98,6 +99,7 @@ export function ReachSection() {
       data-particle-scene="reach"
       style={{ "--reach-progress": 0 } as CSSProperties}
     >
+      <MobileSectionParticles scene="reach" />
       <div className="site-container reach-section__layout">
         <p className="eyebrow reach-section__eyebrow" data-reveal>
           02 / Business value

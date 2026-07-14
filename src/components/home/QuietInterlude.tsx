@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { InterludeChapterContent } from "./InterludeChapterContent";
+import { MobileSectionParticles } from "./MobileSectionParticles";
 import { useParticleSceneAnchor } from "./ParticleSceneController";
 
 export function QuietInterlude() {
@@ -16,6 +17,7 @@ export function QuietInterlude() {
       aria-labelledby="interlude-heading"
       data-particle-scene="interlude"
     >
+      <MobileSectionParticles scene="interlude" />
       <div className="quiet-interlude__frame">
         <InterludeChapterContent headingId="interlude-heading" />
       </div>

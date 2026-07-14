@@ -1,5 +1,6 @@
 import { ButtonLink } from "../ButtonLink";
 import { SignalGrid } from "./SignalGrid";
+import { MobileSectionParticles } from "./MobileSectionParticles";
 import { useParticleSceneAnchor } from "./ParticleSceneController";
 
 export function ClosingCallToAction() {
@@ -15,6 +16,7 @@ export function ClosingCallToAction() {
       data-particle-scene="closing"
     >
       <SignalGrid className="signal-grid--closing" />
+      <MobileSectionParticles scene="closing" />
       <div className="site-container closing-cta__layout">
         <p className="eyebrow">06 / Start somewhere useful</p>
         <h2 id="closing-heading">

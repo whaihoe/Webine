@@ -3,6 +3,7 @@ import { ButtonLink } from "../components/ButtonLink";
 import { HeroCoverTransition } from "../components/home/HeroCoverTransition";
 import { HeroEntranceTimeline } from "../components/home/HeroEntranceTimeline";
 import { HomeParticleExperience } from "../components/home/HomeParticleExperience";
+import { MobileSectionParticles } from "../components/home/MobileSectionParticles";
 import { ClosingCallToAction } from "../components/home/ClosingCallToAction";
 import { useParticleSceneAnchor } from "../components/home/ParticleSceneController";
 import { ProcessTimeline } from "../components/home/ProcessTimeline";
@@ -44,6 +45,7 @@ function HomeContent() {
         data-particle-scene="hero"
       >
         <SignalGrid className="signal-grid--hero" />
+        <MobileSectionParticles scene="hero" />
         <div className="site-container hero-section__grid">
           <div className="hero-section__copy">
             <p className="eyebrow" data-hero-intro="eyebrow">

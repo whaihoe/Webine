@@ -3,6 +3,7 @@ import {
   useParticleController,
   useParticleSceneAnchor,
 } from "./ParticleSceneController";
+import { MobileTimelineFlowParticles } from "./MobileSectionParticles";
 
 const processSteps = [
   {
@@ -148,6 +149,7 @@ export function ProcessTimeline() {
       </div>
 
       <div className="site-container process-timeline">
+        <MobileTimelineFlowParticles />
         <div ref={lineRef} className="process-timeline__line" aria-hidden="true">
           <span />
         </div>

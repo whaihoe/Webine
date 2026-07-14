@@ -126,10 +126,13 @@ export function ParticleSceneController({
           const pointViewportY =
             (rect.top + rect.height * sceneConfig.anchorY) /
             Math.max(viewportHeight, 1);
-          sceneAnchorPositions[anchorId] = {
-            x: sceneConfig.anchorX,
-            y: pointViewportY,
-          };
+          if (layout !== "mobile") {
+            sceneAnchorPositions[anchorId] = {
+              x: sceneConfig.anchorX,
+              y: pointViewportY,
+            };
+          }
+
           const motionProgress = {
             formation: getPointFormationProgress(
               pointViewportY,

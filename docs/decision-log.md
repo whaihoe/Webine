@@ -218,6 +218,23 @@
 - Added precomputed scatter and release target buffers so direction/hash work is not repeated in the vertex shader every frame.
 - Added a simplified mobile shader path without pointer deformation, per-particle ambient trigonometry or animated fragment colour cycling.
 - Replaced the permanent mobile particle RAF loop with short demand-render bursts driven by story progress changes. The canvas stops rendering after the morph settles.
-- Coarse-pointer phones use native touch scrolling instead of driving Lenis from the GSAP ticker continuously.
+- Lenis now remains active across pointer and touch layouts so the heavier scroll feel is consistent on mobile as well as desktop.
 - Disabled mobile particle-group idle rotation and float work, and use mediump shader precision on mobile.
 - Rebalanced mobile-only particle anchors and scales so the hero W, reach rings, interlude rings and closing planet remain inside a 390 px class viewport.
+
+
+## 2026-07-15 — Section-owned mobile particles and production pin refresh
+
+- Replaced the fixed mobile WebGL narrative canvas with four section-owned absolute 2D canvases for Hero, Reach, Interlude and Closing.
+- Mobile particles no longer use `sceneAnchorPositions` for placement. The section owns the canvas position and scroll only controls `scatter -> formed -> scatter` progress.
+- Baked the 480-point mobile Webine W, Reach rings, Interlude rings, colony planet and scatter field into a 30 KB binary target asset. This removes Three.js, React Three Fiber, GLTFLoader, MeshSurfaceSampler and shader loading from the mobile particle path.
+- Reduced mobile point size to 1.55 and stopped all settled-frame rendering. Local canvases redraw only when story progress changes and only near the viewport.
+- Kept the desktop and tablet persistent WebGL architecture unchanged.
+- Hardened the Hero ScrollTrigger pin for production by waiting for fonts and two layout frames before creation, then using a safe refresh after creation and again on final window load.
+
+## 2026-07-15 — Mobile particle first-paint StrictMode fix
+
+- Fixed a blank mobile 2D particle canvas caused by retaining a cancelled `requestAnimationFrame` id across React StrictMode effect cleanup and remount in development.
+- Mobile section particle frame state is now local to each effect lifetime rather than stored in a persistent ref.
+- The first particle frame is painted synchronously after the baked target buffer is projected, so initial visibility does not depend on a queued animation frame.
+- Added safe particle colour fallbacks in case CSS token parsing is unavailable during first paint.

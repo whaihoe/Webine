@@ -62,12 +62,31 @@ export function ParticleNarrativeLayer() {
   const { store } = useParticleController();
   const activity = useStoryActivitySnapshot();
   const [shouldLoad, setShouldLoad] = useState(false);
+  const [useMobileSectionParticles, setUseMobileSectionParticles] = useState(
+    () => window.innerWidth <= experienceConfig.particles.mobile.maxWidth,
+  );
   const [renderState, setRenderState] = useState<
     "loading" | "fallback" | "live"
   >("loading");
   const [layerDepth, setLayerDepth] = useState<ParticleLayerDepth>("base");
   const config = experienceConfig.particles;
+
   useEffect(() => {
+    const media = window.matchMedia(
+      `(max-width: ${config.mobile.maxWidth}px)`,
+    );
+    const updateLayout = () => setUseMobileSectionParticles(media.matches);
+    media.addEventListener("change", updateLayout);
+    updateLayout();
+    return () => media.removeEventListener("change", updateLayout);
+  }, [config.mobile.maxWidth]);
+
+  useEffect(() => {
+    if (useMobileSectionParticles) {
+      setShouldLoad(false);
+      return;
+    }
+
     if (!config.enabled || !getParticleCapability().supported) {
       setRenderState("fallback");
       return;
@@ -97,9 +116,13 @@ export function ParticleNarrativeLayer() {
         window.clearTimeout(timeout);
       }
     };
-  }, [config.enabled, config.lazyLoadDelayMs]);
+  }, [config.enabled, config.lazyLoadDelayMs, useMobileSectionParticles]);
 
   useEffect(() => {
+    if (useMobileSectionParticles) {
+      return;
+    }
+
     let currentDepth: ParticleLayerDepth = "base";
 
     const updateLayerDepth = () => {
@@ -119,13 +142,17 @@ export function ParticleNarrativeLayer() {
     const unsubscribe = store.subscribe(updateLayerDepth);
     updateLayerDepth();
     return unsubscribe;
-  }, [store]);
+  }, [store, useMobileSectionParticles]);
 
   const fail = useCallback(() => {
     setShouldLoad(false);
     setRenderState("fallback");
   }, []);
   const markReady = useCallback(() => setRenderState("live"), []);
+
+  if (useMobileSectionParticles) {
+    return null;
+  }
 
   return createPortal(
     <div
