@@ -31,7 +31,6 @@ export function PublicSmoothScroll({ children }: PublicSmoothScrollProps) {
       duration: config.duration,
       wheelMultiplier: config.wheelMultiplier,
       syncTouch: config.syncTouch,
-      syncTouchLerp: config.syncTouchLerp,
       anchors: {
         offset: getHeaderOffset(),
       },

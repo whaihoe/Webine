@@ -238,3 +238,13 @@
 - Mobile section particle frame state is now local to each effect lifetime rather than stored in a persistent ref.
 - The first particle frame is painted synchronously after the baked target buffer is projected, so initial visibility does not depend on a queued animation frame.
 - Added safe particle colour fallbacks in case CSS token parsing is unavailable during first paint.
+
+## 2026-07-15, native iPhone hero cover and mobile renderer cleanup
+
+- Reproduced the implementation difference behind the real-iPhone hero cover failure: desktop and browser-emulated mobile used the scripted ScrollTrigger pin, while real touch scrolling also depended on Lenis touch synchronisation and mobile WebKit compositor behaviour.
+- Added a bounded `hero-reach-cover` wrapper. Desktop and fine-pointer devices retain the ScrollTrigger hero pin, while phones and coarse-touch devices use native CSS sticky for the same Section 2 cover composition.
+- Disabled Lenis `syncTouch`, keeping the weighted wheel experience while returning phones to native momentum.
+- Removed page-level horizontal clipping from the Home wrapper because an overflow ancestor can interfere with sticky containment. Reach now owns its local clipping instead.
+- Removed the superseded mobile WebGL shader, demand-frame loop and unused mobile GPU configuration. Phones now have one clear production path: four section-owned absolute 2D canvases with 480 baked points per target and a 1.55 point size.
+- Updated the foundation tests to protect the hybrid pin, native touch path and absence of the removed mobile WebGL implementation.
+- Linting, TypeScript, the production build, all twelve foundation tests and the diff whitespace check pass. Final confirmation on the user's physical iPhone remains required.

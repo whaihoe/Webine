@@ -8,7 +8,11 @@
 
 .home-page {
   position: relative;
-  overflow-x: clip;
+  background: hsl(var(--primitive-slate-950));
+}
+
+.hero-reach-cover {
+  position: relative;
   background: hsl(var(--primitive-slate-950));
 }
 
@@ -54,11 +58,11 @@
   z-index: var(--layer-reach-particles);
 }
 
-.home-page > .reach-section::before {
+.home-page .reach-section::before {
   z-index: var(--layer-reach-background);
 }
 
-.home-page > .reach-section > .reach-section__layout {
+.home-page .reach-section > .reach-section__layout {
   z-index: var(--layer-reach-content);
 }
 
@@ -226,5 +230,16 @@
   .closing-cta__layout {
     position: relative;
     z-index: 2;
+  }
+}
+
+@media (max-width: 37.4375rem), (hover: none) and (pointer: coarse) {
+  .hero-reach-cover > .hero-section {
+    position: sticky;
+    top: 0;
+  }
+
+  .hero-reach-cover > .reach-section {
+    z-index: var(--layer-reach-background);
   }
 }

@@ -38,51 +38,53 @@ function HomeContent() {
     <>
       <HeroEntranceTimeline rootRef={heroRef} />
       <HeroCoverTransition rootRef={heroRef} />
-      <section
-        ref={connectHero}
-        className="hero-section theme-dark"
-        aria-labelledby="home-heading"
-        data-particle-scene="hero"
-      >
-        <SignalGrid className="signal-grid--hero" />
-        <MobileSectionParticles scene="hero" />
-        <div className="site-container hero-section__grid">
-          <div className="hero-section__copy">
-            <p className="eyebrow" data-hero-intro="eyebrow">
-              Digital agency / Singapore
-            </p>
-            <h1 id="home-heading">
-              <span className="hero-intro-line" data-hero-intro="headline-line">
-                Make the ordinary
-              </span>
-              <span className="hero-intro-line" data-hero-intro="headline-line">
-                <em>unmistakable.</em>
-              </span>
-            </h1>
-            <p
-              className="hero-section__description"
-              data-hero-intro="description"
-            >
-              Webine designs and develops premium, responsive websites that help businesses look credible, stand out and grow.
-            </p>
-            <div className="hero-section__actions" data-hero-intro="actions">
-              <ButtonLink href="/contact">Start a project</ButtonLink>
-              <ButtonLink href="/works" variant="quiet">
-                View our work
-              </ButtonLink>
+      <div className="hero-reach-cover">
+        <section
+          ref={connectHero}
+          className="hero-section theme-dark"
+          aria-labelledby="home-heading"
+          data-particle-scene="hero"
+        >
+          <SignalGrid className="signal-grid--hero" />
+          <MobileSectionParticles scene="hero" />
+          <div className="site-container hero-section__grid">
+            <div className="hero-section__copy">
+              <p className="eyebrow" data-hero-intro="eyebrow">
+                Digital agency / Singapore
+              </p>
+              <h1 id="home-heading">
+                <span className="hero-intro-line" data-hero-intro="headline-line">
+                  Make the ordinary
+                </span>
+                <span className="hero-intro-line" data-hero-intro="headline-line">
+                  <em>unmistakable.</em>
+                </span>
+              </h1>
+              <p
+                className="hero-section__description"
+                data-hero-intro="description"
+              >
+                Webine designs and develops premium, responsive websites that help businesses look credible, stand out and grow.
+              </p>
+              <div className="hero-section__actions" data-hero-intro="actions">
+                <ButtonLink href="/contact">Start a project</ButtonLink>
+                <ButtonLink href="/works" variant="quiet">
+                  View our work
+                </ButtonLink>
+              </div>
             </div>
+
+            <p
+              className="hero-section__scroll-cue"
+              data-hero-intro="scroll-cue"
+            >
+              Scroll to explore
+            </p>
           </div>
+        </section>
 
-          <p
-            className="hero-section__scroll-cue"
-            data-hero-intro="scroll-cue"
-          >
-            Scroll to explore
-          </p>
-        </div>
-      </section>
-
-      <ReachSection />
+        <ReachSection />
+      </div>
       <SelectedWorkRunway />
       <QuietInterlude />
       <ProcessTimeline />

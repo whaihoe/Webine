@@ -8,7 +8,7 @@ import {
 import { ParticlePoints } from "./ParticlePoints";
 import type { StoryProgressStore } from "./story-progress";
 
-type ParticleLayout = "mobile" | "tablet" | "desktop";
+type ParticleLayout = "tablet" | "desktop";
 
 type LoadedParticleModels = {
   hero: Awaited<ReturnType<typeof loadParticleModel>>;
@@ -16,10 +16,6 @@ type LoadedParticleModels = {
 };
 
 function getParticleLayout(): ParticleLayout {
-  if (window.innerWidth <= experienceConfig.particles.mobile.maxWidth) {
-    return "mobile";
-  }
-
   if (window.innerWidth < experienceConfig.particles.desktop.minWidth) {
     return "tablet";
   }
@@ -33,60 +29,6 @@ type ParticleNarrativeCanvasProps = {
   onReady: () => void;
   onFailure: () => void;
 };
-
-function MobileDemandFrameLoop({
-  progressStore,
-  frameRate,
-  renderBurstMs,
-}: {
-  progressStore: StoryProgressStore;
-  frameRate: number;
-  renderBurstMs: number;
-}) {
-  const invalidate = useThree((state) => state.invalidate);
-
-  useEffect(() => {
-    const frameInterval = 1000 / frameRate;
-    let frame = 0;
-    let lastFrameAt = 0;
-    let renderUntil = performance.now() + renderBurstMs;
-
-    const tick = (timestamp: number) => {
-      if (timestamp - lastFrameAt >= frameInterval) {
-        lastFrameAt = timestamp;
-        invalidate();
-      }
-
-      if (timestamp < renderUntil) {
-        frame = window.requestAnimationFrame(tick);
-      } else {
-        frame = 0;
-      }
-    };
-
-    const wake = () => {
-      renderUntil = performance.now() + renderBurstMs;
-      if (!frame && document.visibilityState === "visible") {
-        frame = window.requestAnimationFrame(tick);
-      }
-    };
-
-    const unsubscribe = progressStore.subscribe(wake);
-    const handleVisibility = () => {
-      if (document.visibilityState === "visible") wake();
-    };
-    document.addEventListener("visibilitychange", handleVisibility);
-    wake();
-
-    return () => {
-      unsubscribe();
-      document.removeEventListener("visibilitychange", handleVisibility);
-      if (frame) window.cancelAnimationFrame(frame);
-    };
-  }, [frameRate, invalidate, progressStore, renderBurstMs]);
-
-  return null;
-}
 
 function CanvasLifecycle({
   onFailure,
@@ -182,8 +124,6 @@ export default function ParticleNarrativeCanvas({
       experienceConfig.particles.closingModel,
     );
   }, [models, profile.count]);
-  const isMobile = layout === "mobile";
-
   if (!heroTarget || !closingTarget) {
     return null;
   }
@@ -193,7 +133,7 @@ export default function ParticleNarrativeCanvas({
       aria-hidden="true"
       camera={{ position: [0, 0, 7.4], fov: 48, near: 0.1, far: 30 }}
       dpr={profile.pixelRatioCap}
-      frameloop={isMobile ? "demand" : active ? "always" : "never"}
+      frameloop={active ? "always" : "never"}
       gl={{
         alpha: true,
         antialias: false,
@@ -202,13 +142,6 @@ export default function ParticleNarrativeCanvas({
       }}
     >
       <CanvasLifecycle onFailure={onFailure} />
-      {isMobile ? (
-        <MobileDemandFrameLoop
-          progressStore={progressStore}
-          frameRate={profile.maxFrameRate}
-          renderBurstMs={experienceConfig.particles.mobile.renderBurstMs}
-        />
-      ) : null}
       <ParticlePoints
         profile={profile}
         progressStore={progressStore}

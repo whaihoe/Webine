@@ -62,13 +62,8 @@ export const experienceConfig = {
     mobile: {
       maxWidth: 599,
       count: 480,
-      ambientRatio: 0,
       pointSize: 1.55,
-      pixelRatioCap: 1,
-      objectScale: 1.08,
       maxFrameRate: 30,
-      settledFrameRate: 0,
-      renderBurstMs: 0,
       measurementSettleMs: 90,
     },
   },
@@ -76,8 +71,7 @@ export const experienceConfig = {
     enabled: true,
     duration: 1.75,
     wheelMultiplier: 0.78,
-    syncTouch: true,
-    syncTouchLerp: 0.075,
+    syncTouch: false,
   },
   signalGrid: {
     enabled: true,

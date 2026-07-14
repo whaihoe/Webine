@@ -2,6 +2,7 @@
   --reach-progress: 0;
   position: relative;
   min-height: 125svh;
+  overflow: clip;
   padding-block: clamp(7rem, 13vw, 13rem);
   border-radius: clamp(1.25rem, 3vw, 3rem) clamp(1.25rem, 3vw, 3rem) 0 0;
   box-shadow: 0 -2rem 5rem hsl(var(--primitive-slate-950) / 0.2);

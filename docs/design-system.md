@@ -51,4 +51,6 @@ Interactive components include default, hover, active, focus and disabled treatm
 
 ## Current experience boundary
 
-Stage 3 enables the persistent particles and Lenis public smooth-scroll configuration. The live Signal Grid response, route transitions and general reveal system remain disabled until their dedicated stages. The particle canvas reads its colours from the CSS token layer and never introduces a second visual palette.
+The Home experience now uses the complete Slate Workshop rhythm: dark immersive scenes, rounded light editorial sheets, measured blue accents, Georgia phrases and fine grid lines. Signal Grid is active only in the hero and closing CTA, where a dim fine-pointer light passes through an otherwise near-background grid.
+
+Tablet and desktop use the persistent GPU particle layer. Phones use lower-density section-owned 2D canvases, but both paths read from the same blue and cyan token palette and follow the same narrative forms. Lenis adds weight to wheel scrolling only. Touch scrolling stays native. Route transitions and a general site-wide reveal system remain disabled.

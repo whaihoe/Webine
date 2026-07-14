@@ -52,9 +52,11 @@ test("enables the approved homepage experience layers", async () => {
   assert.match(config, /pointSize:\s*1\.55/);
   assert.match(
     config,
-    /mobile:\s*{[^}]*count:\s*480[^}]*pointSize:\s*1\.55[^}]*pixelRatioCap:\s*1[^}]*maxFrameRate:\s*30[^}]*settledFrameRate:\s*0[^}]*renderBurstMs:\s*0[^}]*measurementSettleMs:\s*90/s,
+    /mobile:\s*{[^}]*count:\s*480[^}]*pointSize:\s*1\.55[^}]*maxFrameRate:\s*30[^}]*measurementSettleMs:\s*90/s,
   );
-  assert.match(config, /syncTouchLerp:\s*0\.075/);
+  assert.doesNotMatch(config, /settledFrameRate|renderBurstMs/);
+  assert.match(config, /syncTouch:\s*false/);
+  assert.doesNotMatch(config, /syncTouchLerp/);
   assert.doesNotMatch(config, /nativeTouchMaxWidth/);
   assert.match(config, /minWidth:\s*1024/);
   assert.match(config, /maxWidth:\s*599/);
@@ -166,7 +168,7 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
     new URL("src/styles/particles.css", projectRoot),
     "utf8",
   );
-  assert.match(
+  assert.doesNotMatch(
     particleStyles,
     /\.home-page\s*\{[^}]*overflow-x:\s*clip/s,
   );
@@ -187,7 +189,7 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.match(points, /attributes-particleAmbient/);
   assert.match(points, /closingSettledStrength/);
   assert.match(points, /ambientRotationScale/);
-  assert.match(points, /precision={layout === "mobile" \? "mediump" : "highp"}/);
+  assert.match(points, /precision="highp"/);
   assert.match(canvas, /<Canvas/);
   assert.match(canvas, /progressStore={progressStore}/);
   assert.match(progress, /introProgress/);
@@ -264,8 +266,9 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.match(shaders, /contactThreshold/);
   assert.match(shaders, /gatherProgress/);
   assert.doesNotMatch(shaders, /float particleHash/);
-  assert.match(shaders, /mobileParticleVertexShader/);
-  assert.match(shaders, /mobileParticleFragmentShader/);
+  assert.doesNotMatch(shaders, /mobileParticleVertexShader/);
+  assert.doesNotMatch(shaders, /mobileParticleFragmentShader/);
+  assert.doesNotMatch(canvas, /MobileDemandFrameLoop|layout === "mobile"/);
   assert.match(shaders, /releaseCloud/);
   assert.match(shaders, /mix\(\s*releaseCloud,\s*scatterTarget/);
   assert.doesNotMatch(shaders, /uLightThemeProgress/);
@@ -274,13 +277,15 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.match(entrance, /INTRO_SESSION_KEY/);
   assert.match(entrance, /setIntroProgress/);
   assert.match(home, /HeroCoverTransition/);
+  assert.match(home, /hero-reach-cover/);
   assert.match(cover, /pin:\s*true/);
   assert.match(cover, /pinSpacing:\s*false/);
+  assert.match(cover, /NATIVE_STICKY_QUERY/);
+  assert.match(cover, /useNativeSticky/);
   assert.match(cover, /document\.fonts\.ready/);
   assert.match(cover, /ScrollTrigger\.refresh\(true\)/);
   assert.match(cover, /refreshPriority:\s*10/);
-  assert.doesNotMatch(smoothScroll, /useNativeTouchScroll/);
-  assert.doesNotMatch(smoothScroll, /\(pointer: coarse\)/);
+  assert.doesNotMatch(smoothScroll, /syncTouchLerp/);
 
   const [processTimeline, controller, selectedWork, interlude] = await Promise.all([
     readFile(
@@ -367,9 +372,21 @@ test("keeps reach particles between the section background and content", async (
     particleStyles,
     /\.particle-narrative-layer\[data-particle-depth="reach"\]/,
   );
+  assert.match(
+    particleStyles,
+    /\.hero-reach-cover\s*>\s*\.hero-section\s*{[^}]*position:\s*sticky/s,
+  );
+  assert.doesNotMatch(
+    particleStyles,
+    /\.home-page\s*{[^}]*overflow-x:\s*clip/s,
+  );
   assert.doesNotMatch(
     sceneStyles,
     /\.reach-section\s*\{[^}]*z-index:/s,
+  );
+  assert.match(
+    sceneStyles,
+    /\.reach-section\s*\{[^}]*overflow:\s*clip/s,
   );
   assert.match(
     sceneStyles,

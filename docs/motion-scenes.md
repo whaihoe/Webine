@@ -5,8 +5,8 @@ The current homepage uses one coordinated scene controller. Settings and layout 
 | Feature | Current state | Dedicated stage |
 |---|---|---|
 | General motion presets | Disabled | Reserved for later global polish, with component feedback already tokenised |
-| Persistent particles | Enabled across all six Home scenes | Homepage narrative |
-| Smooth scrolling | Lenis enabled across public pointer and touch layouts | Stage 3 onward |
+| Particle narrative | Persistent GPU layer on tablet and desktop, section-owned 2D canvases on phones | Homepage narrative |
+| Smooth scrolling | Lenis wheel smoothing with native touch momentum | Stage 3 onward |
 | Signal Grid response | Enabled only for the hero and closing CTA | Homepage narrative |
 | Page transitions | Disabled | Stage 21 |
 
@@ -16,7 +16,9 @@ The static HTML and CSS composition must remain complete when every feature is d
 
 The Home route registers `hero`, `reach`, `work`, `interlude`, `process` and `closing`. A single GSAP timeline owns the first-load breathing period, hero gathering and interface reveal. It runs once per browsing session, uses a shorter return entry and completes immediately when the visitor scrolls or interacts early. After the hero entrance, each visual-form section owns its point, formation interval, hold and dispersion interval.
 
-The hero has its own ScrollTrigger pin with no added scroll spacing. This keeps the hero composition fixed while the rounded Section 2 surface rises over it. The explicit layer order is hero background and Signal Grid, particle canvas, then hero typography and controls. CSS sticky is not used for this transition because the scene already relies on an explicit ScrollTrigger pin and controlled chapter handoff. As Section 3 approaches, an inner entrance layer begins up to 14 viewport-height units above its resting composition, capped at 120 px, and settles downward by the time the section top reaches 30 percent of the viewport. The pinned stage itself is never translated, preventing the entrance parallax from competing with runway pinning or chapter expansion transforms.
+The hero-to-reach cover uses two implementations behind one visual contract. Desktop and fine-pointer devices use a ScrollTrigger pin with no added scroll spacing. Phones and coarse-touch devices use native CSS sticky inside the bounded `.hero-reach-cover` wrapper. Both keep the hero composition held while the rounded Section 2 surface rises over it. This split avoids relying on a scripted pin during real iPhone touch scrolling, where browser emulation does not reproduce all WebKit viewport and compositor behaviour. The explicit layer order is hero background and Signal Grid, particles, then hero typography and controls.
+
+As Section 3 approaches, an inner entrance layer begins up to 14 viewport-height units above its resting composition, capped at 120 px, and settles downward by the time the section top reaches 30 percent of the viewport. The pinned stage itself is never translated, preventing the entrance parallax from competing with runway pinning or chapter expansion transforms.
 
 The selected-work runway pins on desktop, tablet and mobile. Normal vertical scrolling moves the rendered track horizontally, with no custom wheel interception or nested touch scroller. The final chapter card stops at the viewport centre after 70 percent of the scrubbed timeline. Particles fade fully during the horizontal sequence, return as a reduced-density field during expansion and begin gathering before the pin releases.
 
@@ -38,7 +40,7 @@ When runway progress reaches the completed `expanded` phase, the generated pin s
 
 The expanding card also owns a reversible formation value from 70 to 88 percent of runway progress. It forms the interlude orbit at the real section point while that point is still below the viewport. The point therefore enters already formed, with no virtual position or second particle target.
 
-Particle uniforms use a restrained damping value and the runway uses a 1.45 second scrub. Lenis uses a 1.75 smoothing value and 0.78 wheel speed. Touch layouts use a 0.075 sync lerp, which adds weight without heavily delaying direct input. Mobile particle rendering is demand-driven at 30 FPS and its scene measurement loop settles after 240 ms instead of continuing for 1.2 seconds.
+Particle uniforms use a restrained damping value and the runway uses a 1.45 second scrub. Lenis uses a 1.75 duration and 0.78 wheel multiplier for wheel input. `syncTouch` is disabled so phones retain native touch momentum and do not run a second JavaScript touch-scroll model. Mobile particles are section-owned 2D canvases rather than the persistent WebGL layer. They contain 480 points per target, redraw only when narrative progress changes and use a 90 ms measurement-settle window.
 
 Zero-valued formation and dispersion uniforms release shader ownership immediately. Values still ease inside an active range, but a later scene cannot remain active through an asymptotic value after reverse scrolling.
 
@@ -46,4 +48,4 @@ The interlude disperses when its own point crosses the viewport top. `timelineIn
 
 The complete object slowly self-rotates while held. Fine-pointer movement adds restrained object travel and tilt, while the shader adds a local depth bulge. These idle offsets are local to the section anchor rather than a replacement for it. The closing object never fades, so the fully formed planet scrolls away with the section instead of following the viewport into the footer.
 
-Future refinements must keep the scene anchors and shared controller boundary. They must extend the same progress store and geometry rather than creating another canvas.
+Future tablet and desktop refinements must keep the scene anchors and shared controller boundary. Phone refinements must keep the section-owned canvas model unless real-device evidence supports a different approach. New visual states should extend the same progress store rather than introduce an unrelated scroll controller.

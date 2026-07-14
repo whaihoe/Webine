@@ -16,12 +16,7 @@ import {
   createParticleTargetBuffers,
   createProceduralParticleTargets,
 } from "./particle-targets";
-import {
-  mobileParticleFragmentShader,
-  mobileParticleVertexShader,
-  particleFragmentShader,
-  particleVertexShader,
-} from "./shaders";
+import { particleFragmentShader, particleVertexShader } from "./shaders";
 import type { StoryProgressStore } from "./story-progress";
 import type { ParticleRenderProfile } from "./types";
 
@@ -36,7 +31,7 @@ function getTokenColour(token: string) {
 type ParticlePointsProps = {
   profile: ParticleRenderProfile;
   progressStore: StoryProgressStore;
-  layout: "mobile" | "tablet" | "desktop";
+  layout: "tablet" | "desktop";
   heroTarget: Float32Array;
   closingTarget: Float32Array;
   onReady: () => void;
@@ -70,7 +65,6 @@ export function ParticlePoints({
     [closingTarget, heroTarget, proceduralTargets],
   );
   const ambientMotion = experienceConfig.particles.ambientMotion;
-  const isMobile = layout === "mobile";
   const uniforms = useMemo(
     () => ({
       uProgress: { value: 0 },
@@ -401,24 +395,18 @@ export function ParticlePoints({
       group.position.y,
       scenePosition.y +
         pointerOffsetY +
-        (isMobile
-          ? 0
-          : Math.sin(elapsed * 0.34) * ambientMotion.floatY * idleStrength),
+        Math.sin(elapsed * 0.34) * ambientMotion.floatY * idleStrength,
       releaseProgress > 0.92 ? 14 : 4,
       delta,
     );
     group.position.z = MathUtils.damp(
       group.position.z,
-      isMobile
-        ? 0
-        : Math.cos(elapsed * 0.27) * ambientMotion.floatZ * idleStrength,
+      Math.cos(elapsed * 0.27) * ambientMotion.floatZ * idleStrength,
       4,
       delta,
     );
-    if (!isMobile) {
-      rotationPhaseRef.current +=
-        delta * ((Math.PI * 2) / ambientMotion.fullRotationSeconds) * idleStrength;
-    }
+    rotationPhaseRef.current +=
+      delta * ((Math.PI * 2) / ambientMotion.fullRotationSeconds) * idleStrength;
     const pointerTiltX = pointer.active
       ? -pointer.y * ambientMotion.pointerTilt
       : 0;
@@ -427,35 +415,29 @@ export function ParticlePoints({
       : 0;
     group.rotation.x = MathUtils.damp(
       group.rotation.x,
-      (isMobile
-        ? 0
-        : Math.sin(elapsed * 0.2) *
-          ambientMotion.rotationX *
-          idleStrength *
-          ambientRotationScale) +
+      Math.sin(elapsed * 0.2) *
+        ambientMotion.rotationX *
+        idleStrength *
+        ambientRotationScale +
         pointerTiltX,
       3,
       delta,
     );
     group.rotation.y = MathUtils.damp(
       group.rotation.y,
-      (isMobile
-        ? 0
-        : Math.sin(rotationPhaseRef.current) *
-          ambientMotion.rotationY *
-          ambientRotationScale) +
+      Math.sin(rotationPhaseRef.current) *
+        ambientMotion.rotationY *
+        ambientRotationScale +
         pointerTiltY,
       3,
       delta,
     );
     group.rotation.z = MathUtils.damp(
       group.rotation.z,
-      (isMobile
-        ? 0
-        : Math.cos(elapsed * 0.13) *
-          ambientMotion.rotationZ *
-          idleStrength *
-          ambientRotationScale) +
+      Math.cos(elapsed * 0.13) *
+        ambientMotion.rotationZ *
+        idleStrength *
+        ambientRotationScale +
         (pointer.active ? pointer.x * ambientMotion.pointerTilt * 0.34 : 0),
       3,
       delta,
@@ -516,14 +498,10 @@ export function ParticlePoints({
         </bufferGeometry>
         <shaderMaterial
           ref={materialRef}
-          vertexShader={
-            layout === "mobile" ? mobileParticleVertexShader : particleVertexShader
-          }
-          fragmentShader={
-            layout === "mobile" ? mobileParticleFragmentShader : particleFragmentShader
-          }
+          vertexShader={particleVertexShader}
+          fragmentShader={particleFragmentShader}
           uniforms={uniforms}
-          precision={layout === "mobile" ? "mediump" : "highp"}
+          precision="highp"
           transparent
           depthWrite={false}
           blending={NormalBlending}

@@ -1,5 +1,10 @@
 import { gsap } from "gsap";
-import { useLayoutEffect, type RefObject } from "react";
+import { useEffect, useLayoutEffect, useState, type RefObject } from "react";
+import { experienceConfig } from "../../config/experience";
+
+const NATIVE_STICKY_QUERY =
+  `(max-width: ${experienceConfig.particles.mobile.maxWidth}px), ` +
+  "(hover: none) and (pointer: coarse)";
 
 type HeroCoverTransitionProps = {
   rootRef: RefObject<HTMLElement | null>;
@@ -16,7 +21,25 @@ function waitForLayoutFrame() {
 export function HeroCoverTransition({
   rootRef,
 }: HeroCoverTransitionProps) {
+  const [useNativeSticky, setUseNativeSticky] = useState(() =>
+    window.matchMedia(NATIVE_STICKY_QUERY).matches,
+  );
+
+  useEffect(() => {
+    const media = window.matchMedia(NATIVE_STICKY_QUERY);
+    const update = () => setUseNativeSticky(media.matches);
+
+    media.addEventListener("change", update);
+    update();
+
+    return () => media.removeEventListener("change", update);
+  }, []);
+
   useLayoutEffect(() => {
+    if (useNativeSticky) {
+      return;
+    }
+
     const root = rootRef.current;
     let cancelled = false;
     let pin: { kill: () => void } | null = null;
@@ -53,6 +76,7 @@ export function HeroCoverTransition({
         end: () => `+=${root.offsetHeight}`,
         pin: true,
         pinSpacing: false,
+        anticipatePin: 1,
         invalidateOnRefresh: true,
         refreshPriority: 10,
       });
@@ -77,7 +101,7 @@ export function HeroCoverTransition({
         gsap.set(root, { clearProps: "transform" });
       }
     };
-  }, [rootRef]);
+  }, [rootRef, useNativeSticky]);
 
   return null;
 }
