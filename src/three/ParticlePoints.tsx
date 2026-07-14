@@ -12,7 +12,10 @@ import {
   experienceConfig,
   particleSceneConfig,
 } from "../config/experience";
-import { createParticleTargets } from "./particle-targets";
+import {
+  createParticleTargetBuffers,
+  createProceduralParticleTargets,
+} from "./particle-targets";
 import { particleFragmentShader, particleVertexShader } from "./shaders";
 import type { StoryProgressStore } from "./story-progress";
 import type { ParticleRenderProfile } from "./types";
@@ -29,12 +32,16 @@ type ParticlePointsProps = {
   profile: ParticleRenderProfile;
   progressStore: StoryProgressStore;
   layout: "mobile" | "tablet" | "desktop";
+  closingTarget: Float32Array;
+  onReady: () => void;
 };
 
 export function ParticlePoints({
   profile,
   progressStore,
   layout,
+  closingTarget,
+  onReady,
 }: ParticlePointsProps) {
   const groupRef = useRef<Group>(null);
   const materialRef = useRef<ShaderMaterial>(null);
@@ -42,9 +49,13 @@ export function ParticlePoints({
   const pointerUniformRef = useRef(new Vector2(20, 20));
   const rotationPhaseRef = useRef(0);
   const positionInitialisedRef = useRef(false);
-  const targets = useMemo(
-    () => createParticleTargets(profile.count, profile.ambientRatio),
+  const proceduralTargets = useMemo(
+    () => createProceduralParticleTargets(profile.count, profile.ambientRatio),
     [profile.ambientRatio, profile.count],
+  );
+  const targets = useMemo(
+    () => createParticleTargetBuffers(proceduralTargets, closingTarget),
+    [closingTarget, proceduralTargets],
   );
   const ambientMotion = experienceConfig.particles.ambientMotion;
   const uniforms = useMemo(
@@ -86,13 +97,17 @@ export function ParticlePoints({
   const closingPosition = particleSceneConfig.closing[layout];
 
   useEffect(() => {
+    onReady();
+  }, [onReady]);
+
+  useEffect(() => {
     const finePointer = window.matchMedia("(pointer: fine)");
 
-    const handlePointerMove = (event: PointerEvent) => {
-      if (!finePointer.matches) {
-        return;
-      }
+    if (!finePointer.matches) {
+      return;
+    }
 
+    const handlePointerMove = (event: PointerEvent) => {
       pointerRef.current = {
         x: (event.clientX / window.innerWidth) * 2 - 1,
         y: -((event.clientY / window.innerHeight) * 2 - 1),
@@ -274,6 +289,13 @@ export function ParticlePoints({
       closingMotion.formation * (1 - closingMotion.dispersion),
     );
     const idleStrength = formedStrength * (1 - transitionStrength);
+    const closingSettledStrength =
+      closingMotion.formation * (1 - closingMotion.dispersion);
+    const ambientRotationScale = MathUtils.lerp(
+      1,
+      experienceConfig.particles.closingModel.ambientRotationScale,
+      closingSettledStrength,
+    );
     const elapsed = clock.elapsedTime;
     const localPointerX =
       (pointer.x * viewport.width * 0.5 - group.position.x) /
@@ -386,21 +408,29 @@ export function ParticlePoints({
       : 0;
     group.rotation.x = MathUtils.damp(
       group.rotation.x,
-      Math.sin(elapsed * 0.2) * ambientMotion.rotationX * idleStrength +
+      Math.sin(elapsed * 0.2) *
+        ambientMotion.rotationX *
+        idleStrength *
+        ambientRotationScale +
         pointerTiltX,
       3,
       delta,
     );
     group.rotation.y = MathUtils.damp(
       group.rotation.y,
-      Math.sin(rotationPhaseRef.current) * ambientMotion.rotationY +
+      Math.sin(rotationPhaseRef.current) *
+        ambientMotion.rotationY *
+        ambientRotationScale +
         pointerTiltY,
       3,
       delta,
     );
     group.rotation.z = MathUtils.damp(
       group.rotation.z,
-      Math.cos(elapsed * 0.13) * ambientMotion.rotationZ * idleStrength +
+      Math.cos(elapsed * 0.13) *
+        ambientMotion.rotationZ *
+        idleStrength *
+        ambientRotationScale +
         (pointer.active ? pointer.x * ambientMotion.pointerTilt * 0.34 : 0),
       3,
       delta,
@@ -420,19 +450,19 @@ export function ParticlePoints({
         <bufferGeometry>
           <bufferAttribute
             attach="attributes-position"
-            args={[targets.scattered, 3]}
+            args={[targets.source, 3]}
           />
           <bufferAttribute
-            attach="attributes-targetPosition"
-            args={[targets.folded, 3]}
+            attach="attributes-targetHero"
+            args={[targets.hero, 3]}
           />
           <bufferAttribute
             attach="attributes-targetReach"
             args={[targets.reach, 3]}
           />
           <bufferAttribute
-            attach="attributes-targetOrbit"
-            args={[targets.orbit, 3]}
+            attach="attributes-targetInterlude"
+            args={[targets.interlude, 3]}
           />
           <bufferAttribute
             attach="attributes-targetClosing"

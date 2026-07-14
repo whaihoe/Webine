@@ -51,4 +51,4 @@ Interactive components include default, hover, active, focus and disabled treatm
 
 ## Current experience boundary
 
-Stage 3 enables the persistent particles and desktop smooth-scroll configuration. The live Signal Grid response, route transitions and general reveal system remain disabled until their dedicated stages. The particle canvas reads its colours from the CSS token layer and never introduces a second visual palette.
+Stage 3 enables the persistent particles and Lenis public smooth-scroll configuration. The live Signal Grid response, route transitions and general reveal system remain disabled until their dedicated stages. The particle canvas reads its colours from the CSS token layer and never introduces a second visual palette.

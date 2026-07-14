@@ -1,3 +1,11 @@
+:root {
+  --layer-particles-base: 1;
+  --layer-hero: 2;
+  --layer-reach-background: 3;
+  --layer-reach-particles: 4;
+  --layer-reach-content: 5;
+}
+
 .home-page {
   position: relative;
   background: hsl(var(--primitive-slate-950));
@@ -18,7 +26,8 @@
 }
 
 .home-page .hero-section {
-  isolation: isolate;
+  position: relative;
+  z-index: var(--layer-hero);
   background: transparent;
 }
 
@@ -34,10 +43,22 @@
 .particle-narrative-layer {
   position: fixed;
   inset: 0;
-  z-index: 1;
+  z-index: var(--layer-particles-base);
   overflow: hidden;
   pointer-events: none;
   will-change: opacity;
+}
+
+.particle-narrative-layer[data-particle-depth="reach"] {
+  z-index: var(--layer-reach-particles);
+}
+
+.home-page > .reach-section::before {
+  z-index: var(--layer-reach-background);
+}
+
+.home-page > .reach-section > .reach-section__layout {
+  z-index: var(--layer-reach-content);
 }
 
 .particle-canvas,

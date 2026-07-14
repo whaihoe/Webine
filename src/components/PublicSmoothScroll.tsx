@@ -1,24 +1,21 @@
 import { gsap } from "gsap";
-import { useEffect, useRef, type ReactNode } from "react";
+import Lenis from "lenis";
+import { useEffect, type ReactNode } from "react";
 import { experienceConfig } from "../config/experience";
 
 type PublicSmoothScrollProps = {
   children: ReactNode;
 };
 
-type SmoothInstance = {
-  kill: () => void;
-  scrollTo: (
-    target: Element | number | string,
-    smooth?: boolean,
-    position?: string,
-  ) => void;
-};
+function getHeaderOffset() {
+  const headerHeight = getComputedStyle(document.documentElement)
+    .getPropertyValue("--header-height")
+    .trim();
+
+  return -(Number.parseFloat(headerHeight) || 0);
+}
 
 export function PublicSmoothScroll({ children }: PublicSmoothScrollProps) {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     const config = experienceConfig.smoothScroll;
 
@@ -26,132 +23,78 @@ export function PublicSmoothScroll({ children }: PublicSmoothScrollProps) {
       return;
     }
 
-    const pointerCondition = config.finePointerOnly
-      ? " and (pointer: fine)"
-      : "";
-    const media = window.matchMedia(
-      `(min-width: ${config.minWidth}px)${pointerCondition}`,
-    );
     let cancelled = false;
-    let smoother: SmoothInstance | null = null;
-    let cleanupActiveInstance = () => {};
+    let removeScrollTriggerSync = () => {};
 
-    const stop = () => {
-      cleanupActiveInstance();
-      cleanupActiveInstance = () => {};
-      smoother?.kill();
-      smoother = null;
-    };
+    const lenis = new Lenis({
+      autoRaf: false,
+      duration: config.duration,
+      wheelMultiplier: config.wheelMultiplier,
+      syncTouch: config.syncTouch,
+      syncTouchLerp: config.syncTouchLerp,
+      anchors: {
+        offset: getHeaderOffset(),
+      },
+      stopInertiaOnNavigate: true,
+    });
 
-    const start = async () => {
-      stop();
+    const handleAnchorFocus = (event: MouseEvent) => {
+      const eventTarget = event.target;
 
-      if (!media.matches || !wrapperRef.current || !contentRef.current) {
+      if (!(eventTarget instanceof Element)) {
         return;
       }
 
-      try {
-        const [{ ScrollTrigger }, { ScrollSmoother }] = await Promise.all([
-          import("gsap/ScrollTrigger"),
-          import("gsap/ScrollSmoother"),
-        ]);
+      const link = eventTarget.closest<HTMLAnchorElement>('a[href^="#"]');
+      const href = link?.getAttribute("href");
 
-        if (cancelled || !media.matches) {
+      if (!href || href === "#") {
+        return;
+      }
+
+      const target = document.querySelector<HTMLElement>(href);
+
+      if (!target) {
+        return;
+      }
+
+      window.requestAnimationFrame(() => target.focus({ preventScroll: true }));
+    };
+
+    document.addEventListener("click", handleAnchorFocus);
+
+    void import("gsap/ScrollTrigger")
+      .then(({ ScrollTrigger }) => {
+        if (cancelled) {
           return;
         }
 
-        gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
-        smoother = ScrollSmoother.create({
-          wrapper: wrapperRef.current,
-          content: contentRef.current,
-          smooth: config.desktopSmoothness,
-          speed: config.desktopSpeed,
-          smoothTouch: config.touchSmoothness,
-          effects: false,
-        });
+        gsap.registerPlugin(ScrollTrigger);
 
-        const refresh = () => ScrollTrigger.refresh();
-        const resizeObserver = new ResizeObserver(refresh);
-        resizeObserver.observe(contentRef.current);
+        const updateScrollTrigger = () => ScrollTrigger.update();
+        const updateLenis = (time: number) => lenis.raf(time * 1000);
 
-        const handleAssetLoad = () => refresh();
-        const handleOrientationChange = () => refresh();
-        const handleHashLink = (event: MouseEvent) => {
-          const eventTarget = event.target;
+        lenis.on("scroll", updateScrollTrigger);
+        gsap.ticker.add(updateLenis);
+        gsap.ticker.lagSmoothing(0);
+        ScrollTrigger.refresh();
 
-          if (!(eventTarget instanceof Element)) {
-            return;
-          }
-
-          const link = eventTarget.closest<HTMLAnchorElement>('a[href^="#"]');
-          const href = link?.getAttribute("href");
-
-          if (!href || href === "#") {
-            return;
-          }
-
-          const target = document.querySelector<HTMLElement>(href);
-
-          if (!target) {
-            return;
-          }
-
-          event.preventDefault();
-          const headerHeight = getComputedStyle(document.documentElement)
-            .getPropertyValue("--header-height")
-            .trim();
-          smoother?.scrollTo(target, true, `top ${headerHeight}`);
-          window.requestAnimationFrame(() => target.focus({ preventScroll: true }));
+        removeScrollTriggerSync = () => {
+          lenis.off("scroll", updateScrollTrigger);
+          gsap.ticker.remove(updateLenis);
         };
-
-        contentRef.current.addEventListener("load", handleAssetLoad, true);
-        window.addEventListener("orientationchange", handleOrientationChange);
-        document.addEventListener("click", handleHashLink);
-        void document.fonts.ready.then(() => {
-          if (!cancelled && smoother) {
-            refresh();
-          }
-        });
-        refresh();
-
-        cleanupActiveInstance = () => {
-          resizeObserver.disconnect();
-          contentRef.current?.removeEventListener("load", handleAssetLoad, true);
-          window.removeEventListener(
-            "orientationchange",
-            handleOrientationChange,
-          );
-          document.removeEventListener("click", handleHashLink);
-        };
-      } catch {
-        stop();
+      })
+      .catch(() => {
         console.error("Webine smooth scrolling could not start.");
-      }
-    };
-
-    const reconcile = () => {
-      if (media.matches) {
-        void start();
-      } else {
-        stop();
-      }
-    };
-
-    media.addEventListener("change", reconcile);
-    reconcile();
+      });
 
     return () => {
       cancelled = true;
-      media.removeEventListener("change", reconcile);
-      stop();
+      removeScrollTriggerSync();
+      document.removeEventListener("click", handleAnchorFocus);
+      lenis.destroy();
     };
   }, []);
 
-  return (
-    <div id="smooth-wrapper" ref={wrapperRef}>
-      <div id="smooth-content" ref={contentRef}>
-        {children}
-      </div>
-    </div>
-  );
+  return <>{children}</>;
 }

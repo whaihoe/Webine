@@ -124,6 +124,26 @@
   color: hsl(var(--color-brand-hover));
 }
 
+.directional-arrow {
+  width: 0.8rem;
+  height: 0.8rem;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+}
+
+.directional-arrow svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.35;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+}
+
 .button-link__arrow {
   transition: transform var(--primitive-duration-standard) var(--primitive-ease-standard);
 }

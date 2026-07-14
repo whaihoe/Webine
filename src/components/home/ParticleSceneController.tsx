@@ -85,12 +85,25 @@ export function ParticleSceneController({
 
   useEffect(() => {
     let frame = 0;
+    let lastMeasureAt = 0;
     let measureUntil = 0;
 
-    const measure = () => {
+    const measure = (timestamp: number) => {
       frame = 0;
-      const viewportHeight = window.innerHeight;
       const layout = getParticleLayout(window.innerWidth);
+      const profile = experienceConfig.particles[layout];
+      const frameInterval = 1000 / profile.maxFrameRate;
+
+      if (timestamp - lastMeasureAt < frameInterval) {
+        if (!document.hidden && timestamp < measureUntil) {
+          frame = window.requestAnimationFrame(measure);
+        }
+
+        return;
+      }
+
+      lastMeasureAt = timestamp;
+      const viewportHeight = window.innerHeight;
       const scenePresence: Record<string, number> = {};
       const sceneMotionProgress: ParticleSceneMotionProgressMap = {
         ...store.getSnapshot().sceneMotionProgress,
@@ -174,7 +187,11 @@ export function ParticleSceneController({
     };
 
     const scheduleMeasure = () => {
-      measureUntil = performance.now() + 1200;
+      const layout = getParticleLayout(window.innerWidth);
+      measureUntil =
+        performance.now() +
+        experienceConfig.particles[layout].measurementSettleMs;
+
       if (!frame) {
         frame = window.requestAnimationFrame(measure);
       }

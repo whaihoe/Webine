@@ -1,6 +1,22 @@
 type Point2 = readonly [number, number];
 type Point3 = readonly [number, number, number];
 
+export type ParticleTargetBuffers = {
+  source: Float32Array;
+  hero: Float32Array;
+  reach: Float32Array;
+  interlude: Float32Array;
+  closing: Float32Array;
+  randomness: Float32Array;
+  facetShade: Float32Array;
+  ambientMask: Float32Array;
+};
+
+type ProceduralParticleTargetBuffers = Omit<
+  ParticleTargetBuffers,
+  "closing"
+>;
+
 const WEBINE_SILHOUETTE: readonly Point2[] = [
   [-2.55, 1.5],
   [-0.86, 1.5],
@@ -12,7 +28,7 @@ const WEBINE_SILHOUETTE: readonly Point2[] = [
   [-1.22, -1.5],
 ];
 
-function createSeededRandom(seed: number) {
+export function createSeededRandom(seed: number) {
   let value = seed >>> 0;
 
   return () => {
@@ -137,53 +153,15 @@ function sampleEllipticalTorus(
   ];
 }
 
-function sampleCapsule(
-  random: () => number,
-  start: Point2,
-  end: Point2,
-  radius: number,
-): Point3 {
-  const [startX, startY] = start;
-  const axisX = end[0] - startX;
-  const axisY = end[1] - startY;
-  const axisLength = Math.max(Math.hypot(axisX, axisY), 0.001);
-  const normalX = -axisY / axisLength;
-  const normalY = axisX / axisLength;
-  const surface = random();
-
-  if (surface < 0.22) {
-    const atEnd = random() > 0.5;
-    const centreX = atEnd ? end[0] : startX;
-    const centreY = atEnd ? end[1] : startY;
-    const azimuth = random() * Math.PI * 2;
-    const z = random() * 2 - 1;
-    const ring = Math.sqrt(Math.max(1 - z * z, 0));
-
-    return [
-      centreX + Math.cos(azimuth) * ring * radius,
-      centreY + Math.sin(azimuth) * ring * radius,
-      z * radius,
-    ];
-  }
-
-  const along = random();
-  const around = random() * Math.PI * 2;
-  const radial = radius * (0.82 + random() * 0.18);
-
-  return [
-    startX + axisX * along + normalX * Math.cos(around) * radial,
-    startY + axisY * along + normalY * Math.cos(around) * radial,
-    Math.sin(around) * radial,
-  ];
-}
-
-export function createParticleTargets(count: number, ambientRatio: number) {
+export function createProceduralParticleTargets(
+  count: number,
+  ambientRatio: number,
+): ProceduralParticleTargetBuffers {
   const random = createSeededRandom(20260713 + count);
-  const scattered = new Float32Array(count * 3);
-  const folded = new Float32Array(count * 3);
+  const source = new Float32Array(count * 3);
+  const hero = new Float32Array(count * 3);
   const reach = new Float32Array(count * 3);
-  const orbit = new Float32Array(count * 3);
-  const closing = new Float32Array(count * 3);
+  const interlude = new Float32Array(count * 3);
   const randomness = new Float32Array(count);
   const facetShade = new Float32Array(count);
   const ambientMask = new Float32Array(count);
@@ -194,15 +172,15 @@ export function createParticleTargets(count: number, ambientRatio: number) {
     const angle = random() * Math.PI * 2;
     const depthAngle = (random() - 0.5) * Math.PI;
 
-    scattered[offset] = Math.cos(angle) * radius * 3.25;
-    scattered[offset + 1] = Math.sin(angle) * radius * 2.15;
-    scattered[offset + 2] = Math.sin(depthAngle) * radius * 1.45;
+    source[offset] = Math.cos(angle) * radius * 3.25;
+    source[offset + 1] = Math.sin(angle) * radius * 2.15;
+    source[offset + 2] = Math.sin(depthAngle) * radius * 1.45;
 
-    const foldedPoint = sampleWebineSolid(random);
-    const [x, y] = foldedPoint;
-    folded[offset] = foldedPoint[0];
-    folded[offset + 1] = foldedPoint[1];
-    folded[offset + 2] = foldedPoint[2];
+    const heroPoint = sampleWebineSolid(random);
+    const [x, y] = heroPoint;
+    hero[offset] = heroPoint[0];
+    hero[offset + 1] = heroPoint[1];
+    hero[offset + 2] = heroPoint[2];
     randomness[index] = random();
     facetShade[index] = getFacetShade(x, y);
     ambientMask[index] = random() < ambientRatio ? 1 : 0;
@@ -218,37 +196,39 @@ export function createParticleTargets(count: number, ambientRatio: number) {
     reach[offset + 1] = reachPoint[1];
     reach[offset + 2] = reachPoint[2];
 
-    const orbitBand = index % 3;
-    const orbitPoint = sampleEllipticalTorus(
+    const interludeBand = index % 3;
+    const interludePoint = sampleEllipticalTorus(
       random,
-      1.32 + orbitBand * 0.48,
-      0.92 + orbitBand * 0.32,
+      1.32 + interludeBand * 0.48,
+      0.92 + interludeBand * 0.32,
       0.2,
     );
-    orbit[offset] = orbitPoint[0];
-    orbit[offset + 1] = orbitPoint[1];
-    orbit[offset + 2] = orbitPoint[2];
-
-    const arrowBranch = index % 3;
-    const closingPoint = sampleCapsule(
-      random,
-      arrowBranch === 0 ? [-2.65, 0] : [0.55, arrowBranch === 1 ? 1.42 : -1.42],
-      arrowBranch === 0 ? [2.45, 0] : [2.45, 0],
-      arrowBranch === 0 ? 0.34 : 0.38,
-    );
-    closing[offset] = closingPoint[0];
-    closing[offset + 1] = closingPoint[1];
-    closing[offset + 2] = closingPoint[2];
+    interlude[offset] = interludePoint[0];
+    interlude[offset + 1] = interludePoint[1];
+    interlude[offset + 2] = interludePoint[2];
   }
 
   return {
-    scattered,
-    folded,
+    source,
+    hero,
     reach,
-    orbit,
-    closing,
+    interlude,
     randomness,
     facetShade,
     ambientMask,
+  };
+}
+
+export function createParticleTargetBuffers(
+  proceduralTargets: ProceduralParticleTargetBuffers,
+  closingTarget: Float32Array,
+): ParticleTargetBuffers {
+  if (closingTarget.length !== proceduralTargets.source.length) {
+    throw new Error("Particle target buffers must use the same particle count.");
+  }
+
+  return {
+    ...proceduralTargets,
+    closing: closingTarget,
   };
 }

@@ -54,6 +54,10 @@ type IdleWindow = Window & {
   cancelIdleCallback?: (id: number) => void;
 };
 
+type ParticleLayerDepth = "base" | "reach";
+
+const REACH_LAYER_RELEASE_PROGRESS = 0.78;
+
 export function ParticleNarrativeLayer() {
   const { store } = useParticleController();
   const activity = useStoryActivitySnapshot();
@@ -61,6 +65,7 @@ export function ParticleNarrativeLayer() {
   const [renderState, setRenderState] = useState<
     "loading" | "fallback" | "live"
   >("loading");
+  const [layerDepth, setLayerDepth] = useState<ParticleLayerDepth>("base");
   const config = experienceConfig.particles;
   useEffect(() => {
     if (!config.enabled || !getParticleCapability().supported) {
@@ -94,6 +99,28 @@ export function ParticleNarrativeLayer() {
     };
   }, [config.enabled, config.lazyLoadDelayMs]);
 
+  useEffect(() => {
+    let currentDepth: ParticleLayerDepth = "base";
+
+    const updateLayerDepth = () => {
+      const reachMotion = store.getSnapshot().sceneMotionProgress.reach;
+      const nextDepth =
+        reachMotion.formation > 0 &&
+        reachMotion.dispersion < REACH_LAYER_RELEASE_PROGRESS
+          ? "reach"
+          : "base";
+
+      if (nextDepth !== currentDepth) {
+        currentDepth = nextDepth;
+        setLayerDepth(nextDepth);
+      }
+    };
+
+    const unsubscribe = store.subscribe(updateLayerDepth);
+    updateLayerDepth();
+    return unsubscribe;
+  }, [store]);
+
   const fail = useCallback(() => {
     setShouldLoad(false);
     setRenderState("fallback");
@@ -104,6 +131,7 @@ export function ParticleNarrativeLayer() {
     <div
       className="particle-narrative-layer"
       data-particle-state={renderState}
+      data-particle-depth={layerDepth}
       aria-hidden="true"
     >
       <ParticlePosterFallback state={renderState} />

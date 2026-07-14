@@ -34,7 +34,7 @@
 - Added a normalised story-progress store, section anchor registration and Home-only lifecycle cleanup so later scenes can join the same narrative.
 - Added WebGL 2 capability checking, context-loss handling, a visible loading or failure poster and paused rendering when no registered scene is visible or the page is backgrounded.
 - Set the starting budgets to 6,000 desktop particles and 1,800 mobile particles, with a 1.5 desktop and 1.25 mobile pixel-ratio cap.
-- Added restrained GSAP ScrollSmoother on fine-pointer desktop layouts. Mobile, Admin and unsupported layouts retain native scrolling.
+- Added restrained public smooth scrolling while keeping Admin outside the public scroll controller.
 - Kept Stage 4 replaceable: the current logo composition is only the poster placeholder. Stage 4 can replace the art and hero layout without changing the particle canvas, geometry or controller.
 - Adopted the user's next-stage-aware rule. Each stage must preserve the interfaces needed by the following stage without implementing that later stage early.
 - Production dependencies pass the security audit. The local Vite 5 development server retains an esbuild advisory that cannot be removed on Node 18.2 without an incompatible Vite upgrade. The server remains bound to `127.0.0.1` rather than the local network.
@@ -103,7 +103,7 @@
 - Added one reversible `sceneExitProgress` measurement to the shared controller and removed the earlier presence-based hero and reach release thresholds.
 - Split interlude dispersion from timeline intake. The orbit now releases at the interlude threshold, while the later live inlet progress still owns point gathering and contact fade.
 - Replaced the generic end-of-selection tile with a chapter 04 preview that shares one content source with the interlude.
-- Added a normal-scroll card-to-section expansion. It avoids CSS sticky because the desktop smooth-scroll transform makes sticky containment unreliable.
+- Added a normal-scroll card-to-section expansion. It avoids CSS sticky so the chapter handoff stays controlled by the same explicit scroll timeline.
 
 ## 2026-07-13, chapter 04 card expansion clarification
 
@@ -144,3 +144,38 @@
 - Increased public scroll weight to 1.35 smoothing and 0.88 speed on pointer layouts, with a restrained 0.12 touch smoothing value. Increased runway scrub to 1.45 seconds and particle progress damping to 3.
 - Split compact point sizing into tablet 4.2 and mobile 3.8 values. Both retain the 1,800-particle performance profile.
 - Browser review confirmed the early Section 2 fade, offscreen Section 4 formation, weighted mobile scroll surface and zero page-level overflow at 390 px.
+
+## 2026-07-13, hero cover transition and selected-work parallax
+
+- Corrected the hero stacking context so the body-level particle canvas remains below every hero text and control layer.
+- Replaced the ineffective CSS sticky attempt with an explicit ScrollTrigger pin for predictable hero hold and release timing.
+- Gave Section 2 a rounded leading edge, higher scene layer and restrained upward shadow so it reads as one light surface moving over the held hero.
+- Added a scrubbed vertical entrance to the complete Selected Work stage. It begins below its resting position as the section enters and resolves when the section reaches the viewport top.
+- Desktop and 390 px browser review confirmed the fixed hero, Section 2 cover, correct particle-to-text order, Section 3 translation and zero horizontal page overflow. Linting, the production build and all ten foundation tests pass.
+
+## 2026-07-13, isolated runway parallax and Section 4 layer release
+
+- Moved the Selected Work entrance from the pinned stage onto a dedicated inner motion layer so the entrance and runway pin no longer write to the same transform.
+- Reversed the entrance direction. The composition now begins up to 120 px higher and settles downward by the time the section top reaches 30 percent of the viewport.
+- Released the generated pin spacer's copied layer only after chapter expansion completes. This lets the real Section 4 layout appear above the empty expansion shell while preserving the preceding card animation.
+- Desktop and 390 px review confirmed the downward-settling parallax, visible Section 4 text, reversible expanded state and zero horizontal overflow. Linting, the production build and all ten foundation tests pass.
+
+## 2026-07-14, Lenis smooth-scroll migration
+
+- Replaced the public GSAP ScrollSmoother surface with Lenis while keeping the existing GSAP ScrollTrigger scene timelines.
+- Removed the transformed smooth wrapper and content elements, the old media-query start and stop logic, manual smooth anchor scrolling, resize observer, font-ready refresh and orientation refresh that only supported ScrollSmoother.
+- Synchronized Lenis with ScrollTrigger through the GSAP ticker, kept fixed-header anchor offset handling and retained focus movement for accessible in-page links.
+- Added the recommended Lenis stylesheet and updated the smooth-scroll configuration and foundation tests around the new implementation.
+
+## 2026-07-14, opaque Reach cover and mobile particle budget
+
+- Replaced the translucent Reach background gradient with one fully opaque slate-50 surface. The particle canvas remains above that surface and below the Reach content, while the pinned hero stays fully hidden behind it.
+- Replaced Unicode up-right and down arrows with one small SVG direction component so mobile font fallback cannot turn UI marks into emoji-style glyphs.
+- Reduced the mobile particle profile from 1,800 to 900 points, lowered its ambient subset to 2.5 percent and capped DPR at 1. Desktop and tablet profiles remain visually unchanged.
+- Moved mobile WebGL rendering to a 30 FPS demand loop, capped mobile scene measurements to the same update rate and shortened post-scroll measurement settling from 1.2 seconds to 240 ms.
+- Avoided attaching pointer-move listeners on coarse-pointer devices. Linting, the production build and all twelve foundation tests pass.
+
+## 2026-07-14, closing handset target and chapter decoration fade
+
+- Replaced the Section 6 closing arrow target with one rounded 3D telephone handset. The handset now follows a sculpted C-shaped centreline with a thicker lower curve and separate raised rounded-rectangular receiver pads, matching the soft classic telephone reference more closely. The existing persistent particle geometry, closing anchor and formation timing remain unchanged.
+- Kept the runway chapter decoration as the existing `::after` layer, but exposed its opacity through `--chapter-decoration-opacity` and scrubbed that value down during the chapter expansion so the rings fade instead of disappearing abruptly.

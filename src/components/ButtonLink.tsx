@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { DirectionalArrow } from "./DirectionalArrow";
 
 type ButtonLinkProps = {
   children: ReactNode;
@@ -23,9 +24,7 @@ export function ButtonLink({
       onClick={onClick}
     >
       <span>{children}</span>
-      <span className="button-link__arrow" aria-hidden="true">
-        ↗
-      </span>
+      <DirectionalArrow className="button-link__arrow" />
     </Link>
   );
 }

@@ -9,13 +9,14 @@
 | `MobileMenu` | Labelled full-screen mobile navigation | Closed, open, current page and focus |
 | `SiteFooter` | Public navigation, location and pending contact area | Dark |
 | `ButtonLink` | Primary and secondary navigation actions | Primary, outline, quiet, hover and focus |
+| `DirectionalArrow` | Vector UI direction mark that avoids platform emoji glyph fallback | Up-right and down |
 | `SectionHeading` | Editorial section index, title and explanation | Light and dark through tokens |
 | `FormField` | Form structure and field styling | Disabled preview |
 | `SiteShell` | Public header, main content and footer composition | Dark or light header |
 | `WorkspaceShell` | Reserved Admin application frame | Mobile strip and desktop sidebar |
 | `RouteEffects` | Page title, route announcement, scroll and heading focus | Push, replace and browser history |
 | `AppErrorBoundary` | Application failure fallback | Error |
-| `PublicSmoothScroll` | Optional desktop scroll surface that preserves native mobile scrolling | Enabled desktop and native fallback |
+| `PublicSmoothScroll` | Lenis public scroll controller synchronized with GSAP ScrollTrigger | Enabled public smooth scrolling and cleanup |
 | `HomeParticleExperience` | Home-only boundary for the persistent visual layer | Mounted and unmounted by route |
 | `ParticleSceneController` | Section registration, presence thresholds and section-local anchor measurement | Scroll, resize, visibility and cleanup |
 | `ParticleNarrativeCanvas` | One lazy React Three Fiber canvas for the Home story | Loading, live, paused and failed |
@@ -26,7 +27,7 @@
 | `SelectedWorkRunway` | Responsive portfolio chapter ending in an expanding chapter 04 card | Vertical-driven horizontal movement on every breakpoint, centred stop, card expansion, progress, keyboard focus and reversible interlude handoff |
 | `QuietInterlude` | Full long-term-value chapter aligned directly beneath the expanded runway card | Seamless takeover, section-owned point formation, top-point dispersion and reverse |
 | `ProcessTimeline` | Semantic four-stage process with line fill, early point-contact intake and centred outlet geometry | Waiting, absorbing, active, complete, emitting and reverse |
-| `ClosingCallToAction` | Final momentum scene and primary contact route | Resting grid and opaque section-anchored particle arrow |
+| `ClosingCallToAction` | Final momentum scene and primary contact route | Resting grid and opaque section-anchored particle telephone handset |
 
 ## Route compositions
 

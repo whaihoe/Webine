@@ -1,5 +1,6 @@
 import { useCallback, useRef } from "react";
 import { ButtonLink } from "../components/ButtonLink";
+import { HeroCoverTransition } from "../components/home/HeroCoverTransition";
 import { HeroEntranceTimeline } from "../components/home/HeroEntranceTimeline";
 import { HomeParticleExperience } from "../components/home/HomeParticleExperience";
 import { ClosingCallToAction } from "../components/home/ClosingCallToAction";
@@ -35,6 +36,7 @@ function HomeContent() {
   return (
     <>
       <HeroEntranceTimeline rootRef={heroRef} />
+      <HeroCoverTransition rootRef={heroRef} />
       <section
         ref={connectHero}
         className="hero-section theme-dark"

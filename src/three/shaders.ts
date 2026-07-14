@@ -1,7 +1,7 @@
 export const particleVertexShader = `
-  attribute vec3 targetPosition;
+  attribute vec3 targetHero;
   attribute vec3 targetReach;
-  attribute vec3 targetOrbit;
+  attribute vec3 targetInterlude;
   attribute vec3 targetClosing;
   attribute float particleRandom;
   attribute float particleShade;
@@ -51,14 +51,14 @@ export const particleVertexShader = `
     scatterTarget.y *= 0.86;
     scatterTarget.z *= 0.72;
 
-    vec3 narrativeTarget = targetPosition;
+    vec3 narrativeTarget = targetHero;
     float narrativeVisibility = 1.0;
     float dispersedParticle = step(0.42, particleRandom);
 
     if (uHeroExitProgress > 0.0) {
       float heroBurst = 1.0 + sin(uHeroExitProgress * 3.14159265) * 0.55;
       narrativeTarget = mix(
-        targetPosition,
+        targetHero,
         scatterTarget * heroBurst,
         smoothstep(0.0, 1.0, uHeroExitProgress)
       );
@@ -99,7 +99,7 @@ export const particleVertexShader = `
     if (uInterludeFormationProgress > 0.0) {
       narrativeTarget = mix(
         scatterTarget,
-        targetOrbit,
+        targetInterlude,
         smoothstep(0.0, 1.0, uInterludeFormationProgress)
       );
       narrativeVisibility = mix(
@@ -112,7 +112,7 @@ export const particleVertexShader = `
     if (uInterludeExitProgress > 0.0) {
       float interludeBurst = 1.0 + sin(uInterludeExitProgress * 3.14159265) * 0.55;
       narrativeTarget = mix(
-        targetOrbit,
+        targetInterlude,
         scatterTarget * interludeBurst,
         smoothstep(0.0, 1.0, uInterludeExitProgress)
       );
@@ -133,7 +133,7 @@ export const particleVertexShader = `
         intakeRelease,
         smoothstep(0.0, 0.72, uInterludeExitProgress)
       );
-      vec3 intakeField = mix(targetOrbit, scatterTarget, intakeRelease);
+      vec3 intakeField = mix(targetInterlude, scatterTarget, intakeRelease);
       float contactThreshold = 0.29 + particleRandom * 0.54;
       float gatherProgress = smoothstep(
         contactThreshold - 0.24,
