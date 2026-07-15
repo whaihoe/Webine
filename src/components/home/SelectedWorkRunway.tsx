@@ -1,9 +1,9 @@
 import { DirectionalArrow } from "../DirectionalArrow";
 import { gsap } from "gsap";
 import { useLayoutEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
-import { featuredProjects } from "../../content/featured-projects";
-import { homeInterludeContent } from "../../content/home-interlude";
+import { ProjectCard } from "../projects/ProjectCard";
+import { usePublicProjects } from "../../hooks/usePublicProjects";
+import { useSiteSettings } from "../../content/SiteSettingsProvider";
 import {
   useParticleController,
   useParticleSceneAnchor,
@@ -20,6 +20,9 @@ type ScrollBoundTween = {
 };
 
 export function SelectedWorkRunway() {
+  const { interlude } = useSiteSettings();
+  const projectsResource = usePublicProjects(true);
+  const featuredProjects = projectsResource.status === "ready" ? projectsResource.projects : [];
   const sectionRef = useRef<HTMLElement | null>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const entranceRef = useRef<HTMLDivElement>(null);
@@ -57,10 +60,10 @@ export function SelectedWorkRunway() {
     const projectCards = Array.from(
       track.querySelectorAll<HTMLElement>(".work-card"),
     );
-    const interlude = section.nextElementSibling;
-    const interludeRevealItems = interlude?.classList.contains("quiet-interlude")
+    const interludeSection = section.nextElementSibling;
+    const interludeRevealItems = interludeSection?.classList.contains("quiet-interlude")
       ? Array.from(
-          interlude.querySelectorAll<HTMLElement>("[data-interlude-reveal]"),
+          interludeSection.querySelectorAll<HTMLElement>("[data-interlude-reveal]"),
         )
       : [];
 
@@ -215,10 +218,10 @@ export function SelectedWorkRunway() {
             const chapterFormationEnd = 0.88;
             const visibility =
               self.progress < fadeOutEnd
-                ? 1 - self.progress / fadeOutEnd
+                ? 1 - self.progress / fadeOutEnd * 0.88
                 : self.progress < horizontalEnd
-                  ? 0
-                  : Math.min(
+                  ? 0.12
+                  : 0.12 + 0.88 * Math.min(
                       Math.max(
                         (self.progress - horizontalEnd) /
                           (fadeInEnd - horizontalEnd),
@@ -237,6 +240,8 @@ export function SelectedWorkRunway() {
             store.setWorkParticleState({
               visibility,
               chapterFormationProgress,
+              formationProgress: self.progress < horizontalEnd ? Math.min(self.progress / 0.08, 1) : Math.max(1 - chapterFormationProgress, 0),
+              projectProgress: Math.min(runwayProgress * Math.max(featuredProjects.length, 1) / Math.max(featuredProjects.length - 1, 1), 1),
             });
             section.dataset.particleVisibility = visibility.toFixed(3);
             section.dataset.chapterFormation =
@@ -320,9 +325,11 @@ export function SelectedWorkRunway() {
       store.setWorkParticleState({
         visibility: 1,
         chapterFormationProgress: 0,
+        formationProgress: 0,
+        projectProgress: 0,
       });
     };
-  }, [store, totalFrames]);
+  }, [featuredProjects.length, store, totalFrames]);
 
   const focusFrame = (index: number) => {
     setCurrentIndex(index);
@@ -364,44 +371,9 @@ export function SelectedWorkRunway() {
           </div>
 
           <div ref={trackRef} className="work-runway__track">
-            {featuredProjects.map((project, index) => (
-              <article
-                key={project.slug}
-                className="work-card"
-                onFocus={() => focusFrame(index)}
-              >
-                <div
-                  className={`work-card__media work-card__media--${project.visual}`}
-                  aria-hidden="true"
-                >
-                  <span className="work-card__shape work-card__shape--one" />
-                  <span className="work-card__shape work-card__shape--two" />
-                  <span className="work-card__media-label">
-                    Webine / {project.year}
-                  </span>
-                </div>
-                <div className="work-card__content">
-                  <div className="work-card__meta">
-                    <span>{project.label}</span>
-                    <span>{project.year}</span>
-                  </div>
-                  <h3>{project.title}</h3>
-                  <p>{project.description}</p>
-                  <ul aria-label="Services">
-                    {project.services.map((service) => (
-                      <li key={service}>{service}</li>
-                    ))}
-                  </ul>
-                  <Link
-                    className="work-card__link"
-                    to="/works"
-                    aria-label={`View ${project.title} in Works`}
-                  >
-                    View project <DirectionalArrow />
-                  </Link>
-                </div>
-              </article>
-            ))}
+            {projectsResource.status === "loading" ? <div className="work-runway__data-state" aria-live="polite">Loading selected work…</div> : null}
+            {projectsResource.status === "error" ? <div className="work-runway__data-state"><p>Selected work could not load.</p><button type="button" onClick={projectsResource.retry}>Try again</button></div> : null}
+            {featuredProjects.map((project, index) => <ProjectCard key={project.id} project={project} compact active={currentIndex === index} onFocus={() => focusFrame(index)} />)}
 
             <article
               ref={chapterRef}
@@ -420,12 +392,12 @@ export function SelectedWorkRunway() {
                   <span>04</span>
                   <span>Next chapter</span>
                 </div>
-                <p className="eyebrow">{homeInterludeContent.eyebrow}</p>
+                <p className="eyebrow">{interlude.eyebrow}</p>
                 <h3 id="work-chapter-preview-heading">
-                  {homeInterludeContent.titleLead}{" "}
-                  <em>{homeInterludeContent.titleAccent}</em>
+                  {interlude.titleLead}{" "}
+                  <em>{interlude.titleAccent}</em>
                 </h3>
-                <p>{homeInterludeContent.statement}</p>
+                <p>{interlude.statement}</p>
                 <a
                   className="work-runway__chapter-link"
                   href="#interlude-heading"

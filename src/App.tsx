@@ -1,24 +1,30 @@
+import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import { RouteEffects } from "./components/RouteEffects";
-import { AdminPage } from "./pages/AdminPage";
+import { RouteTransition } from "./components/RouteTransition";
 import { ContactPage } from "./pages/ContactPage";
 import { HomePage } from "./pages/HomePage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { PreviewPage } from "./pages/PreviewPage";
 import { WorksPage } from "./pages/WorksPage";
+import { SiteSettingsProvider } from "./content/SiteSettingsProvider";
+
+const AdminEntry = lazy(() => import("./admin/AdminEntry"));
 
 export function App() {
   return (
     <>
       <RouteEffects />
-      <Routes>
+      <RouteTransition />
+      <SiteSettingsProvider><Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/works" element={<WorksPage />} />
+        <Route path="/works/:projectSlug" element={<WorksPage />} />
         <Route path="/contact" element={<ContactPage />} />
-        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/admin/*" element={<Suspense fallback={<main className="admin-entry-state theme-light">Loading Admin…</main>}><AdminEntry /></Suspense>} />
         <Route path="/preview" element={<PreviewPage />} />
         <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+      </Routes></SiteSettingsProvider>
     </>
   );
 }

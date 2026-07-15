@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.server.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": ".test-build",
+    "declaration": false,
+    "sourceMap": false
+  },
+  "include": ["api/**/*.ts", "dev/**/*.ts", "server/**/*.ts", "src/cms/**/*.ts", "src/content/site-settings.ts"]
+}

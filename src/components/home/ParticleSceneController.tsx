@@ -172,6 +172,10 @@ export function ParticleSceneController({
           store.getSnapshot().timelineReleaseProgress,
         workParticleVisibility:
           store.getSnapshot().workParticleVisibility,
+        workFormationProgress:
+          store.getSnapshot().workFormationProgress,
+        workProjectProgress:
+          store.getSnapshot().workProjectProgress,
         workChapterFormationProgress:
           store.getSnapshot().workChapterFormationProgress,
         timelineInletPosition:

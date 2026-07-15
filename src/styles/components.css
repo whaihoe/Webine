@@ -191,6 +191,7 @@
 
 .mobile-menu::backdrop {
   background: hsl(var(--primitive-slate-950) / 0.72);
+  animation: menu-backdrop-in 320ms ease both;
 }
 
 .mobile-menu__panel {
@@ -201,6 +202,7 @@
   background:
     linear-gradient(135deg, hsl(var(--primitive-blue-600) / 0.1), transparent 42%),
     hsl(var(--dialog-background));
+  animation: menu-panel-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .mobile-menu__topline {
@@ -229,6 +231,22 @@
   letter-spacing: -0.05em;
   line-height: 1;
   text-decoration: none;
+  animation: menu-link-in 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.mobile-menu__link:nth-child(2) { animation-delay: 50ms; }
+.mobile-menu__link:nth-child(3) { animation-delay: 100ms; }
+
+@keyframes menu-backdrop-in {
+  from { opacity: 0; }
+}
+
+@keyframes menu-panel-in {
+  from { opacity: 0; transform: translateY(-2rem); }
+}
+
+@keyframes menu-link-in {
+  from { opacity: 0; transform: translateY(1.25rem); }
 }
 
 .mobile-menu__link[aria-current="page"] {
@@ -299,7 +317,8 @@
 }
 
 .form-field input,
-.form-field textarea {
+.form-field textarea,
+.form-select select {
   width: 100%;
   min-height: 3.25rem;
   padding: var(--primitive-space-3) var(--primitive-space-4);
@@ -313,6 +332,22 @@
 .form-field input::placeholder,
 .form-field textarea::placeholder {
   color: hsl(var(--input-placeholder));
+}
+
+.form-field input:focus-visible,
+.form-field textarea:focus-visible,
+.form-select select:focus-visible {
+  outline: 2px solid hsl(var(--primitive-blue-500));
+  outline-offset: 2px;
+}
+
+.form-field [aria-invalid="true"],
+.form-select [aria-invalid="true"] {
+  border-color: hsl(var(--primitive-red-500, 0 72% 51%));
+}
+
+.form-field__error {
+  color: hsl(var(--primitive-red-500, 0 72% 51%));
 }
 
 .form-field input:disabled,

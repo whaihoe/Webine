@@ -7,10 +7,13 @@ Webine uses one persistent GPU particle system on tablet and desktop, plus secti
 - `position`, the initial scattered field
 - `targetHero`, an area-weighted surface sample of the supplied Webine logo GLB
 - `targetReach`, a procedural torus-band formation for the Business Value scene
+- `targetWorkA`, `targetWorkB` and `targetWorkC`, restrained procedural frame, directional underline and diagonal cluster formations for Selected Work
 - `targetInterlude`, a procedural orbit formation used around the work interlude
 - `targetClosing`, an area-weighted surface sample of the supplied colony planet GLB
 
 On tablet and desktop, the same `BufferGeometry` stays mounted for the whole homepage. The vertex shader interpolates between these targets according to scroll progress.
+
+The work targets are intentionally capped at 12 percent story visibility. The runway sends one continuous project progress value, so the existing particle population streams between the three forms instead of swapping geometries. Chapter 04 formation then takes ownership through the existing reversible interlude branch. Phones omit work particles because their section-owned renderer is the performance-safe alternative and project content must remain dominant.
 
 ## Model-backed targets
 
@@ -30,6 +33,6 @@ Procedural targets remain procedural where that is visually useful, while recogn
 
 Phones at the mobile breakpoint do not mount the fixed React Three Fiber canvas. The Hero, Reach, Interlude and Closing sections each own an absolutely positioned 2D canvas inside the section. Normal document scrolling therefore moves the particle layer with its section and no particle group has to chase a moving DOM anchor. Scroll progress only controls a local `scatter -> formed -> scatter` interpolation.
 
-The four mobile target point clouds and their scatter positions are baked into `public/mobile-particles/section-targets.bin`. The binary is about 30 KB and contains 480 points per target. The hero and closing point clouds come from the real Webine logo and colony planet meshes, while the two ring targets remain procedural. Mobile does not load Three.js, React Three Fiber, GLTFLoader, MeshSurfaceSampler or the WebGL shaders. The canvases redraw only when the progress store changes and only while their section is within a 60 percent viewport margin.
+The four mobile target point clouds and their scatter positions are baked into `public/mobile-particles/section-targets.bin`. The binary is about 30 KB and contains 480 source points per target. The renderer creates deterministic local copies with restrained jitter, producing 1,920 visible Hero points and 1,440 visible points in Reach, Interlude, Closing and the timeline flow. The hero and closing point clouds come from the real Webine logo and colony planet meshes, while the two ring targets remain procedural. Mobile does not load Three.js, React Three Fiber, GLTFLoader, MeshSurfaceSampler or the WebGL shaders. The canvases redraw only when the progress store changes and only while their section is near the viewport.
 
-This mobile path is deliberate, not a temporary copy of the earlier WebGL profile. Keeping the canvas absolute inside its section lets the browser move the complete layer during native scrolling. JavaScript changes only the local particle arrangement, which removes the anchor-chasing jitter seen with a fixed particle object on real phones. The removed mobile WebGL shader, demand-frame loop and mobile GPU profile must not be restored unless real-device testing shows a clear benefit.
+This mobile path is deliberate, not a temporary copy of the earlier WebGL profile. Keeping the canvas absolute inside its section lets the browser move the complete layer during native scrolling. JavaScript changes only the local particle arrangement, which removes the anchor-chasing jitter seen with a fixed particle object on real phones. Visible density is controlled through `displayCopies` in `src/config/experience.ts`, while the baked source count stays small. The removed mobile WebGL shader, demand-frame loop and mobile GPU profile must not be restored unless real-device testing shows a clear benefit.

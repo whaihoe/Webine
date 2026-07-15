@@ -7,14 +7,15 @@
 | `WebineBrand` | Logo and working text wordmark | Default and focus |
 | `SiteHeader` | Public navigation shell | Dark and light |
 | `MobileMenu` | Labelled full-screen mobile navigation | Closed, open, current page and focus |
-| `SiteFooter` | Public navigation, location and pending contact area | Dark |
+| `SiteFooter` | Public navigation, location, contact, privacy and colophon | Dark |
 | `ButtonLink` | Primary and secondary navigation actions | Primary, outline, quiet, hover and focus |
 | `DirectionalArrow` | Vector UI direction mark that avoids platform emoji glyph fallback | Up-right and down |
 | `SectionHeading` | Editorial section index, title and explanation | Light and dark through tokens |
-| `FormField` | Form structure and field styling | Disabled preview |
+| `FormField` | Accessible controlled input and textarea structure | Text, email, URL, textarea, required, invalid and focused |
 | `SiteShell` | Public header, main content and footer composition | Dark or light header |
 | `WorkspaceShell` | Reserved Admin application frame | Mobile strip and desktop sidebar |
 | `RouteEffects` | Page title, route announcement, scroll and heading focus | Push, replace and browser history |
+| `RouteTransition` | Non-blocking public-route reveal curtain | Public route entry and absent from Admin or preview |
 | `AppErrorBoundary` | Application failure fallback | Error |
 | `PublicSmoothScroll` | Lenis public wheel-scroll controller synchronized with GSAP ScrollTrigger | Weighted wheel input, native touch momentum and cleanup |
 | `HomeParticleExperience` | Home-only boundary for the persistent visual layer | Mounted and unmounted by route |
@@ -27,19 +28,26 @@
 | `SignalGrid` | Faint CSS grid with a fine-pointer local light response | Resting touch, active pointer and offscreen-paused |
 | `ReachSection` | Practical found, trusted and chosen business-value chapter | Entered, revealed and expanded examples |
 | `SelectedWorkRunway` | Responsive portfolio chapter ending in an expanding chapter 04 card | Vertical-driven horizontal movement on every breakpoint, centred stop, card expansion, progress, keyboard focus and reversible interlude handoff |
+| `ProjectCard` | Shared published Project presentation for Works and Home | Intrinsic media sizing, priority or lazy loading, fine-pointer parallax, honest kind label, services and project link |
+| `MediaLibrary` | Admin upload and reusable asset workspace | Drag or button upload, progress, preview, metadata, focal point, usage and archive protection |
+| `AssetFieldControl` | Generated image and gallery selector | Loading, empty library, single image, gallery and selected states |
+| `ItemEditor` | Schema-generated draft and Project workflow | Save, preview, publish, republish, unpublish, archive and flexible content blocks |
 | `QuietInterlude` | Full long-term-value chapter aligned directly beneath the expanded runway card | Seamless takeover, section-owned point formation, top-point dispersion and reverse |
 | `ProcessTimeline` | Semantic four-stage process with line fill, early point-contact intake and centred outlet geometry | Waiting, absorbing, active, complete, emitting and reverse |
 | `ClosingCallToAction` | Final momentum scene and primary contact route | Resting grid and opaque section-anchored particle colony planet |
+| `ContactPage` | Public project enquiry and privacy experience | Idle, submitting, success, error and recovery |
+| `EnquiriesPage` | Protected owner review of stored project enquiries | Loading, empty, ready, notification pending or failed and retry |
+| `CMS schema domain` | Shared collection, field, item, reference and archive validation for future server handlers | Valid, invalid, incompatible mutation and published-usage block |
 
 ## Route compositions
 
 - Home: six-scene dark and light narrative with persistent tablet and desktop GPU particles plus phone-owned 2D particle canvases
-- Works: light editorial introduction, 8 and 4-column project system preview and honest empty state
-- Contact: 5 and 7-column split on desktop with a disabled light form preview
-- Admin: 264 px desktop sidebar and flexible content canvas
-- Preview: restrained light reserved-route composition
+- Works: published CMS introduction, filters, responsive project grid, loading or error states and shareable case studies
+- Contact: responsive dark introduction, working light enquiry form and linked privacy section
+- Admin: 264 px desktop sidebar, flexible content canvas and protected enquiry inbox
+- Preview: protected draft Project composition using current media and story fields
 - Not found: dark action-oriented fallback
 
 ## Later components
 
-The following components remain outside the current implementation: approved final poster art, commissioned project media, project filters, project case-study panels, the enquiry pipeline, CMS-generated forms, media upload controls and route transitions.
+The following components remain outside the current implementation: approved final poster art, commissioned project media, final route transitions and final SEO automation. The CMS database, authenticated Admin, collection builder, generated editors, media library, publishing controls, public Works, CMS-backed homepage runway and enquiry pipeline now exist.

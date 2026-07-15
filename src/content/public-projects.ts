@@ -1,0 +1,25 @@
+export type PublicProject = {
+  id: string;
+  slug: string;
+  title: string;
+  client: string;
+  kind: "client" | "concept" | "internal";
+  label: string;
+  category: string;
+  year: number;
+  services: string[];
+  summary: string;
+  heroImage: { id: string; url: string; altText: string; focalX: number; focalY: number; width: number; height: number };
+  hoverImage?: { id: string; url: string; altText: string; focalX: number; focalY: number; width: number; height: number };
+  cardTheme: "light" | "dark";
+  featured: boolean;
+  featuredOrder: number | null;
+  challenge?: string;
+  approach?: string;
+  outcome?: string;
+  contentBlocks: Array<Record<string, unknown>>;
+  projectUrl?: string;
+  credits: Array<Record<string, unknown>>;
+  seoTitle?: string;
+  seoDescription?: string;
+};

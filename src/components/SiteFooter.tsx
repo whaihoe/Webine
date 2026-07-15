@@ -1,14 +1,17 @@
 import { Link } from "react-router-dom";
 import { publicNavigation } from "../config/navigation";
 import { WebineBrand } from "./WebineBrand";
+import { useSiteSettings } from "../content/SiteSettingsProvider";
 
 export function SiteFooter() {
+  const settings = useSiteSettings();
+  const publicEmail = settings.contact.email || import.meta.env.VITE_PUBLIC_CONTACT_EMAIL?.trim();
   return (
     <footer className="site-footer theme-dark">
       <div className="site-container site-footer__grid">
         <div className="site-footer__identity">
           <WebineBrand />
-          <p>Distinctive websites shaped around real business potential.</p>
+          <p>{settings.footer.text}</p>
         </div>
 
         <div className="site-footer__column">
@@ -24,13 +27,14 @@ export function SiteFooter() {
 
         <div className="site-footer__column">
           <span className="eyebrow">Based in</span>
-          <p>Singapore</p>
+          <p>{settings.footer.location}</p>
           <Link to="/contact">Start a conversation</Link>
+          {publicEmail ? <a href={`mailto:${publicEmail}`}>{publicEmail}</a> : null}
         </div>
 
         <div className="site-footer__bottom">
-          <span>© {new Date().getFullYear()} Webine</span>
-          <span>Designed and developed by Webine</span>
+          <span>© {new Date().getFullYear()} {settings.footer.copyrightLabel}</span>
+          <span><Link to="/contact#privacy">Privacy</Link> / Designed and developed by Webine</span>
         </div>
       </div>
     </footer>

@@ -10,35 +10,10 @@ import {
   useParticleSceneAnchor,
 } from "./ParticleSceneController";
 import { MobileSectionParticles } from "./MobileSectionParticles";
-
-const principles = [
-  {
-    index: "01",
-    title: "Be found",
-    description:
-      "A clear structure and technically sound foundation make it easier for people and search engines to understand what you offer.",
-    example:
-      "Clear page hierarchy, useful metadata and responsive performance give every important service a reliable place to be discovered.",
-  },
-  {
-    index: "02",
-    title: "Be trusted",
-    description:
-      "Distinctive design and credible communication help the business feel considered before the first conversation begins.",
-    example:
-      "Consistent typography, honest proof and purposeful visual choices replace the uncertainty created by a generic or outdated website.",
-  },
-  {
-    index: "03",
-    title: "Be chosen",
-    description:
-      "A focused path from interest to enquiry helps visitors understand the next step without pressure or confusion.",
-    example:
-      "Service context, practical answers and one clear action reduce the effort needed to decide whether the business is a good fit.",
-  },
-];
+import { useSiteSettings } from "../../content/SiteSettingsProvider";
 
 export function ReachSection() {
+  const settings = useSiteSettings();
   const sectionRef = useRef<HTMLElement | null>(null);
   const registerScene = useParticleSceneAnchor("reach");
   const { store } = useParticleController();
@@ -111,13 +86,11 @@ export function ReachSection() {
         </h2>
 
         <p className="reach-section__intro" data-reveal>
-          Good design is not only about looking different. It gives the right
-          information a clearer structure, supports credibility and guides an
-          interested visitor towards a useful next step.
+          {settings.positioningStatement}
         </p>
 
         <div className="reach-principles" data-reveal>
-          {principles.map((principle, index) => {
+          {settings.principles.map((principle, index) => {
             const expanded = expandedIndex === index;
 
             return (
@@ -127,7 +100,7 @@ export function ReachSection() {
                 data-expanded={expanded}
               >
                 <span className="reach-principle__index">
-                  {principle.index}
+                  {String(index + 1).padStart(2, "0")}
                 </span>
                 <h3>{principle.title}</h3>
                 <p>{principle.description}</p>

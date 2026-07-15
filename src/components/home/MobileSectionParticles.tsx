@@ -12,12 +12,6 @@ import { useParticleController } from "./ParticleSceneController";
 const MOBILE_QUERY = `(max-width: ${experienceConfig.particles.mobile.maxWidth}px)`;
 const MOBILE_PARTICLE_DPR = 1;
 const MOBILE_AMBIENT_FRAME_RATE = 24;
-const MOBILE_SCENE_DENSITY: Record<MobileParticleSceneId, number> = {
-  hero: 3,
-  reach: 2,
-  interlude: 2,
-  closing: 2,
-};
 
 type PreparedParticleTarget = {
   targetX: Float32Array;
@@ -73,7 +67,7 @@ function prepareTarget(
 ): PreparedParticleTarget {
   const target = getMobileParticleTarget(buffers, scene);
   const sourceCount = target.length / 3;
-  const density = MOBILE_SCENE_DENSITY[scene];
+  const density = experienceConfig.particles.mobile.displayCopies[scene];
   const count = sourceCount * density;
   const targetX = new Float32Array(count);
   const targetY = new Float32Array(count);
@@ -259,7 +253,9 @@ export function MobileTimelineFlowParticles() {
       const scatterRadiusX = width * 0.49;
       const scatterRadiusY = height * 0.48;
       const pointSize = experienceConfig.particles.mobile.pointSize;
-      const count = buffers.randomness.length;
+      const sourceCount = buffers.randomness.length;
+      const count = sourceCount *
+        experienceConfig.particles.mobile.displayCopies.timeline;
       lastProgress = progress;
 
       drawingContext.setTransform(
@@ -276,7 +272,11 @@ export function MobileTimelineFlowParticles() {
         drawingContext.fillStyle = colours[bucket];
 
         for (let index = 0; index < count; index += 1) {
-          const randomness = buffers.randomness[index];
+          const sourceIndex = index % sourceCount;
+          const copyIndex = Math.floor(index / sourceCount);
+          const randomness = hash01(
+            buffers.randomness[sourceIndex] * 41.7 + copyIndex * 13.1,
+          );
           const shadeBucket = Math.min(2, Math.floor(randomness * 3));
 
           if (shadeBucket !== bucket) {

@@ -6,6 +6,9 @@ export type ParticleTargetBuffers = {
   release: Float32Array;
   hero: Float32Array;
   reach: Float32Array;
+  workA: Float32Array;
+  workB: Float32Array;
+  workC: Float32Array;
   interlude: Float32Array;
   closing: Float32Array;
   randomness: Float32Array;
@@ -71,6 +74,9 @@ export function createProceduralParticleTargets(count: number, ambientRatio: num
   const scatter = new Float32Array(count * 3);
   const release = new Float32Array(count * 3);
   const reach = new Float32Array(count * 3);
+  const workA = new Float32Array(count * 3);
+  const workB = new Float32Array(count * 3);
+  const workC = new Float32Array(count * 3);
   const interlude = new Float32Array(count * 3);
   const randomness = new Float32Array(count);
   const ambientMask = new Float32Array(count);
@@ -111,12 +117,27 @@ export function createProceduralParticleTargets(count: number, ambientRatio: num
     const reachBand = index % 3;
     const reachPoint = sampleEllipticalTorus(random, 1.15 + reachBand * 0.62, 0.82 + reachBand * 0.42, 0.15 + reachBand * 0.025);
     reach.set(reachPoint, offset);
+
+    const frameSide = index % 4;
+    const frameT = random() * 2 - 1;
+    const frameDepth = (random() - 0.5) * 0.16;
+    workA.set(frameSide === 0 ? [-2.35, frameT * 1.18, frameDepth] : frameSide === 1 ? [2.35, frameT * 1.18, frameDepth] : frameSide === 2 ? [frameT * 2.35, -1.18, frameDepth] : [frameT * 2.35, 1.18, frameDepth], offset);
+
+    const directionalTip = index % 5 === 0;
+    const arrowT = random();
+    workB.set(directionalTip
+      ? [1.2 + arrowT * 1.1, -0.74 + (index % 2 ? 1 : -1) * arrowT * 0.58, frameDepth]
+      : [-2.2 + arrowT * 4.4, -0.74 + (random() - 0.5) * 0.1, frameDepth], offset);
+
+    const clusterT = random() * 2 - 1;
+    const clusterBand = (index % 3) - 1;
+    workC.set([clusterT * 1.55 + clusterBand * 0.16, clusterT * 0.58 + clusterBand * 0.34, frameDepth + clusterBand * 0.06], offset);
     const interludeBand = index % 3;
     const interludePoint = sampleEllipticalTorus(random, 1.32 + interludeBand * 0.48, 0.92 + interludeBand * 0.32, 0.2);
     interlude.set(interludePoint, offset);
   }
 
-  return { source, scatter, release, reach, interlude, randomness, ambientMask };
+  return { source, scatter, release, reach, workA, workB, workC, interlude, randomness, ambientMask };
 }
 
 export function createParticleTargetBuffers(proceduralTargets: ProceduralParticleTargetBuffers, heroTarget: Float32Array, closingTarget: Float32Array): ParticleTargetBuffers {

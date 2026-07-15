@@ -248,3 +248,71 @@
 - Removed the superseded mobile WebGL shader, demand-frame loop and unused mobile GPU configuration. Phones now have one clear production path: four section-owned absolute 2D canvases with 480 baked points per target and a 1.55 point size.
 - Updated the foundation tests to protect the hybrid pin, native touch path and absence of the removed mobile WebGL implementation.
 - Linting, TypeScript, the production build, all twelve foundation tests and the diff whitespace check pass. Final confirmation on the user's physical iPhone remains required.
+
+## 2026-07-15, denser mobile particles and Stage 8 CMS schema
+
+- Increased the section-owned phone particle renderer without changing the 480-point baked source asset. Hero now renders four deterministic copies for 1,920 visible points. Reach, Interlude, Closing and timeline flow render three copies for 1,440 visible points.
+- Centralised those density multipliers in `experienceConfig.particles.mobile.displayCopies` so mobile density remains adjustable without duplicating scene constants.
+- Added three SQLite and D1-compatible migrations for content collections, field definitions, draft and published items, publish snapshots, references, assets, asset usage, audit events, enquiries and idempotency records.
+- Seeded the protected Projects, Categories, Services and Site Settings collection schemas plus the Site Settings singleton.
+- Added the shared CMS validation domain for stable keys, schema compatibility, every launch field category, asset readiness, alt text, references and archive protection.
+- Added automated clean-database and upgrade-path tests. Linting, TypeScript, the production build, CMS tests, foundation tests and the diff whitespace check pass.
+
+## 2026-07-15, Vercel-first hosting and protected Admin reads
+
+- Confirmed Vercel as the first production host. Cloudflare is now only a possible future migration.
+- Removed the unfinished Worker, Wrangler, D1 binding and Cloudflare Access implementation so the repository does not carry two competing server architectures.
+- Added Vercel Functions for the Admin session, dashboard, collections and collection item lists.
+- Added Clerk session verification, an exact owner user-ID allowlist and authorised-origin checks. The development bypass is accepted only in an explicit local non-production runtime.
+- Kept the CMS portable through libSQL. Local development uses SQLite and Vercel Preview or Production can use Turso with the same reviewable migrations.
+- Added `vercel.json`, a names-only environment template, a migration runner and server type checks. Production and complete dependency audits report no known vulnerabilities.
+
+## 2026-07-15, Stage 10 collection builder and generated drafts
+
+- Added protected collection creation and compatible schema editing through Vercel Functions, including field ordering, select options, reference targets and approved validation limits.
+- Added generated Admin controls for every launch field category. Image and gallery fields expose an upload action rather than a path field, but the action remains disabled until Stage 11 connects storage.
+- Added incomplete draft creation and editing. Entered values are validated on the server, references and assets are resolved from the database and stale versions return a conflict instead of overwriting newer work.
+- Added exact same-origin checks for mutations and complete audit records using the verified Clerk user ID plus the request ID.
+- Renamed the audit actor column through a forward migration rather than rewriting the already-applied operations migration.
+- Lazy-loaded the complete Admin and Clerk client bundle so public routes do not download the CMS workspace.
+- Verification covers repository mutations, the real protected request handlers, same-origin rejection, schema compatibility, stale writes and server-rendered output for all generated controls. The production build, server type check, lint and 24 automated tests pass. A fresh visual browser pass remains unavailable because the in-app browser runtime could not initialise.
+
+## 2026-07-15, local Admin API development parity
+
+- Fixed the local Admin loading failure where Vite returned the React application for `/api/admin/*` instead of executing the Vercel Function handlers.
+- Added a development-only Vite adapter that maps every Admin API route to the same modules used by Vercel Preview and Production. No duplicate business logic or separate mock API was introduced.
+- Added a local ignored development identity. The existing authentication policy rejects this bypass on Vercel and whenever `NODE_ENV` is production.
+- Verified the live `npm run dev` path on a separate port and on the user's existing port 5173. Both the session and collection endpoints returned valid protected JSON, while a mutation without an Origin header returned 403 without changing data.
+- Added route-mapping coverage. The production build, server type check and all 25 automated tests pass.
+
+## 2026-07-15, Stages 11 to 15 media, publishing and public work
+
+- Kept the real production Admin login. Clerk still verifies the session, authorised party and exact owner ID. Only the ignored local development environment uses the guarded bypass.
+- Added validated media upload with button and drag-and-drop input, progress, preview, alt or decorative metadata, focal point, reusable selection, metadata editing, usage counts and published-usage archive protection.
+- Selected Vercel Blob client-direct upload for production and an ignored local file adapter for development. Both create the same provider-neutral asset records, while editors never enter a storage path.
+- Added Project preview, publish, republish, unpublish and archive actions with required-field validation, snapshots, audit events and optimistic versions. Public queries read only published snapshots.
+- Seeded three clearly labelled internal or concept projects and removed the former hardcoded featured-project module.
+- Built Works from the published API with filters, responsive cards, loading or error states and shareable case studies with adjacent navigation.
+- Reused the published query and `ProjectCard` in the homepage runway without replacing its proven horizontal timeline or chapter 04 expansion.
+- Added three restrained work formations to the existing persistent particle geometry. Their visibility is capped at 12 percent and mobile deliberately keeps the work interval clear.
+- Verified a real local upload through Project creation, publication, public query and archive. The production build, server type check, dependency audit and all 26 automated tests pass. Fresh visual review remains open because the browser-control runtime fails before page inspection.
+
+## 2026-07-15, Stages 16 to 20 process, enquiries and closing action
+
+- Confirmed the existing quiet interlude, semantic four-step timeline and shared particle intake, hidden channel and outlet contract satisfy Stages 16 to 18 without replacing the approved interaction work.
+- Activated the Contact form with server validation, accessible success or error recovery, a honeypot, HMAC-based rate limiting, 24-hour deduplication, libSQL storage and optional HTTPS webhook notification.
+- Added a Clerk-protected Admin enquiry inbox and safe notification retry state. Private form fields are not written to application logs.
+- Completed the privacy deep link, availability, optional public email, closing CTA and footer contact paths.
+- Retained the current user-approved colony planet as the final fixed particle form. It supersedes the blueprint's earlier ribbon or arrow suggestion.
+- Applied migration 7 to the local database. The production build, server types, dependency audit, diff whitespace check and all 29 automated tests pass. Fresh visual and physical-iPhone review remain open.
+
+## 2026-07-15, Stage 21 and production-readiness foundation
+
+- Added a short public-route curtain that reveals the destination without delaying navigation, while Admin and preview receive no decorative wipe.
+- Added staged mobile-menu entry, route heading reveals and fine-pointer-only Works card parallax. The approved homepage particle, pin and runway timelines were not retimed.
+- Added route announcements, anchors, focus and browser-back position handling plus URL-backed Works filters.
+- Added intrinsic dimensions and intentional eager or lazy priority to all published Project media.
+- Added field-associated Contact errors with summary recovery and first-invalid-field focus.
+- Added dynamic Project metadata, private-route noindex, origin-correct robots, a published-Project sitemap, HSTS and frame denial.
+- Added guarded local backup or restore tools and fixed item or publishing writes so simultaneous database clients cannot commit stale relationship, snapshot or audit side effects.
+- Added content-entry, verification and launch-checklist documents. Stage 22 visual devices and Stage 23 field measurements remain open because the browser runtime cannot initialise and physical devices are not controlled here.

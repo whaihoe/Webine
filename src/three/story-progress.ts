@@ -32,6 +32,8 @@ export type StoryProgressSnapshot = {
   timelineIntakeProgress: number;
   timelineReleaseProgress: number;
   workParticleVisibility: number;
+  workFormationProgress: number;
+  workProjectProgress: number;
   workChapterFormationProgress: number;
   timelineInletPosition: ViewportPoint;
   timelineOutletPosition: ViewportPoint;
@@ -56,6 +58,8 @@ export type StoryProgressStore = {
   setWorkParticleState: (state: {
     visibility: number;
     chapterFormationProgress: number;
+    formationProgress: number;
+    projectProgress: number;
   }) => void;
   update: (next: StoryProgressSnapshot) => void;
 };
@@ -76,6 +80,8 @@ const initialSnapshot: StoryProgressSnapshot = {
   timelineIntakeProgress: 0,
   timelineReleaseProgress: 0,
   workParticleVisibility: 1,
+  workFormationProgress: 0,
+  workProjectProgress: 0,
   workChapterFormationProgress: 0,
   timelineInletPosition: { x: 0.5, y: 0.5 },
   timelineOutletPosition: { x: 0.5, y: 0.5 },
@@ -132,10 +138,12 @@ export function createStoryProgressStore(): StoryProgressStore {
       };
       progressListeners.forEach((listener) => listener());
     },
-    setWorkParticleState: ({ visibility, chapterFormationProgress }) => {
+    setWorkParticleState: ({ visibility, chapterFormationProgress, formationProgress, projectProgress }) => {
       snapshot = {
         ...snapshot,
         workParticleVisibility: Math.min(Math.max(visibility, 0), 1),
+        workFormationProgress: Math.min(Math.max(formationProgress, 0), 1),
+        workProjectProgress: Math.min(Math.max(projectProgress, 0), 1),
         workChapterFormationProgress: Math.min(
           Math.max(chapterFormationProgress, 0),
           1,

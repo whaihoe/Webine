@@ -2,9 +2,12 @@ import { ButtonLink } from "../ButtonLink";
 import { SignalGrid } from "./SignalGrid";
 import { MobileSectionParticles } from "./MobileSectionParticles";
 import { useParticleSceneAnchor } from "./ParticleSceneController";
+import { useSiteSettings } from "../../content/SiteSettingsProvider";
 
 export function ClosingCallToAction() {
   const registerScene = useParticleSceneAnchor("closing");
+  const settings = useSiteSettings();
+  const publicEmail = settings.contact.email || import.meta.env.VITE_PUBLIC_CONTACT_EMAIL?.trim();
 
   return (
     <section
@@ -18,15 +21,18 @@ export function ClosingCallToAction() {
       <SignalGrid className="signal-grid--closing" />
       <MobileSectionParticles scene="closing" />
       <div className="site-container closing-cta__layout">
-        <p className="eyebrow">06 / Start somewhere useful</p>
+        <p className="eyebrow">{settings.closing.eyebrow}</p>
         <h2 id="closing-heading">
-          Bring the potential. <em>We will help shape it.</em>
+          {settings.closing.titleLead} <em>{settings.closing.titleAccent}</em>
         </h2>
         <p>
-          Tell us what the business needs, what is getting in the way and what
-          a stronger website should make possible.
+          {settings.closing.copy}
         </p>
-        <ButtonLink href="/contact">Start a project</ButtonLink>
+        <ButtonLink href={settings.closing.cta.href}>{settings.closing.cta.label}</ButtonLink>
+        <div className="closing-cta__availability">
+          <span>{settings.contact.availability}</span>
+          {publicEmail ? <a href={`mailto:${publicEmail}`}>{publicEmail}</a> : <span>Based in {settings.footer.location}</span>}
+        </div>
       </div>
     </section>
   );

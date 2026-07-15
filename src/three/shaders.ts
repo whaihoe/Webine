@@ -3,6 +3,9 @@ export const particleVertexShader = `
   attribute vec3 targetScatter;
   attribute vec3 targetRelease;
   attribute vec3 targetReach;
+  attribute vec3 targetWorkA;
+  attribute vec3 targetWorkB;
+  attribute vec3 targetWorkC;
   attribute vec3 targetInterlude;
   attribute vec3 targetClosing;
   attribute float particleRandom;
@@ -13,6 +16,8 @@ export const particleVertexShader = `
   uniform float uHeroExitProgress;
   uniform float uReachFormationProgress;
   uniform float uReachExitProgress;
+  uniform float uWorkFormationProgress;
+  uniform float uWorkProjectProgress;
   uniform float uInterludeFormationProgress;
   uniform float uInterludeExitProgress;
   uniform float uTimelineIntakeProgress;
@@ -81,6 +86,14 @@ export const particleVertexShader = `
         dispersedParticle,
         smoothstep(0.0, 1.0, uReachExitProgress)
       );
+    }
+
+    if (uWorkFormationProgress > 0.0) {
+      float workPhase = clamp(uWorkProjectProgress, 0.0, 1.0) * 2.0;
+      vec3 firstWorkTarget = mix(targetWorkA, targetWorkB, smoothstep(0.0, 1.0, workPhase));
+      vec3 workTarget = mix(firstWorkTarget, targetWorkC, smoothstep(1.0, 2.0, workPhase));
+      narrativeTarget = mix(scatterTarget, workTarget, smoothstep(0.0, 1.0, uWorkFormationProgress));
+      narrativeVisibility = mix(dispersedParticle, 1.0, smoothstep(0.0, 1.0, uWorkFormationProgress));
     }
 
     if (uInterludeFormationProgress > 0.0) {

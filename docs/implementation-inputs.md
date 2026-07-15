@@ -16,14 +16,14 @@ This document records the Stage 0 inputs without turning placeholders into final
 
 - Licensed Railway webfont files
 - Final contact email and social links
-- Approved availability and response wording
+- Approved response-time wording beyond the current “Enquiries are open” status
 - Final privacy wording and retention period
 - Three real projects with approved copy, results, credits and media
 - Final logo variants and wordmark
-- Future hosting decision, production configuration and domain
+- Final Vercel project configuration and purchased domain
 
 Arial remains the development fallback behind the primary-font token. No substitute Railway file will be downloaded or committed. Missing contact and project details will remain visibly marked development data until approved material is supplied.
 
-## Stage 0 gate
+## Current gate
 
-The input inventory and current logo are ready. The visual gate remains open because the desktop hero, mobile hero and project card have not been designed yet. That work begins after the application foundation is approved.
+The input inventory, logo, desktop and mobile hero, project cards and complete development experience now exist. Production launch remains open only for the missing licensed font, final legal or contact material, commissioned project content, production services and real-device acceptance evidence listed above.

@@ -16,9 +16,69 @@ test("builds a local browser application", async () => {
 test("keeps every current route", async () => {
   const app = await readFile(new URL("src/App.tsx", projectRoot), "utf8");
 
-  for (const path of ["/", "/works", "/contact", "/admin", "/preview"]) {
+  for (const path of ["/", "/works", "/contact", "/preview"]) {
     assert.match(app, new RegExp(`path=["']${path.replace("/", "\\/")}["']`));
   }
+  assert.match(app, /path=["']\/admin\/\*["']/);
+});
+
+test("keeps global route motion purposeful and restorable", async () => {
+  const [app, effects, transition, projectCard, menu, styles] = await Promise.all([
+    readFile(new URL("src/App.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/RouteEffects.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/RouteTransition.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/projects/ProjectCard.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/MobileMenu.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/styles/layout.css", projectRoot), "utf8"),
+  ]);
+  assert.match(app, /<RouteTransition/);
+  assert.match(transition, /aria-hidden="true"/);
+  assert.match(transition, /!location\.pathname\.startsWith\("\/admin"\)/);
+  assert.match(effects, /scrollPositions/);
+  assert.match(effects, /navigationType === "POP"/);
+  assert.match(effects, /hashTarget\.scrollIntoView/);
+  assert.match(effects, /heading\.focus\(\{ preventScroll: true \}\)/);
+  assert.match(projectCard, /IntersectionObserver/);
+  assert.match(projectCard, /\(pointer: fine\)/);
+  assert.match(projectCard, /removeEventListener\("scroll"/);
+  assert.match(menu, /mobile-menu__navigation/);
+  assert.match(transition, /previousPath/);
+  assert.match(transition, /setTimeout\(\(\) => setVisible\(false\), 760\)/);
+  assert.doesNotMatch(projectCard, /viewTransition/);
+  assert.match(styles, /pointer-events:\s*none/);
+  assert.match(styles, /route-curtain-reveal/);
+});
+
+test("prepares indexable public metadata and private-route noindex controls", async () => {
+  const [html, effects, vercel] = await Promise.all([
+    readFile(new URL("index.html", projectRoot), "utf8"),
+    readFile(new URL("src/components/RouteEffects.tsx", projectRoot), "utf8"),
+    readFile(new URL("vercel.json", projectRoot), "utf8"),
+  ]);
+  assert.match(html, /property="og:title"/);
+  assert.match(html, /name="theme-color"/);
+  assert.match(effects, /noindex, nofollow/);
+  assert.match(vercel, /\/robots\.txt/);
+  assert.match(vercel, /\/sitemap\.xml/);
+  assert.match(vercel, /Strict-Transport-Security/);
+  assert.match(vercel, /X-Frame-Options/);
+});
+
+test("connects published Site Settings to every public content route", async () => {
+  const [app, provider, home, works, contact, footer, closing, process, reach] = await Promise.all([
+    readFile(new URL("src/App.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/content/SiteSettingsProvider.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/pages/HomePage.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/pages/WorksPage.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/pages/ContactPage.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/SiteFooter.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/home/ClosingCallToAction.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/home/ProcessTimeline.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/home/ReachSection.tsx", projectRoot), "utf8"),
+  ]);
+  assert.match(app, /SiteSettingsProvider/);
+  assert.match(provider, /\/api\/site-settings/);
+  for (const source of [home, works, contact, footer, closing, process, reach]) assert.match(source, /useSiteSettings/);
 });
 
 test("uses the three-layer token architecture", async () => {
@@ -52,7 +112,7 @@ test("enables the approved homepage experience layers", async () => {
   assert.match(config, /pointSize:\s*1\.55/);
   assert.match(
     config,
-    /mobile:\s*{[^}]*count:\s*480[^}]*pointSize:\s*1\.55[^}]*maxFrameRate:\s*30[^}]*measurementSettleMs:\s*90/s,
+    /mobile:\s*{[\s\S]*?count:\s*480[\s\S]*?pointSize:\s*1\.55[\s\S]*?hero:\s*4[\s\S]*?reach:\s*3[\s\S]*?timeline:\s*3[\s\S]*?maxFrameRate:\s*30[\s\S]*?measurementSettleMs:\s*90/,
   );
   assert.doesNotMatch(config, /settledFrameRate|renderBurstMs/);
   assert.match(config, /syncTouch:\s*false/);
@@ -183,7 +243,9 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.match(points, /attributes-targetReach/);
   assert.match(points, /attributes-targetInterlude/);
   assert.match(points, /attributes-targetClosing/);
-  assert.doesNotMatch(points, /attributes-targetWork/);
+  assert.match(points, /attributes-targetWorkA/);
+  assert.match(points, /attributes-targetWorkB/);
+  assert.match(points, /attributes-targetWorkC/);
   assert.doesNotMatch(points, /attributes-targetTimeline/);
   assert.match(points, /attributes-particleShade/);
   assert.match(points, /attributes-particleAmbient/);
@@ -201,6 +263,8 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.match(progress, /timelineIntakeProgress/);
   assert.match(progress, /timelineReleaseProgress/);
   assert.match(progress, /workParticleVisibility/);
+  assert.match(progress, /workFormationProgress/);
+  assert.match(progress, /workProjectProgress/);
   assert.match(progress, /workChapterFormationProgress/);
   assert.match(progress, /setWorkParticleState/);
   assert.match(progress, /timelineInletPosition/);
@@ -338,7 +402,8 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.match(selectedWork, /end:\s*"top 30%"/);
   assert.match(selectedWork, /setWorkParticleState/);
   assert.match(selectedWork, /chapterFormationProgress/);
-  assert.match(selectedWork, /homeInterludeContent/);
+  assert.match(selectedWork, /useSiteSettings/);
+  assert.match(selectedWork, /interlude\.titleLead/);
   assert.match(selectedWork, /section\.dataset\.scrollMode = "pinned"/);
   assert.match(selectedWork, /const horizontalEnd = 0\.7/);
   assert.match(selectedWork, /window\.innerWidth <= 599/);
@@ -437,6 +502,28 @@ test("keeps the lazy particle bundle inside its transfer budget", async () => {
     new URL(`dist/assets/${particleAsset}`, projectRoot),
   );
   assert.ok(gzipSync(source).byteLength <= 260 * 1024);
+});
+
+test("keeps the generated CMS editor protected and out of the public bundle", async () => {
+  const [app, collectionEditor, itemEditor, adminPage] = await Promise.all([
+    readFile(new URL("src/App.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/admin/CollectionEditor.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/admin/ItemEditor.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/pages/AdminPage.tsx", projectRoot), "utf8"),
+  ]);
+  const assetNames = await readdir(new URL("dist/assets/", projectRoot));
+
+  assert.match(app, /lazy\(\(\) => import\("\.\/admin\/AdminEntry"\)\)/);
+  assert.ok(assetNames.some((name) => name.startsWith("AdminEntry-")));
+  assert.match(collectionEditor, /fieldTypes\.map/);
+  assert.match(collectionEditor, /Add field/);
+  assert.match(collectionEditor, /Move up/);
+  assert.match(itemEditor, /Upload image/);
+  assert.match(itemEditor, /AssetFieldControl/);
+  assert.match(itemEditor, /Add content block/);
+  assert.doesNotMatch(itemEditor, /image path|provider URL/i);
+  assert.match(adminPage, /collections\/:collectionKey\/schema/);
+  assert.match(adminPage, /collections\/:collectionKey\/items\/:itemId/);
 });
 
 test("cleans up the public smooth-scroll layer", async () => {

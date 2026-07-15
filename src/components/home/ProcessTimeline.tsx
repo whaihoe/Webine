@@ -4,35 +4,10 @@ import {
   useParticleSceneAnchor,
 } from "./ParticleSceneController";
 import { MobileTimelineFlowParticles } from "./MobileSectionParticles";
-
-const processSteps = [
-  {
-    title: "Understand",
-    action: "We clarify the business, audience, goals and constraints before deciding what the website needs to say.",
-    client: "Share context, priorities and useful source material.",
-    output: "A focused brief and content direction.",
-  },
-  {
-    title: "Shape",
-    action: "We organise the story, define the visual direction and prototype the interactions that carry the idea.",
-    client: "Review the direction and give clear, timely feedback.",
-    output: "An agreed structure, design system and motion plan.",
-  },
-  {
-    title: "Build",
-    action: "We turn the approved direction into a responsive, maintainable website and test the complete experience.",
-    client: "Supply final content and approve realistic checkpoints.",
-    output: "A tested website ready for launch preparation.",
-  },
-  {
-    title: "Support",
-    action: "We prepare the handover, monitor the launch and keep a clear route for future refinements.",
-    client: "Confirm access, ownership and the next priorities.",
-    output: "A usable handover and a practical next-step plan.",
-  },
-];
+import { useSiteSettings } from "../../content/SiteSettingsProvider";
 
 export function ProcessTimeline() {
+  const { processSteps } = useSiteSettings();
   const sectionRef = useRef<HTMLElement | null>(null);
   const lineRef = useRef<HTMLDivElement | null>(null);
   const nodeRefs = useRef<Array<HTMLElement | null>>([]);

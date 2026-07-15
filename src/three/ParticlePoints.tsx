@@ -71,6 +71,8 @@ export function ParticlePoints({
       uHeroExitProgress: { value: 0 },
       uReachFormationProgress: { value: 0 },
       uReachExitProgress: { value: 0 },
+      uWorkFormationProgress: { value: 0 },
+      uWorkProjectProgress: { value: 0 },
       uInterludeFormationProgress: { value: 0 },
       uInterludeExitProgress: { value: 0 },
       uTimelineIntakeProgress: { value: 0 },
@@ -154,6 +156,8 @@ export function ParticlePoints({
     const intakeProgress = snapshot.timelineIntakeProgress;
     const releaseProgress = snapshot.timelineReleaseProgress;
     const storyVisibility = snapshot.workParticleVisibility;
+    const workFormation = snapshot.workFormationProgress;
+    const workProjectProgress = snapshot.workProjectProgress;
     const chapterFormation = snapshot.workChapterFormationProgress;
     const interludeFormation = Math.max(
       interludeMotion.formation,
@@ -276,6 +280,7 @@ export function ParticlePoints({
       Math.abs(Math.sin(heroMotion.dispersion * Math.PI)),
       Math.abs(Math.sin(reachMotion.formation * Math.PI)),
       Math.abs(Math.sin(reachMotion.dispersion * Math.PI)),
+      Math.abs(Math.sin(workProjectProgress * Math.PI * 2)),
       Math.abs(Math.sin(interludeFormation * Math.PI)),
       Math.abs(Math.sin(interludeMotion.dispersion * Math.PI)),
       Math.abs(Math.sin(intakeProgress * Math.PI)),
@@ -292,6 +297,7 @@ export function ParticlePoints({
     const formedStrength = Math.max(
       introSettledProgress * (1 - heroMotion.dispersion),
       reachMotion.formation * (1 - reachMotion.dispersion),
+      workFormation,
       interludeFormation * (1 - interludeMotion.dispersion),
       closingMotion.formation * (1 - closingMotion.dispersion),
     );
@@ -335,6 +341,8 @@ export function ParticlePoints({
     dampProgress("uHeroExitProgress", heroMotion.dispersion);
     dampProgress("uReachFormationProgress", reachMotion.formation);
     dampProgress("uReachExitProgress", reachMotion.dispersion);
+    dampProgress("uWorkFormationProgress", workFormation);
+    dampProgress("uWorkProjectProgress", workProjectProgress);
     dampProgress("uInterludeFormationProgress", interludeFormation);
     dampProgress("uInterludeExitProgress", interludeMotion.dispersion);
     dampProgress("uTimelineIntakeProgress", intakeProgress);
@@ -475,6 +483,9 @@ export function ParticlePoints({
             attach="attributes-targetReach"
             args={[targets.reach, 3]}
           />
+          <bufferAttribute attach="attributes-targetWorkA" args={[targets.workA, 3]} />
+          <bufferAttribute attach="attributes-targetWorkB" args={[targets.workB, 3]} />
+          <bufferAttribute attach="attributes-targetWorkC" args={[targets.workC, 3]} />
           <bufferAttribute
             attach="attributes-targetInterlude"
             args={[targets.interlude, 3]}

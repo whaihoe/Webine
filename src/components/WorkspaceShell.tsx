@@ -1,35 +1,47 @@
 import type { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { WebineBrand } from "./WebineBrand";
 
 type WorkspaceShellProps = {
   children: ReactNode;
   title: string;
+  identityLabel?: string;
 };
 
-const workspaceItems = ["Overview", "Collections", "Media", "Settings"];
+const workspaceItems = [
+  { label: "Overview", to: "/admin", end: true },
+  { label: "Collections", to: "/admin/collections", end: false },
+  { label: "Media", to: "/admin/media", end: false },
+  { label: "Enquiries", to: "/admin/enquiries", end: false },
+  { label: "Settings", to: "/admin/settings", end: false },
+] as const;
 
-export function WorkspaceShell({ children, title }: WorkspaceShellProps) {
+export function WorkspaceShell({
+  children,
+  title,
+  identityLabel,
+}: WorkspaceShellProps) {
   return (
     <div className="workspace-shell theme-light">
       <a className="skip-link" href="#workspace-content">
         Skip to workspace content
       </a>
-      <aside className="workspace-sidebar" aria-label="Admin navigation preview">
+      <aside className="workspace-sidebar" aria-label="Admin navigation">
         <WebineBrand />
         <nav>
           {workspaceItems.map((item, index) => (
-            <span
-              key={item}
-              className={index === 0 ? "is-current" : undefined}
-              aria-current={index === 0 ? "page" : undefined}
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              className={({ isActive }) => isActive ? "is-current" : undefined}
             >
               <span>0{index + 1}</span>
-              {item}
-            </span>
+              {item.label}
+            </NavLink>
           ))}
         </nav>
-        <p>Structure preview only</p>
+        <p>{identityLabel ?? "Protected owner workspace"}</p>
       </aside>
 
       <div className="workspace-canvas">
