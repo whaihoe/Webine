@@ -316,3 +316,12 @@
 - Added dynamic Project metadata, private-route noindex, origin-correct robots, a published-Project sitemap, HSTS and frame denial.
 - Added guarded local backup or restore tools and fixed item or publishing writes so simultaneous database clients cannot commit stale relationship, snapshot or audit side effects.
 - Added content-entry, verification and launch-checklist documents. Stage 22 visual devices and Stage 23 field measurements remain open because the browser runtime cannot initialise and physical devices are not controlled here.
+
+## 2026-07-15, Hobby-safe Vercel Function consolidation
+
+- Consolidated 22 individual files under `api/` into seven Vercel Function entrypoints: Admin, Projects, Site Settings, Enquiries, local media delivery, robots and sitemap.
+- Kept the existing browser-facing API URLs. `vercel.json` rewrites dynamic Admin, Project and media paths to their grouped functions, then the entrypoints restore the original path before server routing.
+- Moved grouped route dispatch into `server/api-routes/` so CMS, Clerk, Turso, Blob and enquiry business logic remain server-owned rather than duplicated in Vercel wrappers.
+- Changed protected preview data loading to a path-based Admin API address so its collection and item identity do not depend on preserving query parameters through the Admin rewrite.
+- Updated the development-only Vite API adapter to execute the same consolidated entrypoints used in Vercel Preview and Production.
+- Added deployment tests that protect the seven-entrypoint topology, path restoration and rewrite configuration. Production build, server type checks and all 39 automated tests pass; the SQLite CLI-dependent tests were also run with an equivalent temporary SQLite test shim in this environment.

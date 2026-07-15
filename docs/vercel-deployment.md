@@ -27,6 +27,24 @@ For `CLERK_AUTHORIZED_PARTIES`, include the exact public origins that should ser
 
 When a Turso database is first connected, run the migration command against that environment before using Admin. Preview and Production should not share a database unless that is a deliberate temporary decision.
 
+## Vercel Function topology
+
+The deployment uses seven Vercel Function entrypoints, keeping the project below the Hobby plan function-count limit while preserving the existing browser-facing API URLs. Vercel rewrites group the dynamic routes into their owning function.
+
+| Function | Public routes handled |
+|---|---|
+| `api/admin.ts` | `/api/admin/*` |
+| `api/projects.ts` | `/api/projects` and `/api/projects/:slug` |
+| `api/site-settings.ts` | `/api/site-settings` |
+| `api/enquiries.ts` | `/api/enquiries` |
+| `api/media.ts` | `/api/media/:assetId` for local media delivery |
+| `api/robots.ts` | `/robots.txt` |
+| `api/sitemap.ts` | `/sitemap.xml` |
+
+Admin business logic remains in `server/` and is routed by `server/api-routes/admin.ts`; the entrypoint does not duplicate CMS, auth or media rules. The development Vite adapter maps local requests to the same seven entrypoints used by Vercel.
+
+The repository includes automated coverage that asserts the function entrypoint count remains at or below 12 and that the rewrite targets restore the original API path before the server handler runs.
+
 ## Files to push to GitHub
 
 Push the complete application source and its reviewable operating contract:

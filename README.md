@@ -28,7 +28,7 @@ Stages 8 to 20 now provide the schema engine, protected Admin, collection builde
 
 ## Vercel-first environment
 
-Copy `.env.example` to a local `.env` and provide Clerk keys when testing the real sign-in flow. `ADMIN_DEV_BYPASS=true` is accepted only outside Vercel and outside production. Run `npm run db:migrate` to create the local database or apply the same reviewable migrations to a configured Turso database. The ordinary `npm run dev` command runs the same Admin handlers through a development-only Vite adapter. Vercel continues to execute the files under `/api` in Preview and Production.
+Copy `.env.example` to a local `.env` and provide Clerk keys when testing the real sign-in flow. `ADMIN_DEV_BYPASS=true` is accepted only outside Vercel and outside production. Run `npm run db:migrate` to create the local database or apply the same reviewable migrations to a configured Turso database. The ordinary `npm run dev` command runs the same grouped API handlers through a development-only Vite adapter. Vercel Preview and Production use seven consolidated Function entrypoints under `/api`, with rewrites preserving the existing Admin, Projects and media URLs.
 
 Vercel should receive the Clerk, owner allowlist, Turso, Vercel Blob and enquiry-security values listed in `.env.example`. The notification webhook is optional. Real values must never be committed. `vercel.json` preserves React Router deep links while leaving `/api/*` to Vercel Functions.
 

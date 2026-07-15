@@ -1,51 +1,18 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Plugin, ViteDevServer } from "vite";
 
-const adminApiRoutes = [
-  {
-    pattern: /^\/api\/admin\/session\/?$/,
-    modulePath: "/api/admin/session.ts",
-  },
-  {
-    pattern: /^\/api\/admin\/dashboard\/?$/,
-    modulePath: "/api/admin/dashboard.ts",
-  },
-  {
-    pattern: /^\/api\/admin\/collections\/?$/,
-    modulePath: "/api/admin/collections/index.ts",
-  },
-  {
-    pattern: /^\/api\/admin\/collections\/[a-z][a-z0-9_]{1,49}\/?$/,
-    modulePath: "/api/admin/collections/[collectionKey]/index.ts",
-  },
-  {
-    pattern: /^\/api\/admin\/collections\/[a-z][a-z0-9_]{1,49}\/items\/?$/,
-    modulePath: "/api/admin/collections/[collectionKey]/items.ts",
-  },
-  {
-    pattern: /^\/api\/admin\/collections\/[a-z][a-z0-9_]{1,49}\/items\/[a-zA-Z0-9_-]+\/?$/,
-    modulePath: "/api/admin/collections/[collectionKey]/items/[itemId].ts",
-  },
-  { pattern: /^\/api\/admin\/collections\/[a-z][a-z0-9_]{1,49}\/items\/[a-zA-Z0-9_-]+\/status\/?$/, modulePath: "/api/admin/collections/[collectionKey]/items/[itemId]/status.ts" },
-  { pattern: /^\/api\/admin\/media\/?$/, modulePath: "/api/admin/media/index.ts" },
-  { pattern: /^\/api\/admin\/preview\/?$/, modulePath: "/api/admin/preview.ts" },
-  { pattern: /^\/api\/admin\/media\/local-upload\/?$/, modulePath: "/api/admin/media/local-upload.ts" },
-  { pattern: /^\/api\/admin\/media\/upload-token\/?$/, modulePath: "/api/admin/media/upload-token.ts" },
-  { pattern: /^\/api\/admin\/media\/complete\/?$/, modulePath: "/api/admin/media/complete.ts" },
-  { pattern: /^\/api\/admin\/media\/[a-zA-Z0-9-]+\/?$/, modulePath: "/api/admin/media/[assetId].ts" },
-  { pattern: /^\/api\/media\/[a-zA-Z0-9-]+\/?$/, modulePath: "/api/media/[assetId].ts" },
-  { pattern: /^\/api\/projects\/?$/, modulePath: "/api/projects/index.ts" },
-  { pattern: /^\/api\/projects\/[a-z0-9]+(?:-[a-z0-9]+)*\/?$/, modulePath: "/api/projects/[slug].ts" },
+const apiRoutes = [
+  { pattern: /^\/api\/admin(?:\/|$)/, modulePath: "/api/admin.ts" },
+  { pattern: /^\/api\/projects(?:\/|$)/, modulePath: "/api/projects.ts" },
   { pattern: /^\/api\/site-settings\/?$/, modulePath: "/api/site-settings.ts" },
   { pattern: /^\/api\/enquiries\/?$/, modulePath: "/api/enquiries.ts" },
-  { pattern: /^\/api\/admin\/enquiries\/?$/, modulePath: "/api/admin/enquiries/index.ts" },
-  { pattern: /^\/api\/admin\/enquiries\/[a-zA-Z0-9-]+\/retry\/?$/, modulePath: "/api/admin/enquiries/[enquiryId]/retry.ts" },
+  { pattern: /^\/api\/media(?:\/|$)/, modulePath: "/api/media.ts" },
   { pattern: /^\/robots\.txt$/, modulePath: "/api/robots.ts" },
   { pattern: /^\/sitemap\.xml$/, modulePath: "/api/sitemap.ts" },
 ] as const;
 
 export function resolveAdminApiModule(pathname: string) {
-  return adminApiRoutes.find((route) => route.pattern.test(pathname))?.modulePath;
+  return apiRoutes.find((route) => route.pattern.test(pathname))?.modulePath;
 }
 
 async function requestBody(request: IncomingMessage) {
@@ -87,7 +54,7 @@ async function sendWebResponse(response: Response, target: ServerResponse) {
   target.end(Buffer.from(await response.arrayBuffer()));
 }
 
-async function handleAdminApiRequest(
+async function handleApiRequest(
   server: ViteDevServer,
   request: IncomingMessage,
   response: ServerResponse,
@@ -100,7 +67,7 @@ async function handleAdminApiRequest(
     const handler = module.default?.fetch;
 
     if (!handler) {
-      throw new Error(`Admin API module ${modulePath} does not export fetch().`);
+      throw new Error(`API module ${modulePath} does not export fetch().`);
     }
 
     await sendWebResponse(await handler(await toWebRequest(request)), response);
@@ -142,7 +109,7 @@ export function adminApiDevelopmentPlugin(): Plugin {
               data: null,
               error: {
                 code: "NOT_FOUND",
-                message: "That local Admin endpoint does not exist.",
+                message: "That local API endpoint does not exist.",
               },
               meta: { requestId: crypto.randomUUID() },
             },
@@ -151,7 +118,7 @@ export function adminApiDevelopmentPlugin(): Plugin {
           return;
         }
 
-        void handleAdminApiRequest(server, request, response, modulePath);
+        void handleApiRequest(server, request, response, modulePath);
       });
     },
   };

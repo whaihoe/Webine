@@ -31,6 +31,7 @@ The in-app browser runtime currently fails before page inspection, so no visual 
 - Published image responses now include intrinsic dimensions. The first Works card and case-study hero receive eager priority while later media loads lazily.
 - Route focus, anchors, browser back-position restoration and listener cleanup are structurally covered.
 - Backup and restore, two-connection optimistic concurrency, protected Admin access, publishing, media, enquiries, metadata, robots and sitemap behaviour are automated.
+- Vercel uses seven consolidated Function entrypoints. Automated routing coverage protects the Hobby-safe entrypoint count, grouped rewrites and restoration of the original API paths.
 
 ## Measurements still required
 

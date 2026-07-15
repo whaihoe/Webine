@@ -33,10 +33,7 @@ test("runs the protected collection and draft flow through Admin API handlers", 
     process.env.NODE_ENV = "test";
     delete process.env.VERCEL;
 
-    const collectionsApi = (await import("../.test-build/api/admin/collections/index.js")).default;
-    const collectionApi = (await import("../.test-build/api/admin/collections/[collectionKey]/index.js")).default;
-    const itemsApi = (await import("../.test-build/api/admin/collections/[collectionKey]/items.js")).default;
-    const itemApi = (await import("../.test-build/api/admin/collections/[collectionKey]/items/[itemId].js")).default;
+    const adminApi = (await import("../.test-build/api/admin.js")).default;
 
     const collection = {
       key: "journal",
@@ -57,14 +54,14 @@ test("runs the protected collection and draft flow through Admin API handlers", 
       }],
     };
 
-    const rejected = await collectionsApi.fetch(new Request(
-      "http://localhost/api/admin/collections",
+    const rejected = await adminApi.fetch(new Request(
+      "http://localhost/api/admin?__webine_route=collections",
       { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(collection) },
     ));
     assert.equal(rejected.status, 403);
 
-    const created = await responseData(await collectionsApi.fetch(new Request(
-      "http://localhost/api/admin/collections",
+    const created = await responseData(await adminApi.fetch(new Request(
+      "http://localhost/api/admin?__webine_route=collections",
       {
         method: "POST",
         headers: { "content-type": "application/json", origin: "http://localhost" },
@@ -74,14 +71,14 @@ test("runs the protected collection and draft flow through Admin API handlers", 
     assert.equal(created.response.status, 201);
     assert.equal(created.envelope.data.key, "journal");
 
-    const definition = await responseData(await collectionApi.fetch(
-      new Request("http://localhost/api/admin/collections/journal"),
+    const definition = await responseData(await adminApi.fetch(
+      new Request("http://localhost/api/admin?__webine_route=collections/journal"),
     ));
     assert.equal(definition.response.status, 200);
     assert.equal(definition.envelope.data.fields[0].key, "title");
 
-    const draft = await responseData(await itemsApi.fetch(new Request(
-      "http://localhost/api/admin/collections/journal/items",
+    const draft = await responseData(await adminApi.fetch(new Request(
+      "http://localhost/api/admin?__webine_route=collections/journal/items",
       {
         method: "POST",
         headers: { "content-type": "application/json", origin: "http://localhost" },
@@ -91,8 +88,8 @@ test("runs the protected collection and draft flow through Admin API handlers", 
     assert.equal(draft.response.status, 201);
     assert.equal(draft.envelope.data.data.title, "Field notes");
 
-    const updated = await responseData(await itemApi.fetch(new Request(
-      `http://localhost/api/admin/collections/journal/items/${draft.envelope.data.id}`,
+    const updated = await responseData(await adminApi.fetch(new Request(
+      `http://localhost/api/admin?__webine_route=collections/journal/items/${draft.envelope.data.id}`,
       {
         method: "PATCH",
         headers: { "content-type": "application/json", origin: "http://localhost" },
