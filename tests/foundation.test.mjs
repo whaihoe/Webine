@@ -109,10 +109,10 @@ test("enables the approved homepage experience layers", async () => {
   assert.match(config, /count:\s*1800/);
   assert.match(config, /pixelRatioCap:\s*1\.25/);
   assert.match(config, /pointSize:\s*4\.2/);
-  assert.match(config, /pointSize:\s*1\.55/);
+  assert.match(config, /pointSize:\s*1\.3/);
   assert.match(
     config,
-    /mobile:\s*{[\s\S]*?count:\s*480[\s\S]*?pointSize:\s*1\.55[\s\S]*?hero:\s*4[\s\S]*?reach:\s*3[\s\S]*?timeline:\s*3[\s\S]*?maxFrameRate:\s*30[\s\S]*?measurementSettleMs:\s*90/,
+    /mobile:\s*{[\s\S]*?count:\s*2200[\s\S]*?pointSize:\s*1\.3[\s\S]*?maxFrameRate:\s*30[\s\S]*?measurementSettleMs:\s*90/,
   );
   assert.doesNotMatch(config, /settledFrameRate|renderBurstMs/);
   assert.match(config, /syncTouch:\s*false/);
@@ -219,6 +219,7 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.match(mobileParticles, /MOBILE_AMBIENT_FRAME_RATE/);
   assert.match(mobileParticles, /data-mobile-particle-state|mobileParticleState/);
   assert.match(mobileParticles, /fillRect/);
+  assert.doesNotMatch(mobileParticles, /displayCopies|copyIndex|jitterStrength/);
   assert.match(mobileParticles, /MobileTimelineFlowParticles/);
   assert.match(mobileParticles, /timelineIntakeProgress/);
   assert.doesNotMatch(mobileParticles, /@react-three\/fiber|useFrame|<Canvas(?:\s|>)/);

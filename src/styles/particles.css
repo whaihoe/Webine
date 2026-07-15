@@ -210,11 +210,12 @@
   }
 
   .mobile-section-particles--closing {
-    top: 25%;
-    right: -13vw;
-    width: 64vw;
-    height: 36svh;
+    top: calc(25% + 18svh);
+    left: 81vw;
+    width: 112vw;
+    height: 64svh;
     z-index: 1;
+    transform: translate(-50%, -50%);
   }
 
   .mobile-timeline-flow-particles {

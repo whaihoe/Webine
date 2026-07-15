@@ -61,15 +61,8 @@ export const experienceConfig = {
     },
     mobile: {
       maxWidth: 599,
-      count: 480,
-      pointSize: 1.55,
-      displayCopies: {
-        hero: 4,
-        reach: 3,
-        interlude: 3,
-        closing: 3,
-        timeline: 3,
-      },
+      count: 2200,
+      pointSize: 1.3,
       maxFrameRate: 30,
       measurementSettleMs: 90,
     },

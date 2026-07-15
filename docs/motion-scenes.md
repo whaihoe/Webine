@@ -40,7 +40,7 @@ When runway progress reaches the completed `expanded` phase, the generated pin s
 
 The expanding card also owns a reversible formation value from 70 to 88 percent of runway progress. It forms the interlude orbit at the real section point while that point is still below the viewport. The point therefore enters already formed, with no virtual position or second particle target.
 
-Particle uniforms use a restrained damping value and the runway uses a 1.45 second scrub. Lenis uses a 1.75 duration and 0.78 wheel multiplier for wheel input. `syncTouch` is disabled so phones retain native touch momentum and do not run a second JavaScript touch-scroll model. Mobile particles are section-owned 2D canvases rather than the persistent WebGL layer. They contain 480 points per target, redraw only when narrative progress changes and use a 90 ms measurement-settle window.
+Particle uniforms use a restrained damping value and the runway uses a 1.45 second scrub. Lenis uses a 1.75 duration and 0.78 wheel multiplier for wheel input. `syncTouch` is disabled so phones retain native touch momentum and do not run a second JavaScript touch-scroll model. Mobile particles are section-owned 2D canvases rather than the persistent WebGL layer. They contain 2,200 independently sampled points per target, redraw for narrative changes and nearby ambient motion, and use a 90 ms measurement-settle window.
 
 Zero-valued formation and dispersion uniforms release shader ownership immediately. Values still ease inside an active range, but a later scene cannot remain active through an asymptotic value after reverse scrolling.
 

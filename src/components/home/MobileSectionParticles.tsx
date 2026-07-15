@@ -66,9 +66,7 @@ function prepareTarget(
   height: number,
 ): PreparedParticleTarget {
   const target = getMobileParticleTarget(buffers, scene);
-  const sourceCount = target.length / 3;
-  const density = experienceConfig.particles.mobile.displayCopies[scene];
-  const count = sourceCount * density;
+  const count = target.length / 3;
   const targetX = new Float32Array(count);
   const targetY = new Float32Array(count);
   const targetZ = new Float32Array(count);
@@ -82,7 +80,7 @@ function prepareTarget(
   let minRawZ = Number.POSITIVE_INFINITY;
   let maxRawZ = Number.NEGATIVE_INFINITY;
 
-  for (let index = 0; index < sourceCount; index += 1) {
+  for (let index = 0; index < count; index += 1) {
     const offset = index * 3;
     minRawX = Math.min(minRawX, target[offset]);
     maxRawX = Math.max(maxRawX, target[offset]);
@@ -101,18 +99,11 @@ function prepareTarget(
   let maxProjectedY = Number.NEGATIVE_INFINITY;
 
   for (let index = 0; index < count; index += 1) {
-    const sourceIndex = index % sourceCount;
-    const copyIndex = Math.floor(index / sourceCount);
-    const offset = sourceIndex * 3;
-    const randomness = buffers.randomness[sourceIndex];
-    const jitterStrength = copyIndex === 0 ? 0 : 0.018 + copyIndex * 0.008;
-    const jitterAngle = hash01(sourceIndex * 13.7 + copyIndex * 71.3) * Math.PI * 2;
-    const jitterDepth = hash01(sourceIndex * 41.9 + copyIndex * 19.1) - 0.5;
-    const x = target[offset] - centreX +
-      Math.cos(jitterAngle) * jitterStrength;
-    const y = target[offset + 1] - centreY +
-      Math.sin(jitterAngle) * jitterStrength;
-    const z = target[offset + 2] - centreZ + jitterDepth * jitterStrength;
+    const offset = index * 3;
+    const randomness = buffers.randomness[index];
+    const x = target[offset] - centreX;
+    const y = target[offset + 1] - centreY;
+    const z = target[offset + 2] - centreZ;
     const perspective = 6 / Math.max(3.5, 6 - z * 0.45);
     const projectedX = x * perspective;
     const projectedY = y * perspective;
@@ -126,31 +117,25 @@ function prepareTarget(
     maxProjectedY = Math.max(maxProjectedY, projectedY);
     shadeBucket[index] = Math.min(
       2,
-      Math.floor(hash01(randomness * 17.3 + copyIndex * 5.7) * 3),
+      Math.floor(hash01(randomness * 17.3) * 3),
     );
   }
 
   const targetWidth = Math.max(maxProjectedX - minProjectedX, 0.001);
   const targetHeight = Math.max(maxProjectedY - minProjectedY, 0.001);
-  const padding = Math.min(width, height) * 0.08;
+  const fitWidth = scene === "closing" ? width * (64 / 112) : width;
+  const fitHeight = scene === "closing" ? height * (36 / 64) : height;
+  const padding = Math.min(fitWidth, fitHeight) * 0.08;
   const scale = Math.min(
-    (width - padding * 2) / targetWidth,
-    (height - padding * 2) / targetHeight,
+    (fitWidth - padding * 2) / targetWidth,
+    (fitHeight - padding * 2) / targetHeight,
   );
   const scatterScale = Math.min(width, height) * 0.17;
 
   for (let index = 0; index < count; index += 1) {
-    const sourceIndex = index % sourceCount;
-    const copyIndex = Math.floor(index / sourceCount);
-    const offset = sourceIndex * 3;
-    const scatterJitter = copyIndex === 0 ? 0 : scatterScale * 0.08;
-    const scatterAngle = hash01(sourceIndex * 29.1 + copyIndex * 43.7) * Math.PI * 2;
-    scatterX[index] = width * 0.5 +
-      buffers.scatter[offset] * scatterScale +
-      Math.cos(scatterAngle) * scatterJitter;
-    scatterY[index] = height * 0.5 -
-      buffers.scatter[offset + 1] * scatterScale +
-      Math.sin(scatterAngle) * scatterJitter;
+    const offset = index * 3;
+    scatterX[index] = width * 0.5 + buffers.scatter[offset] * scatterScale;
+    scatterY[index] = height * 0.5 - buffers.scatter[offset + 1] * scatterScale;
   }
 
   return {
@@ -253,9 +238,7 @@ export function MobileTimelineFlowParticles() {
       const scatterRadiusX = width * 0.49;
       const scatterRadiusY = height * 0.48;
       const pointSize = experienceConfig.particles.mobile.pointSize;
-      const sourceCount = buffers.randomness.length;
-      const count = sourceCount *
-        experienceConfig.particles.mobile.displayCopies.timeline;
+      const count = buffers.randomness.length;
       lastProgress = progress;
 
       drawingContext.setTransform(
@@ -272,11 +255,7 @@ export function MobileTimelineFlowParticles() {
         drawingContext.fillStyle = colours[bucket];
 
         for (let index = 0; index < count; index += 1) {
-          const sourceIndex = index % sourceCount;
-          const copyIndex = Math.floor(index / sourceCount);
-          const randomness = hash01(
-            buffers.randomness[sourceIndex] * 41.7 + copyIndex * 13.1,
-          );
+          const randomness = hash01(buffers.randomness[index] * 41.7);
           const shadeBucket = Math.min(2, Math.floor(randomness * 3));
 
           if (shadeBucket !== bucket) {
@@ -546,9 +525,8 @@ export function MobileSectionParticles({
             (targetX - projection.scatterX[index]) * strength;
           const y = projection.scatterY[index] +
             (targetY - projection.scatterY[index]) * strength;
-          const sourceIndex = index % buffers.randomness.length;
           const size = pointSize *
-            (0.72 + buffers.randomness[sourceIndex] * 0.36);
+            (0.72 + buffers.randomness[index] * 0.36);
           drawingContext.fillRect(x, y, size, size);
         }
       }

@@ -227,7 +227,7 @@
 
 - Replaced the fixed mobile WebGL narrative canvas with four section-owned absolute 2D canvases for Hero, Reach, Interlude and Closing.
 - Mobile particles no longer use `sceneAnchorPositions` for placement. The section owns the canvas position and scroll only controls `scatter -> formed -> scatter` progress.
-- Baked the 480-point mobile Webine W, Reach rings, Interlude rings, colony planet and scatter field into a 30 KB binary target asset. This removes Three.js, React Three Fiber, GLTFLoader, MeshSurfaceSampler and shader loading from the mobile particle path.
+- Baked the mobile Webine W, Reach rings, Interlude rings, colony planet and scatter field into a compact binary target asset. This removes Three.js, React Three Fiber, GLTFLoader, MeshSurfaceSampler and shader loading from the mobile particle path.
 - Reduced mobile point size to 1.55 and stopped all settled-frame rendering. Local canvases redraw only when story progress changes and only near the viewport.
 - Kept the desktop and tablet persistent WebGL architecture unchanged.
 - Hardened the Hero ScrollTrigger pin for production by waiting for fonts and two layout frames before creation, then using a safe refresh after creation and again on final window load.
@@ -245,14 +245,14 @@
 - Added a bounded `hero-reach-cover` wrapper. Desktop and fine-pointer devices retain the ScrollTrigger hero pin, while phones and coarse-touch devices use native CSS sticky for the same Section 2 cover composition.
 - Disabled Lenis `syncTouch`, keeping the weighted wheel experience while returning phones to native momentum.
 - Removed page-level horizontal clipping from the Home wrapper because an overflow ancestor can interfere with sticky containment. Reach now owns its local clipping instead.
-- Removed the superseded mobile WebGL shader, demand-frame loop and unused mobile GPU configuration. Phones now have one clear production path: four section-owned absolute 2D canvases with 480 baked points per target and a 1.55 point size.
+- Removed the superseded mobile WebGL shader, demand-frame loop and unused mobile GPU configuration. Phones now have one clear production path: four section-owned absolute 2D canvases with independently baked mobile targets.
 - Updated the foundation tests to protect the hybrid pin, native touch path and absence of the removed mobile WebGL implementation.
 - Linting, TypeScript, the production build, all twelve foundation tests and the diff whitespace check pass. Final confirmation on the user's physical iPhone remains required.
 
 ## 2026-07-15, denser mobile particles and Stage 8 CMS schema
 
-- Increased the section-owned phone particle renderer without changing the 480-point baked source asset. Hero now renders four deterministic copies for 1,920 visible points. Reach, Interlude, Closing and timeline flow render three copies for 1,440 visible points.
-- Centralised those density multipliers in `experienceConfig.particles.mobile.displayCopies` so mobile density remains adjustable without duplicating scene constants.
+- Replaced duplicated mobile display copies with 2,200 independently sampled points per target so the particle objects read as finer continuous surfaces instead of clustered copies.
+- Reduced the mobile point size to 1.3 while increasing the unique target density, keeping the section-owned canvas architecture and motion behaviour unchanged.
 - Added three SQLite and D1-compatible migrations for content collections, field definitions, draft and published items, publish snapshots, references, assets, asset usage, audit events, enquiries and idempotency records.
 - Seeded the protected Projects, Categories, Services and Site Settings collection schemas plus the Site Settings singleton.
 - Added the shared CMS validation domain for stable keys, schema compatibility, every launch field category, asset readiness, alt text, references and archive protection.
