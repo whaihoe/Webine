@@ -1,4 +1,5 @@
 import type { CollectionDefinition, ValidationIssue } from "../cms/schema";
+import type { AdminTokenProvider } from "./AdminAuthContext";
 
 export type ApiEnvelope<T> = {
   data: T | null;
@@ -25,13 +26,31 @@ export class AdminApiError extends Error {
   }
 }
 
+async function createAdminHeaders(
+  baseHeaders: ConstructorParameters<typeof Headers>[0],
+  getToken?: AdminTokenProvider,
+) {
+  const headers = new Headers(baseHeaders);
+  const token = await getToken?.();
+
+  if (token) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+
+  return headers;
+}
+
 export async function fetchAdminResource<T>(
   path: string,
   signal?: AbortSignal,
+  getToken?: AdminTokenProvider,
 ): Promise<T> {
   const response = await fetch(path, {
     credentials: "same-origin",
-    headers: { Accept: "application/json" },
+    headers: await createAdminHeaders(
+      { Accept: "application/json" },
+      getToken,
+    ),
     signal,
   });
   const envelope = await response.json() as ApiEnvelope<T>;
@@ -52,14 +71,18 @@ export async function mutateAdminResource<T>(
   path: string,
   method: "POST" | "PATCH" | "DELETE",
   body: unknown,
+  getToken?: AdminTokenProvider,
 ): Promise<T> {
   const response = await fetch(path, {
     method,
     credentials: "same-origin",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
+    headers: await createAdminHeaders(
+      {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      getToken,
+    ),
     body: JSON.stringify(body),
   });
   const envelope = await response.json() as ApiEnvelope<T>;

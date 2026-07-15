@@ -10,8 +10,9 @@ import type {
   AdminItemSummary,
   AdminSession,
 } from "../admin/api";
-import { mutateAdminResource } from "../admin/api";
 import { useAdminResource } from "../admin/useAdminResource";
+import { useAdminMutation } from "../admin/useAdminMutation";
+import { useAdminAuth } from "../admin/AdminAuthContext";
 import { AdminDataState } from "../components/admin/AdminDataState";
 import { CollectionEditor } from "../components/admin/CollectionEditor";
 import { ItemEditor } from "../components/admin/ItemEditor";
@@ -37,8 +38,12 @@ function ResourceError({
   message: string;
   retry: () => void;
 }) {
+  const { signedIn } = useAdminAuth();
   const unauthorised = status === 401 || status === 403;
-  const canSignIn = status === 401 && Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
+  const canSignIn =
+    status === 401 &&
+    signedIn !== true &&
+    Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
 
   return (
     <>
@@ -286,6 +291,7 @@ function SettingsEditorPage() {
 }
 
 function EnquiriesPage() {
+  const mutateAdminResource = useAdminMutation();
   const resource = useAdminResource<AdminEnquiry[]>("/api/admin/enquiries");
   const [retryingId, setRetryingId] = useState<string | null>(null);
   const [retryError, setRetryError] = useState("");

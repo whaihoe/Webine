@@ -38,6 +38,17 @@ export async function authenticateAdminRequest(
     };
   }
 
+  const requestOrigin = new URL(request.url).origin;
+
+  if (!configuration.authorisedParties.includes(requestOrigin)) {
+    return {
+      ok: false,
+      code: "ADMIN_ORIGIN_NOT_ALLOWED",
+      message: "This Webine origin is not approved for Admin authentication.",
+      status: 403,
+    };
+  }
+
   try {
     const clerk = createClerkClient({
       publishableKey: configuration.publishableKey,
@@ -72,7 +83,12 @@ export async function authenticateAdminRequest(
       ok: true,
       identity: { label: "Webine owner", userId: auth.userId },
     };
-  } catch {
+  } catch (error) {
+    console.warn("Clerk Admin authentication failed", {
+      origin: requestOrigin,
+      error: error instanceof Error ? error.message : "Unknown Clerk error",
+    });
+
     return {
       ok: false,
       code: "ADMIN_SESSION_INVALID",

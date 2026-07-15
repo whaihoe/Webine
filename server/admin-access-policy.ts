@@ -20,6 +20,23 @@ export type AdminAccessConfiguration =
     }
   | { mode: "invalid"; missing: string[] };
 
+
+function normaliseAuthorisedParties(value: string) {
+  return [...new Set(
+    value
+      .split(",")
+      .map((party) => party.trim())
+      .filter(Boolean)
+      .map((party) => {
+        try {
+          return new URL(party).origin;
+        } catch {
+          return party.replace(/\/+$/, "");
+        }
+      }),
+  )];
+}
+
 export function resolveAdminAccessConfiguration(
   environment: AdminAccessEnvironment,
 ): AdminAccessConfiguration {
@@ -51,9 +68,8 @@ export function resolveAdminAccessConfiguration(
     userId: environment.ADMIN_USER_ID!.trim(),
     publishableKey: environment.CLERK_PUBLISHABLE_KEY!.trim(),
     secretKey: environment.CLERK_SECRET_KEY!.trim(),
-    authorisedParties: environment.CLERK_AUTHORIZED_PARTIES!
-      .split(",")
-      .map((party) => party.trim())
-      .filter(Boolean),
+    authorisedParties: normaliseAuthorisedParties(
+      environment.CLERK_AUTHORIZED_PARTIES!,
+    ),
   };
 }

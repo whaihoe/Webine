@@ -69,7 +69,7 @@ test("normalises the Clerk owner and authorised origins", async () => {
     ADMIN_USER_ID: " user_owner ",
     CLERK_PUBLISHABLE_KEY: " pk_test_example ",
     CLERK_SECRET_KEY: " sk_test_example ",
-    CLERK_AUTHORIZED_PARTIES: "https://webine.vercel.app, https://webine.example ",
+    CLERK_AUTHORIZED_PARTIES: "https://webine.vercel.app/, https://webine.example ",
   });
 
   assert.deepEqual(result, {

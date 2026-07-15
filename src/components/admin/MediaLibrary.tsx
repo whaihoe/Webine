@@ -1,7 +1,8 @@
 import { upload } from "@vercel/blob/client";
 import { useEffect, useRef, useState, type ChangeEvent, type DragEvent, type FormEvent } from "react";
-import { AdminApiError, mutateAdminResource, type AdminAsset, type ApiEnvelope } from "../../admin/api";
+import { AdminApiError, type AdminAsset, type ApiEnvelope } from "../../admin/api";
 import { useAdminResource } from "../../admin/useAdminResource";
+import { useAdminMutation } from "../../admin/useAdminMutation";
 import { AdminDataState } from "./AdminDataState";
 
 type UploadDetails = {
@@ -15,6 +16,7 @@ type UploadDetails = {
 const initialDetails: UploadDetails = { altText: "", caption: "", decorative: false, focalX: 0.5, focalY: 0.5 };
 
 function MediaAssetCard({ asset, onChanged }: { asset: AdminAsset; onChanged: () => void }) {
+  const mutateAdminResource = useAdminMutation();
   const [editing, setEditing] = useState(false);
   const [details, setDetails] = useState<UploadDetails>({ altText: asset.altText, caption: asset.caption, decorative: asset.decorative, focalX: asset.focalX, focalY: asset.focalY });
   const [busy, setBusy] = useState(false);
@@ -71,6 +73,7 @@ async function localUpload(file: File, details: UploadDetails, onProgress: (valu
 }
 
 export function MediaLibrary() {
+  const mutateAdminResource = useAdminMutation();
   const resource = useAdminResource<AdminAsset[]>("/api/admin/media");
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);

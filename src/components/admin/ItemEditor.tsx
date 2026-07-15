@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from "react";
+import { useAdminMutation } from "../../admin/useAdminMutation";
 import { Link, useNavigate } from "react-router-dom";
 import {
   AdminApiError,
-  mutateAdminResource,
   type AdminCollectionDefinition,
   type AdminItem,
   type AdminItemSummary,
@@ -143,6 +143,7 @@ function GeneratedControl({
 }
 
 export function ItemEditor({ collection, item }: ItemEditorProps) {
+  const mutateAdminResource = useAdminMutation();
   const navigate = useNavigate();
   const [currentItem, setCurrentItem] = useState(item);
   const [data, setData] = useState<Record<string, unknown>>(item?.data ?? {});

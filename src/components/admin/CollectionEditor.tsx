@@ -1,8 +1,8 @@
 import { useMemo, useState, type FormEvent } from "react";
+import { useAdminMutation } from "../../admin/useAdminMutation";
 import { useNavigate } from "react-router-dom";
 import {
   AdminApiError,
-  mutateAdminResource,
   type AdminCollectionDefinition,
 } from "../../admin/api";
 import {
@@ -54,6 +54,7 @@ function textToOptions(value: string) {
 }
 
 export function CollectionEditor({ initial }: CollectionEditorProps) {
+  const mutateAdminResource = useAdminMutation();
   const navigate = useNavigate();
   const [collection, setCollection] = useState<CollectionDefinition>(initial ?? emptyCollection);
   const [saving, setSaving] = useState(false);

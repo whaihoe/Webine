@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { AdminApiError, fetchAdminResource } from "./api";
+import { useAdminAuth } from "./AdminAuthContext";
 
 type ResourceState<T> =
   | { status: "loading"; data: null; error: null }
@@ -7,6 +8,7 @@ type ResourceState<T> =
   | { status: "error"; data: null; error: AdminApiError };
 
 export function useAdminResource<T>(path: string) {
+  const { authRevision, getToken, ready } = useAdminAuth();
   const [requestKey, setRequestKey] = useState(0);
   const [state, setState] = useState<ResourceState<T>>({
     status: "loading",
@@ -18,7 +20,11 @@ export function useAdminResource<T>(path: string) {
     const controller = new AbortController();
     setState({ status: "loading", data: null, error: null });
 
-    fetchAdminResource<T>(path, controller.signal)
+    if (!ready) {
+      return () => controller.abort();
+    }
+
+    fetchAdminResource<T>(path, controller.signal, getToken)
       .then((data) => {
         setState({ status: "ready", data, error: null });
       })
@@ -38,7 +44,7 @@ export function useAdminResource<T>(path: string) {
       });
 
     return () => controller.abort();
-  }, [path, requestKey]);
+  }, [authRevision, getToken, path, ready, requestKey]);
 
   const retry = useCallback(() => {
     setRequestKey((value) => value + 1);
