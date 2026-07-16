@@ -1,6 +1,6 @@
 import { DirectionalArrow } from "../DirectionalArrow";
-import { gsap } from "gsap";
 import { useLayoutEffect, useRef, useState } from "react";
+import { gsap, ScrollTrigger } from "../../animation/scroll-runtime";
 import { ProjectCard } from "../projects/ProjectCard";
 import { usePublicProjects } from "../../hooks/usePublicProjects";
 import { useSiteSettings } from "../../content/SiteSettingsProvider";
@@ -73,7 +73,6 @@ export function SelectedWorkRunway() {
         )
       : [];
 
-    let cancelled = false;
     let tween: ScrollBoundTween | null = null;
     let entranceTween: ScrollBoundTween | null = null;
     let revealTween: ScrollBoundTween | null = null;
@@ -125,16 +124,8 @@ export function SelectedWorkRunway() {
       );
     };
 
-    const start = async () => {
+    const start = () => {
       stop();
-
-      const { ScrollTrigger } = await import("gsap/ScrollTrigger");
-
-      if (cancelled) {
-        return;
-      }
-
-      gsap.registerPlugin(ScrollTrigger);
       section.dataset.scrollMode = "pinned";
       if (interludeRevealItems.length > 0) {
         gsap.set(interludeRevealItems, {
@@ -390,10 +381,9 @@ export function SelectedWorkRunway() {
       ScrollTrigger.refresh();
     };
 
-    void start();
+    start();
 
     return () => {
-      cancelled = true;
       stop();
       store.setWorkParticleState({
         visibility: 1,

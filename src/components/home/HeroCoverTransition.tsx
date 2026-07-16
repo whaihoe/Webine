@@ -1,5 +1,5 @@
-import { gsap } from "gsap";
 import { useEffect, useLayoutEffect, useState, type RefObject } from "react";
+import { gsap, ScrollTrigger } from "../../animation/scroll-runtime";
 import { experienceConfig } from "../../config/experience";
 
 const NATIVE_STICKY_QUERY =
@@ -49,14 +49,6 @@ export function HeroCoverTransition({
       if (!root) {
         return;
       }
-
-      const { ScrollTrigger } = await import("gsap/ScrollTrigger");
-
-      if (cancelled) {
-        return;
-      }
-
-      gsap.registerPlugin(ScrollTrigger);
 
       try {
         await document.fonts.ready;

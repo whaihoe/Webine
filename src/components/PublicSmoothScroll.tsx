@@ -1,6 +1,6 @@
-import { gsap } from "gsap";
 import Lenis from "lenis";
 import { useEffect, type ReactNode } from "react";
+import { gsap, ScrollTrigger } from "../animation/scroll-runtime";
 import { experienceConfig } from "../config/experience";
 
 type PublicSmoothScrollProps = {
@@ -22,9 +22,6 @@ export function PublicSmoothScroll({ children }: PublicSmoothScrollProps) {
     if (!config.enabled) {
       return;
     }
-
-    let cancelled = false;
-    let removeScrollTriggerSync = () => {};
 
     const lenis = new Lenis({
       autoRaf: false,
@@ -67,34 +64,17 @@ export function PublicSmoothScroll({ children }: PublicSmoothScrollProps) {
 
     document.addEventListener("click", handleAnchorFocus);
 
-    void import("gsap/ScrollTrigger")
-      .then(({ ScrollTrigger }) => {
-        if (cancelled) {
-          return;
-        }
+    const updateScrollTrigger = () => ScrollTrigger.update();
+    const updateLenis = (time: number) => lenis.raf(time * 1000);
 
-        gsap.registerPlugin(ScrollTrigger);
-
-        const updateScrollTrigger = () => ScrollTrigger.update();
-        const updateLenis = (time: number) => lenis.raf(time * 1000);
-
-        lenis.on("scroll", updateScrollTrigger);
-        gsap.ticker.add(updateLenis);
-        gsap.ticker.lagSmoothing(0);
-        ScrollTrigger.refresh();
-
-        removeScrollTriggerSync = () => {
-          lenis.off("scroll", updateScrollTrigger);
-          gsap.ticker.remove(updateLenis);
-        };
-      })
-      .catch(() => {
-        console.error("Webine smooth scrolling could not start.");
-      });
+    lenis.on("scroll", updateScrollTrigger);
+    gsap.ticker.add(updateLenis);
+    gsap.ticker.lagSmoothing(0);
+    ScrollTrigger.refresh();
 
     return () => {
-      cancelled = true;
-      removeScrollTriggerSync();
+      lenis.off("scroll", updateScrollTrigger);
+      gsap.ticker.remove(updateLenis);
       document.removeEventListener("click", handleAnchorFocus);
       lenis.destroy();
     };

@@ -302,7 +302,7 @@
 
 .project-card__media-motion {
   position: absolute;
-  inset: -4% 0;
+  inset: -8% 0;
   display: block;
 }
 
@@ -837,9 +837,7 @@
   --color-surface: var(--primitive-white);
   --color-surface-raised: var(--primitive-slate-100);
   --color-rule-strong: var(--primitive-slate-300);
-  transition:
-    box-shadow var(--primitive-duration-standard) ease,
-    transform var(--primitive-duration-standard) ease;
+  transition: box-shadow var(--primitive-duration-standard) ease;
 }
 
 @media (hover: hover) and (pointer: fine) {

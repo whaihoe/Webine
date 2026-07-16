@@ -350,6 +350,15 @@
 - Replaced the weak light Works footer prompt with a dark commission panel and repaired outline-button theme inheritance. Outline controls now retain visible labels and use one directional fill interaction on hover or keyboard focus.
 - Added a scrubbed slower-moving Contact form layer and a restrained rotating signal orbit behind it. Mobile uses reduced form travel to retain spacing and avoid overflow.
 
+## 2026-07-16, guaranteed Works and Contact scroll choreography
+
+- Confirmed that operating-system motion preferences do not disable Webine motion, then expanded the regression check across every CSS, TypeScript and TSX source file.
+- Moved shared ScrollTrigger registration into one synchronous runtime used by Lenis, the public controller and Home timelines. This removes route-level loading races and keeps ScrollTrigger updates on the same animation loop.
+- Delayed initially visible public reveals by 0.42 seconds so the route curtain clears before copy, cards and media animate. Late CMS card insertion now schedules one measurement refresh rather than retaining stale trigger geometry.
+- Increased Works and case-study image travel to minus eight through plus eight percent on wider layouts and minus six through plus six percent on phones. Added eight percent media bleed while retaining completely still Project-card text.
+- Gave Contact one unambiguous transform owner. The form now travels minus 72 through plus 96 pixels on wider layouts and minus 24 through plus 36 pixels on phones, without a competing percentage transform or CSS transform transition.
+- Rendered evidence at 1280 × 720 measured about 49 pixels of Works media travel with zero copy movement and about 59 pixels of Contact form travel with 125 pixels of column clearance. At 390 × 844, Works media moved about 25 pixels and the form moved about 35 pixels. Both routes retained zero horizontal overflow and produced no new console warnings or errors.
+
 ## 2026-07-15, Hobby-safe Vercel Function consolidation
 
 - Consolidated 22 individual files under `api/` into seven Vercel Function entrypoints: Admin, Projects, Site Settings, Enquiries, local media delivery, robots and sitemap.

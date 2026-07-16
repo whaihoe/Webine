@@ -28,14 +28,17 @@ test("keeps every current route", async () => {
 });
 
 test("keeps global route motion purposeful and restorable", async () => {
-  const [app, effects, transition, revealController, projectCard, menu, styles] = await Promise.all([
+  const [app, effects, transition, revealController, scrollRuntime, smoothScroll, projectCard, menu, styles, pageStyles] = await Promise.all([
     readFile(new URL("src/App.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/RouteEffects.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/RouteTransition.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/GsapRevealController.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/animation/scroll-runtime.ts", projectRoot), "utf8"),
+    readFile(new URL("src/components/PublicSmoothScroll.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/projects/ProjectCard.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/MobileMenu.tsx", projectRoot), "utf8"),
     readFile(new URL("src/styles/layout.css", projectRoot), "utf8"),
+    readFile(new URL("src/styles/pages.css", projectRoot), "utf8"),
   ]);
   assert.match(app, /<RouteTransition/);
   assert.match(transition, /aria-hidden="true"/);
@@ -50,13 +53,29 @@ test("keeps global route motion purposeful and restorable", async () => {
   assert.doesNotMatch(projectCard, /addEventListener\("scroll"/);
   assert.match(revealController, /ScrollTrigger/);
   assert.match(revealController, /MutationObserver/);
-  assert.match(revealController, /context\.add\(run\)/);
-  assert.match(revealController, /context\?\.revert\(\)/);
+  assert.match(revealController, /context\.add\(scan\)/);
+  assert.match(revealController, /context\.revert\(\)/);
+  assert.match(revealController, /requestAnimationFrame/);
+  assert.match(revealController, /ScrollTrigger\.refresh\(\)/);
   assert.match(revealController, /dataset\.gsapDelay/);
   assert.match(revealController, /dataset\.gsapParallax/);
-  assert.match(revealController, /scrub:\s*isFloatingCard \? 1\.8 : 1\.15/);
+  assert.match(revealController, /startsInViewport \? 0\.42 : 0/);
+  assert.match(revealController, /compactViewport\(\) \? -24 : -72/);
+  assert.match(revealController, /compactViewport\(\) \? 36 : 96/);
+  assert.match(revealController, /compactViewport\(\) \? -6 : -8/);
+  assert.match(revealController, /compactViewport\(\) \? 6 : 8/);
+  assert.equal((revealController.match(/yPercent:\s*isFloatingCard/g) ?? []).length, 2);
+  assert.match(revealController, /scrub:\s*isFloatingCard \? 1\.35 : isMedia \? 1\.05 : 1\.15/);
+  assert.match(revealController, /invalidateOnRefresh:\s*true/);
+  assert.match(revealController, /gsapController = "ready"/);
   assert.match(revealController, /opacity:\s*0/);
   assert.doesNotMatch(revealController, /autoAlpha/);
+  assert.match(scrollRuntime, /gsap\.registerPlugin\(ScrollTrigger\)/);
+  assert.match(smoothScroll, /from "\.\.\/animation\/scroll-runtime"/);
+  assert.doesNotMatch(smoothScroll, /import\("gsap\/ScrollTrigger"\)/);
+  assert.match(pageStyles, /\.project-card__media-motion\s*{[^}]*inset:\s*-8% 0/s);
+  assert.match(pageStyles, /\.contact-form\s*{[^}]*transition:\s*box-shadow/s);
+  assert.doesNotMatch(pageStyles, /\.contact-form\s*{[^}]*transition:[^}]*transform/s);
   assert.match(menu, /mobile-menu__navigation/);
   assert.match(transition, /previousPath/);
   assert.match(transition, /setTimeout\(\(\) => setVisible\(false\), 760\)/);
@@ -684,18 +703,15 @@ test("provides accessible navigation foundations", async () => {
 });
 
 test("keeps one motion system across operating-system preferences", async () => {
-  const sourceFiles = [
-    "src/styles.css",
-    "src/styles/layout.css",
-    "src/styles/pages.css",
-    "src/styles/particles.css",
-    "src/styles/home-scenes.css",
-  ];
+  const sourceNames = await readdir(new URL("src/", projectRoot), { recursive: true });
+  const sourceFiles = sourceNames
+    .filter((path) => /\.(?:css|ts|tsx)$/.test(path))
+    .map((path) => `src/${path}`);
   const sources = await Promise.all(
     sourceFiles.map((path) => readFile(new URL(path, projectRoot), "utf8")),
   );
 
-  assert.doesNotMatch(sources.join("\n"), /prefers-reduced-motion/);
+  assert.doesNotMatch(sources.join("\n"), /prefers-reduced-motion|reduceMotion|reducedMotion/i);
 });
 
 test("includes the approved Webine logo and current system documents", async () => {
