@@ -366,6 +366,7 @@
 - Changed `SiteShell` to resolve the shell through a callback ref and mount the controller only after the real element exists. The controller now receives the element directly and cannot enter its setup effect with a missing root.
 - Added structural regression checks for the resolved-element contract. The local production preview now reports `data-gsap-controller="ready"`, attaches motion ownership and produces no console warnings or errors.
 - Production-preview evidence at 1280 × 720 measures about 59 pixels of Contact form travel with 125 pixels of column clearance. At 390 × 844, the form moves about 35 pixels. Both layouts retain zero horizontal overflow.
+- Deployed Vercel evidence confirms the same controller-ready state. Works media travels about 49 pixels on desktop and 25 pixels on a 390-pixel phone while Project copy stays still. Contact travels about 59 pixels on desktop and 35 pixels on phone. Both routes retain zero horizontal overflow and produce no console warnings or errors.
 
 ## 2026-07-15, Hobby-safe Vercel Function consolidation
 
