@@ -53,4 +53,4 @@ Interactive components include default, hover, active, focus and disabled treatm
 
 The Home experience now uses the complete Slate Workshop rhythm: dark immersive scenes, rounded light editorial sheets, measured blue accents, Georgia phrases and fine grid lines. Signal Grid is active only in the hero and closing CTA, where a dim fine-pointer light passes through an otherwise near-background grid.
 
-Tablet and desktop use the persistent GPU particle layer. Phones use lower-density section-owned 2D canvases, but both paths read from the same blue and cyan token palette and follow the same narrative forms. Lenis adds weight to wheel scrolling only. Touch scrolling stays native. Route transitions and a general site-wide reveal system remain disabled.
+Tablet and desktop use the persistent GPU particle layer. Phones use lower-density section-owned 2D canvases, but both paths read from the same blue and cyan token palette and follow the same narrative forms. Lenis uses the same standard interpolation for wheel input and synchronised touch inertia, with `syncTouch` enabled on phones. Route transitions and a general site-wide reveal system remain disabled.

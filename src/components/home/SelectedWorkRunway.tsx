@@ -142,13 +142,16 @@ export function SelectedWorkRunway() {
         },
       ) as ScrollBoundTween;
 
+      const getViewportWidth = () =>
+        Math.max(document.documentElement.clientWidth, 1);
+
       const getTravel = () => {
         const sectionRect = section.getBoundingClientRect();
         const chapterRect = chapter.getBoundingClientRect();
         const chapterCenter =
           chapterRect.left - sectionRect.left + chapterRect.width / 2;
 
-        return Math.max(chapterCenter - window.innerWidth / 2, 0);
+        return Math.max(chapterCenter - getViewportWidth() / 2, 0);
       };
       const getDistance = () => {
         const travel = getTravel();
@@ -279,11 +282,13 @@ export function SelectedWorkRunway() {
         .to(
           chapter,
           {
-            flexBasis: () => window.innerWidth,
-            width: () => window.innerWidth,
+            flexBasis: () => getViewportWidth() + (isMobile ? 2 : 0),
+            width: () => getViewportWidth() + (isMobile ? 2 : 0),
             height: () => window.innerHeight,
-            x: () =>
-              -(window.innerWidth - chapter.getBoundingClientRect().width) / 2,
+            x: () => {
+              const expandedWidth = getViewportWidth() + (isMobile ? 2 : 0);
+              return -(expandedWidth - chapter.getBoundingClientRect().width) / 2;
+            },
             y: () => {
               const sectionTop = section.getBoundingClientRect().top;
               return -(chapter.getBoundingClientRect().top - sectionTop);

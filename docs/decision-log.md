@@ -325,3 +325,9 @@
 - Changed protected preview data loading to a path-based Admin API address so its collection and item identity do not depend on preserving query parameters through the Admin rewrite.
 - Updated the development-only Vite API adapter to execute the same consolidated entrypoints used in Vercel Preview and Production.
 - Added deployment tests that protect the seven-entrypoint topology, path restoration and rewrite configuration. Production build, server type checks and all 39 automated tests pass; the SQLite CLI-dependent tests were also run with an equivalent temporary SQLite test shim in this environment.
+
+## 2026-07-16 — Lenis.dev-aligned synchronised touch profile
+
+- Replaced the previous duration-weighted Webine scroll profile with Lenis' standard `lerp: 0.1` interpolation and neutral wheel/touch multipliers.
+- Enabled `syncTouch` for phones with the official Lenis defaults `syncTouchLerp: 0.075`, `touchInertiaExponent: 1.7` and `touchMultiplier: 1`.
+- Kept Webine's GSAP ticker integration, ScrollTrigger update hook, anchor offset and navigation inertia cleanup.

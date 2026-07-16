@@ -109,14 +109,20 @@ test("enables the approved homepage experience layers", async () => {
   assert.match(config, /count:\s*1800/);
   assert.match(config, /pixelRatioCap:\s*1\.25/);
   assert.match(config, /pointSize:\s*4\.2/);
-  assert.match(config, /pointSize:\s*1\.3/);
+  assert.match(config, /pointSize:\s*1\.69/);
   assert.match(
     config,
-    /mobile:\s*{[\s\S]*?count:\s*2200[\s\S]*?pointSize:\s*1\.3[\s\S]*?maxFrameRate:\s*30[\s\S]*?measurementSettleMs:\s*90/,
+    /mobile:\s*{[\s\S]*?count:\s*2200[\s\S]*?renderRatio:\s*0\.7[\s\S]*?pointSize:\s*1\.69[\s\S]*?maxFrameRate:\s*30[\s\S]*?measurementSettleMs:\s*90/,
   );
   assert.doesNotMatch(config, /settledFrameRate|renderBurstMs/);
-  assert.match(config, /syncTouch:\s*false/);
-  assert.doesNotMatch(config, /syncTouchLerp/);
+  assert.match(config, /lerp:\s*0\.1/);
+  assert.match(config, /smoothWheel:\s*true/);
+  assert.match(config, /wheelMultiplier:\s*1/);
+  assert.match(config, /syncTouch:\s*true/);
+  assert.match(config, /syncTouchLerp:\s*0\.075/);
+  assert.match(config, /touchInertiaExponent:\s*1\.7/);
+  assert.match(config, /touchMultiplier:\s*1/);
+  assert.match(config, /overscroll:\s*true/);
   assert.doesNotMatch(config, /nativeTouchMaxWidth/);
   assert.match(config, /minWidth:\s*1024/);
   assert.match(config, /maxWidth:\s*599/);
@@ -350,7 +356,9 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.match(cover, /document\.fonts\.ready/);
   assert.match(cover, /ScrollTrigger\.refresh\(true\)/);
   assert.match(cover, /refreshPriority:\s*10/);
-  assert.doesNotMatch(smoothScroll, /syncTouchLerp/);
+  assert.match(smoothScroll, /syncTouchLerp:\s*config\.syncTouchLerp/);
+  assert.match(smoothScroll, /touchInertiaExponent:\s*config\.touchInertiaExponent/);
+  assert.match(smoothScroll, /touchMultiplier:\s*config\.touchMultiplier/);
 
   const [processTimeline, controller, selectedWork, interlude] = await Promise.all([
     readFile(

@@ -6,7 +6,7 @@ The current homepage uses one coordinated scene controller. Settings and layout 
 |---|---|---|
 | General motion presets | Disabled | Reserved for later global polish, with component feedback already tokenised |
 | Particle narrative | Persistent GPU layer on tablet and desktop, section-owned 2D canvases on phones | Homepage narrative |
-| Smooth scrolling | Lenis wheel smoothing with native touch momentum | Stage 3 onward |
+| Smooth scrolling | Lenis wheel and synchronised touch smoothing | Stage 3 onward |
 | Signal Grid response | Enabled only for the hero and closing CTA | Homepage narrative |
 | Page transitions | Disabled | Stage 21 |
 
@@ -40,7 +40,7 @@ When runway progress reaches the completed `expanded` phase, the generated pin s
 
 The expanding card also owns a reversible formation value from 70 to 88 percent of runway progress. It forms the interlude orbit at the real section point while that point is still below the viewport. The point therefore enters already formed, with no virtual position or second particle target.
 
-Particle uniforms use a restrained damping value and the runway uses a 1.45 second scrub. Lenis uses a 1.75 duration and 0.78 wheel multiplier for wheel input. `syncTouch` is disabled so phones retain native touch momentum and do not run a second JavaScript touch-scroll model. Mobile particles are section-owned 2D canvases rather than the persistent WebGL layer. They contain 2,200 independently sampled points per target, redraw for narrative changes and nearby ambient motion, and use a 90 ms measurement-settle window.
+Particle uniforms use a restrained damping value and the runway uses a 1.45 second scrub. Lenis uses its standard `lerp: 0.1` interpolation with neutral wheel and touch multipliers. `syncTouch` is enabled with `syncTouchLerp: 0.075` and `touchInertiaExponent: 1.7`, matching the official Lenis touch profile while keeping ScrollTrigger and touch movement on the same animation loop. Mobile particles are section-owned 2D canvases rather than the persistent WebGL layer. They contain 2,200 independently sampled points per target, redraw for narrative changes and nearby ambient motion, and use a 90 ms measurement-settle window.
 
 Zero-valued formation and dispersion uniforms release shader ownership immediately. Values still ease inside an active range, but a later scene cannot remain active through an asymptotic value after reverse scrolling.
 

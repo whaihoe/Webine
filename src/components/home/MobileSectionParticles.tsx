@@ -238,7 +238,9 @@ export function MobileTimelineFlowParticles() {
       const scatterRadiusX = width * 0.49;
       const scatterRadiusY = height * 0.48;
       const pointSize = experienceConfig.particles.mobile.pointSize;
-      const count = buffers.randomness.length;
+      const count = Math.floor(
+        buffers.randomness.length * experienceConfig.particles.mobile.renderRatio,
+      );
       lastProgress = progress;
 
       drawingContext.setTransform(
@@ -460,7 +462,9 @@ export function MobileSectionParticles({
       const height = activeCanvas.height / MOBILE_PARTICLE_DPR;
       const strength = getFormationStrength(store.getSnapshot(), scene);
       const pointSize = experienceConfig.particles.mobile.pointSize;
-      const count = projection.targetX.length;
+      const count = Math.floor(
+        projection.targetX.length * experienceConfig.particles.mobile.renderRatio,
+      );
       const elapsed = timestamp / 1000;
       const closingRotationScale = scene === "closing"
         ? experienceConfig.particles.closingModel.ambientRotationScale

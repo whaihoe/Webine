@@ -1033,8 +1033,11 @@
   position: absolute;
   top: 50%;
   left: -2rem;
-  width: 1rem;
-  aspect-ratio: 1;
+  width: 1.4rem;
+  height: 1.4rem;
+  min-width: 1.4rem;
+  min-height: 1.4rem;
+  box-sizing: border-box;
   padding: 0.2rem;
   border: 1px solid hsl(var(--primitive-slate-600));
   border-radius: 50%;

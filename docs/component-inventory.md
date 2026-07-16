@@ -17,7 +17,7 @@
 | `RouteEffects` | Page title, route announcement, scroll and heading focus | Push, replace and browser history |
 | `RouteTransition` | Non-blocking public-route reveal curtain | Public route entry and absent from Admin or preview |
 | `AppErrorBoundary` | Application failure fallback | Error |
-| `PublicSmoothScroll` | Lenis public wheel-scroll controller synchronized with GSAP ScrollTrigger | Weighted wheel input, native touch momentum and cleanup |
+| `PublicSmoothScroll` | Lenis public wheel-scroll controller synchronized with GSAP ScrollTrigger | Shared wheel and synchronised touch smoothing with cleanup |
 | `HomeParticleExperience` | Home-only boundary for the persistent visual layer | Mounted and unmounted by route |
 | `ParticleSceneController` | Section registration, presence thresholds and section-local anchor measurement | Scroll, resize, visibility and cleanup |
 | `ParticleNarrativeCanvas` | One lazy React Three Fiber canvas for the tablet and desktop Home story | Loading, live, paused and failed |

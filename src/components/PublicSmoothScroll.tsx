@@ -28,9 +28,14 @@ export function PublicSmoothScroll({ children }: PublicSmoothScrollProps) {
 
     const lenis = new Lenis({
       autoRaf: false,
-      duration: config.duration,
+      lerp: config.lerp,
+      smoothWheel: config.smoothWheel,
       wheelMultiplier: config.wheelMultiplier,
       syncTouch: config.syncTouch,
+      syncTouchLerp: config.syncTouchLerp,
+      touchInertiaExponent: config.touchInertiaExponent,
+      touchMultiplier: config.touchMultiplier,
+      overscroll: config.overscroll,
       anchors: {
         offset: getHeaderOffset(),
       },
