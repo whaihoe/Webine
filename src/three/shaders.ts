@@ -9,7 +9,6 @@ export const particleVertexShader = `
   attribute vec3 targetInterlude;
   attribute vec3 targetClosing;
   attribute float particleRandom;
-  attribute float particleShade;
   attribute float particleAmbient;
 
   uniform float uProgress;
@@ -33,7 +32,7 @@ export const particleVertexShader = `
   uniform float uPointerStrength;
 
   varying float vRandom;
-  varying float vShade;
+  varying float vGradient;
   varying float vPointerInfluence;
   varying float vAmbient;
   varying float vNarrativeVisibility;
@@ -261,7 +260,11 @@ export const particleVertexShader = `
       (10.0 / max(1.0, -viewPosition.z));
 
     vRandom = particleRandom;
-    vShade = particleShade;
+    vGradient = clamp(
+      0.5 + particlePosition.x * 0.12 - particlePosition.y * 0.055,
+      0.04,
+      0.96
+    );
     vPointerInfluence = pointerInfluence;
     vAmbient = particleAmbient;
     vNarrativeVisibility = narrativeVisibility * uStoryVisibility;
@@ -271,12 +274,11 @@ export const particleVertexShader = `
 export const particleFragmentShader = `
   uniform vec3 uCyanColour;
   uniform vec3 uBlueColour;
-  uniform vec3 uDeepColour;
   uniform float uTime;
   uniform float uColourCycleSpeed;
 
   varying float vRandom;
-  varying float vShade;
+  varying float vGradient;
   varying float vPointerInfluence;
   varying float vAmbient;
   varying float vNarrativeVisibility;
@@ -289,34 +291,14 @@ export const particleFragmentShader = `
       discard;
     }
 
-    vec3 upperColour = mix(
-      uCyanColour,
-      uBlueColour,
-      smoothstep(0.0, 0.62, vShade)
+    float breathingShift = sin(uTime * uColourCycleSpeed) * 0.045;
+    float ditherEdge = clamp(vGradient + breathingShift, 0.04, 0.96);
+    float blueDot = smoothstep(
+      ditherEdge - 0.035,
+      ditherEdge + 0.035,
+      vRandom
     );
-    vec3 colour = mix(
-      upperColour,
-      uDeepColour,
-      smoothstep(0.62, 1.0, vShade)
-    );
-    float colourPhase = 0.5 + 0.5 * sin(
-      uTime * uColourCycleSpeed + vShade * 5.2 + vRandom * 1.4
-    );
-    vec3 cyclingColour = mix(
-      uCyanColour,
-      uBlueColour,
-      smoothstep(0.0, 0.52, colourPhase)
-    );
-    cyclingColour = mix(
-      cyclingColour,
-      uDeepColour,
-      smoothstep(0.5, 1.0, colourPhase)
-    );
-    colour = mix(
-      colour,
-      cyclingColour,
-      mix(0.34, 0.68, vAmbient)
-    );
+    vec3 colour = mix(uCyanColour, uBlueColour, blueDot);
     colour = mix(colour, uCyanColour, vPointerInfluence * 0.24);
     float particleVariation = 0.9 + vRandom * 0.1;
     float ambientPulse = mix(

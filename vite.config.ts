@@ -11,6 +11,7 @@ export default defineConfig(({ command, mode }) => {
   }
 
   return {
+    cacheDir: ".vite/development",
     plugins: [react(), adminApiDevelopmentPlugin()],
   };
 });

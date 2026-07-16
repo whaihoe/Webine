@@ -19,7 +19,7 @@ type PreparedParticleTarget = {
   targetZ: Float32Array;
   scatterX: Float32Array;
   scatterY: Float32Array;
-  shadeBucket: Uint8Array;
+  colourBucket: Uint8Array;
   scale: number;
 };
 
@@ -72,7 +72,7 @@ function prepareTarget(
   const targetZ = new Float32Array(count);
   const scatterX = new Float32Array(count);
   const scatterY = new Float32Array(count);
-  const shadeBucket = new Uint8Array(count);
+  const colourBucket = new Uint8Array(count);
   let minRawX = Number.POSITIVE_INFINITY;
   let maxRawX = Number.NEGATIVE_INFINITY;
   let minRawY = Number.POSITIVE_INFINITY;
@@ -100,7 +100,6 @@ function prepareTarget(
 
   for (let index = 0; index < count; index += 1) {
     const offset = index * 3;
-    const randomness = buffers.randomness[index];
     const x = target[offset] - centreX;
     const y = target[offset + 1] - centreY;
     const z = target[offset + 2] - centreZ;
@@ -115,10 +114,6 @@ function prepareTarget(
     maxProjectedX = Math.max(maxProjectedX, projectedX);
     minProjectedY = Math.min(minProjectedY, projectedY);
     maxProjectedY = Math.max(maxProjectedY, projectedY);
-    shadeBucket[index] = Math.min(
-      2,
-      Math.floor(hash01(randomness * 17.3) * 3),
-    );
   }
 
   const targetWidth = Math.max(maxProjectedX - minProjectedX, 0.001);
@@ -134,6 +129,17 @@ function prepareTarget(
 
   for (let index = 0; index < count; index += 1) {
     const offset = index * 3;
+    const x = target[offset] - centreX;
+    const y = target[offset + 1] - centreY;
+    const z = target[offset + 2] - centreZ;
+    const perspective = 6 / Math.max(3.5, 6 - z * 0.45);
+    const normalisedX = (x * perspective - minProjectedX) / targetWidth;
+    const normalisedY = (y * perspective - minProjectedY) / targetHeight;
+    const gradient = 0.12 +
+      (normalisedX * 0.68 + (1 - normalisedY) * 0.32) * 0.76;
+    colourBucket[index] = hash01(buffers.randomness[index] * 17.3) < gradient
+      ? 1
+      : 0;
     scatterX[index] = width * 0.5 + buffers.scatter[offset] * scatterScale;
     scatterY[index] = height * 0.5 - buffers.scatter[offset + 1] * scatterScale;
   }
@@ -144,7 +150,7 @@ function prepareTarget(
     targetZ,
     scatterX,
     scatterY,
-    shadeBucket,
+    colourBucket,
     scale,
   };
 }
@@ -170,7 +176,6 @@ function getParticleColours() {
   return [
     getColour("--primitive-cyan-400", "hsl(188, 86%, 53%)"),
     getColour("--primitive-blue-500", "hsl(217, 91%, 60%)"),
-    getColour("--primitive-blue-700", "hsl(224, 76%, 48%)"),
   ] as const;
 }
 
@@ -258,9 +263,9 @@ export function MobileTimelineFlowParticles() {
 
         for (let index = 0; index < count; index += 1) {
           const randomness = hash01(buffers.randomness[index] * 41.7);
-          const shadeBucket = Math.min(2, Math.floor(randomness * 3));
+          const colourBucket = randomness < 0.5 ? 0 : 1;
 
-          if (shadeBucket !== bucket) {
+          if (colourBucket !== bucket) {
             continue;
           }
 
@@ -504,7 +509,7 @@ export function MobileSectionParticles({
         drawingContext.globalAlpha = 0.34 + strength * 0.62;
 
         for (let index = 0; index < count; index += 1) {
-          if (projection.shadeBucket[index] !== bucket) {
+          if (projection.colourBucket[index] !== bucket) {
             continue;
           }
 

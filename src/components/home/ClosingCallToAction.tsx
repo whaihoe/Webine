@@ -21,15 +21,15 @@ export function ClosingCallToAction() {
       <SignalGrid className="signal-grid--closing" />
       <MobileSectionParticles scene="closing" />
       <div className="site-container closing-cta__layout">
-        <p className="eyebrow">{settings.closing.eyebrow}</p>
-        <h2 id="closing-heading">
+        <p className="eyebrow" data-gsap-reveal="copy">{settings.closing.eyebrow}</p>
+        <h2 id="closing-heading" data-gsap-reveal="copy">
           {settings.closing.titleLead} <em>{settings.closing.titleAccent}</em>
         </h2>
-        <p>
+        <p data-gsap-reveal="copy">
           {settings.closing.copy}
         </p>
-        <ButtonLink href={settings.closing.cta.href}>{settings.closing.cta.label}</ButtonLink>
-        <div className="closing-cta__availability">
+        <div className="closing-cta__action" data-gsap-reveal="copy"><ButtonLink href={settings.closing.cta.href}>{settings.closing.cta.label}</ButtonLink></div>
+        <div className="closing-cta__availability" data-gsap-reveal="copy">
           <span>{settings.contact.availability}</span>
           {publicEmail ? <a href={`mailto:${publicEmail}`}>{publicEmail}</a> : <span>Based in {settings.footer.location}</span>}
         </div>

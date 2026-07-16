@@ -139,7 +139,7 @@ export const particleSceneConfig = {
     id: "closing",
     theme: "dark",
     motion: {
-      formation: { enterViewportY: 0.94, formedViewportY: 0.5 },
+      formation: { enterViewportY: 1.28, formedViewportY: 0.62 },
       dispersion: { startViewportY: 0, completeViewportY: -0.28 },
     },
     desktop: { anchorX: 0.76, anchorY: 0.5, scale: 1.06 },

@@ -60,6 +60,12 @@ export function SelectedWorkRunway() {
     const projectCards = Array.from(
       track.querySelectorAll<HTMLElement>(".work-card"),
     );
+    const projectMedia = projectCards.map((card) =>
+      card.querySelector<HTMLElement>(".project-card__media")
+    );
+    const projectImages = projectCards.map((card) =>
+      card.querySelector<HTMLImageElement>(".project-card__media img:first-child")
+    );
     const interludeSection = section.nextElementSibling;
     const interludeRevealItems = interludeSection?.classList.contains("quiet-interlude")
       ? Array.from(
@@ -70,6 +76,7 @@ export function SelectedWorkRunway() {
     let cancelled = false;
     let tween: ScrollBoundTween | null = null;
     let entranceTween: ScrollBoundTween | null = null;
+    let revealTween: ScrollBoundTween | null = null;
     let mobileInterludeTween: gsap.core.Tween | null = null;
     let mobileInterludeVisible = false;
     let resizeObserver: ResizeObserver | null = null;
@@ -87,6 +94,9 @@ export function SelectedWorkRunway() {
       entranceTween?.scrollTrigger?.kill(true);
       entranceTween?.kill();
       entranceTween = null;
+      revealTween?.scrollTrigger?.kill(true);
+      revealTween?.kill();
+      revealTween = null;
       mobileInterludeTween?.kill();
       mobileInterludeTween = null;
       mobileInterludeVisible = false;
@@ -95,6 +105,9 @@ export function SelectedWorkRunway() {
       delete section.dataset.scrollPhase;
       delete section.dataset.particleVisibility;
       delete section.dataset.chapterFormation;
+      projectCards.forEach((card) => {
+        card.inert = false;
+      });
       gsap.set(
         [
           stage,
@@ -104,6 +117,8 @@ export function SelectedWorkRunway() {
           chapter,
           chapterCompact,
           ...projectCards,
+          ...projectMedia.filter((media): media is HTMLElement => Boolean(media)),
+          ...projectImages.filter((image): image is HTMLImageElement => Boolean(image)),
           ...interludeRevealItems,
         ],
         { clearProps: "all" },
@@ -121,10 +136,12 @@ export function SelectedWorkRunway() {
 
       gsap.registerPlugin(ScrollTrigger);
       section.dataset.scrollMode = "pinned";
-      gsap.set(interludeRevealItems, {
-        autoAlpha: 0,
-        y: 24,
-      });
+      if (interludeRevealItems.length > 0) {
+        gsap.set(interludeRevealItems, {
+          autoAlpha: 0,
+          y: 24,
+        });
+      }
 
       entranceTween = gsap.fromTo(
         entrance,
@@ -141,6 +158,45 @@ export function SelectedWorkRunway() {
           },
         },
       ) as ScrollBoundTween;
+
+      const revealTimeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: section,
+          start: "top 88%",
+          toggleActions: "play none none reverse",
+        },
+      });
+      revealTimeline.fromTo(
+        Array.from(header.children),
+        { opacity: 0, y: 28 },
+        { opacity: 1, y: 0, duration: 0.8, stagger: 0.09, ease: "power3.out" },
+        0,
+      );
+      projectCards.forEach((card, index) => {
+        const media = projectMedia[index];
+        const revealAt = 0.2 + index * 0.28;
+        revealTimeline.fromTo(
+          card,
+          { opacity: 0, y: 52 },
+          { opacity: 1, y: 0, duration: 0.85, ease: "power3.out" },
+          revealAt,
+        );
+        if (media) {
+          revealTimeline.fromTo(
+            media,
+            { clipPath: "inset(12% 0 12% 0 round 1.5rem)" },
+            { clipPath: "inset(0% 0 0% 0 round 0rem)", duration: 1.05, ease: "power3.out" },
+            revealAt + 0.04,
+          );
+        }
+      });
+      revealTimeline.fromTo(
+        chapter,
+        { opacity: 0, y: 52 },
+        { opacity: 1, y: 0, duration: 0.9, ease: "power3.out" },
+        0.2 + projectCards.length * 0.28,
+      );
+      revealTween = revealTimeline as ScrollBoundTween;
 
       const getViewportWidth = () =>
         Math.max(document.documentElement.clientWidth, 1);
@@ -188,6 +244,15 @@ export function SelectedWorkRunway() {
                 Math.round(runwayProgress * (totalFrames - 1)),
               ),
             );
+            const viewportCentre = getViewportWidth() / 2;
+            projectCards.forEach((card, index) => {
+              card.inert = self.progress >= horizontalEnd;
+              const image = projectImages[index];
+              if (!image) return;
+              const rect = card.getBoundingClientRect();
+              const distance = (rect.left + rect.width / 2 - viewportCentre) / Math.max(viewportCentre + rect.width / 2, 1);
+              gsap.set(image, { xPercent: Math.max(-1, Math.min(1, distance)) * -7 });
+            });
             const expandedThreshold = isMobile
               ? mobileInterludeRevealStart
               : 0.98;
@@ -198,7 +263,7 @@ export function SelectedWorkRunway() {
                   ? "expanding"
                   : "expanded";
 
-            if (isMobile) {
+            if (isMobile && interludeRevealItems.length > 0) {
               const shouldShowInterlude =
                 self.progress >= mobileInterludeRevealStart;
 
@@ -266,11 +331,6 @@ export function SelectedWorkRunway() {
           horizontalEnd,
         )
         .to(
-          projectCards,
-          { autoAlpha: 0, duration: 0.12, ease: "none" },
-          horizontalEnd,
-        )
-        .to(
           chapter,
           {
             "--chapter-decoration-opacity": 0,
@@ -300,7 +360,15 @@ export function SelectedWorkRunway() {
           horizontalEnd,
         );
 
-      if (!isMobile) {
+      if (projectCards.length > 0) {
+        timeline.to(
+          projectCards,
+          { opacity: 0, duration: 0.12, ease: "none" },
+          horizontalEnd,
+        );
+      }
+
+      if (!isMobile && interludeRevealItems.length > 0) {
         timeline.to(
           interludeRevealItems,
           {
@@ -355,6 +423,7 @@ export function SelectedWorkRunway() {
       className="work-runway theme-dark"
       aria-labelledby="selected-work-heading"
       data-particle-scene="work"
+      data-gsap-managed="true"
     >
       <div ref={stageRef} className="work-runway__stage">
         <div ref={entranceRef} className="work-runway__entrance">

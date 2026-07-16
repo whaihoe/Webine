@@ -1,4 +1,5 @@
 :root {
+  --layer-hero-ambient: 0;
   --layer-particles-base: 1;
   --layer-hero: 2;
   --layer-reach-background: 3;
@@ -13,7 +14,6 @@
 
 .hero-reach-cover {
   position: relative;
-  background: hsl(var(--primitive-slate-950));
 }
 
 .home-page > section {

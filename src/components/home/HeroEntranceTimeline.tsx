@@ -104,44 +104,56 @@ export function HeroEntranceTimeline({
     });
     const gatherStart = fullEntrance ? 0.4 : 0.04;
 
-    timeline
-      .to(introState, {
-        progress: 1,
-        duration: fullEntrance ? 0.85 : 0.34,
-        ease: "power3.inOut",
-        onUpdate: () => store.setIntroProgress(introState.progress),
-      }, gatherStart)
-      .to(header, {
+    timeline.to(introState, {
+      progress: 1,
+      duration: fullEntrance ? 0.85 : 0.34,
+      ease: "power3.inOut",
+      onUpdate: () => store.setIntroProgress(introState.progress),
+    }, gatherStart);
+
+    if (header) {
+      timeline.to(header, {
         autoAlpha: 1,
         y: 0,
         duration: fullEntrance ? 0.3 : 0.18,
-      }, fullEntrance ? 0.85 : 0.12)
-      .to(eyebrow, {
+      }, fullEntrance ? 0.85 : 0.12);
+    }
+    if (eyebrow) {
+      timeline.to(eyebrow, {
         autoAlpha: 1,
         y: 0,
         duration: fullEntrance ? 0.28 : 0.16,
-      }, fullEntrance ? 1.08 : 0.19)
-      .to(headlineLines, {
+      }, fullEntrance ? 1.08 : 0.19);
+    }
+    if (headlineLines.length > 0) {
+      timeline.to(headlineLines, {
         autoAlpha: 1,
         y: 0,
         duration: fullEntrance ? 0.42 : 0.24,
         stagger: fullEntrance ? 0.1 : 0.04,
-      }, fullEntrance ? 1.16 : 0.22)
-      .to(description, {
+      }, fullEntrance ? 1.16 : 0.22);
+    }
+    if (description) {
+      timeline.to(description, {
         autoAlpha: 1,
         y: 0,
         duration: fullEntrance ? 0.32 : 0.18,
-      }, fullEntrance ? 1.55 : 0.4)
-      .to(actions, {
+      }, fullEntrance ? 1.55 : 0.4);
+    }
+    if (actions) {
+      timeline.to(actions, {
         autoAlpha: 1,
         y: 0,
         duration: fullEntrance ? 0.32 : 0.18,
-      }, fullEntrance ? 1.68 : 0.47)
-      .to(scrollCue, {
+      }, fullEntrance ? 1.68 : 0.47);
+    }
+    if (scrollCue) {
+      timeline.to(scrollCue, {
         autoAlpha: 1,
         y: 0,
         duration: fullEntrance ? 0.28 : 0.16,
       }, fullEntrance ? 1.82 : 0.54);
+    }
 
     const finishImmediately = () => {
       timeline.progress(1, false);

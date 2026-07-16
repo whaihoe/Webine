@@ -12,13 +12,12 @@ export type ParticleTargetBuffers = {
   interlude: Float32Array;
   closing: Float32Array;
   randomness: Float32Array;
-  facetShade: Float32Array;
   ambientMask: Float32Array;
 };
 
 type ProceduralParticleTargetBuffers = Omit<
   ParticleTargetBuffers,
-  "hero" | "closing" | "facetShade"
+  "hero" | "closing"
 >;
 
 export function createSeededRandom(seed: number) {
@@ -39,22 +38,6 @@ function particleHash(value: number) {
 function normalise(x: number, y: number, z: number): Point3 {
   const length = Math.hypot(x, y, z) || 1;
   return [x / length, y / length, z / length];
-}
-
-function getHeroFacetShade(x: number, y: number) {
-  if (y < -0.72 + Math.abs(x) * 0.12) return x < 0 ? 0.58 : 0.92;
-  if (x < 0) return y > 0.1 ? 0.08 : 0.42;
-  return y > 0.1 ? 0.48 : 0.76;
-}
-
-function createHeroFacetShades(heroTarget: Float32Array) {
-  const count = heroTarget.length / 3;
-  const facetShade = new Float32Array(count);
-  for (let index = 0; index < count; index += 1) {
-    const offset = index * 3;
-    facetShade[index] = getHeroFacetShade(heroTarget[offset], heroTarget[offset + 1]);
-  }
-  return facetShade;
 }
 
 function sampleEllipticalTorus(random: () => number, radiusX: number, radiusY: number, tubeRadius: number): Point3 {
@@ -145,5 +128,5 @@ export function createParticleTargetBuffers(proceduralTargets: ProceduralParticl
   if (heroTarget.length !== expectedLength || closingTarget.length !== expectedLength) {
     throw new Error("Particle target buffers must use the same particle count.");
   }
-  return { ...proceduralTargets, hero: heroTarget, closing: closingTarget, facetShade: createHeroFacetShades(heroTarget) };
+  return { ...proceduralTargets, hero: heroTarget, closing: closingTarget };
 }

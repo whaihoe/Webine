@@ -46,12 +46,12 @@ This checklist keeps code readiness separate from production approval. Do not ma
 |---|---|---|
 | Automated build, types and tests | Pass | Run again on the exact release commit |
 | Dependency audit | Pass | Repeat on the exact release commit |
-| Responsive visual matrix | Open | Complete every row in `docs/verification-matrix.md` |
+| Responsive visual matrix | Local browser pass | Complete the physical-device and cross-browser rows in `docs/verification-matrix.md` |
 | Physical iPhone sticky and particle story | Open | User confirmation on Safari and Chrome |
 | Android touch experience | Open | Representative device confirmation |
 | Desktop mouse, trackpad and keyboard | Open | Cross-browser live pass |
 | LCP, INP and CLS | Open | Record production-build measurements |
-| Accessibility scan and 200% zoom | Open | Record rendered-page results and fix any serious issue |
+| Accessibility scan and 200% zoom | Partial local pass | Run an automated production scan and literal 200% zoom in physical browsers |
 
 ## Release operation
 

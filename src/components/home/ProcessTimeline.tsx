@@ -112,11 +112,11 @@ export function ProcessTimeline() {
       data-particle-scene="process"
     >
       <div className="site-container process-section__intro">
-        <p className="eyebrow">05 / How it moves</p>
-        <h2 id="process-heading">
+        <p className="eyebrow" data-gsap-reveal="copy">05 / How it moves</p>
+        <h2 id="process-heading" data-gsap-reveal="copy">
           Clear enough to follow. <em>Flexible enough to fit.</em>
         </h2>
-        <p>
+        <p data-gsap-reveal="copy">
           Every project has different needs, but the route stays visible. The
           timeline shows what Webine does, what we need from you and what each
           stage produces.
@@ -132,9 +132,6 @@ export function ProcessTimeline() {
         {processSteps.map((step, index) => (
           <article
             key={step.title}
-            ref={(element) => {
-              nodeRefs.current[index] = element;
-            }}
             className="process-step"
             data-state={
               index < activeStep
@@ -144,22 +141,30 @@ export function ProcessTimeline() {
                   : "waiting"
             }
           >
-            <div className="process-step__node" aria-hidden="true">
+            <div
+              ref={(element) => {
+                nodeRefs.current[index] = element;
+              }}
+              className="process-step__node"
+              aria-hidden="true"
+            >
               <span />
             </div>
-            <p className="process-step__index">0{index + 1}</p>
-            <h3>{step.title}</h3>
-            <p className="process-step__action">{step.action}</p>
-            <dl>
-              <div>
-                <dt>Your part</dt>
-                <dd>{step.client}</dd>
-              </div>
-              <div>
-                <dt>Output</dt>
-                <dd>{step.output}</dd>
-              </div>
-            </dl>
+            <div className="process-step__content" data-gsap-reveal="card">
+              <p className="process-step__index">0{index + 1}</p>
+              <h3>{step.title}</h3>
+              <p className="process-step__action">{step.action}</p>
+              <dl>
+                <div>
+                  <dt>Your part</dt>
+                  <dd>{step.client}</dd>
+                </div>
+                <div>
+                  <dt>Output</dt>
+                  <dd>{step.output}</dd>
+                </div>
+              </dl>
+            </div>
           </article>
         ))}
         <div className="process-timeline__outlet" aria-hidden="true" />

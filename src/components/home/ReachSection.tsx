@@ -45,27 +45,6 @@ export function ReachSection() {
     return unsubscribe;
   }, [store]);
 
-  useEffect(() => {
-    const section = sectionRef.current;
-
-    if (!section) {
-      return;
-    }
-
-    section.dataset.motionReady = "true";
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          section.dataset.visible = "true";
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.18 },
-    );
-    observer.observe(section);
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <section
       ref={connectSection}
@@ -76,20 +55,20 @@ export function ReachSection() {
     >
       <MobileSectionParticles scene="reach" />
       <div className="site-container reach-section__layout">
-        <p className="eyebrow reach-section__eyebrow" data-reveal>
+        <p className="eyebrow reach-section__eyebrow" data-gsap-reveal="copy">
           02 / Business value
         </p>
 
-        <h2 id="reach-heading" data-reveal>
+        <h2 id="reach-heading" data-gsap-reveal="copy">
           A stronger website makes your business easier to{" "}
           <em>notice, trust and choose.</em>
         </h2>
 
-        <p className="reach-section__intro" data-reveal>
+        <p className="reach-section__intro" data-gsap-reveal="copy">
           {settings.positioningStatement}
         </p>
 
-        <div className="reach-principles" data-reveal>
+        <div className="reach-principles">
           {settings.principles.map((principle, index) => {
             const expanded = expandedIndex === index;
 
@@ -97,6 +76,7 @@ export function ReachSection() {
               <article
                 key={principle.title}
                 className="reach-principle"
+                data-gsap-reveal="card"
                 data-expanded={expanded}
               >
                 <span className="reach-principle__index">

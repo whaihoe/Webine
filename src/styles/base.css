@@ -89,6 +89,13 @@ h3 {
   outline-offset: var(--focus-ring-offset);
 }
 
+[data-gsap-reveal]:focus-within {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+  clip-path: inset(0% 0 0% 0 round 0rem) !important;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

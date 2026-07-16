@@ -14,19 +14,25 @@ test("builds a local browser application", async () => {
 });
 
 test("keeps every current route", async () => {
-  const app = await readFile(new URL("src/App.tsx", projectRoot), "utf8");
+  const [app, main] = await Promise.all([
+    readFile(new URL("src/App.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/main.tsx", projectRoot), "utf8"),
+  ]);
 
   for (const path of ["/", "/works", "/contact", "/preview"]) {
     assert.match(app, new RegExp(`path=["']${path.replace("/", "\\/")}["']`));
   }
   assert.match(app, /path=["']\/admin\/\*["']/);
+  assert.match(main, /v7_relativeSplatPath:\s*true/);
+  assert.match(main, /v7_startTransition:\s*true/);
 });
 
 test("keeps global route motion purposeful and restorable", async () => {
-  const [app, effects, transition, projectCard, menu, styles] = await Promise.all([
+  const [app, effects, transition, revealController, projectCard, menu, styles] = await Promise.all([
     readFile(new URL("src/App.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/RouteEffects.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/RouteTransition.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/GsapRevealController.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/projects/ProjectCard.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/MobileMenu.tsx", projectRoot), "utf8"),
     readFile(new URL("src/styles/layout.css", projectRoot), "utf8"),
@@ -38,15 +44,27 @@ test("keeps global route motion purposeful and restorable", async () => {
   assert.match(effects, /navigationType === "POP"/);
   assert.match(effects, /hashTarget\.scrollIntoView/);
   assert.match(effects, /heading\.focus\(\{ preventScroll: true \}\)/);
-  assert.match(projectCard, /IntersectionObserver/);
-  assert.match(projectCard, /\(pointer: fine\)/);
-  assert.match(projectCard, /removeEventListener\("scroll"/);
+  assert.match(projectCard, /project-card__media-motion/);
+  assert.match(projectCard, /data-gsap-parallax=\{compact \? undefined : "media"\}/);
+  assert.match(projectCard, /compact\s*\? "project-card__content work-card__content"\s*:\s*"project-card__content"/);
+  assert.doesNotMatch(projectCard, /addEventListener\("scroll"/);
+  assert.match(revealController, /ScrollTrigger/);
+  assert.match(revealController, /MutationObserver/);
+  assert.match(revealController, /context\.add\(run\)/);
+  assert.match(revealController, /context\?\.revert\(\)/);
+  assert.match(revealController, /dataset\.gsapDelay/);
+  assert.match(revealController, /dataset\.gsapParallax/);
+  assert.match(revealController, /scrub:\s*isFloatingCard \? 1\.8 : 1\.15/);
+  assert.match(revealController, /opacity:\s*0/);
+  assert.doesNotMatch(revealController, /autoAlpha/);
   assert.match(menu, /mobile-menu__navigation/);
   assert.match(transition, /previousPath/);
   assert.match(transition, /setTimeout\(\(\) => setVisible\(false\), 760\)/);
   assert.doesNotMatch(projectCard, /viewTransition/);
   assert.match(styles, /pointer-events:\s*none/);
   assert.match(styles, /route-curtain-reveal/);
+  assert.match(styles, /\.site-header--light\s*{[^}]*--button-outline-text:\s*var\(--primitive-slate-950\)/s);
+  assert.match(await readFile(new URL("src/styles/base.css", projectRoot), "utf8"), /\[data-gsap-reveal\]:focus-within/);
 });
 
 test("prepares indexable public metadata and private-route noindex controls", async () => {
@@ -254,7 +272,7 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.match(points, /attributes-targetWorkB/);
   assert.match(points, /attributes-targetWorkC/);
   assert.doesNotMatch(points, /attributes-targetTimeline/);
-  assert.match(points, /attributes-particleShade/);
+  assert.doesNotMatch(points, /attributes-particleShade/);
   assert.match(points, /attributes-particleAmbient/);
   assert.match(points, /closingSettledStrength/);
   assert.match(points, /ambientRotationScale/);
@@ -285,8 +303,11 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.match(targets, /scatter/);
   assert.match(targets, /release/);
   assert.match(targets, /hero:\s*heroTarget/);
-  assert.match(targets, /createHeroFacetShades/);
-  assert.match(targets, /facetShade/);
+  assert.doesNotMatch(targets, /createHeroFacetShades|facetShade/);
+  assert.match(shaders, /varying float vGradient/);
+  assert.match(shaders, /float blueDot = smoothstep/);
+  assert.match(shaders, /mix\(uCyanColour, uBlueColour, blueDot\)/);
+  assert.doesNotMatch(shaders, /uDeepColour/);
   assert.match(targets, /sampleEllipticalTorus/);
   assert.match(targets, /createProceduralParticleTargets/);
   assert.match(targets, /createParticleTargetBuffers/);
@@ -360,7 +381,7 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.match(smoothScroll, /touchInertiaExponent:\s*config\.touchInertiaExponent/);
   assert.match(smoothScroll, /touchMultiplier:\s*config\.touchMultiplier/);
 
-  const [processTimeline, controller, selectedWork, interlude] = await Promise.all([
+  const [processTimeline, controller, selectedWork, interlude, homeSceneStyles] = await Promise.all([
     readFile(
       new URL("src/components/home/ProcessTimeline.tsx", projectRoot),
       "utf8",
@@ -377,6 +398,7 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
       new URL("src/components/home/QuietInterlude.tsx", projectRoot),
       "utf8",
     ),
+    readFile(new URL("src/styles/home-scenes.css", projectRoot), "utf8"),
   ]);
   assert.match(processTimeline, /viewportHeight \* 0\.88/);
   assert.match(processTimeline, /MobileTimelineFlowParticles/);
@@ -395,6 +417,19 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.doesNotMatch(selectedWork, /work-interlude-heading/);
   assert.match(selectedWork, /scrub:\s*1\.45/);
   assert.match(selectedWork, /projectCards/);
+  assert.match(selectedWork, /projectMedia/);
+  assert.match(selectedWork, /projectImages/);
+  assert.match(selectedWork, /xPercent/);
+  assert.match(selectedWork, /revealTimeline/);
+  assert.match(selectedWork, /projectCards\.forEach\(\(card, index\)/);
+  assert.match(selectedWork, /0\.2 \+ index \* 0\.28/);
+  assert.match(selectedWork, /0\.2 \+ projectCards\.length \* 0\.28/);
+  assert.match(selectedWork, /if \(projectCards\.length > 0\)/);
+  assert.match(selectedWork, /!isMobile && interludeRevealItems\.length > 0/);
+  assert.match(selectedWork, /card\.inert = self\.progress >= horizontalEnd/);
+  assert.match(selectedWork, /card\.inert = false/);
+  assert.match(homeSceneStyles, /\.work-card:focus-within/);
+  assert.match(selectedWork, /data-gsap-managed="true"/);
   assert.match(selectedWork, /interludeRevealItems/);
   assert.match(selectedWork, /section\.nextElementSibling/);
   assert.match(selectedWork, /\[data-interlude-reveal\]/);
@@ -404,7 +439,7 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.match(selectedWork, /duration:\s*0\.16/);
   assert.match(selectedWork, /duration:\s*shouldShowInterlude \? 0\.42 : 0\.2/);
   assert.match(selectedWork, /stagger:\s*shouldShowInterlude \? 0\.05 : 0\.02/);
-  assert.match(selectedWork, /if \(!isMobile\)/);
+  assert.match(selectedWork, /if \(!isMobile && interludeRevealItems\.length > 0\)/);
   assert.match(selectedWork, /stageRef/);
   assert.match(selectedWork, /entranceRef/);
   assert.match(selectedWork, /start:\s*"top bottom"/);
@@ -478,6 +513,71 @@ test("keeps reach particles between the section background and content", async (
     sceneStyles,
     /\.work-runway__chapter-preview::after\s*\{[^}]*opacity:\s*var\(--chapter-decoration-opacity\)/s,
   );
+});
+
+test("keeps the process line behind its timeline nodes", async () => {
+  const [timeline, sceneStyles] = await Promise.all([
+    readFile(new URL("src/components/home/ProcessTimeline.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/styles/home-scenes.css", projectRoot), "utf8"),
+  ]);
+
+  assert.match(sceneStyles, /\.process-timeline__line\s*{[^}]*z-index:\s*1/s);
+  assert.match(sceneStyles, /\.process-step\s*{[^}]*z-index:\s*2/s);
+  assert.match(sceneStyles, /\.process-step__node\s*{[^}]*z-index:\s*4/s);
+  assert.match(sceneStyles, /nth-of-type\(even\)[^{]*\{[^}]*left:\s*calc\(100% \+ 2\.5rem \+ 1\.5px\)/s);
+  assert.match(sceneStyles, /nth-of-type\(odd\)[^{]*\{[^}]*left:\s*calc\(-2\.5rem - 0\.5px\)/s);
+  assert.match(timeline, /ref=\{\(element\) => \{\s*nodeRefs\.current\[index\] = element;/s);
+  assert.match(timeline, /className="process-step__content" data-gsap-reveal="card"/);
+  assert.doesNotMatch(timeline, /className="process-step"\s*data-gsap-reveal/);
+});
+
+test("extends the Home motion language across Works and Contact without assigning GSAP to particles", async () => {
+  const [homeExperience, works, contact, galaxyBackdrop, projectCard, ambientParticles, particleCanvas, mobileParticles, styles, particleStyles] = await Promise.all([
+    readFile(new URL("src/components/home/HomeParticleExperience.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/pages/WorksPage.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/pages/ContactPage.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/GalaxyBackdrop.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/projects/ProjectCard.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/AmbientParticleField.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/three/ParticleNarrativeCanvas.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/home/MobileSectionParticles.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/styles/pages.css", projectRoot), "utf8"),
+    readFile(new URL("src/styles/particles.css", projectRoot), "utf8"),
+  ]);
+
+  assert.match(works, /data-gsap-parallax="media"/);
+  assert.match(styles, /\.project-case-study__media-frame\s*{[^}]*width:\s*100%[^}]*min-width:\s*0[^}]*min-height:\s*0/s);
+  assert.match(projectCard, /data-gsap-parallax=\{compact \? undefined : "media"\}/);
+  assert.doesNotMatch(projectCard, /addEventListener\("scroll"/);
+  assert.doesNotMatch(projectCard, /--project-parallax/);
+  assert.match(works, /revealDelay=\{\(index % 2\) \* 0\.14\}/);
+  assert.match(works, /project-case-study__media-frame/);
+  assert.match(works, /works-foundation theme-dark/);
+  assert.match(works, /<GalaxyBackdrop \/>/);
+  assert.match(galaxyBackdrop, /<AmbientParticleField\s+count=\{84\}/);
+  assert.match(homeExperience, /<AmbientParticleField count=\{20\} className="ambient-particle-field--hero" \/>/);
+  assert.match(contact, /<AmbientParticleField count=\{20\}/);
+  assert.doesNotMatch(contact, /contact-section__signal/);
+  assert.match(contact, /data-gsap-delay="0\.7"/);
+  assert.match(contact, /<DirectionalArrow \/>/);
+  assert.match(projectCard, /data-gsap-delay=/);
+  assert.match(projectCard, /project-card__overlay/);
+  assert.match(projectCard, /project-card__title-link/);
+  assert.doesNotMatch(projectCard, /data-gsap-parallax=.*(?:copy|drift)/);
+  assert.doesNotMatch(ambientParticles, /three|canvas|requestAnimationFrame|data-gsap-(?:reveal|parallax)/i);
+  assert.match(styles, /\.project-card__media:focus-visible \.project-card__overlay/);
+  assert.match(styles, /\.galaxy-backdrop\s*{[^}]*position:\s*fixed/s);
+  assert.match(styles, /\.works-experience\s*{[^}]*isolation:\s*isolate/s);
+  assert.match(styles, /\.ambient-particle-field--hero\s*{[^}]*z-index:\s*var\(--layer-hero-ambient\)/s);
+  assert.match(particleStyles, /--layer-hero-ambient:\s*0/);
+  assert.match(particleStyles, /--layer-particles-base:\s*1/);
+  assert.match(particleStyles, /\.particle-narrative-layer\s*{[^}]*z-index:\s*var\(--layer-particles-base\)/s);
+  assert.match(particleStyles, /\.home-page \.hero-section__grid\s*{[^}]*z-index:\s*2/s);
+  assert.match(styles, /@keyframes ambient-particle-drift/);
+  assert.match(styles, /@keyframes ambient-particle-twinkle/);
+  assert.match(styles, /\.ambient-particle-field span\s*\{/);
+  assert.doesNotMatch(particleCanvas, /data-gsap-(?:reveal|parallax)/);
+  assert.doesNotMatch(mobileParticles, /data-gsap-(?:reveal|parallax)/);
 });
 
 test("uses vector arrows instead of emoji-prone Unicode arrows", async () => {

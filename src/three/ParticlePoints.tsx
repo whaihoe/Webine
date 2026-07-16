@@ -91,7 +91,6 @@ export function ParticlePoints({
       uPointerStrength: { value: 0 },
       uCyanColour: { value: getTokenColour("--primitive-cyan-400") },
       uBlueColour: { value: getTokenColour("--primitive-blue-500") },
-      uDeepColour: { value: getTokenColour("--primitive-blue-700") },
     }),
     [
       ambientMotion.colourCycleSeconds,
@@ -497,10 +496,6 @@ export function ParticlePoints({
           <bufferAttribute
             attach="attributes-particleRandom"
             args={[targets.randomness, 1]}
-          />
-          <bufferAttribute
-            attach="attributes-particleShade"
-            args={[targets.facetShade, 1]}
           />
           <bufferAttribute
             attach="attributes-particleAmbient"

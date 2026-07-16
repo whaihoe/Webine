@@ -4,13 +4,25 @@ The current homepage uses one coordinated scene controller. Settings and layout 
 
 | Feature | Current state | Dedicated stage |
 |---|---|---|
-| General motion presets | Disabled | Reserved for later global polish, with component feedback already tokenised |
+| General scroll reveals | GSAP controller for public content, with section-owned timelines taking precedence | Public routes |
 | Particle narrative | Persistent GPU layer on tablet and desktop, section-owned 2D canvases on phones | Homepage narrative |
 | Smooth scrolling | Lenis wheel and synchronised touch smoothing | Stage 3 onward |
 | Signal Grid response | Enabled only for the hero and closing CTA | Homepage narrative |
-| Page transitions | Disabled | Stage 21 |
+| Page transitions | Non-blocking route curtain | Public routes except Admin and preview |
 
 The static HTML and CSS composition must remain complete when every feature is disabled. Future implementations should read this configuration instead of creating separate hardcoded switches inside page components.
+
+Public content outside a section-owned timeline uses `GsapRevealController`. Elements opt in with `data-gsap-reveal="copy"`, `card` or `media`, may provide a bounded `data-gsap-delay` and may opt into scrubbed media parallax. The controller creates reversible ScrollTrigger entries and observes asynchronously loaded CMS cards. Entry reveals animate opacity rather than `autoAlpha`, so offscreen links and controls remain available to keyboard and accessibility APIs. A focus-within override immediately exposes any focused reveal target. A composition with its own coordinated timeline declares `data-gsap-managed="true"`, which prevents a second reveal system from animating the same descendants. Particle renderers never receive these attributes.
+
+Project imagery uses restrained scroll parallax on desktop, tablet and mobile. Works cards and case studies use the shared GSAP controller on an inner media wrapper, while the horizontally pinned Home runway derives a small horizontal image offset from each card's distance to the viewport centre. Separate wrappers keep hover scaling and scroll translation from competing for the same transform.
+
+The same controller supports restrained scrub modes beyond media, including editorial drift, a slow floating-card layer and an orbit layer for compositions that need them. Works uses drift only on its outlined background word. Project-card text no longer drifts because it made the information harder to read. Contact moves the form more slowly than the surrounding copy, with deliberately reduced phone travel. Reveal and parallax transforms never share the same element.
+
+`AmbientParticleField` is a sparse CSS-only field of deterministic DOM points. Each point owns an independent curved drift route, twinkle period and depth-like scale change. It does not import Three.js, run a JavaScript animation loop or receive GSAP attributes. Contact and the Home hero use 20 points, with only the first 12 shown on phones. The hero field is a direct child of `home-page` at the dedicated ambient layer 0. The Webine logo renderer uses layer 1 and the hero content remains at layer 2, making the order ambient, logo particles, then typography and controls on desktop and mobile.
+
+Works wraps its index and valid case-study states in one `GalaxyBackdrop`. The backdrop is fixed to the viewport beneath transparent section surfaces, so its 84-point star field and broad cyan or blue nebula remain spatially stable while the portfolio scrolls. Phones show 34 galaxy points and use a wider, lower nebula. This adapts the attached Lenis showcase reference rather than copying its WebGL implementation: Lenis uses a fixed React Three Fiber canvas, 100 noise-driven shader points and a large radial glow, while Webine keeps this decorative layer in CSS to avoid loading a second Three.js experience. The implementation research is recorded in `research/2026-07-16-lenis-showcase-teardown.md`.
+
+Particle colour remains outside GSAP. GPU forms derive a continuous gradient from their live local position, then use deterministic per-particle randomness to choose between cyan and blue. This produces a dotted gradient without solid facet blocks. Phone target projection creates the equivalent two-colour buckets once during preparation. Closing formation begins at 1.28 viewport heights so the planet is already gathering before its anchor enters the visible frame.
 
 ## Current scene contract
 
@@ -22,7 +34,13 @@ As Section 3 approaches, an inner entrance layer begins up to 14 viewport-height
 
 The selected-work runway pins on desktop, tablet and mobile. Normal vertical scrolling moves the rendered track horizontally, with no custom wheel interception or nested touch scroller. The final chapter card stops at the viewport centre after 70 percent of the scrubbed timeline. Particles fade fully during the horizontal sequence, return as a reduced-density field during expansion and begin gathering before the pin releases.
 
+Its entry timeline reveals the header first, then each published Project card at 0.28-second offsets with its media clip following 0.04 seconds later. Chapter 04 enters only after the final Project card. The runway owns this sequence and is excluded from the global reveal controller.
+
+Runway entry also uses opacity without hiding visibility. Focusing a Project card reveals it immediately. Cards become `inert` only after chapter 04 begins expanding and reverse scrolling removes `inert` when the horizontal sequence returns.
+
 The HTML process line and node states use their centre-based progress. Particle motion uses two additional geometry-derived values, an earlier intake approach and the centred outlet release. All three are recalculated from the same live line rectangle, so reverse scrolling reverses the illusion without callback-owned state.
+
+The timeline line remains below its cards and circular nodes at every breakpoint. Each node is outside the card-content reveal, so all four circles remain present on the bar even before their copy animates in. Active-state measurement reads the circle itself, not the card top. Desktop odd and even offsets are calibrated independently so both left and right cards centre on the one-pixel line. This also prevents the fill from painting over a mobile node and activates each stage when its actual circle reaches viewport centre.
 
 The refined particle timing uses two geometric measurements from the same timeline line:
 

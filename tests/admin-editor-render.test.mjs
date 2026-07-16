@@ -5,6 +5,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { StaticRouter } from "react-router-dom/server.js";
 import { createServer } from "vite";
 import react from "@vitejs/plugin-react";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 const projectRoot = new URL("../", import.meta.url);
 
@@ -22,8 +25,10 @@ function field(key, fieldType, extras = {}) {
 }
 
 test("renders the collection builder and every generated item control", async () => {
+  const cacheDirectory = await mkdtemp(join(tmpdir(), "webine-vite-test-"));
   const server = await createServer({
     root: new URL(".", projectRoot).pathname,
+    cacheDir: cacheDirectory,
     configFile: false,
     plugins: [react()],
     appType: "custom",
@@ -86,5 +91,6 @@ test("renders the collection builder and every generated item control", async ()
     assert.equal((itemHtml.match(/<fieldset/g) ?? []).length, fields.length);
   } finally {
     await server.close();
+    await rm(cacheDirectory, { recursive: true, force: true });
   }
 });

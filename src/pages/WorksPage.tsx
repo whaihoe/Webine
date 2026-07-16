@@ -1,23 +1,126 @@
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { ButtonLink } from "../components/ButtonLink";
+import { DirectionalArrow } from "../components/DirectionalArrow";
+import { GalaxyBackdrop } from "../components/GalaxyBackdrop";
 import { ProjectCard } from "../components/projects/ProjectCard";
 import { SiteShell } from "../components/SiteShell";
-import { usePublicProjects } from "../hooks/usePublicProjects";
 import type { PublicProject } from "../content/public-projects";
-import { usePageMetadata } from "../hooks/usePageMetadata";
 import { useSiteSettings } from "../content/SiteSettingsProvider";
+import { usePageMetadata } from "../hooks/usePageMetadata";
+import { usePublicProjects } from "../hooks/usePublicProjects";
 
-function ProjectCaseStudy({ project, projects, index }: { project: PublicProject; projects: PublicProject[]; index: number }) {
-  usePageMetadata(project.seoTitle ? `${project.seoTitle} | Webine` : `${project.title} | Webine`, project.seoDescription || project.summary);
-  return <section className="project-case-study theme-light" aria-labelledby="case-study-heading">
-    <div className="site-container project-case-study__top"><Link to="/works">Close project</Link><p>{String(index + 1).padStart(2, "0")} / {String(projects.length).padStart(2, "0")}</p></div>
-    <div className="site-container project-case-study__hero"><div><p className="eyebrow">{project.label} / {project.category}</p><h1 id="case-study-heading">{project.title}</h1><p>{project.summary}</p></div><img src={project.heroImage.url} alt={project.heroImage.altText} width={project.heroImage.width} height={project.heroImage.height} fetchPriority="high" decoding="async" style={{ objectPosition: `${project.heroImage.focalX * 100}% ${project.heroImage.focalY * 100}%` }} /></div>
-    <div className="site-container project-case-study__story">{[["Challenge", project.challenge], ["Approach", project.approach], ["Outcome", project.outcome]].map(([heading, copy]) => copy ? <article key={heading}><span>{heading}</span><p>{copy}</p></article> : null)}{project.contentBlocks.map((block, blockIndex) => {
-      const image = block.image && typeof block.image === "object" ? block.image as { url?: unknown; altText?: unknown; focalX?: unknown; focalY?: unknown; width?: unknown; height?: unknown } : null;
-      return <article key={blockIndex} data-block-type={String(block.type ?? "story")}><span>{String(block.heading ?? block.type ?? "Story")}</span>{image?.url ? <img src={String(image.url)} alt={String(image.altText ?? "")} width={Number(image.width ?? 1)} height={Number(image.height ?? 1)} loading="lazy" decoding="async" style={{ objectPosition: `${Number(image.focalX ?? 0.5) * 100}% ${Number(image.focalY ?? 0.5) * 100}%` }} /> : <p>{String(block.text ?? "")}</p>}</article>;
-    })}</div>
-    <nav className="site-container project-case-study__nav" aria-label="Adjacent projects">{index > 0 ? <Link to={`/works/${projects[index - 1].slug}`}>Previous / {projects[index - 1].title}</Link> : <span />}{index < projects.length - 1 ? <Link to={`/works/${projects[index + 1].slug}`}>Next / {projects[index + 1].title}</Link> : <Link to="/contact">Start a project</Link>}</nav>
-  </section>;
+type ProjectBlockImage = {
+  altText?: unknown;
+  focalX?: unknown;
+  focalY?: unknown;
+  height?: unknown;
+  url?: unknown;
+  width?: unknown;
+};
+
+function ProjectCaseStudy({
+  project,
+  projects,
+  index,
+}: {
+  project: PublicProject;
+  projects: PublicProject[];
+  index: number;
+}) {
+  usePageMetadata(
+    project.seoTitle ? `${project.seoTitle} | Webine` : `${project.title} | Webine`,
+    project.seoDescription || project.summary,
+  );
+
+  const story = [
+    ["Challenge", project.challenge],
+    ["Approach", project.approach],
+    ["Outcome", project.outcome],
+  ] as const;
+
+  return (
+    <section className="project-case-study theme-dark" aria-labelledby="case-study-heading">
+      <div className="site-container project-case-study__top" data-gsap-reveal="copy">
+        <Link to="/works">Close project</Link>
+        <p>{String(index + 1).padStart(2, "0")} / {String(projects.length).padStart(2, "0")}</p>
+      </div>
+
+      <div className="site-container project-case-study__hero">
+        <div data-gsap-reveal="copy" data-gsap-delay="0.08">
+          <p className="eyebrow">{project.label} / {project.category}</p>
+          <h1 id="case-study-heading">{project.title}</h1>
+          <p>{project.summary}</p>
+        </div>
+        <div className="project-case-study__media-frame" data-gsap-reveal="media" data-gsap-delay="0.16">
+          <img
+            data-gsap-parallax="media"
+            src={project.heroImage.url}
+            alt={project.heroImage.altText}
+            width={project.heroImage.width}
+            height={project.heroImage.height}
+            loading="eager"
+            decoding="async"
+            style={{ objectPosition: `${project.heroImage.focalX * 100}% ${project.heroImage.focalY * 100}%` }}
+          />
+        </div>
+      </div>
+
+      <div className="site-container project-case-study__story">
+        {story.map(([heading, copy], storyIndex) => copy ? (
+          <article key={heading} data-gsap-reveal="card" data-gsap-delay={storyIndex * 0.06}>
+            <span>{heading}</span>
+            <p>{copy}</p>
+          </article>
+        ) : null)}
+        {project.contentBlocks.map((block, blockIndex) => {
+          const image = block.image && typeof block.image === "object"
+            ? block.image as ProjectBlockImage
+            : null;
+
+          return (
+            <article key={`${String(block.type ?? "story")}-${blockIndex}`} data-block-type={String(block.type ?? "story")} data-gsap-reveal="card">
+              <span>{String(block.heading ?? block.type ?? "Story")}</span>
+              {image?.url ? (
+                <div className="project-case-study__media-frame project-case-study__media-frame--story">
+                  <img
+                    data-gsap-parallax="media"
+                    src={String(image.url)}
+                    alt={String(image.altText ?? "")}
+                    width={Number(image.width ?? 1)}
+                    height={Number(image.height ?? 1)}
+                    loading="lazy"
+                    decoding="async"
+                    style={{ objectPosition: `${Number(image.focalX ?? 0.5) * 100}% ${Number(image.focalY ?? 0.5) * 100}%` }}
+                  />
+                </div>
+              ) : <p>{String(block.text ?? "")}</p>}
+            </article>
+          );
+        })}
+      </div>
+
+      <nav className="site-container project-case-study__nav" aria-label="Adjacent projects" data-gsap-reveal="copy">
+        {index > 0
+          ? <Link to={`/works/${projects[index - 1].slug}`}>Previous / {projects[index - 1].title}</Link>
+          : <span />}
+        {index < projects.length - 1
+          ? <Link to={`/works/${projects[index + 1].slug}`}>Next / {projects[index + 1].title}</Link>
+          : <Link to="/contact">Start a project <DirectionalArrow /></Link>}
+      </nav>
+    </section>
+  );
+}
+
+function ProjectState({ title, copy, retry }: { title: string; copy?: string; retry?: () => void }) {
+  return (
+    <section className="reserved-page theme-dark">
+      <div className="site-container empty-state">
+        <h1>{title}</h1>
+        {copy ? <p>{copy}</p> : null}
+        {retry ? <button type="button" onClick={retry}>Try again</button> : <Link to="/works">Return to Works</Link>}
+      </div>
+    </section>
+  );
 }
 
 export function WorksPage() {
@@ -28,41 +131,82 @@ export function WorksPage() {
   const projects = resource.status === "ready" ? resource.projects : [];
   const categories = [...new Set(projects.map((project) => project.category))];
   const requestedFilter = searchParams.get("category") ?? "all";
-  const filter = requestedFilter === "all" || categories.includes(requestedFilter) ? requestedFilter : "all";
-  const visible = filter === "all" ? projects : projects.filter((project) => project.category === filter);
-  const activeIndex = projectSlug ? projects.findIndex((project) => project.slug === projectSlug) : -1;
+  const filter = requestedFilter === "all" || categories.includes(requestedFilter)
+    ? requestedFilter
+    : "all";
+  const visible = filter === "all"
+    ? projects
+    : projects.filter((project) => project.category === filter);
+  const activeIndex = projectSlug
+    ? projects.findIndex((project) => project.slug === projectSlug)
+    : -1;
   const active = activeIndex >= 0 ? projects[activeIndex] : undefined;
 
   if (projectSlug) {
-    if (resource.status === "loading") return <SiteShell headerTheme="light"><main className="reserved-page theme-light"><div className="site-container empty-state"><h1>Loading project…</h1></div></main></SiteShell>;
-    if (resource.status === "error") return <SiteShell headerTheme="light"><main className="reserved-page theme-light"><div className="site-container empty-state"><h1>Project could not load.</h1><p>{resource.message}</p><button type="button" onClick={resource.retry}>Try again</button></div></main></SiteShell>;
-    return <SiteShell headerTheme="light">{active ? <ProjectCaseStudy project={active} projects={projects} index={activeIndex} /> : <main className="reserved-page theme-light"><div className="site-container empty-state"><h1>That project is not published.</h1><Link to="/works">Return to Works</Link></div></main>}</SiteShell>;
+    if (resource.status === "loading") {
+      return <SiteShell><ProjectState title="Loading project…" /></SiteShell>;
+    }
+    if (resource.status === "error") {
+      return <SiteShell><ProjectState title="Project could not load." copy={resource.message} retry={resource.retry} /></SiteShell>;
+    }
+    return (
+      <SiteShell>
+        {active
+          ? (
+              <div className="works-experience">
+                <GalaxyBackdrop />
+                <ProjectCaseStudy project={active} projects={projects} index={activeIndex} />
+              </div>
+            )
+          : <ProjectState title="That project is not published." />}
+      </SiteShell>
+    );
   }
 
   return (
-    <SiteShell headerTheme="light">
-      <section className="works-intro theme-light route-heading-reveal" aria-labelledby="works-heading">
-        <div className="site-container works-intro__grid">
-          <p className="eyebrow">{settings.works.eyebrow}</p>
-          <h1 id="works-heading">{settings.works.headingBefore} <em>{settings.works.headingAccent}</em>{settings.works.headingAfter ? ` ${settings.works.headingAfter}` : ""}</h1>
-          <p>{settings.works.introduction}</p>
-        </div>
-      </section>
+    <SiteShell>
+      <div className="works-experience">
+        <GalaxyBackdrop />
+        <section className="works-intro theme-dark" aria-labelledby="works-heading">
+          <span className="works-intro__ghost" data-gsap-parallax="drift-left" aria-hidden="true">WORK</span>
+          <div className="site-container works-intro__grid">
+            <p className="eyebrow" data-gsap-reveal="copy">{settings.works.eyebrow}</p>
+            <h1 id="works-heading" data-gsap-reveal="copy" data-gsap-delay="0.08">
+              {settings.works.headingBefore} <em>{settings.works.headingAccent}</em>
+              {settings.works.headingAfter ? ` ${settings.works.headingAfter}` : ""}
+            </h1>
+            <p className="works-intro__description" data-gsap-reveal="copy" data-gsap-delay="0.16">{settings.works.introduction}</p>
+            <p className="works-intro__folio" aria-hidden="true">01 / Practice in motion</p>
+          </div>
+        </section>
 
-      <section className="works-foundation theme-light" aria-label="Published projects">
-        <div className="site-container works-filter" aria-label="Filter projects">
-          <button type="button" aria-pressed={filter === "all"} onClick={() => setSearchParams({})}>All</button>
-          {categories.map((category) => <button key={category} type="button" aria-pressed={filter === category} onClick={() => setSearchParams({ category })}>{category}</button>)}
-          <p className="works-filter__status" aria-live="polite">Showing {visible.length} {visible.length === 1 ? "project" : "projects"}</p>
-        </div>
-        <div className="site-container project-grid">
-          {resource.status === "loading" ? <div className="project-loading" aria-label="Loading projects"><span /><span /><span /></div> : null}
-          {resource.status === "error" ? <div className="empty-state"><h2>Projects could not load.</h2><p>{resource.message}</p><button type="button" onClick={resource.retry}>Try again</button></div> : null}
-          {resource.status === "ready" && visible.length === 0 ? <div className="empty-state"><h2>No published work in this view.</h2><p>Choose another filter or publish a project from Admin.</p></div> : null}
-          {visible.map((project, index) => <ProjectCard key={project.id} project={project} priority={index === 0} />)}
-        </div>
-        <div className="site-container empty-state"><p className="eyebrow">No invented client work</p><h2>Have a real project for this workbench?</h2><p>Commissioned projects will replace concept positions as approved material becomes available.</p><ButtonLink href="/contact" variant="outline">Start a project</ButtonLink></div>
-      </section>
+        <section className="works-foundation theme-dark" aria-label="Published projects">
+          <div className="site-container works-filter" aria-label="Filter projects" data-gsap-reveal="copy">
+            <button type="button" aria-pressed={filter === "all"} onClick={() => setSearchParams({})}>All</button>
+            {categories.map((category) => (
+              <button key={category} type="button" aria-pressed={filter === category} onClick={() => setSearchParams({ category })}>{category}</button>
+            ))}
+            <p className="works-filter__status" aria-live="polite">Showing {visible.length} {visible.length === 1 ? "project" : "projects"}</p>
+          </div>
+          <div className="site-container project-grid">
+            {resource.status === "loading" ? <div className="project-loading" aria-label="Loading projects"><span /><span /><span /></div> : null}
+            {resource.status === "error" ? <div className="empty-state"><h2>Projects could not load.</h2><p>{resource.message}</p><button type="button" onClick={resource.retry}>Try again</button></div> : null}
+            {resource.status === "ready" && visible.length === 0 ? <div className="empty-state"><h2>No published work in this view.</h2><p>Choose another filter or publish a project from Admin.</p></div> : null}
+            {visible.map((project, index) => (
+              <ProjectCard key={project.id} project={project} priority={index === 0} revealDelay={(index % 2) * 0.14} />
+            ))}
+          </div>
+          <div className="site-container">
+            <div className="works-commission" data-gsap-reveal="card">
+              <p className="eyebrow">No invented client work</p>
+              <h2>Have a real project for this workbench?</h2>
+              <p>Commissioned projects will replace concept positions as approved material becomes available.</p>
+              <ButtonLink href="/contact" variant="outline">Start a project</ButtonLink>
+              <span className="works-commission__mark" data-gsap-parallax="orbit" aria-hidden="true">↗</span>
+            </div>
+          </div>
+        </section>
+      </div>
     </SiteShell>
   );
 }

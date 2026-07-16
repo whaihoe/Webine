@@ -9,12 +9,12 @@ export function SiteFooter() {
   return (
     <footer className="site-footer theme-dark">
       <div className="site-container site-footer__grid">
-        <div className="site-footer__identity">
+        <div className="site-footer__identity" data-gsap-reveal="copy">
           <WebineBrand />
           <p>{settings.footer.text}</p>
         </div>
 
-        <div className="site-footer__column">
+        <div className="site-footer__column" data-gsap-reveal="copy">
           <span className="eyebrow">Navigate</span>
           <nav aria-label="Footer navigation">
             {publicNavigation.map((item) => (
@@ -25,14 +25,14 @@ export function SiteFooter() {
           </nav>
         </div>
 
-        <div className="site-footer__column">
+        <div className="site-footer__column" data-gsap-reveal="copy">
           <span className="eyebrow">Based in</span>
           <p>{settings.footer.location}</p>
           <Link to="/contact">Start a conversation</Link>
           {publicEmail ? <a href={`mailto:${publicEmail}`}>{publicEmail}</a> : null}
         </div>
 
-        <div className="site-footer__bottom">
+        <div className="site-footer__bottom" data-gsap-reveal="copy">
           <span>© {new Date().getFullYear()} {settings.footer.copyrightLabel}</span>
           <span><Link to="/contact#privacy">Privacy</Link> / Designed and developed by Webine</span>
         </div>

@@ -315,7 +315,40 @@
 - Added field-associated Contact errors with summary recovery and first-invalid-field focus.
 - Added dynamic Project metadata, private-route noindex, origin-correct robots, a published-Project sitemap, HSTS and frame denial.
 - Added guarded local backup or restore tools and fixed item or publishing writes so simultaneous database clients cannot commit stale relationship, snapshot or audit side effects.
-- Added content-entry, verification and launch-checklist documents. Stage 22 visual devices and Stage 23 field measurements remain open because the browser runtime cannot initialise and physical devices are not controlled here.
+
+## 2026-07-16, responsive motion polish and deployment boundary
+
+- Added one GSAP reveal controller for public copy, cards and media. Async CMS results are observed, reverse scrolling remains reversible and section-owned timelines opt out through a managed boundary rather than receiving duplicate animations.
+- Added restrained Project image parallax across desktop, tablet and mobile. The Home runway uses card-centre horizontal offsets and the Works grid uses lower coarse-pointer vertical travel.
+- Fixed the mobile process line so it paints behind the circular nodes. A follow-up audit found that revealing the whole card also hid its circle, so the reveal now belongs only to an inner content wrapper. All four nodes remain visible and their active state is measured from the circle itself. The result was confirmed at a 390 × 844 browser viewport.
+- Fixed the light desktop header CTA contrast found during rendered browser review.
+- Isolated the server-rendering test's Vite cache after it invalidated the live development preview's ScrollTrigger dependency files. Removed unsupported React 18 `fetchPriority` props while retaining eager first-image loading.
+- Expanded `.gitignore` for all environment variants, provider metadata, private backups, exports, local uploads, databases, credentials and build caches. `.env.example` remains deliberately trackable.
+- Documented the exact Vercel Clerk, Turso, Blob and enquiry variables, the recommended setup order, the Admin failure checks and the files that belong in GitHub.
+- Validation passes with lint, production build, server type checking and 45 automated tests. Browser review covers Home, Works, Contact, a representative case study and local Admin. Physical-device and production Vercel measurements remain open.
+- Added content-entry, verification and launch-checklist documents. Stage 22 physical devices and Stage 23 production field measurements remain open.
+
+## 2026-07-16, complete public-route motion and responsive audit
+
+- Calibrated odd and even desktop process-node offsets independently. Browser geometry shows right nodes exactly centred and left nodes within 0.008 CSS pixels of the one-pixel timeline.
+- Sequenced Home Project cards at 0.28-second offsets, followed each media clip 0.04 seconds later and delayed chapter 04 until the Project sequence completes.
+- Extended the shared GSAP controller with bounded delays and scrubbed media parallax. Works cards, case-study media and Contact content use it, while the Home runway keeps its dedicated timeline and particles remain outside GSAP.
+- Removed the former Works-card requestAnimationFrame scroll listener. A dedicated inner media wrapper now separates GSAP translation from hover scaling and leaves one motion owner per transform.
+- Fixed two responsive defects found through rendered review: ordinary Works cards no longer inherit the dark Home runway content surface, and case-study media no longer forces a 614 px minimum width on a 390 px phone.
+- Opted into the supported React Router future flags and guarded empty GSAP target collections. No new React Router or missing-target warning appears after route remount. React Three Fiber still emits its dependency-level `THREE.Clock` deprecation notice with Three r183 and newer.
+- Local browser evidence covers 320 × 568, 390 × 844, 768 × 1024, 1024 × 768, 1280 × 800, 1440 × 900 and 1920 × 1080. Home, Works, Contact and the representative case study have zero horizontal overflow at each checked size.
+- Replaced entry `autoAlpha` with opacity-only reveals so unrevealed public links and controls remain in the accessibility tree. Focus-within exposes a target immediately. The Home runway follows the same entry rule and makes old Project cards inert only during chapter 04 expansion, restoring them on reverse scroll.
+- Added a 640 × 400 zoom-equivalent layout pass. Literal browser zoom remains open because the in-app browser does not respond to the platform zoom shortcut.
+- Production-preview asset inspection confirms the intended route boundary: phone Home excludes both particle and Admin chunks, desktop Home loads one particle chunk and no Admin chunk and `/admin` loads Admin without particles while remaining noindex.
+
+## 2026-07-16, two-colour particles and public-page interaction direction
+
+- Replaced the logo-facet colour regions with one geometry-relative stippled gradient. Every settled GPU form now distributes cyan and blue dots across its live position, removing the hard differently coloured logo corner while preserving subtle colour breathing.
+- Matched the phone canvases and timeline flow to the same two-colour contract. Their deterministic colour buckets are calculated from each target's projected position, so the logo, rings and colony planet share the treatment without adding per-frame colour work.
+- Advanced Closing formation from a point-entry threshold of 0.94 to 1.28 viewport heights and completes it by 0.62. Rendered phone and desktop evidence shows formation beginning while the colony-planet anchor is still below the viewport.
+- Rebuilt the Works opening around a display-scale editorial headline, outlined WORK field, folio and scroll-linked drift. Project copy drifts in alternating directions while media keeps its independent vertical parallax.
+- Replaced the weak light Works footer prompt with a dark commission panel and repaired outline-button theme inheritance. Outline controls now retain visible labels and use one directional fill interaction on hover or keyboard focus.
+- Added a scrubbed slower-moving Contact form layer and a restrained rotating signal orbit behind it. Mobile uses reduced form travel to retain spacing and avoid overflow.
 
 ## 2026-07-15, Hobby-safe Vercel Function consolidation
 
@@ -331,3 +364,27 @@
 - Replaced the previous duration-weighted Webine scroll profile with Lenis' standard `lerp: 0.1` interpolation and neutral wheel/touch multipliers.
 - Enabled `syncTouch` for phones with the official Lenis defaults `syncTouchLerp: 0.075`, `touchInertiaExponent: 1.7` and `touchMultiplier: 1`.
 - Kept Webine's GSAP ticker integration, ScrollTrigger update hook, anchor offset and navigation inertia cleanup.
+
+## 2026-07-16, dark Works gallery and Contact containment correction
+
+- Removed the alternating Works-card copy drift after visual review. Project titles and metadata are now stable while the media alone keeps restrained scroll parallax.
+- Changed the complete Works index and case studies to one dark visual system. Cards use large image-led compositions, minimal label, year and title copy and a blue directional overlay on hover or keyboard focus. Touch layouts expose the overlay without depending on hover.
+- Added one reusable CSS-only ambient particle field to Works, case studies and Contact. It uses deterministic cyan and blue DOM points, imports no Three.js code and runs no JavaScript animation loop.
+- Removed the Contact orbit signal instead of converting it to a GLB. The lightweight field provides depth while the floating form remains the main interaction.
+- Rebalanced the desktop Contact columns and headline scale so the heading finishes 143 px before the form at 1536 × 900. The mobile layout stacks cleanly with no overlap.
+- Browser review covers Home, Works, Contact and one case study at 320 × 568, 390 × 844, 768 × 1024, 1280 × 800 and 1536 × 900. No route has page-level horizontal overflow or unintended clipped text. The Home runway intentionally positions later cards outside the viewport until horizontal scroll brings them in.
+
+## 2026-07-16, fixed Works galaxy and livelier ambient field
+
+- Inspected the supplied Lenis showcase HTML plus its exact CSS and lazy WebGL chunks. The reference uses a fixed React Three Fiber canvas, 100 shader points, 3D simplex-noise movement, scroll-linked depth wrapping and a very large radial atmospheric glow.
+- Adapted the visual principle rather than its full renderer. Works now uses one fixed CSS `GalaxyBackdrop` across the index and valid case studies, combining a slate-950 field, a broad cyan or blue nebula and deterministic stars without importing a second Three.js bundle.
+- Increased ambient point movement through independent curved drift, scale and twinkle timing. Contact and the Home hero use the lighter 20-point field. Hero layering keeps the field above the grid but below its text and narrative particles.
+- Phones retain 34 Works stars and 12 ordinary ambient points. Rendered checks at 320, 390, 768, 1280 and 1536 CSS-pixel widths confirm fixed Works positioning, zero page-level horizontal overflow and no unintended text clipping.
+- Source and implementation findings are recorded in `research/2026-07-16-lenis-showcase-teardown.md`.
+
+## 2026-07-16, explicit Home hero atmosphere order
+
+- Audited the real stacking contexts rather than relying on DOM order. The original hero-owned ambient field sat below the text but above the fixed desktop Webine logo renderer because the complete hero section formed a higher stacking context.
+- Moved the ambient field to the shared `home-page` atmosphere layer. The fixed desktop renderer and section-owned phone canvas now paint above it, while hero typography and controls remain above both particle layers.
+- The explicit particle order is ambient atmosphere at layer 0, Webine logo particles at layer 1, then HTML content at layer 2.
+- Final validation passes with lint, production build, server type checks, all 45 automated tests, diff whitespace checks and an npm production-dependency audit with zero known vulnerabilities.

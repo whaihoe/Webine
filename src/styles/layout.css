@@ -68,6 +68,7 @@
   --color-text-secondary: var(--primitive-slate-600);
   --color-rule-strong: var(--primitive-slate-300);
   --color-focus-offset: var(--primitive-slate-50);
+  --button-outline-text: var(--primitive-slate-950);
 }
 
 .site-header__inner {
