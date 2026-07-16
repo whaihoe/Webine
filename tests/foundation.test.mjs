@@ -28,11 +28,12 @@ test("keeps every current route", async () => {
 });
 
 test("keeps global route motion purposeful and restorable", async () => {
-  const [app, effects, transition, revealController, scrollRuntime, smoothScroll, projectCard, menu, styles, pageStyles] = await Promise.all([
+  const [app, effects, transition, revealController, shell, scrollRuntime, smoothScroll, projectCard, menu, styles, pageStyles] = await Promise.all([
     readFile(new URL("src/App.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/RouteEffects.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/RouteTransition.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/GsapRevealController.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/SiteShell.tsx", projectRoot), "utf8"),
     readFile(new URL("src/animation/scroll-runtime.ts", projectRoot), "utf8"),
     readFile(new URL("src/components/PublicSmoothScroll.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/projects/ProjectCard.tsx", projectRoot), "utf8"),
@@ -68,8 +69,13 @@ test("keeps global route motion purposeful and restorable", async () => {
   assert.match(revealController, /scrub:\s*isFloatingCard \? 1\.35 : isMedia \? 1\.05 : 1\.15/);
   assert.match(revealController, /invalidateOnRefresh:\s*true/);
   assert.match(revealController, /gsapController = "ready"/);
+  assert.match(revealController, /root:\s*HTMLElement/);
+  assert.doesNotMatch(revealController, /rootRef\.current/);
   assert.match(revealController, /opacity:\s*0/);
   assert.doesNotMatch(revealController, /autoAlpha/);
+  assert.match(shell, /useState<HTMLDivElement \| null>\(null\)/);
+  assert.match(shell, /ref={setShellElement}/);
+  assert.match(shell, /shellElement \? <GsapRevealController root={shellElement} \/>/);
   assert.match(scrollRuntime, /gsap\.registerPlugin\(ScrollTrigger\)/);
   assert.match(smoothScroll, /from "\.\.\/animation\/scroll-runtime"/);
   assert.doesNotMatch(smoothScroll, /import\("gsap\/ScrollTrigger"\)/);

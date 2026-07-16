@@ -16,7 +16,7 @@
 | `WorkspaceShell` | Reserved Admin application frame | Mobile strip, desktop sidebar and horizontally safe clickable ancestor breadcrumbs |
 | `RouteEffects` | Page title, route announcement, scroll and heading focus | Push, replace and browser history |
 | `RouteTransition` | Non-blocking public-route reveal curtain | Public route entry and absent from Admin or preview |
-| `GsapRevealController` | Shared scroll-entry and parallax choreography for public copy, cards and media | Route-curtain-aware entry, stronger media travel, pixel-owned Contact form float, focus-safe opacity, coalesced async CMS refresh, reverse and cleanup |
+| `GsapRevealController` | Shared scroll-entry and parallax choreography for public copy, cards and media | Production-safe resolved shell ownership, route-curtain-aware entry, stronger media travel, pixel-owned Contact form float, focus-safe opacity, coalesced async CMS refresh, reverse and cleanup |
 | `AmbientParticleField` | Lightweight sparse atmosphere outside the Home narrative geometry | Deterministic DOM points, independent drift and twinkle paths, depth-like scale changes, cyan or blue colour and reduced phone count |
 | `GalaxyBackdrop` | Fixed atmospheric field shared by the Works index and case studies | Slate-950 base, clearly visible lower-half cyan or blue horizon, 84 drifting stars, 34-point phone cap and content-safe fixed layering |
 | `AppErrorBoundary` | Application failure fallback | Error |

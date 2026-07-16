@@ -1,10 +1,8 @@
-import { useLayoutEffect, type RefObject } from "react";
+import { useLayoutEffect } from "react";
 import { gsap, ScrollTrigger } from "../animation/scroll-runtime";
 
-export function GsapRevealController({ rootRef }: { rootRef: RefObject<HTMLElement | null> }) {
+export function GsapRevealController({ root }: { root: HTMLElement }) {
   useLayoutEffect(() => {
-    const root = rootRef.current;
-    if (!root) return;
     let observer: MutationObserver | null = null;
     let refreshFrame = 0;
     const preparedReveals = new WeakSet<Element>();
@@ -118,7 +116,7 @@ export function GsapRevealController({ rootRef }: { rootRef: RefObject<HTMLEleme
       });
       context.revert();
     };
-  }, [rootRef]);
+  }, [root]);
 
   return null;
 }

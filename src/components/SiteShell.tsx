@@ -1,4 +1,4 @@
-import { useRef, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { experienceMode } from "../config/experience";
 import { PublicSmoothScroll } from "./PublicSmoothScroll";
 import { SiteFooter } from "./SiteFooter";
@@ -14,10 +14,11 @@ export function SiteShell({
   children,
   headerTheme = "dark",
 }: SiteShellProps) {
-  const shellRef = useRef<HTMLDivElement>(null);
+  const [shellElement, setShellElement] = useState<HTMLDivElement | null>(null);
+
   return (
-    <div ref={shellRef} className="site-shell" data-experience-mode={experienceMode}>
-      <GsapRevealController rootRef={shellRef} />
+    <div ref={setShellElement} className="site-shell" data-experience-mode={experienceMode}>
+      {shellElement ? <GsapRevealController root={shellElement} /> : null}
       <a className="skip-link" href="#main-content">
         Skip to main content
       </a>

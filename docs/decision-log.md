@@ -359,6 +359,14 @@
 - Gave Contact one unambiguous transform owner. The form now travels minus 72 through plus 96 pixels on wider layouts and minus 24 through plus 36 pixels on phones, without a competing percentage transform or CSS transform transition.
 - Rendered evidence at 1280 × 720 measured about 49 pixels of Works media travel with zero copy movement and about 59 pixels of Contact form travel with 125 pixels of column clearance. At 390 × 844, Works media moved about 25 pixels and the form moved about 35 pixels. Both routes retained zero horizontal overflow and produced no new console warnings or errors.
 
+## 2026-07-16, production GSAP lifecycle correction
+
+- Compared `webine.vercel.app` with local development. The deployed bundle contained the complete current GSAP code, but `.site-shell` never received its controller-ready marker and no reveal or parallax element received an inline motion transform.
+- Traced the production-only difference to `GsapRevealController` reading the parent shell ref during its first child layout effect. The ref was still unavailable, so the controller returned and never retried. React's development lifecycle ran the effect again and concealed the problem locally.
+- Changed `SiteShell` to resolve the shell through a callback ref and mount the controller only after the real element exists. The controller now receives the element directly and cannot enter its setup effect with a missing root.
+- Added structural regression checks for the resolved-element contract. The local production preview now reports `data-gsap-controller="ready"`, attaches motion ownership and produces no console warnings or errors.
+- Production-preview evidence at 1280 × 720 measures about 59 pixels of Contact form travel with 125 pixels of column clearance. At 390 × 844, the form moves about 35 pixels. Both layouts retain zero horizontal overflow.
+
 ## 2026-07-15, Hobby-safe Vercel Function consolidation
 
 - Consolidated 22 individual files under `api/` into seven Vercel Function entrypoints: Admin, Projects, Site Settings, Enquiries, local media delivery, robots and sitemap.
