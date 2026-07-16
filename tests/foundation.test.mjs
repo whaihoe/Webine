@@ -566,6 +566,7 @@ test("extends the Home motion language across Works and Contact without assignin
   assert.doesNotMatch(projectCard, /data-gsap-parallax=.*(?:copy|drift)/);
   assert.doesNotMatch(ambientParticles, /three|canvas|requestAnimationFrame|data-gsap-(?:reveal|parallax)/i);
   assert.match(styles, /\.project-card__media:focus-visible \.project-card__overlay/);
+  assert.doesNotMatch(styles, /@media \(hover: none\)\s*\{\s*\.project-card__overlay/);
   assert.match(styles, /\.galaxy-backdrop\s*{[^}]*position:\s*fixed/s);
   assert.match(styles, /\.works-experience\s*{[^}]*isolation:\s*isolate/s);
   assert.match(styles, /\.ambient-particle-field--hero\s*{[^}]*z-index:\s*var\(--layer-hero-ambient\)/s);
@@ -581,23 +582,40 @@ test("extends the Home motion language across Works and Contact without assignin
 });
 
 test("uses vector arrows instead of emoji-prone Unicode arrows", async () => {
-  const [buttonLink, selectedWork, arrow] = await Promise.all([
+  const [buttonLink, selectedWork, works, arrow, sourceNames] = await Promise.all([
     readFile(new URL("src/components/ButtonLink.tsx", projectRoot), "utf8"),
     readFile(
       new URL("src/components/home/SelectedWorkRunway.tsx", projectRoot),
       "utf8",
     ),
+    readFile(new URL("src/pages/WorksPage.tsx", projectRoot), "utf8"),
     readFile(
       new URL("src/components/DirectionalArrow.tsx", projectRoot),
       "utf8",
     ),
+    readdir(new URL("src/", projectRoot), { recursive: true }),
   ]);
 
   assert.match(buttonLink, /DirectionalArrow/);
   assert.match(selectedWork, /DirectionalArrow direction="down"/);
+  assert.match(works, /className="works-commission__mark"[\s\S]*<DirectionalArrow \/>/);
   assert.match(arrow, /<svg viewBox="0 0 12 12"/);
-  assert.doesNotMatch(buttonLink, /↗|↓/);
-  assert.doesNotMatch(selectedWork, /↗|↓/);
+  assert.doesNotMatch(buttonLink, /\u2197|\u2193/u);
+  assert.doesNotMatch(selectedWork, /\u2197|\u2193/u);
+
+  const interfaceFiles = sourceNames.filter((name) => /\.(?:css|html|ts|tsx)$/.test(name));
+  const interfaceSources = await Promise.all(interfaceFiles.map(async (name) => ({
+    name,
+    source: await readFile(new URL(`src/${name}`, projectRoot), "utf8"),
+  })));
+
+  for (const { name, source } of interfaceSources) {
+    assert.doesNotMatch(
+      source,
+      /[\u2190-\u21ff\u2794\u27a1]/u,
+      `${name} contains an emoji-prone Unicode arrow instead of DirectionalArrow`,
+    );
+  }
 });
 
 test("keeps the lazy particle bundle inside its transfer budget", async () => {

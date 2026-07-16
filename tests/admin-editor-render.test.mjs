@@ -36,9 +36,10 @@ test("renders the collection builder and every generated item control", async ()
   });
 
   try {
-    const [{ CollectionEditor }, { ItemEditor }] = await Promise.all([
+    const [{ CollectionEditor }, { ItemEditor }, { WorkspaceShell }] = await Promise.all([
       server.ssrLoadModule("/src/components/admin/CollectionEditor.tsx"),
       server.ssrLoadModule("/src/components/admin/ItemEditor.tsx"),
+      server.ssrLoadModule("/src/components/WorkspaceShell.tsx"),
     ]);
     const fields = [
       field("title", "short_text", { required: true }),
@@ -80,6 +81,17 @@ test("renders the collection builder and every generated item control", async ()
     const itemHtml = renderToStaticMarkup(
       React.createElement(StaticRouter, { location: "/admin/collections/render_test/items/new" }, React.createElement(ItemEditor, { collection })),
     );
+    const workspaceHtml = renderToStaticMarkup(
+      React.createElement(
+        StaticRouter,
+        { location: "/admin/collections/projects/items/new" },
+        React.createElement(
+          WorkspaceShell,
+          { title: "Webine Admin" },
+          React.createElement("p", null, "Editor content"),
+        ),
+      ),
+    );
 
     assert.match(collectionHtml, /Collection details/);
     assert.match(collectionHtml, /Add field/);
@@ -89,6 +101,12 @@ test("renders the collection builder and every generated item control", async ()
     assert.match(itemHtml, /One content entry per line/);
     assert.match(itemHtml, /Loading referenced items/);
     assert.equal((itemHtml.match(/<fieldset/g) ?? []).length, fields.length);
+    assert.match(workspaceHtml, /aria-label="Webine Admin breadcrumb"/);
+    assert.match(workspaceHtml, /href="\/admin">Admin<\/a>/);
+    assert.match(workspaceHtml, /href="\/admin\/collections">Collections<\/a>/);
+    assert.match(workspaceHtml, /href="\/admin\/collections\/projects\/items">Projects<\/a>/);
+    assert.match(workspaceHtml, /aria-current="page">New item<\/span>/);
+    assert.match(workspaceHtml, /href="\/">Return to website<\/a>/);
   } finally {
     await server.close();
     await rm(cacheDirectory, { recursive: true, force: true });

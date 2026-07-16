@@ -126,6 +126,7 @@ Webine should copy the spatial logic, not Lenis' pink identity:
 - Keep the Works background fixed across the complete route.
 - Use a very sparse field with independent paths, depth-like scale changes and twinkling.
 - Use a broad blue and cyan atmosphere rising from the lower half of the viewport.
+- Keep that horizon visibly legible on physical phones. An effect that disappears after mobile positioning, opacity and surface layering does not satisfy the reference.
 - Preserve slate-950 as the dominant background so the gallery remains calm.
 - Keep all project text and controls above the effect.
 - Do not mount another Three.js scene outside Home. The Webine adaptation uses deterministic DOM points and CSS animation, with a lower mobile count.

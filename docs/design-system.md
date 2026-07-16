@@ -39,7 +39,7 @@ The content canvas is capped at 1504 px. Mobile layouts are recomposed by readin
 ## Colour behaviour
 
 - Home starts dark and moves into a light foundation section.
-- Works stays mostly light so future project imagery can control the colour.
+- Works uses one dark gallery environment so future project imagery, restrained blue overlays and the fixed atmospheric horizon read cohesively.
 - Contact stays dark with a light form surface.
 - Admin uses a quiet light application surface.
 - Blue is reserved for action, focus and selected states.

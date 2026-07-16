@@ -368,7 +368,7 @@
 ## 2026-07-16, dark Works gallery and Contact containment correction
 
 - Removed the alternating Works-card copy drift after visual review. Project titles and metadata are now stable while the media alone keeps restrained scroll parallax.
-- Changed the complete Works index and case studies to one dark visual system. Cards use large image-led compositions, minimal label, year and title copy and a blue directional overlay on hover or keyboard focus. Touch layouts expose the overlay without depending on hover.
+- Changed the complete Works index and case studies to one dark visual system. Cards use large image-led compositions, minimal label, year and title copy and a blue directional overlay on hover or keyboard focus. Touch layouts retain the same essential information in stable copy without freezing the overlay open.
 - Added one reusable CSS-only ambient particle field to Works, case studies and Contact. It uses deterministic cyan and blue DOM points, imports no Three.js code and runs no JavaScript animation loop.
 - Removed the Contact orbit signal instead of converting it to a GLB. The lightweight field provides depth while the floating form remains the main interaction.
 - Rebalanced the desktop Contact columns and headline scale so the heading finishes 143 px before the form at 1536 × 900. The mobile layout stacks cleanly with no overlap.
@@ -387,4 +387,19 @@
 - Audited the real stacking contexts rather than relying on DOM order. The original hero-owned ambient field sat below the text but above the fixed desktop Webine logo renderer because the complete hero section formed a higher stacking context.
 - Moved the ambient field to the shared `home-page` atmosphere layer. The fixed desktop renderer and section-owned phone canvas now paint above it, while hero typography and controls remain above both particle layers.
 - The explicit particle order is ambient atmosphere at layer 0, Webine logo particles at layer 1, then HTML content at layer 2.
+
+## 2026-07-16, real-iPhone Works atmosphere and vector-mark correction
+
+- A physical iPhone screenshot showed that the first Works nebula was effectively invisible. The mobile field had been shifted too far below the viewport, reduced to 80 percent opacity and then covered by an opaque commission surface.
+- Rendered inspection also found an undefined `--primitive-blue-950` stop, which caused the browser to discard the complete nebula background declaration. Replaced it with the defined slate-950 token and removed the same stale token from Contact shadows.
+- Raised and strengthened the lower-half horizon in Webine cyan and blue, increased its mobile field to 270vw by 104vh at full opacity and made the dark commission panel slightly translucent with restrained backdrop blur. The intent is a readable atmospheric horizon, not a generic glow applied everywhere.
+- Replaced the commission panel's Unicode `↗` with the shared outlined `DirectionalArrow` SVG. Added a source-wide test that rejects emoji-prone Unicode arrows in CSS, HTML, TypeScript and TSX interface files.
+- These corrections preserve the project-specific fixed galaxy while strengthening the wider quality rule: verify subtle material effects on physical phones and use controlled vector glyphs for interface direction.
 - Final validation passes with lint, production build, server type checks, all 45 automated tests, diff whitespace checks and an npm production-dependency audit with zero known vulnerabilities.
+
+## 2026-07-16, touch-clean Works cards and Admin breadcrumbs
+
+- Removed the coarse-pointer rule that permanently exposed every Works image overlay. The overlay is now a deliberate hover or keyboard-focus response only, while the always-visible label, year and title preserve the complete touch path.
+- Replaced the Admin topbar's inert page title with semantic breadcrumbs. Overview, Collections and the active collection are real ancestor links, while the current schema or item state uses `aria-current="page"`.
+- Made long breadcrumb trails horizontally scrollable inside their own header region so the Admin page does not create viewport overflow on phones.
+- Validation passes with lint, production build, server type checks and all 45 automated tests. A rendered 390 × 844 Admin item editor confirms a 390 px document width, a 64 px topbar and a complete clickable trail with no clipping.

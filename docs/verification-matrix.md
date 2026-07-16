@@ -24,7 +24,7 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 
 ## Automated and production-build evidence
 
-- Production build completes. Public CSS is about 15.56 KB gzip and the public application entry is about 111.48 KB gzip.
+- Production build completes. Public CSS is about 15.61 KB gzip and the public application entry is about 111.47 KB gzip.
 - Admin remains a separate lazy chunk at about 67.41 KB gzip.
 - The desktop and tablet particle chunk remains lazy at about 246.08 KB gzip. Phones do not import it.
 - One WebGL canvas and one particle geometry serve the complete tablet or desktop narrative.
@@ -34,11 +34,13 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - Browser review from 320 × 568 through 1920 × 1080 confirms no horizontal overflow on Home, Works, Contact or the case-study state. All timeline nodes remain visible independently of their card reveals, paint above the line and activate from their real circle position. Odd and even desktop nodes are centred to within 0.008 CSS pixels of the line.
 - Home Project cards show distinct intermediate opacities during entry, confirming the 0.28-second sequence. Works cards, case-study media and Contact fields use coordinated GSAP entry or parallax without adding GSAP attributes to particle elements.
 - Rendered 1280 × 800 and 390 × 844 checks confirm the two-colour stippled particle treatment, early Closing formation while its anchor remains below the viewport, the rebuilt Works opening and the floating Contact form without horizontal overflow.
-- Rendered 1536 × 900 and 390 × 844 checks confirm the cohesive dark Works gallery, minimal card copy and accessible overlay. Keyboard focus raises the overlay opacity to 1 and exposes its label and direction control. Touch layouts keep the same information visible without hover.
+- Rendered 1536 × 900 and 390 × 844 checks confirm the cohesive dark Works gallery, minimal card copy and accessible overlay. Mouse hover or keyboard focus raises the overlay opacity to 1 and exposes its label and direction control. Touch layouts keep the image clean because the essential label, year and title remain visible below it.
 - Contact no longer uses the orbit signal. A sparse CSS-only ambient field sits below the content, and the desktop headline finishes 143 px before the form. The stacked 390 px layout has clear vertical separation.
 - Works now renders one fixed `GalaxyBackdrop` on both its index and valid case-study states. Browser checks at 320 × 568, 390 × 844, 768 × 1024, 1280 × 800 and 1536 × 900 confirm `position: fixed`, zero page-level overflow, 84 desktop or tablet stars and the intended 34-point phone cap.
 - The Home hero and Contact each render 20 CSS-only ambient points, reduced to 12 on phones. Computed transforms sampled 900 ms apart confirm the independent ambient drift is active without a JavaScript animation loop or GSAP ownership.
 - Home hero stacking is explicit and rendered at both 1280 × 800 and 390 × 844: ambient field layer 0, desktop WebGL or phone-owned logo layer 1 and hero content layer 2. The Webine logo therefore always paints above the decorative ambient points.
+- The corrected Works galaxy is rendered at 1280 × 800 and 390 × 844 with a non-empty computed radial gradient, full nebula opacity and zero horizontal overflow. The lower-half cyan or blue horizon remains visible through the restrained translucent commission panel.
+- The commission panel contains an SVG direction mark with no text glyph. A recursive interface-source regression test rejects Unicode arrows, preventing mobile emoji substitution from returning.
 - A text-containment audit across Home, Works, Contact and a representative case study at 320, 390, 768 and 1280 CSS-pixel widths found no unintended clipped text. The only viewport-offset results belong to the Home horizontal runway, whose later cards are deliberately outside the viewport, and transformed media wrappers clipped by their image frames.
 - Regular Works cards no longer inherit the Home runway's dark content theme. Mobile headings, service pills and links retain readable light-surface colours. Case-study media respects the available column width at every breakpoint.
 - Public GSAP reveals are coordinated through one controller, while the selected-work runway declares its own managed boundary. The development test renderer now uses an isolated Vite cache so it cannot invalidate the running local preview's ScrollTrigger bundle.
@@ -49,6 +51,7 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - Vercel uses seven consolidated Function entrypoints. Automated routing coverage protects the Hobby-safe entrypoint count, grouped rewrites and restoration of the original API paths.
 - The final dark-gallery and Contact-containment pass completes lint, production build, server type checks, all 45 automated tests, diff whitespace checks and an npm production-dependency audit with zero known vulnerabilities.
 - The fixed-galaxy pass completes lint, production build, server type checks, all 45 automated tests, diff whitespace checks and an npm production-dependency audit with zero known vulnerabilities.
+- The Admin breadcrumb pass renders a nested new-item route at 390 × 844 with linked Admin, Collections and Projects ancestors, a correctly marked current page, a 64 px topbar and zero document overflow. Automated coverage protects both the breadcrumb link structure and hover-only Works overlay contract.
 
 ## Measurements still required
 

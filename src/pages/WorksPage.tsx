@@ -202,7 +202,9 @@ export function WorksPage() {
               <h2>Have a real project for this workbench?</h2>
               <p>Commissioned projects will replace concept positions as approved material becomes available.</p>
               <ButtonLink href="/contact" variant="outline">Start a project</ButtonLink>
-              <span className="works-commission__mark" data-gsap-parallax="orbit" aria-hidden="true">↗</span>
+              <span className="works-commission__mark" data-gsap-parallax="orbit" aria-hidden="true">
+                <DirectionalArrow />
+              </span>
             </div>
           </div>
         </section>
