@@ -427,6 +427,8 @@ export function MobileSectionParticles({
     let buffers: MobileSectionParticleTargets | null = null;
     let projection: PreparedParticleTarget | null = null;
     let ambientTimer = 0;
+    let scrollRotation = 0;
+    let lastScrollY = window.scrollY;
     const colours = getParticleColours();
     const ambientMotion = experienceConfig.particles.ambientMotion;
     const ambientFrameInterval = 1000 / MOBILE_AMBIENT_FRAME_RATE;
@@ -471,6 +473,10 @@ export function MobileSectionParticles({
         projection.targetX.length * experienceConfig.particles.mobile.renderRatio,
       );
       const elapsed = timestamp / 1000;
+      const currentScrollY = window.scrollY;
+      const scrollDelta = Math.max(-120, Math.min(120, currentScrollY - lastScrollY));
+      scrollRotation += scrollDelta * 0.00072;
+      lastScrollY = currentScrollY;
       const closingRotationScale = scene === "closing"
         ? experienceConfig.particles.closingModel.ambientRotationScale
         : 1;
@@ -479,9 +485,9 @@ export function MobileSectionParticles({
       const rotationPhase = elapsed *
         ((Math.PI * 2) / ambientMotion.fullRotationSeconds);
       const rotationY = Math.sin(rotationPhase) *
-        ambientMotion.rotationY * closingRotationScale * strength;
+        ambientMotion.rotationY * closingRotationScale * strength + scrollRotation;
       const rotationZ = Math.cos(elapsed * 0.13) *
-        ambientMotion.rotationZ * closingRotationScale * strength;
+        ambientMotion.rotationZ * closingRotationScale * strength + scrollRotation * 0.12;
       const sinX = Math.sin(rotationX);
       const cosX = Math.cos(rotationX);
       const sinY = Math.sin(rotationY);

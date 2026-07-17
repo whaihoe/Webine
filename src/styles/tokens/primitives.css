@@ -47,9 +47,10 @@
   --primitive-label: clamp(0.6875rem, 0.8vw, 0.8125rem);
 
   /* Shape, rule and motion primitives. */
-  --primitive-radius-small: 0.25rem;
-  --primitive-radius-default: 0.5rem;
-  --primitive-radius-media: 0.75rem;
+  --primitive-radius-small: 0.5rem;
+  --primitive-radius-default: 0.875rem;
+  --primitive-radius-media: 1.25rem;
+  --primitive-radius-panel: 1.75rem;
   --primitive-radius-pill: 999px;
   --primitive-rule: 1px;
   --primitive-duration-fast: 160ms;

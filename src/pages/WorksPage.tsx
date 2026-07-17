@@ -46,10 +46,10 @@ function ProjectCaseStudy({
       </div>
 
       <div className="site-container project-case-study__hero">
-        <div data-gsap-reveal="copy" data-gsap-delay="0.08">
-          <p className="eyebrow">{project.label} / {project.category}</p>
-          <h1 id="case-study-heading">{project.title}</h1>
-          <p>{project.summary}</p>
+        <div className="page-header-copy page-header-copy--case" data-gsap-reveal="copy" data-gsap-delay="0.08">
+          <p className="eyebrow page-header-copy__eyebrow">{project.label} / {project.category}</p>
+          <h1 className="page-header-copy__title" id="case-study-heading">{project.title}</h1>
+          <p className="page-header-copy__summary">{project.summary}</p>
         </div>
         <div className="project-case-study__media-frame" data-gsap-reveal="media" data-gsap-delay="0.16">
           <img
@@ -169,13 +169,13 @@ export function WorksPage() {
         <GalaxyBackdrop />
         <section className="works-intro theme-dark" aria-labelledby="works-heading">
           <span className="works-intro__ghost" data-gsap-parallax="drift-left" aria-hidden="true">WORK</span>
-          <div className="site-container works-intro__grid">
-            <p className="eyebrow" data-gsap-reveal="copy">{settings.works.eyebrow}</p>
-            <h1 id="works-heading" data-gsap-reveal="copy" data-gsap-delay="0.08">
+          <div className="site-container works-intro__grid page-header-copy page-header-copy--works">
+            <p className="eyebrow page-header-copy__eyebrow" data-gsap-reveal="copy">{settings.works.eyebrow}</p>
+            <h1 className="page-header-copy__title" id="works-heading" data-gsap-reveal="copy" data-gsap-delay="0.08">
               {settings.works.headingBefore} <em>{settings.works.headingAccent}</em>
               {settings.works.headingAfter ? ` ${settings.works.headingAfter}` : ""}
             </h1>
-            <p className="works-intro__description" data-gsap-reveal="copy" data-gsap-delay="0.16">{settings.works.introduction}</p>
+            <p className="works-intro__description page-header-copy__summary" data-gsap-reveal="copy" data-gsap-delay="0.16">{settings.works.introduction}</p>
             <p className="works-intro__folio" aria-hidden="true">01 / Practice in motion</p>
           </div>
         </section>

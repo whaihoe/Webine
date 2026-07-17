@@ -46,6 +46,7 @@
   --layout-max: 94rem;
   --layout-gutter: var(--primitive-space-3);
   --header-height: 4rem;
+  --page-header-clearance: calc(var(--header-height) + clamp(3.5rem, 7vw, 7rem));
   --focus-ring-width: 2px;
   --focus-ring-offset: 3px;
 }

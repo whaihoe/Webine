@@ -3,10 +3,12 @@ import { Route, Routes } from "react-router-dom";
 import { RouteEffects } from "./components/RouteEffects";
 import { RouteTransition } from "./components/RouteTransition";
 import { ContactPage } from "./pages/ContactPage";
+import { AboutPage } from "./pages/AboutPage";
 import { HomePage } from "./pages/HomePage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { PreviewPage } from "./pages/PreviewPage";
 import { WorksPage } from "./pages/WorksPage";
+import { ServicesPage } from "./pages/ServicesPage";
 import { SiteSettingsProvider } from "./content/SiteSettingsProvider";
 
 const AdminEntry = lazy(() => import("./admin/AdminEntry"));
@@ -18,6 +20,8 @@ export function App() {
       <RouteTransition />
       <SiteSettingsProvider><Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/services" element={<ServicesPage />} />
         <Route path="/works" element={<WorksPage />} />
         <Route path="/works/:projectSlug" element={<WorksPage />} />
         <Route path="/contact" element={<ContactPage />} />

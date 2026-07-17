@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useAdminMutation } from "../../admin/useAdminMutation";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -10,6 +10,7 @@ import {
 import { useAdminResource } from "../../admin/useAdminResource";
 import type { FieldDefinition } from "../../cms/schema";
 import { AssetFieldControl } from "./AssetFieldControl";
+import { ProjectMediaOverview } from "./ProjectMediaOverview";
 
 type ItemEditorProps = {
   collection: AdminCollectionDefinition;
@@ -149,6 +150,17 @@ export function ItemEditor({ collection, item }: ItemEditorProps) {
   const [data, setData] = useState<Record<string, unknown>>(item?.data ?? {});
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<AdminApiError | null>(null);
+  const dirty = useMemo(
+    () => JSON.stringify(data) !== JSON.stringify(currentItem?.data ?? {}),
+    [currentItem?.data, data],
+  );
+
+  useEffect(() => {
+    if (!dirty) return;
+    const warnBeforeLeaving = (event: BeforeUnloadEvent) => event.preventDefault();
+    window.addEventListener("beforeunload", warnBeforeLeaving);
+    return () => window.removeEventListener("beforeunload", warnBeforeLeaving);
+  }, [dirty]);
 
   function setField(key: string, value: unknown) {
     setData((current) => {
@@ -211,11 +223,12 @@ export function ItemEditor({ collection, item }: ItemEditorProps) {
     <form className="admin-item-form" onSubmit={submit}>
       <div className="admin-item-form__intro">
         <p>Drafts may be saved before every required publishing field is complete. Entered values are still validated now.</p>
-        {currentItem ? <span>Version {currentItem.version} · {currentItem.status}</span> : <span>New draft</span>}
+        {currentItem ? <span>Version {currentItem.version} · {currentItem.status} · {dirty ? "Changes not saved" : "Saved"}</span> : <span>New draft · {dirty ? "Changes not saved" : "Nothing entered yet"}</span>}
       </div>
+      {collection.key === "projects" ? <ProjectMediaOverview data={data} dirty={dirty} /> : null}
       <div className="admin-generated-fields">
         {collection.fields.map((field) => (
-          <fieldset className="admin-field admin-generated-field" key={field.key}>
+          <fieldset className="admin-field admin-generated-field" id={`field-${field.key}`} key={field.key}>
             <legend>{field.label}{field.required ? <em>Required to publish</em> : null}</legend>
             {field.helpText ? <small>{field.helpText}</small> : null}
             <GeneratedControl field={field} value={data[field.key]} onChange={(value) => setField(field.key, value)} />
@@ -224,12 +237,12 @@ export function ItemEditor({ collection, item }: ItemEditorProps) {
       </div>
       {error ? <div className="admin-form-error" role="alert"><strong>{error.message}</strong>{error.issues.length ? <ul>{error.issues.map((entry) => <li key={`${entry.path}-${entry.code}`}>{entry.path}: {entry.message}</li>)}</ul> : null}</div> : null}
       <div className="admin-form-actions">
-        <button className="admin-primary-action" type="submit" disabled={saving}>{saving ? "Working…" : "Save draft"}</button>
-        {currentItem ? <Link className="admin-secondary-action" to={`/preview?collection=${collection.key}&id=${currentItem.id}`}>Preview</Link> : null}
-        {currentItem?.status !== "published" ? <button className="admin-secondary-action" type="button" disabled={saving} onClick={() => void changeStatus("publish")}>Publish</button> : <button className="admin-secondary-action" type="button" disabled={saving} onClick={() => void changeStatus("publish")}>Republish</button>}
-        {currentItem?.status === "published" ? <button className="admin-secondary-action" type="button" disabled={saving} onClick={() => void changeStatus("unpublish")}>Unpublish</button> : null}
-        {currentItem ? <button className="admin-secondary-action" type="button" disabled={saving} onClick={() => void changeStatus("archive")}>Archive</button> : null}
-        <button className="admin-secondary-action" type="button" onClick={() => navigate(`/admin/collections/${collection.key}/items`)}>Cancel</button>
+        <button className="admin-primary-action" type="submit" disabled={saving || !dirty}>{saving ? "Working…" : dirty ? "Save draft" : "Draft saved"}</button>
+        {currentItem && !dirty ? <Link className="admin-secondary-action" to={`/preview?collection=${collection.key}&id=${currentItem.id}`}>Preview</Link> : currentItem ? <span className="admin-action-note">Save changes to preview</span> : null}
+        {currentItem?.status !== "published" ? <button className="admin-secondary-action" type="button" disabled={saving || dirty || !currentItem} onClick={() => void changeStatus("publish")}>Publish</button> : <button className="admin-secondary-action" type="button" disabled={saving || dirty} onClick={() => void changeStatus("publish")}>Republish</button>}
+        {currentItem?.status === "published" ? <button className="admin-secondary-action" type="button" disabled={saving || dirty} onClick={() => void changeStatus("unpublish")}>Unpublish</button> : null}
+        {currentItem ? <button className="admin-secondary-action" type="button" disabled={saving || dirty} onClick={() => void changeStatus("archive")}>Archive</button> : null}
+        <button className="admin-secondary-action" type="button" onClick={() => { if (!dirty || window.confirm("Leave without saving these changes?")) navigate(`/admin/collections/${collection.key}/items`); }}>Cancel</button>
       </div>
     </form>
   );

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { publicNavigation } from "../config/navigation";
 import { ButtonLink } from "./ButtonLink";
@@ -9,8 +10,30 @@ type SiteHeaderProps = {
 };
 
 export function SiteHeader({ theme }: SiteHeaderProps) {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      setScrolled((current) => {
+        const next = window.scrollY > 24;
+        return current === next ? current : next;
+      });
+    };
+    const schedule = () => {
+      if (!frame) frame = window.requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", schedule);
+      window.cancelAnimationFrame(frame);
+    };
+  }, []);
+
   return (
-    <header className={`site-header site-header--${theme}`} data-site-header>
+    <header className={`site-header site-header--${theme}`} data-site-header data-scrolled={scrolled}>
       <div className="site-container site-header__inner">
         <WebineBrand />
 

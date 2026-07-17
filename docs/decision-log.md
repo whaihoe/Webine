@@ -421,3 +421,109 @@
 - Replaced the Admin topbar's inert page title with semantic breadcrumbs. Overview, Collections and the active collection are real ancestor links, while the current schema or item state uses `aria-current="page"`.
 - Made long breadcrumb trails horizontally scrollable inside their own header region so the Admin page does not create viewport overflow on phones.
 - Validation passes with lint, production build, server type checks and all 45 automated tests. A rendered 390 × 844 Admin item editor confirms a 390 px document width, a 64 px topbar and a complete clickable trail with no clipping.
+
+## 2026-07-17, About page model and portrait narrative
+
+- Added the public About route as a complete studio story rather than a biography grid. The page moves from Webine's two-perspective positioning through a model-derived point head, working philosophy, Kidson and Whai Hoe portraits, principles and a project CTA.
+- Derived a deterministic 9,000-point surface target from the supplied `head_study.glb`. The visitor payload is about 105 KB instead of the original 16 MB GLB, and the source attribution remains recorded in `docs/model-attribution.md`.
+- Kept both supplied portraits unchanged. Apple Vision person masks provide exact subject silhouettes, allowing each 2D canvas to draw the person from the bottom upwards before fading into the pixel-aligned grayscale photograph.
+- Added a fine-pointer colour spotlight and a labelled touch or keyboard colour toggle. Image and canvas layers share one intrinsic 1122 by 1402 wrapper, preventing responsive drift or subject clipping.
+- Implemented the brief's About-only reduced-motion path. It leaves the head formed and portraits visible while retaining their semantic content and colour controls. Existing Home, Works and Contact motion behaviour is unchanged.
+
+## 2026-07-17, project-focused Admin media workflow
+
+- Kept the provider-neutral asset table, item-to-field references and shared media library. The data model already records project context after save, so no destructive migration was needed.
+- Extracted the existing local and Vercel Blob upload path into one Admin upload utility. Both the global Media library and project fields now use the same validation, progress and completion flow.
+- Added direct upload and existing-library choice inside image fields. Selected media shows its role, dimensions and filename with explicit replacement and removal controls. Generic gallery fields preserve order and expose earlier or later controls.
+- Added a Project media overview for cover, hover, story-block and social images. Its saved or unsaved status mirrors the complete draft, and field links move directly to the relevant control.
+- Added dirty-state protection. Preview, publish, republish, unpublish and archive cannot use stale data, the save button reflects the real state and browser or Cancel navigation warns before discarding changes.
+- Rendered the new-project workflow at 390 × 844 and 1280 × 800. Choosing an existing cover updates the Project summary and enables Save draft without creating or modifying a database record during visual QA.
+
+## 2026-07-17, business-outcome Services page
+
+- Added `/services` using only Webine's documented initial offer: website strategy, interface and visual direction, responsive development and defined ongoing support.
+- Structured the page around what each service changes for the client rather than a generic deliverables list. Draft prices, paid media, managed hosting and unproven later-stage services remain excluded.
+- Added one section-owned scroll composition. Desktop uses a sticky active-service rail, scrubbed content hierarchy and one rotating outlined scope field. Mobile returns to a clear linear chapter flow with normal vertical scrolling.
+- Reused the CMS-backed Understand, Shape, Build and Support content for the working path, then added the documented client-ownership position and a direct project enquiry CTA.
+- Rendered checks pass at 1280 × 800 and 390 × 844 with one H1, zero horizontal overflow and no page console errors.
+
+## 2026-07-17, About contour reveal and real service menu refinement
+
+- Replaced the earlier About head study with the user-supplied `simple_head.glb`. The same deterministic preparation script now produces `simple-head-points.bin`, retaining the 9,000-point and approximately 105 KB runtime budget with updated source attribution.
+- Removed the 58rem visual cap from the sticky head scene. Its WebGL canvas now occupies the complete visible hero frame, so scroll dispersion travels across the viewport while the semantic hero copy remains above it.
+- Replaced filled person-mask sampling with contour detection. Each portrait now draws only the subject outline from bottom to top through a one-shot viewport-entry timeline, then fades the particles and reveals the grayscale photograph.
+- Removed the touch and keyboard colour-toggle button. Colour is now a non-essential fine-pointer spotlight that follows the pointer locally and returns to grayscale on exit. Touch retains the complete grayscale portrait without a frozen hover state.
+
+## 2026-07-17, fluid About portrait reveal
+
+- Replaced the hard circular colour spotlight with a canvas-composited organic trail. Overlapping blurred lobes interpolate between pointer samples and decay gradually, creating a soft residual wake instead of a cursor-shaped cut-out.
+- Changed the contour reveal from particles appearing at their final coordinates to stable seeded particles travelling from below the frame. Individual stagger, curl, cyan-to-blue stippling, soft cores and settled drift connect the portrait animation to Webine's wider particle language while keeping the route lightweight.
+- Preserved the agreed order: viewport entry starts the rise, the full silhouette holds, particles fade and the grayscale photograph appears. The sequence remains one-shot rather than scroll-scrubbed, and touch remains grayscale without a false hover control.
+- Replaced the abstract Services labels with five offers supported by the business plan: web design and development, website redesign, monthly maintenance, SEO foundations and branding support. Maintenance is described as a bounded monthly subscription and SEO is explicitly a foundation rather than a ranking guarantee.
+
+## 2026-07-17, floating navigation and singular contact path
+
+- Removed Contact from the repeated desktop, mobile and footer text navigation. The route remains public and `Start a project` remains the consistent conversion action to `/contact`.
+- Reworked the fixed header as an inset translucent surface with restrained blur, border and shadow. Its background and elevation strengthen after 24 pixels of scrolling without moving page content or creating a second scroll system.
+- Grouped desktop route links in a compact inner pill, retained visible current, hover and focus states and preserved the labelled full-screen mobile menu.
+- Rendered the header at 1280 × 800 and 390 × 844. The mobile menu contains Home, About, Services and Works plus the project CTA, and the scrolled desktop state reports no horizontal overflow.
+- Added regression coverage for the singular Contact path, floating container and scroll-state contract. Lint, production build, server type checks and all 48 automated tests pass.
+
+## 2026-07-17, flexible secondary-page header system
+
+- Standardised the eyebrow, display-heading, description and floating-header clearance across About, Services, Works, Contact, public case studies, protected previews and the not-found page.
+- Used shared classes and variables instead of a wrapper component because each route already owns a deliberately different grid. This avoids new nesting that would weaken the About head, Services field, Works ghost title, Contact form and case-study media compositions.
+- Gave every Georgia heading phrase the accessible theme-aware brand blue. Contact and case-study variants keep their narrower scales and measures while inheriting the same typography, wrapping and motion order.
+- Removed the superseded per-page title sizes, margins, summary measures and accent colours. Page-specific grid placement and artwork remain local.
+- Rendered About, Services, Works and Contact at 390 × 844, plus Works, Services, Contact and a case study at 1280 × 800. Every route has one H1, deliberate accent colour, zero unintended clipped copy and zero horizontal overflow.
+- Added structural regression coverage. Lint, production build, server type checks and all 49 automated tests pass.
+
+## 2026-07-17, refined surface radius scale
+
+- Replaced the earlier 4, 8 and 12 pixel accumulation with a deliberate 8, 14, 20 and 28 pixel scale for compact details, controls, media and major panels. True pills and circles remain explicit exceptions.
+- Mapped buttons and inputs to the control radius, project and portrait frames to the media radius and the Contact form, commission panel and Admin project-media overview to the panel radius.
+- Added appropriate rounding to previously square Admin cards, media surfaces, choice rows and navigation controls without softening the complete application shell.
+- Preserved the Home chapter card's intentional animation to a zero radius only when it becomes a full-width section.
+- Rendered Works and Contact at 1280 × 800 and the Project Admin at 1280 × 800 and 390 × 844. The hierarchy reads as 14 pixel controls, 20 pixel media and 28 pixel panels with zero horizontal overflow.
+- Token regression coverage, lint, production build, server type checks and all 49 automated tests pass.
+
+## 2026-07-17, controlled Lenis input and anchor ownership
+
+- Audited installed Lenis 1.3.25, the GSAP ticker, ScrollTrigger registration, route restoration, section-owned RAF loops and every direct scroll listener. Public pages retain one Lenis instance and Admin remains native.
+- Changed wheel interpolation from 0.1 to 0.075 and the wheel multiplier from 1 to 0.92. Added an 84-pixel hyperbolic per-event cap through Lenis `virtualScroll`, preserving small trackpad deltas while compressing extreme wheel bursts.
+- Applied the cap only to wheel events. Touch retains the existing official synchronised values and overscroll, so the change does not add delayed touch physics or fight iOS bounce.
+- Replaced the incomplete anchor-focus listener with one same-page anchor path owned by Lenis. It measures the real floating header, scrolls with the correct offset, records the hash and focuses the target after completion.
+- Real browser input measured a 24-pixel wheel gesture settling at 22 pixels and a 5,000-pixel event settling at 83 pixels. Eight extreme events remained progressive, reversed cleanly after opposite input and kept the GSAP controller ready.
+- Rapid input held the Home work scene at its pin while the runway transformed, then reached Process with zero horizontal overflow and no console errors. A 390 × 844 Home pass retained section-owned 2D canvases, no desktop WebGL canvas and no errors.
+- Lint and production build pass. The complete suite passed 48 of 49 on its first run because a temporary Vite directory was still being removed; the isolated failed Admin renderer test passed immediately on rerun.
+
+## 2026-07-17, full-density particles and additive object interaction
+
+- Replaced the reusable ambient DOM field with one deterministic canvas renderer. Home and Contact use 58 points, Services uses 64 and the Works galaxy uses 118, including the full count on phones.
+- Added ambient particles behind the Services hero and replaced the desktop Services rail circle with a 780-point cyan-to-blue particle orb.
+- Standardised particle-object interaction around additive motion. Scroll rotation accumulates from the current pose, pointer movement adds damped whole-object tilt and nearby particles bulge without removing points or carving a hole.
+- Applied the same local pointer bulge to the About head shader. Its first ScrollTrigger measurement is synchronised before display and the model offset is corrected so the head begins centred instead of snapping after the first scroll input.
+- Removed the superseded About-only operating-system reduced-motion branch. Webine now keeps one complete motion system across all public routes, with responsive implementation differences based on input, viewport and renderer ownership.
+- Preserved visual density while reducing avoidable work through capped DPR, bounded frame rates, stable buffers, colour-bucket drawing, offscreen pause and Page Visibility pause. Particle count is not used as the main performance fallback.
+
+## 2026-07-17, About mobile contour performance and stable head centring
+
+- Reduced only the About portrait contour workload where the dense outline was visibly dropping frames. Mobile uses at most 850 contour points instead of the 2,400-point desktop ceiling, while retaining complete silhouette coverage through even spatial selection.
+- Removed per-frame layout measurement and canvas resizing from the portrait renderer. Mobile now runs at 30 FPS, 1× DPR and a single core-point pass. Desktop keeps the glow pass and a 45 FPS ceiling.
+- Kept the colour engine prepared but idle until a supported pointer enters. Eligibility uses the real pointer event instead of a media query, because capability queries can incorrectly suppress mouse or trackpad hover. Touch events are rejected explicitly. Trail updates mutate stable points instead of allocating a new mapped array each frame.
+- Reduced the About head to 5,600 evenly selected runtime points and a 1.05 DPR cap below 768 px while retaining all 9,000 source points on wider layouts.
+- Recentered the head geometry around its real particle centroid before rotation, moved ScrollTrigger setup into the layout phase and removed cumulative scroll-delta rotation. The top-of-page pose is now deterministic and cannot depend on scrolling down and back up.
+
+## 2026-07-17, reliable About hover reveal and desktop portrait scale
+
+- Moved the fluid colour reveal from React component pointer props to native pointer listeners attached directly to each portrait frame. This keeps the canvas input path active in the real browser while preserving mouse and pen support and explicitly rejecting touch.
+- Capped desktop portrait frames at 28rem while retaining the original aspect ratio and fluid mobile width. The images now support the team copy without dominating the full section.
+- Kept the existing organic multi-lobe residual mask, grayscale fallback and idle-until-interaction renderer. No duplicate hover implementation or legacy event props remain.
+
+## 2026-07-17, rebuilt About portrait layers and editorial composition
+
+- Removed the superseded colour-canvas renderer completely after it remained unreliable in the user's browser. The portrait now keeps the real colour image underneath an SVG grayscale layer, and interaction only erases the grayscale mask.
+- Built the fluid reveal from 40 reusable SVG circles. The live pointer owns a persistent soft anchor, previous circles form a 1.45-second residual trail and leaving the frame restores the complete grayscale image.
+- Reduced the desktop image cap from 28rem to 25rem. Rebuilt the adjacent copy with oversized Railway names, blue Georgia punctuation, indexed role rules, stronger descriptions and alternating alignment.
+- Tightened the team gaps, team padding and following principles clearance so the smaller photography does not create empty editorial rows.
+- Kept touch intentionally grayscale without a hover hint. The existing particle-outline entrance and grayscale handoff remain unchanged above the new photograph stack.

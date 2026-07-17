@@ -9,7 +9,7 @@ export function GalaxyBackdrop({ className = "" }: GalaxyBackdropProps) {
     <div className={`galaxy-backdrop ${className}`.trim()} aria-hidden="true">
       <div className="galaxy-backdrop__nebula" />
       <AmbientParticleField
-        count={84}
+        count={118}
         className="ambient-particle-field--galaxy"
       />
     </div>

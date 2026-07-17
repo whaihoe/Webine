@@ -1,19 +1,9 @@
-import { upload } from "@vercel/blob/client";
 import { useEffect, useRef, useState, type ChangeEvent, type DragEvent, type FormEvent } from "react";
-import { AdminApiError, type AdminAsset, type ApiEnvelope } from "../../admin/api";
+import type { AdminAsset } from "../../admin/api";
+import { initialUploadDetails, uploadAdminImage, type UploadDetails } from "../../admin/upload-image";
 import { useAdminResource } from "../../admin/useAdminResource";
 import { useAdminMutation } from "../../admin/useAdminMutation";
 import { AdminDataState } from "./AdminDataState";
-
-type UploadDetails = {
-  altText: string;
-  caption: string;
-  decorative: boolean;
-  focalX: number;
-  focalY: number;
-};
-
-const initialDetails: UploadDetails = { altText: "", caption: "", decorative: false, focalX: 0.5, focalY: 0.5 };
 
 function MediaAssetCard({ asset, onChanged }: { asset: AdminAsset; onChanged: () => void }) {
   const mutateAdminResource = useAdminMutation();
@@ -48,36 +38,12 @@ function MediaAssetCard({ asset, onChanged }: { asset: AdminAsset; onChanged: ()
   </article>;
 }
 
-async function localUpload(file: File, details: UploadDetails, onProgress: (value: number) => void) {
-  return new Promise<AdminAsset>((resolve, reject) => {
-    const body = new FormData();
-    body.set("file", file);
-    Object.entries(details).forEach(([key, value]) => body.set(key, String(value)));
-    const request = new XMLHttpRequest();
-    request.open("POST", "/api/admin/media/local-upload");
-    request.setRequestHeader("Accept", "application/json");
-    request.upload.onprogress = (event) => event.lengthComputable && onProgress(Math.round(event.loaded / event.total * 100));
-    request.onerror = () => reject(new AdminApiError(0, "UPLOAD_FAILED", "The upload connection was interrupted."));
-    request.onload = () => {
-      try {
-        const envelope = JSON.parse(request.responseText) as ApiEnvelope<AdminAsset>;
-        if (request.status < 200 || request.status >= 300 || !envelope.data) {
-          reject(new AdminApiError(request.status, envelope.error?.code ?? "UPLOAD_FAILED", envelope.error?.message ?? "The image could not be uploaded."));
-        } else resolve(envelope.data);
-      } catch {
-        reject(new AdminApiError(request.status, "UPLOAD_FAILED", "The upload response was invalid."));
-      }
-    };
-    request.send(body);
-  });
-}
-
 export function MediaLibrary() {
   const mutateAdminResource = useAdminMutation();
   const resource = useAdminResource<AdminAsset[]>("/api/admin/media");
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
-  const [details, setDetails] = useState(initialDetails);
+  const [details, setDetails] = useState(initialUploadDetails);
   const [progress, setProgress] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -107,24 +73,9 @@ export function MediaLibrary() {
     setProgress(0);
     setError("");
     try {
-      if (import.meta.env.DEV) {
-        await localUpload(file, details, setProgress);
-      } else {
-        const blob = await upload(`webine/${file.name}`, file, {
-          access: "public",
-          handleUploadUrl: "/api/admin/media/upload-token",
-          multipart: file.size > 4 * 1024 * 1024,
-          onUploadProgress: ({ percentage }) => setProgress(Math.round(percentage)),
-        });
-        await mutateAdminResource<AdminAsset>("/api/admin/media/complete", "POST", {
-          ...details,
-          url: blob.url,
-          pathname: blob.pathname,
-          originalFilename: file.name,
-        });
-      }
+      await uploadAdminImage(file, details, setProgress, mutateAdminResource);
       setFile(null);
-      setDetails(initialDetails);
+      setDetails(initialUploadDetails);
       setProgress(100);
       if (inputRef.current) inputRef.current.value = "";
       resource.retry();

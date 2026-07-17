@@ -28,6 +28,15 @@ function getTokenColour(token: string) {
   return new Color().setStyle(`hsl(${hue}, ${saturation}, ${lightness})`);
 }
 
+function dampUniform(material: ShaderMaterial, uniformName: string, target: number, delta: number) {
+  if (target === 0) {
+    material.uniforms[uniformName].value = 0;
+    return;
+  }
+  const nextValue = MathUtils.damp(material.uniforms[uniformName].value, target, 3, delta);
+  material.uniforms[uniformName].value = Math.abs(nextValue - target) < 0.01 ? target : nextValue;
+}
+
 type ParticlePointsProps = {
   profile: ParticleRenderProfile;
   progressStore: StoryProgressStore;
@@ -50,6 +59,8 @@ export function ParticlePoints({
   const pointerRef = useRef({ x: 0, y: 0, active: false });
   const pointerUniformRef = useRef(new Vector2(20, 20));
   const rotationPhaseRef = useRef(0);
+  const scrollRotationRef = useRef(0);
+  const lastScrollYRef = useRef<number | null>(null);
   const positionInitialisedRef = useRef(false);
   const proceduralTargets = useMemo(
     () => createProceduralParticleTargets(profile.count, profile.ambientRatio),
@@ -273,8 +284,7 @@ export function ParticlePoints({
       sceneScale = processPosition.scale;
     }
 
-    const scenePosition = { x: sceneX, y: sceneY, scale: sceneScale };
-    const targetScale = profile.objectScale * scenePosition.scale;
+    const targetScale = profile.objectScale * sceneScale;
     const transitionStrength = Math.max(
       Math.abs(Math.sin(heroMotion.dispersion * Math.PI)),
       Math.abs(Math.sin(reachMotion.formation * Math.PI)),
@@ -288,6 +298,12 @@ export function ParticlePoints({
       Math.abs(Math.sin(closingMotion.dispersion * Math.PI)),
     );
     const pointer = pointerRef.current;
+    const currentScrollY = window.scrollY;
+    if (lastScrollYRef.current !== null) {
+      const scrollDelta = Math.max(-120, Math.min(120, currentScrollY - lastScrollYRef.current));
+      scrollRotationRef.current += scrollDelta * 0.00062;
+    }
+    lastScrollYRef.current = currentScrollY;
     const introSettledProgress = MathUtils.smoothstep(
       material.uniforms.uProgress.value,
       0.72,
@@ -322,33 +338,18 @@ export function ParticlePoints({
       7,
       delta,
     );
-    const dampProgress = (uniformName: string, target: number) => {
-      if (target === 0) {
-        material.uniforms[uniformName].value = 0;
-        return;
-      }
-
-      const nextValue = MathUtils.damp(
-        material.uniforms[uniformName].value,
-        target,
-        3,
-        delta,
-      );
-      material.uniforms[uniformName].value =
-        Math.abs(nextValue - target) < 0.01 ? target : nextValue;
-    };
-    dampProgress("uHeroExitProgress", heroMotion.dispersion);
-    dampProgress("uReachFormationProgress", reachMotion.formation);
-    dampProgress("uReachExitProgress", reachMotion.dispersion);
-    dampProgress("uWorkFormationProgress", workFormation);
-    dampProgress("uWorkProjectProgress", workProjectProgress);
-    dampProgress("uInterludeFormationProgress", interludeFormation);
-    dampProgress("uInterludeExitProgress", interludeMotion.dispersion);
-    dampProgress("uTimelineIntakeProgress", intakeProgress);
-    dampProgress("uTimelineReleaseProgress", releaseProgress);
-    dampProgress("uClosingFormationProgress", closingMotion.formation);
-    dampProgress("uClosingExitProgress", closingMotion.dispersion);
-    dampProgress("uStoryVisibility", effectiveStoryVisibility);
+    dampUniform(material, "uHeroExitProgress", heroMotion.dispersion, delta);
+    dampUniform(material, "uReachFormationProgress", reachMotion.formation, delta);
+    dampUniform(material, "uReachExitProgress", reachMotion.dispersion, delta);
+    dampUniform(material, "uWorkFormationProgress", workFormation, delta);
+    dampUniform(material, "uWorkProjectProgress", workProjectProgress, delta);
+    dampUniform(material, "uInterludeFormationProgress", interludeFormation, delta);
+    dampUniform(material, "uInterludeExitProgress", interludeMotion.dispersion, delta);
+    dampUniform(material, "uTimelineIntakeProgress", intakeProgress, delta);
+    dampUniform(material, "uTimelineReleaseProgress", releaseProgress, delta);
+    dampUniform(material, "uClosingFormationProgress", closingMotion.formation, delta);
+    dampUniform(material, "uClosingExitProgress", closingMotion.dispersion, delta);
+    dampUniform(material, "uStoryVisibility", effectiveStoryVisibility, delta);
     const ambientStrength =
       intakeProgress > 0
       ? 0
@@ -388,19 +389,19 @@ export function ParticlePoints({
     const pointerOffsetX = pointer.x * pointerTravel;
     const pointerOffsetY = pointer.y * pointerTravel * 0.72;
     if (!positionInitialisedRef.current) {
-      group.position.set(scenePosition.x, scenePosition.y, 0);
+      group.position.set(sceneX, sceneY, 0);
       group.scale.setScalar(targetScale);
       positionInitialisedRef.current = true;
     }
     group.position.x = MathUtils.damp(
       group.position.x,
-      scenePosition.x + pointerOffsetX,
+      sceneX + pointerOffsetX,
       releaseProgress > 0.92 ? 14 : 5,
       delta,
     );
     group.position.y = MathUtils.damp(
       group.position.y,
-      scenePosition.y +
+      sceneY +
         pointerOffsetY +
         Math.sin(elapsed * 0.34) * ambientMotion.floatY * idleStrength,
       releaseProgress > 0.92 ? 14 : 4,
@@ -426,7 +427,7 @@ export function ParticlePoints({
         ambientMotion.rotationX *
         idleStrength *
         ambientRotationScale +
-        pointerTiltX,
+        pointerTiltX + scrollRotationRef.current * 0.08,
       3,
       delta,
     );
@@ -435,7 +436,7 @@ export function ParticlePoints({
       Math.sin(rotationPhaseRef.current) *
         ambientMotion.rotationY *
         ambientRotationScale +
-        pointerTiltY,
+        pointerTiltY + scrollRotationRef.current,
       3,
       delta,
     );
@@ -445,7 +446,8 @@ export function ParticlePoints({
         ambientMotion.rotationZ *
         idleStrength *
         ambientRotationScale +
-        (pointer.active ? pointer.x * ambientMotion.pointerTilt * 0.34 : 0),
+        (pointer.active ? pointer.x * ambientMotion.pointerTilt * 0.34 : 0) +
+        scrollRotationRef.current * 0.14,
       3,
       delta,
     );

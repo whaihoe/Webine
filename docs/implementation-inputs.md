@@ -9,7 +9,7 @@ This document records the Stage 0 inputs without turning placeholders into final
 - Working supporting direction: Webine turns ordinary business websites into distinctive digital assets.
 - Process stages: Understand, Shape, Build and Support
 - Working location: Singapore
-- Approved public routes: Home, Works and Contact
+- Approved public routes: Home, About, Services, Works and Contact
 - Reserved protected routes: Admin and preview
 
 ## Missing but replaceable during development

@@ -36,12 +36,21 @@
 .desktop-navigation {
   display: flex;
   align-items: center;
-  gap: var(--primitive-space-6);
+  gap: var(--primitive-space-1);
+  padding: var(--primitive-space-1);
+  border-radius: var(--primitive-radius-pill);
+  background: hsl(var(--color-surface-raised) / 0.34);
 }
 
 .desktop-navigation__link {
   position: relative;
-  padding-block: var(--primitive-space-3);
+  z-index: 0;
+  isolation: isolate;
+  min-height: 2.5rem;
+  padding: var(--primitive-space-2) var(--primitive-space-4);
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--primitive-radius-pill);
   color: hsl(var(--color-text-secondary));
   font-size: var(--label);
   text-decoration: none;
@@ -52,13 +61,14 @@
   content: "";
   position: absolute;
   right: 0;
-  bottom: 0.4rem;
-  left: 0;
-  height: var(--primitive-rule);
-  background: hsl(var(--color-brand));
-  transform: scaleX(0);
-  transform-origin: right;
-  transition: transform var(--primitive-duration-standard) var(--primitive-ease-standard);
+  inset: 0;
+  z-index: -1;
+  height: auto;
+  border-radius: inherit;
+  background: hsl(var(--color-surface-raised));
+  opacity: 0;
+  transform: scale(0.88);
+  transition: opacity var(--primitive-duration-fast) ease, transform var(--primitive-duration-standard) var(--primitive-ease-standard);
 }
 
 .desktop-navigation__link:hover,
@@ -68,8 +78,14 @@
 }
 
 .desktop-navigation__link[aria-current="page"]::after {
-  transform: scaleX(1);
-  transform-origin: left;
+  opacity: 1;
+  transform: scale(1);
+}
+
+.desktop-navigation__link:hover::after,
+.desktop-navigation__link:focus-visible::after {
+  opacity: 0.64;
+  transform: scale(1);
 }
 
 .button-link {

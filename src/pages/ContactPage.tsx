@@ -81,12 +81,12 @@ export function ContactPage() {
   return (
     <SiteShell>
       <section className="contact-section theme-dark" aria-labelledby="contact-heading">
-        <AmbientParticleField count={20} />
+        <AmbientParticleField count={58} />
         <div className="site-container contact-section__grid">
-          <div className="contact-section__intro">
-            <p className="eyebrow" data-gsap-reveal="copy">Start a project / Singapore</p>
-            <h1 id="contact-heading" data-gsap-reveal="copy" data-gsap-delay="0.08">{headingLead} <em>{headingAccent}</em></h1>
-            <p data-gsap-reveal="copy" data-gsap-delay="0.16">{settings.contact.introduction}</p>
+          <div className="contact-section__intro page-header-copy page-header-copy--contact">
+            <p className="eyebrow page-header-copy__eyebrow" data-gsap-reveal="copy">Start a project / Singapore</p>
+            <h1 className="page-header-copy__title" id="contact-heading" data-gsap-reveal="copy" data-gsap-delay="0.08">{headingLead} <em>{headingAccent}</em></h1>
+            <p className="page-header-copy__summary" data-gsap-reveal="copy" data-gsap-delay="0.16">{settings.contact.introduction}</p>
 
             <dl className="contact-details">
               <div data-gsap-reveal="copy" data-gsap-delay="0.22"><dt>Availability</dt><dd>{settings.contact.availability}</dd></div>

@@ -24,6 +24,8 @@ export async function handleSitemapRequest(request: Request) {
   const projects = await listPublicProjects();
   const paths = [
     "/",
+    "/about",
+    "/services",
     "/works",
     "/contact",
     ...projects.map((project) => `/works/${project.slug}`),

@@ -1,5 +1,6 @@
 import Lenis from "lenis";
 import { useEffect, type ReactNode } from "react";
+import { normaliseWheelInput } from "../animation/scroll-input";
 import { gsap, ScrollTrigger } from "../animation/scroll-runtime";
 import { experienceConfig } from "../config/experience";
 
@@ -8,11 +9,13 @@ type PublicSmoothScrollProps = {
 };
 
 function getHeaderOffset() {
-  const headerHeight = getComputedStyle(document.documentElement)
-    .getPropertyValue("--header-height")
-    .trim();
+  const header = document.querySelector<HTMLElement>("[data-site-header]");
 
-  return -(Number.parseFloat(headerHeight) || 0);
+  if (!header) {
+    return 0;
+  }
+
+  return -Math.ceil(header.getBoundingClientRect().bottom + 16);
 }
 
 export function PublicSmoothScroll({ children }: PublicSmoothScrollProps) {
@@ -33,13 +36,15 @@ export function PublicSmoothScroll({ children }: PublicSmoothScrollProps) {
       touchInertiaExponent: config.touchInertiaExponent,
       touchMultiplier: config.touchMultiplier,
       overscroll: config.overscroll,
-      anchors: {
-        offset: getHeaderOffset(),
-      },
+      virtualScroll: (input) => normaliseWheelInput(input, config.maxWheelDelta),
       stopInertiaOnNavigate: true,
     });
 
-    const handleAnchorFocus = (event: MouseEvent) => {
+    const handleAnchorNavigation = (event: MouseEvent) => {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+        return;
+      }
+
       const eventTarget = event.target;
 
       if (!(eventTarget instanceof Element)) {
@@ -49,20 +54,29 @@ export function PublicSmoothScroll({ children }: PublicSmoothScrollProps) {
       const link = eventTarget.closest<HTMLAnchorElement>('a[href^="#"]');
       const href = link?.getAttribute("href");
 
-      if (!href || href === "#") {
+      if (!href || href === "#" || !href.startsWith("#")) {
         return;
       }
 
-      const target = document.querySelector<HTMLElement>(href);
+      const target = document.getElementById(decodeURIComponent(href.slice(1)));
 
       if (!target) {
         return;
       }
 
-      window.requestAnimationFrame(() => target.focus({ preventScroll: true }));
+      event.preventDefault();
+      lenis.scrollTo(target, {
+        offset: getHeaderOffset(),
+        onComplete: () => {
+          if (window.location.hash !== href) {
+            window.history.pushState(null, "", href);
+          }
+          target.focus({ preventScroll: true });
+        },
+      });
     };
 
-    document.addEventListener("click", handleAnchorFocus);
+    document.addEventListener("click", handleAnchorNavigation);
 
     const updateScrollTrigger = () => ScrollTrigger.update();
     const updateLenis = (time: number) => lenis.raf(time * 1000);
@@ -70,12 +84,14 @@ export function PublicSmoothScroll({ children }: PublicSmoothScrollProps) {
     lenis.on("scroll", updateScrollTrigger);
     gsap.ticker.add(updateLenis);
     gsap.ticker.lagSmoothing(0);
+    document.documentElement.dataset.scrollRuntime = "ready";
     ScrollTrigger.refresh();
 
     return () => {
       lenis.off("scroll", updateScrollTrigger);
       gsap.ticker.remove(updateLenis);
-      document.removeEventListener("click", handleAnchorFocus);
+      document.removeEventListener("click", handleAnchorNavigation);
+      delete document.documentElement.dataset.scrollRuntime;
       lenis.destroy();
     };
   }, []);

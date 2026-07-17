@@ -19,12 +19,50 @@ test("keeps every current route", async () => {
     readFile(new URL("src/main.tsx", projectRoot), "utf8"),
   ]);
 
-  for (const path of ["/", "/works", "/contact", "/preview"]) {
+  for (const path of ["/", "/about", "/services", "/works", "/contact", "/preview"]) {
     assert.match(app, new RegExp(`path=["']${path.replace("/", "\\/")}["']`));
   }
   assert.match(app, /path=["']\/admin\/\*["']/);
   assert.match(main, /v7_relativeSplatPath:\s*true/);
   assert.match(main, /v7_startTransition:\s*true/);
+});
+
+test("keeps Contact as the primary project action instead of duplicate navigation", async () => {
+  const [navigation, header, mobileMenu, styles] = await Promise.all([
+    readFile(new URL("src/config/navigation.ts", projectRoot), "utf8"),
+    readFile(new URL("src/components/SiteHeader.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/MobileMenu.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/styles/layout.css", projectRoot), "utf8"),
+  ]);
+
+  const publicItems = navigation.slice(0, navigation.indexOf("] as const"));
+  assert.doesNotMatch(publicItems, /label:\s*["']Contact["']/);
+  assert.match(header, /href=["']\/contact["'][\s\S]*Start a project/);
+  assert.match(mobileMenu, /href=["']\/contact["'][\s\S]*Start a project/);
+  assert.match(header, /window\.scrollY > 24/);
+  assert.match(header, /data-scrolled=\{scrolled\}/);
+  assert.match(styles, /\.site-header\s*{[^}]*position:\s*fixed/s);
+  assert.match(styles, /\.site-header__inner\s*{[^}]*backdrop-filter:\s*blur/s);
+});
+
+test("uses one flexible secondary-page heading system", async () => {
+  const [about, services, works, contact, preview, notFound, styles] = await Promise.all([
+    readFile(new URL("src/pages/AboutPage.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/pages/ServicesPage.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/pages/WorksPage.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/pages/ContactPage.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/pages/PreviewPage.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/pages/NotFoundPage.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/styles/pages.css", projectRoot), "utf8"),
+  ]);
+
+  for (const source of [about, services, works, contact, preview, notFound]) {
+    assert.match(source, /page-header-copy/);
+    assert.match(source, /page-header-copy__title/);
+  }
+  assert.match(styles, /\.page-header-copy__title em\s*{[^}]*color:\s*hsl\(var\(--color-brand\)\)/s);
+  assert.match(styles, /\.page-header-copy__summary\s*{[^}]*text-wrap:\s*pretty/s);
+  assert.match(styles, /\.project-case-study\s*{[^}]*padding-block:\s*var\(--page-header-clearance\)/s);
 });
 
 test("keeps global route motion purposeful and restorable", async () => {
@@ -133,8 +171,15 @@ test("uses the three-layer token architecture", async () => {
 
   assert.match(primitives, /--primitive-slate-950/);
   assert.match(primitives, /--primitive-space-4/);
+  assert.match(primitives, /--primitive-radius-small:\s*0\.5rem/);
+  assert.match(primitives, /--primitive-radius-default:\s*0\.875rem/);
+  assert.match(primitives, /--primitive-radius-media:\s*1\.25rem/);
+  assert.match(primitives, /--primitive-radius-panel:\s*1\.75rem/);
   assert.match(semantic, /--color-canvas:\s*var\(--primitive-slate-950\)/);
   assert.match(components, /--button-primary-bg:\s*var\(--color-brand\)/);
+  assert.match(components, /--button-radius:\s*var\(--primitive-radius-default\)/);
+  assert.match(components, /--project-media-radius:\s*var\(--primitive-radius-media\)/);
+  assert.match(components, /--panel-radius:\s*var\(--primitive-radius-panel\)/);
 });
 
 test("enables the approved homepage experience layers", async () => {
@@ -155,12 +200,13 @@ test("enables the approved homepage experience layers", async () => {
   assert.match(config, /pointSize:\s*1\.69/);
   assert.match(
     config,
-    /mobile:\s*{[\s\S]*?count:\s*2200[\s\S]*?renderRatio:\s*0\.7[\s\S]*?pointSize:\s*1\.69[\s\S]*?maxFrameRate:\s*30[\s\S]*?measurementSettleMs:\s*90/,
+    /mobile:\s*{[\s\S]*?count:\s*2200[\s\S]*?renderRatio:\s*1[\s\S]*?pointSize:\s*1\.69[\s\S]*?maxFrameRate:\s*30[\s\S]*?measurementSettleMs:\s*90/,
   );
   assert.doesNotMatch(config, /settledFrameRate|renderBurstMs/);
-  assert.match(config, /lerp:\s*0\.1/);
+  assert.match(config, /lerp:\s*0\.075/);
   assert.match(config, /smoothWheel:\s*true/);
-  assert.match(config, /wheelMultiplier:\s*1/);
+  assert.match(config, /wheelMultiplier:\s*0\.92/);
+  assert.match(config, /maxWheelDelta:\s*84/);
   assert.match(config, /syncTouch:\s*true/);
   assert.match(config, /syncTouchLerp:\s*0\.075/);
   assert.match(config, /touchInertiaExponent:\s*1\.7/);
@@ -579,9 +625,9 @@ test("extends the Home motion language across Works and Contact without assignin
   assert.match(works, /project-case-study__media-frame/);
   assert.match(works, /works-foundation theme-dark/);
   assert.match(works, /<GalaxyBackdrop \/>/);
-  assert.match(galaxyBackdrop, /<AmbientParticleField\s+count=\{84\}/);
-  assert.match(homeExperience, /<AmbientParticleField count=\{20\} className="ambient-particle-field--hero" \/>/);
-  assert.match(contact, /<AmbientParticleField count=\{20\}/);
+  assert.match(galaxyBackdrop, /<AmbientParticleField\s+count=\{118\}/);
+  assert.match(homeExperience, /<AmbientParticleField count=\{58\} className="ambient-particle-field--hero" \/>/);
+  assert.match(contact, /<AmbientParticleField count=\{58\}/);
   assert.doesNotMatch(contact, /contact-section__signal/);
   assert.match(contact, /data-gsap-delay="0\.7"/);
   assert.match(contact, /<DirectionalArrow \/>/);
@@ -589,7 +635,11 @@ test("extends the Home motion language across Works and Contact without assignin
   assert.match(projectCard, /project-card__overlay/);
   assert.match(projectCard, /project-card__title-link/);
   assert.doesNotMatch(projectCard, /data-gsap-parallax=.*(?:copy|drift)/);
-  assert.doesNotMatch(ambientParticles, /three|canvas|requestAnimationFrame|data-gsap-(?:reveal|parallax)/i);
+  assert.doesNotMatch(ambientParticles, /three|data-gsap-(?:reveal|parallax)/i);
+  assert.match(ambientParticles, /<canvas/);
+  assert.match(ambientParticles, /IntersectionObserver/);
+  assert.match(ambientParticles, /document\.visibilityState/);
+  assert.match(ambientParticles, /Math\.min\(window\.devicePixelRatio \|\| 1, 1\.25\)/);
   assert.match(styles, /\.project-card__media:focus-visible \.project-card__overlay/);
   assert.doesNotMatch(styles, /@media \(hover: none\)\s*\{\s*\.project-card__overlay/);
   assert.match(styles, /\.galaxy-backdrop\s*{[^}]*position:\s*fixed/s);
@@ -599,9 +649,7 @@ test("extends the Home motion language across Works and Contact without assignin
   assert.match(particleStyles, /--layer-particles-base:\s*1/);
   assert.match(particleStyles, /\.particle-narrative-layer\s*{[^}]*z-index:\s*var\(--layer-particles-base\)/s);
   assert.match(particleStyles, /\.home-page \.hero-section__grid\s*{[^}]*z-index:\s*2/s);
-  assert.match(styles, /@keyframes ambient-particle-drift/);
-  assert.match(styles, /@keyframes ambient-particle-twinkle/);
-  assert.match(styles, /\.ambient-particle-field span\s*\{/);
+  assert.match(styles, /\.ambient-particle-field canvas\s*\{/);
   assert.doesNotMatch(particleCanvas, /data-gsap-(?:reveal|parallax)/);
   assert.doesNotMatch(mobileParticles, /data-gsap-(?:reveal|parallax)/);
 });
@@ -657,10 +705,13 @@ test("keeps the lazy particle bundle inside its transfer budget", async () => {
 });
 
 test("keeps the generated CMS editor protected and out of the public bundle", async () => {
-  const [app, collectionEditor, itemEditor, adminPage] = await Promise.all([
+  const [app, collectionEditor, itemEditor, assetField, mediaOverview, uploadImage, adminPage] = await Promise.all([
     readFile(new URL("src/App.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/admin/CollectionEditor.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/admin/ItemEditor.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/admin/AssetFieldControl.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/admin/ProjectMediaOverview.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/admin/upload-image.ts", projectRoot), "utf8"),
     readFile(new URL("src/pages/AdminPage.tsx", projectRoot), "utf8"),
   ]);
   const assetNames = await readdir(new URL("dist/assets/", projectRoot));
@@ -673,21 +724,44 @@ test("keeps the generated CMS editor protected and out of the public bundle", as
   assert.match(itemEditor, /Upload image/);
   assert.match(itemEditor, /AssetFieldControl/);
   assert.match(itemEditor, /Add content block/);
+  assert.match(itemEditor, /Changes not saved/);
+  assert.match(itemEditor, /ProjectMediaOverview/);
+  assert.match(itemEditor, /beforeunload/);
+  assert.match(assetField, /Upload and select/);
+  assert.match(assetField, /Choose existing asset/);
+  assert.match(assetField, /Move earlier/);
+  assert.match(assetField, /Remove/);
+  assert.match(mediaOverview, /Images assigned to this project/);
+  assert.match(mediaOverview, /Cover/);
+  assert.match(mediaOverview, /Story/);
+  assert.match(uploadImage, /uploadAdminImage/);
   assert.doesNotMatch(itemEditor, /image path|provider URL/i);
   assert.match(adminPage, /collections\/:collectionKey\/schema/);
   assert.match(adminPage, /collections\/:collectionKey\/items\/:itemId/);
 });
 
 test("cleans up the public smooth-scroll layer", async () => {
-  const smoothScroll = await readFile(
-    new URL("src/components/PublicSmoothScroll.tsx", projectRoot),
-    "utf8",
-  );
+  const [smoothScroll, scrollInput] = await Promise.all([
+    readFile(new URL("src/components/PublicSmoothScroll.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/animation/scroll-input.ts", projectRoot), "utf8"),
+  ]);
 
   assert.match(smoothScroll, /new Lenis\(/);
   assert.match(smoothScroll, /lenis\.destroy\(\)/);
   assert.match(smoothScroll, /lenis\.on\("scroll", updateScrollTrigger\)/);
   assert.match(smoothScroll, /gsap\.ticker\.add\(updateLenis\)/);
+  assert.match(smoothScroll, /gsap\.ticker\.remove\(updateLenis\)/);
+  assert.match(smoothScroll, /virtualScroll:\s*\(input\) => normaliseWheelInput\(input, config\.maxWheelDelta\)/);
+  assert.match(smoothScroll, /data(?:set)?\.scrollRuntime|dataset\.scrollRuntime/);
+  assert.match(smoothScroll, /handleAnchorNavigation/);
+  assert.match(smoothScroll, /event\.preventDefault\(\)/);
+  assert.match(smoothScroll, /lenis\.scrollTo\(target/);
+  assert.match(smoothScroll, /window\.history\.pushState\(null, "", href\)/);
+  assert.match(smoothScroll, /target\.focus\(\{ preventScroll: true \}\)/);
+  assert.match(smoothScroll, /getBoundingClientRect\(\)\.bottom \+ 16/);
+  assert.doesNotMatch(smoothScroll, /anchors:\s*\{/);
+  assert.match(scrollInput, /Math\.tanh\(delta \/ maximum\)/);
+  assert.match(scrollInput, /!input\.event\.type\.includes\("wheel"\)/);
   assert.doesNotMatch(smoothScroll, /ScrollSmoother/);
   assert.doesNotMatch(smoothScroll, /smooth-wrapper|smooth-content/);
 });
@@ -708,16 +782,86 @@ test("provides accessible navigation foundations", async () => {
   assert.match(layout, /\.site-header\s*{[^}]*position:\s*fixed/s);
 });
 
-test("keeps one motion system across operating-system preferences", async () => {
+test("keeps one complete motion system without operating-system motion branches", async () => {
   const sourceNames = await readdir(new URL("src/", projectRoot), { recursive: true });
   const sourceFiles = sourceNames
     .filter((path) => /\.(?:css|ts|tsx)$/.test(path))
     .map((path) => `src/${path}`);
-  const sources = await Promise.all(
+  const motionSources = await Promise.all(
     sourceFiles.map((path) => readFile(new URL(path, projectRoot), "utf8")),
   );
 
-  assert.doesNotMatch(sources.join("\n"), /prefers-reduced-motion|reduceMotion|reducedMotion/i);
+  assert.doesNotMatch(motionSources.join("\n"), /prefers-reduced-motion|reduceMotion|reducedMotion/i);
+});
+
+test("keeps the About page model-derived, portrait-led and accessible", async () => {
+  const [app, page, head, portrait, portraitParticles, portraitColour, portraitStyles, sitemap] = await Promise.all([
+    readFile(new URL("src/App.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/pages/AboutPage.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/three/AboutHeadCanvas.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/about/PortraitReveal.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/about/portrait-particle-engine.ts", projectRoot), "utf8"),
+    readFile(new URL("src/components/about/useFluidGrayscaleMask.ts", projectRoot), "utf8"),
+    readFile(new URL("src/styles/about.css", projectRoot), "utf8"),
+    readFile(new URL("server/api-routes/sitemap.ts", projectRoot), "utf8"),
+  ]);
+
+  assert.match(app, /path="\/about"/);
+  assert.match(page, /AboutHeadExperience/);
+  assert.equal((page.match(/<PortraitReveal/g) ?? []).length, 1);
+  assert.match(head, /\/about\/simple-head-points\.bin/);
+  assert.match(portrait, /<canvas/);
+  assert.match(portraitParticles, /isEdge/);
+  assert.match(portraitParticles, /originY:\s*1\.04/);
+  assert.match(portraitParticles, /const limit = mobile \? 850 : 2400/);
+  assert.match(portraitParticles, /glow: boolean/);
+  assert.match(portrait, /portrait-reveal__image--colour/);
+  assert.match(portrait, /portrait-reveal__mono-layer/);
+  assert.match(portrait, /mask=\{`url\(#\$\{maskId\}\)`\}/);
+  assert.match(portraitColour, /point\.life -= elapsed \/ 1450/);
+  assert.match(portraitColour, /event\.pointerType === "touch"/);
+  assert.match(portraitColour, /addEventListener\("pointerenter", startTrail/);
+  assert.match(portraitColour, /removeEventListener\("pointerenter", startTrail/);
+  assert.match(head, /MOBILE_HEAD_POINT_LIMIT = 5600/);
+  assert.match(head, /centredPositions/);
+  assert.match(head, /dpr=\{mobile \? \[0\.75, 1\.05\]/);
+  assert.match(portrait, /start: "top 76%"/);
+  assert.match(portrait, /once: true/);
+  assert.doesNotMatch(portrait, /aria-pressed|Reveal colour|scrub:/);
+  assert.doesNotMatch(portraitStyles, /clip-path:\s*circle/);
+  assert.match(portraitStyles, /width:\s*min\(100%, 25rem\)/);
+  assert.match(portraitStyles, /font-size:\s*clamp\(4\.25rem, 11vw, 7\.8rem\)/);
+  assert.match(sitemap, /"\/about"/);
+  await Promise.all([
+    access(new URL("public/about/simple-head-points.bin", projectRoot)),
+    access(new URL("public/about/kidson-portrait.png", projectRoot)),
+    access(new URL("public/about/kidson-mask.png", projectRoot)),
+    access(new URL("public/about/whai-hoe-portrait.png", projectRoot)),
+    access(new URL("public/about/whai-hoe-mask.png", projectRoot)),
+  ]);
+});
+
+test("builds the Services page from Webine's real offer and shared process", async () => {
+  const [page, chapters, particleOrb, content, sitemap] = await Promise.all([
+    readFile(new URL("src/pages/ServicesPage.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/services/ServicesChapterController.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/services/ServicesParticleOrb.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/content/services-content.ts", projectRoot), "utf8"),
+    readFile(new URL("server/api-routes/sitemap.ts", projectRoot), "utf8"),
+  ]);
+  assert.match(page, /ServicesChapterController/);
+  assert.match(page, /<AmbientParticleField count=\{64\}/);
+  assert.match(page, /useSiteSettings/);
+  assert.match(chapters, /ScrollTrigger/);
+  assert.match(chapters, /data-service-chapter/);
+  assert.match(chapters, /ServicesParticleOrb/);
+  assert.match(particleOrb, /createOrbParticles\(780\)/);
+  assert.match(particleOrb, /IntersectionObserver/);
+  for (const service of ["Web design and development", "Website redesign", "Website maintenance", "SEO foundations", "Branding support"]) {
+    assert.match(content, new RegExp(service));
+  }
+  assert.doesNotMatch(content, /paid advertising|managed hosting|conversion optimisation/i);
+  assert.match(sitemap, /"\/services"/);
 });
 
 test("includes the approved Webine logo and current system documents", async () => {

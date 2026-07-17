@@ -7,6 +7,8 @@
 @import "./styles/pages.css";
 @import "./styles/particles.css";
 @import "./styles/home-scenes.css";
+@import "./styles/about.css";
+@import "./styles/services.css";
 
 @tailwind base;
 @tailwind components;

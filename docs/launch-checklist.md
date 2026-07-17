@@ -6,7 +6,7 @@ This checklist keeps code readiness separate from production approval. Do not ma
 
 | Gate | Status | Evidence or next action |
 |---|---|---|
-| Home, Works and Contact implementation | Pass | Production build and route tests |
+| Home, About, Services, Works and Contact implementation | Pass | Production build and route tests |
 | Clerk-protected Admin and preview | Pass in code | Configure production Clerk values and verify deployed login |
 | CMS, media, publishing and public Project flow | Pass locally | Repeat smoke test against Preview Turso and Blob |
 | Contact storage and Admin review | Pass locally | Configure production hash secret and run a Vercel test enquiry |
@@ -44,7 +44,7 @@ This checklist keeps code readiness separate from production approval. Do not ma
 
 | Gate | Status | Evidence or next action |
 |---|---|---|
-| Automated build, types and tests | Pass | Run again on the exact release commit |
+| Automated build, types and tests | Pass | Final local audit passes lint, production build, server types and all 49 tests. Run again on the exact release commit |
 | Dependency audit | Pass | Repeat on the exact release commit |
 | Responsive visual matrix | Local browser pass | Complete the physical-device and cross-browser rows in `docs/verification-matrix.md` |
 | Physical iPhone sticky and particle story | Open | User confirmation on Safari and Chrome |

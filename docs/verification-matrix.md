@@ -1,6 +1,6 @@
 # Webine verification matrix
 
-Status updated on 16 July 2026. A local browser pass is not a substitute for physical-device, production or cross-browser evidence.
+Status updated on 17 July 2026. A local browser pass is not a substitute for physical-device, production or cross-browser evidence.
 
 ## Viewport and input matrix
 
@@ -35,9 +35,9 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - Home Project cards show distinct intermediate opacities during entry, confirming the 0.28-second sequence. Works cards, case-study media and Contact fields use coordinated GSAP entry or parallax without adding GSAP attributes to particle elements.
 - Rendered 1280 × 800 and 390 × 844 checks confirm the two-colour stippled particle treatment, early Closing formation while its anchor remains below the viewport, the rebuilt Works opening and the floating Contact form without horizontal overflow.
 - Rendered 1536 × 900 and 390 × 844 checks confirm the cohesive dark Works gallery, minimal card copy and accessible overlay. Mouse hover or keyboard focus raises the overlay opacity to 1 and exposes its label and direction control. Touch layouts keep the image clean because the essential label, year and title remain visible below it.
-- Contact no longer uses the orbit signal. A sparse CSS-only ambient field sits below the content, and the desktop headline finishes 143 px before the form. The stacked 390 px layout has clear vertical separation.
-- Works now renders one fixed `GalaxyBackdrop` on both its index and valid case-study states. Browser checks at 320 × 568, 390 × 844, 768 × 1024, 1280 × 800 and 1536 × 900 confirm `position: fixed`, zero page-level overflow, 84 desktop or tablet stars and the intended 34-point phone cap.
-- The Home hero and Contact each render 20 CSS-only ambient points, reduced to 12 on phones. Computed transforms sampled 900 ms apart confirm the independent ambient drift is active without a JavaScript animation loop or GSAP ownership.
+- Contact no longer uses the orbit signal. A 58-point ambient canvas sits below the content, and the desktop headline finishes 143 px before the form. The stacked 390 px layout has clear vertical separation.
+- Works renders one fixed `GalaxyBackdrop` on both its index and valid case-study states. Browser checks at 320 × 568, 390 × 844, 768 × 1024, 1280 × 800 and 1536 × 900 confirm `position: fixed`, zero page-level overflow and 118 points on desktop and phone.
+- The Home hero and Contact each render 58 ambient canvas points on desktop and phone. The renderer bounds its frame rate, caps DPR and pauses outside the viewport or in a hidden document without GSAP ownership.
 - Works and Contact GSAP motion is render-verified independently of operating-system motion preferences. At 1280 × 720, the first Works media wrapper moved about 49 px while its copy stayed at `transform: none`, and the Contact form moved about 59 px while retaining 125 px of column clearance. At 390 × 844, the same media moved about 25 px and the form moved about 35 px. Both routes retained zero horizontal overflow and a fresh navigation pass produced no console warnings or errors.
 - Production-lifecycle regression: the built preview, not only Vite development, must expose `data-gsap-controller="ready"` on `.site-shell`. The resolved-element correction passes at 1280 × 720 and 390 × 844, assigns the Contact form to parallax motion, preserves the same measured travel and produces no console warnings or errors. A missing ready marker indicates controller initialisation failure even when the minified bundle contains GSAP.
 - The deployed `webine.vercel.app` build now passes the same lifecycle gate. Live Works media moves about 49 px at 1280 × 720 and 25 px at 390 × 844 while Project copy remains at `transform: none`. Live Contact moves about 59 px and 35 px at those viewports. Both routes keep zero horizontal overflow and the final desktop and phone navigation passes report no console warnings or errors.
@@ -55,6 +55,28 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - The final dark-gallery and Contact-containment pass completes lint, production build, server type checks, all 45 automated tests, diff whitespace checks and an npm production-dependency audit with zero known vulnerabilities.
 - The fixed-galaxy pass completes lint, production build, server type checks, all 45 automated tests, diff whitespace checks and an npm production-dependency audit with zero known vulnerabilities.
 - The Admin breadcrumb pass renders a nested new-item route at 390 × 844 with linked Admin, Collections and Projects ancestors, a correctly marked current page, a 64 px topbar and zero document overflow. Automated coverage protects both the breadcrumb link structure and hover-only Works overlay contract.
+- The About page passes local rendered checks at desktop and 390 × 844. The supplied head form loads from the compact 9,000-point binary target, scroll dispersion remains section-owned, Kidson and Whai Hoe retain natural 1122 by 1402 proportions and their subject silhouettes form from pixel-aligned masks. Touch retains grayscale without a colour control. No page error was recorded; the only browser warning is the existing Three.js clock deprecation emitted by React Three Fiber.
+- The project Admin editor passes rendered checks at 390 × 844 and 1280 × 800. Cover, hover, story and social roles are visible before selection. Choosing the existing seed asset shows the cover preview, changes the editor to `Changes not saved` and enables Save draft. Removing it restores the clean disabled `Draft saved` state. Existing integration coverage still proves upload, draft save, publication, public delivery and archive protection through a temporary database.
+- The Services page passes rendered checks at 1280 × 800 and 390 × 844. Desktop keeps one sticky chapter rail while service copy moves in normal document flow. Mobile removes the rail and preserves the complete chapter hierarchy. The 390 px document has a 390 px scroll width, one H1 and no console errors.
+- The floating header passes rendered checks at 1280 × 800 and 390 × 844. At the top it remains an inset translucent surface; after 620 pixels of scrolling it exposes `data-scrolled="true"` and retains zero horizontal overflow. Desktop and mobile navigation contain Home, About, Services and Works, while the only Contact entry is the labelled `Start a project` CTA. Opening and closing the mobile dialog does not shift the header or page layout.
+- The Stage 4 validation pass completes lint, production build, server type checks and all 48 automated tests.
+- The shared secondary-page heading system passes rendered review on About, Services, Works and Contact at 390 × 844, and Works, Services, Contact plus a published case study at 1280 × 800. All checked headings and summaries remain unclipped with zero horizontal overflow. Georgia accents compute to the theme-aware brand blue. The case-study utility row begins below the floating header at both widths.
+- The Stage 5 validation pass completes lint, production build, server type checks and all 49 automated tests.
+- The radius-scale pass is render-verified on Works and Contact at 1280 × 800 and the Project Admin at 1280 × 800 plus 390 × 844. Computed values are 14 px for standard controls, 20 px for project media and 28 px for major panels. The compact Admin navigation remains 8 px, no card content clips and every checked route retains zero horizontal overflow.
+- The Stage 6 validation pass completes lint, production build, server type checks and all 49 automated tests.
+- Lenis 1.3.25 input normalisation is measured with real browser wheel events. A normal 24-pixel event settles at 22 pixels, while a 5,000-pixel event settles at 83 pixels instead of jumping through a scene. Eight extreme events advance progressively, five opposite events reverse direction and both `data-scroll-runtime` and the GSAP controller remain ready.
+- Rapid controlled input reaches the Home runway with its section held at the viewport top and a live horizontal track transform, then continues into Process without trapping input. The 390 × 844 path retains four section-owned particle canvases, reports live mobile states, loads no desktop particle canvas and has zero horizontal overflow.
+- A real pointer click on the Contact privacy anchor updates the URL to `#privacy`, focuses the privacy section and respects the maximum available scroll plus floating-header clearance. Keyboard scroll remains native because the virtual input cap applies only to wheel events. Admin has no `data-scroll-runtime` marker.
+- No browser error is recorded during the Stage 7 input pass. The existing React Three Fiber `THREE.Clock` deprecation remains the only warning on About and Home.
+- Stage 7 lint and production build pass. The full suite recorded one environment-only temporary-directory cleanup race; the single failed Admin renderer test passed immediately on isolated rerun. The final clean complete-suite run passed all 49 tests.
+- Final ship-readiness audit passes lint, production build, server type checks, the test-server build, all 49 automated tests and `git diff --check`. Production-preview review covers Home, About, Services, Works, Contact and the not-found route at 1920 × 1080, 1280 × 800, 768 × 1024, 390 × 844 and 320 × 568. Across those 30 route and viewport states, each page has one H1, its heading remains inside the viewport and no document has horizontal overflow.
+- The final production-preview interaction pass confirms the 320 px mobile menu opens with focus on Close, exposes Home, About, Services, Works and Start a project, then closes without header or document-width shift. About loads one compact head canvas and keeps both 1122 by 1402 portraits aligned. Services changes its active desktop rail chapter during scroll and removes that rail on mobile. No production-preview console error was recorded.
+- The final source audit finds no stale Contact text-navigation entry, superseded anchor handler, duplicate image-upload implementation, retired radius value or operating-system reduced-motion branch. Public routes own one Lenis runtime and Admin remains native. No environment contract or database migration changed in this work.
+- The refined About production preview loads the 9,000-point simple-head source derivative inside a full-frame canvas. Desktop renders all points, while the 390 px runtime selects 5,600 evenly distributed points. Formed and dispersed states use that full frame, both checked viewports retain one H1 and zero horizontal overflow.
+- Portrait review confirms contour-only mask sampling, a bottom-up one-shot viewport entrance, particle fade followed by the grayscale photograph and no colour-toggle button. Fine-pointer movement exposes colour only around the pointer. Moving away closes that local reveal. Touch keeps the stable grayscale photograph.
+- Services now renders five business-plan-supported chapters: web design and development, website redesign, monthly maintenance, SEO foundations and branding support. The built preview exposes all five semantic articles, keeps the sticky rail as a desktop grid, removes it on the 390 px layout and retains zero horizontal overflow.
+- The About and Services refinement passes lint, the production build, server type checks, the isolated test-server build and all 49 automated tests. The built preview reports both the Lenis and GSAP controllers ready. The existing React Three Fiber `THREE.Clock` deprecation is the only About warning; no page error was recorded.
+- The fluid portrait pass renders a cyan-to-blue contour rising from below the image, holds the completed silhouette and hands it to the grayscale portrait at 1280 × 800. The fine-pointer colour layer is now a transient canvas mask made from overlapping blurred lobes with a 1.15-second residual decay, replacing the earlier circle clip. The 390 × 844 pass retains zero horizontal overflow and does not create a touch colour-toggle state.
 
 ## Measurements still required
 
@@ -64,3 +86,33 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - Particle frame stability on representative mid-range iOS, Android and laptop hardware
 - Automated accessibility scan on rendered Home, Works, Contact and key Admin screens
 - Contrast, literal 200% browser zoom and complete keyboard confirmation in physical browsers
+
+## 2026-07-17 full-density particle and layout pass
+
+- Home, About, Services, Works, Contact and the not-found route were inspected at 1280 × 800 and 390 × 844. Every route retained one in-bounds H1 and document width equal to viewport width.
+- About begins with centred runtime geometry in its full-frame canvas, using 9,000 points on desktop and 5,600 on mobile. Initial ScrollTrigger progress is applied during layout, preventing the first-scroll centre snap.
+- Services shows a 64-point ambient hero and the desktop chapter rail shows the new 780-point interactive particle orb. The mobile linear service layout remains complete without mounting the hidden desktop rail renderer.
+- Home mobile keeps the full 2,200 sampled points per section. Works keeps 118 ambient points on phone and desktop. Home and Contact keep 58 points and Services keeps 64.
+- Intentional Works media bleed and the Contact honeypot are contained and do not create horizontal page overflow or visible text clipping.
+- Lint and production build pass after the renderer and shader changes. The complete automated suite passes after updating its old mobile-density expectation from 0.7 to 1.
+
+## 2026-07-17 About performance correction
+
+- Mobile portrait contours are structurally capped at 850 particles, 30 FPS, 1× DPR and one drawing pass. Desktop retains up to 2,400 points and its soft glow pass.
+- The contour draw path no longer calls `getBoundingClientRect`, changes canvas dimensions or creates colour strings during each animation frame.
+- The colour reveal checks the real pointer event. Mouse and pen input can start the residual mask, while `pointerType="touch"` is rejected and cannot create a frozen hover state. The prepared renderer remains idle until pointer entry.
+- The head renderer centres every source axis around the calculated particle centroid. Its pose depends on ScrollTrigger progress rather than accumulated scroll deltas, so returning to the same scroll position returns the same visual centre.
+- The source-wide regression test protects the mobile point limits, centred geometry and responsive DPR caps. Lint, production build, server type checks and all 49 automated tests pass.
+
+## 2026-07-17 About hover and portrait scale correction
+
+- A real Zen browser pointer pass at desktop width visibly paints local colour through the grayscale Kidson portrait and leaves the intended soft residual wake before clearing. The effect is driven by native `pointerenter`, `pointermove` and `pointerleave` listeners, while touch remains excluded.
+- The same rendered pass confirms each desktop portrait is capped at 28rem, retains the 1122 by 1402 source proportion and remains balanced with its adjacent copy.
+- Lint, the production build, server type checks, the isolated test-server build and all 49 automated tests pass after the correction. Automated coverage protects listener setup and cleanup, the absence of obsolete JSX handlers and the desktop width cap.
+
+## 2026-07-17 rebuilt About portrait system
+
+- A live Zen desktop pass confirms the resting portrait is completely grayscale. Moving diagonally across Whai Hoe's portrait exposes the real skin, shirt and green background colour through a soft connected trail, holding position keeps a local colour anchor and leaving restores the full grayscale layer after the residual decay.
+- The rendered desktop composition uses a 25rem portrait cap, oversized indexed names and tighter alternating rows without the earlier image-copy overlap. The following principles section starts sooner, reducing the empty transition area.
+- A 390 by 844 responsive pass confirms the image-first stack, large Whai Hoe name, role metadata and description remain within the viewport without clipping or horizontal overflow. Touch simulation does not show the desktop hover hint.
+- Automated coverage confirms the colour image and SVG grayscale layers, luminance mask, native listener cleanup, touch rejection, 25rem cap and large-name scale.

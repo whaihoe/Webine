@@ -62,7 +62,7 @@ export const experienceConfig = {
     mobile: {
       maxWidth: 599,
       count: 2200,
-      renderRatio: 0.7,
+      renderRatio: 1,
       pointSize: 1.69,
       maxFrameRate: 30,
       measurementSettleMs: 90,
@@ -70,9 +70,10 @@ export const experienceConfig = {
   },
   smoothScroll: {
     enabled: true,
-    lerp: 0.1,
+    lerp: 0.075,
     smoothWheel: true,
-    wheelMultiplier: 1,
+    wheelMultiplier: 0.92,
+    maxWheelDelta: 84,
     syncTouch: true,
     syncTouchLerp: 0.075,
     touchInertiaExponent: 1.7,
