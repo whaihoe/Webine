@@ -13,24 +13,25 @@
 | `SectionHeading` | Editorial section index, title and explanation | Light and dark through tokens |
 | `page-header-copy` system | Shared CSS contract for secondary-page eyebrow, display heading, accented Georgia phrase and summary while page layouts keep their own composition | Default, Works, Contact and case-study scales across dark and light themes |
 | `FormField` | Accessible controlled input and textarea structure | Text, email, URL, textarea, required, invalid and focused |
-| `SiteShell` | Public header, main content and footer composition | Dark or light header |
+| `SiteShell` | Public header, main content, footer and desktop fine-pointer interaction composition | Dark or light header with dual-layer kinetic cursor |
+| `KineticCursor` | USTA-informed public desktop cursor with separate tight and loose tracking layers | Resting dot and halo, clickable-control morph, pressed, hidden, touch-disabled and Admin-excluded |
 | `WorkspaceShell` | Reserved Admin application frame | Mobile strip, desktop sidebar and horizontally safe clickable ancestor breadcrumbs |
 | `RouteEffects` | Page title, route announcement, scroll and heading focus | Push, replace and browser history |
 | `RouteTransition` | Non-blocking public-route reveal curtain | Public route entry and absent from Admin or preview |
 | `GsapRevealController` | Shared scroll-entry and parallax choreography for public copy, cards and media | Production-safe resolved shell ownership, route-curtain-aware entry, stronger media travel, pixel-owned Contact form float, focus-safe opacity, coalesced async CMS refresh, reverse and cleanup |
-| `AmbientParticleField` | Lightweight sparse atmosphere outside the Home narrative geometry | One deterministic canvas, cyan or blue depth points, fine-pointer parallax, full mobile density, capped DPR and offscreen or hidden-page pause |
+| `AmbientParticleField` | Lightweight sparse atmosphere outside the Home narrative geometry | One deterministic canvas, wide two-frequency electron orbits, cyan or blue depth points, fine-pointer parallax, full mobile density, capped DPR and offscreen or hidden-page pause |
 | `GalaxyBackdrop` | Fixed atmospheric field shared by the Works index and case studies | Slate-950 base, clearly visible lower-half cyan or blue horizon, 118 drifting stars and content-safe fixed layering |
 | `AppErrorBoundary` | Application failure fallback | Error |
 | `PublicSmoothScroll` | Single Lenis public scroll runtime synchronized with the GSAP ticker and ScrollTrigger | Weighted wheel interpolation, nonlinear extreme-input cap, unchanged touch path, same-page anchor focus, route cleanup and ready diagnostics |
 | `AboutHeadExperience` | About-only full-frame sticky story scene built from the supplied simple head | Initially centred, formed, additive scroll and pointer rotation, viewport-wide dispersion, failed fallback and offscreen pause |
-| `AboutHeadCanvas` | Lazy model-derived point renderer with centred runtime geometry | 9,000 desktop points, 5,600 mobile points, loading, ready, deterministic scroll rotation, pointer bulge, dispersed and fallback |
-| `PortraitReveal` | Layered colour portrait, SVG-masked grayscale portrait, rising silhouette particles and editorial team copy | Viewport-triggered bottom-up outline, 595-point mobile and 1,200-point desktop caps, independently seeded float and curl motion, 30 FPS mobile rendering, shared-wrapper parallax, grayscale handoff, native fluid erasure trail, 25rem desktop frame cap and oversized indexed names |
+| `AboutHeadCanvas` | Lazy model-derived point renderer with centred runtime geometry | 9,000 desktop points, 5,600 mobile points, individual three-axis electron drift, loading, ready, deterministic scroll rotation, pointer bulge, dispersed and fallback |
+| `PortraitReveal` | Layered colour portrait, SVG-masked grayscale portrait, rising silhouette particles and editorial team copy | Viewport-triggered bottom-up outline, 595-point mobile and 900-point desktop caps, wide-field origins, independently seeded float, curl and breathing motion, 30 FPS mobile rendering, shared-wrapper parallax, grayscale handoff, native fluid erasure trail, 25rem desktop frame cap and oversized indexed names |
 | `ServicesChapterController` | Scroll-owned service narrative with one sticky chapter rail | Five active offer chapters, scrubbed copy hierarchy, additive particle-orb rotation and mobile linear flow |
-| `ServicesParticleOrb` | Lightweight particle object replacing the previous outlined service circle | 780 points, scroll and pointer rotation, local fine-pointer bulge, capped DPR and visibility-aware rendering |
+| `ServicesParticleOrb` | Lightweight particle object replacing the previous outlined service circle | 780 points with individual three-axis electron orbits, scroll and pointer rotation, local fine-pointer bulge, capped DPR and visibility-aware rendering |
 | `HomeParticleExperience` | Home-only boundary for the persistent visual layer | Mounted and unmounted by route |
 | `ParticleSceneController` | Section registration, presence thresholds and section-local anchor measurement | Scroll, resize, visibility and cleanup |
 | `ParticleNarrativeCanvas` | One lazy React Three Fiber canvas for the tablet and desktop Home story | Loading, live, paused and failed |
-| `MobileSectionParticles` | Section-owned 2D particle canvases that scroll naturally with their phone scenes | Loading, nearby, formed, dispersed and inactive |
+| `MobileSectionParticles` | Section-owned 2D particle canvases that scroll naturally with their phone scenes | Loading, nearby, formed, wide dispersed field, independently orbiting and inactive |
 | `ParticlePosterFallback` | Visible composition before WebGL and after failure | Loading, fallback and hidden-live |
 | `HeroEntranceTimeline` | Coordinates the first-load breathing period, particle formation and staged HTML reveal | First load, short return, restored and interrupted |
 | `HeroCoverTransition` | Selects the desktop GSAP pin or native coarse-touch sticky cover | Desktop pin, native sticky and cleanup |

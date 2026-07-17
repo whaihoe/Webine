@@ -4,6 +4,7 @@ import { PublicSmoothScroll } from "./PublicSmoothScroll";
 import { SiteFooter } from "./SiteFooter";
 import { SiteHeader } from "./SiteHeader";
 import { GsapRevealController } from "./GsapRevealController";
+import { KineticCursor } from "./KineticCursor";
 
 type SiteShellProps = {
   children: ReactNode;
@@ -19,6 +20,7 @@ export function SiteShell({
   return (
     <div ref={setShellElement} className="site-shell" data-experience-mode={experienceMode}>
       {shellElement ? <GsapRevealController root={shellElement} /> : null}
+      <KineticCursor />
       <a className="skip-link" href="#main-content">
         Skip to main content
       </a>

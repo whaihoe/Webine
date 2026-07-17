@@ -125,7 +125,7 @@ function prepareTarget(
     (fitWidth - padding * 2) / targetWidth,
     (fitHeight - padding * 2) / targetHeight,
   );
-  const scatterScale = Math.min(width, height) * 0.17;
+  const scatterScale = Math.min(width, height) * 0.22;
 
   for (let index = 0; index < count; index += 1) {
     const offset = index * 3;
@@ -536,10 +536,23 @@ export function MobileSectionParticles({
             finalX * perspective * projection.scale;
           const targetY = height * 0.5 -
             finalY * perspective * projection.scale + floatY;
+          const identity = buffers.randomness[index];
+          const electronRate = 0.34 + identity * 0.82;
+          const electronPhase = identity * Math.PI * 10 + index * 0.017;
+          const electronAmplitude = (2.8 + identity * 6.4) *
+            (0.74 + (1 - strength) * 0.62);
+          const electronX = (
+            Math.sin(elapsed * electronRate + electronPhase)
+            + Math.sin(elapsed * electronRate * 0.43 + electronPhase * 1.61) * 0.38
+          ) * electronAmplitude;
+          const electronY = (
+            Math.cos(elapsed * electronRate * 0.79 + electronPhase * 1.27)
+            + Math.sin(elapsed * electronRate * 0.37 + electronPhase * 0.73) * 0.34
+          ) * electronAmplitude * 0.78;
           const x = projection.scatterX[index] +
-            (targetX - projection.scatterX[index]) * strength;
+            (targetX - projection.scatterX[index]) * strength + electronX;
           const y = projection.scatterY[index] +
-            (targetY - projection.scatterY[index]) * strength;
+            (targetY - projection.scatterY[index]) * strength + electronY;
           const size = pointSize *
             (0.72 + buffers.randomness[index] * 0.36);
           drawingContext.fillRect(x, y, size, size);

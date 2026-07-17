@@ -545,3 +545,12 @@
 - Reduced the desktop contour cap again, from 1,680 to 1,200. Mobile stays at 595 because its problem was rigid motion rather than remaining density.
 - Replaced the shared-looking settled drift with deterministic per-particle speed, amplitude, curl direction, curl strength, phase and flow offset values.
 - Added stronger individual currents during travel, smaller independent floating after arrival and subtle point-specific breathing. Motion remains alive through a 0.55-second hold and the complete fade into the grayscale portrait.
+
+## 2026-07-18, USTA-informed electron motion and kinetic cursor
+
+- Standardised every particle object around seeded point-level motion rather than relying mainly on whole-object rotation. The Home GPU narrative and About head use three-axis shader drift, mobile Home objects use two-frequency pixel-space orbits and the Services orb uses individual local x, y and z orbits.
+- Increased dispersal freedom without increasing particle counts. GPU transition spread rises to 0.88, mobile scatter scale rises from 0.17 to 0.22 and About portrait origins now span beyond both sides of the portrait frame.
+- Reduced the About desktop contour budget again, from 1,200 to 900. Mobile remains at 595, with wider amplitude and more varied speed because its requested correction was natural flow rather than another density reduction.
+- Replaced short shared ambient oscillation with wider two-frequency paths. Existing full mobile density, DPR caps, frame ceilings, offscreen pause and Page Visibility pause remain unchanged.
+- Added one public `KineticCursor` through `SiteShell`. A tight higher-opacity core and slower lower-opacity halo follow the pointer independently. The halo morphs toward bounded clickable-control geometry and strengthens on press. It is disabled below 48rem, for touch and coarse pointers and throughout Admin.
+- Removed backdrop blur from the cursor after live inspection showed it softened button labels. The final cursor never intercepts input and does not replace keyboard focus or stable link and button states.

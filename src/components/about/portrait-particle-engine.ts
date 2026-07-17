@@ -86,13 +86,13 @@ export function createSilhouetteParticles(mask: HTMLImageElement, { mobile }: Cr
       particles.push({
         targetX,
         targetY,
-        originX: clamp(targetX + (random() - 0.5) * 0.24, -0.08, 1.08),
-        originY: 1.04 + random() * 0.22,
+        originX: clamp(targetX + (random() - 0.5) * (0.52 + random() * 0.42), -0.18, 1.18),
+        originY: 1.04 + random() * 0.34,
         random: identity,
         phase: random() * Math.PI * 2,
-        floatSpeed: 0.58 + random() * 1.42,
-        floatAmplitudeX: 0.0024 + random() * 0.0048,
-        floatAmplitudeY: 0.002 + random() * 0.0042,
+        floatSpeed: 0.54 + random() * 1.78,
+        floatAmplitudeX: 0.004 + random() * 0.009,
+        floatAmplitudeY: 0.0032 + random() * 0.0076,
         curlStrength: 0.68 + random() * 0.72,
         curlDirection: random() > 0.5 ? 1 : -1,
         flowOffset: random() * Math.PI * 2,
@@ -101,7 +101,7 @@ export function createSilhouetteParticles(mask: HTMLImageElement, { mobile }: Cr
     }
   }
 
-  const limit = mobile ? 595 : 1200;
+  const limit = mobile ? 595 : 900;
   if (particles.length <= limit) return particles;
   return Array.from({ length: limit }, (_, index) => particles[Math.floor(index * particles.length / limit)]);
 }
@@ -127,13 +127,13 @@ export function drawSilhouetteParticles({ canvas, particles, progress, time, wid
         const unsettled = 1 - eased;
         const settled = smoothstep(0.72, 1, localProgress);
         const motionTime = time * 0.001 * particle.floatSpeed;
-        const travellingFlow = 0.42 + unsettled * 1.25;
+        const travellingFlow = 0.38 + unsettled * 1.52;
         const contourWave = Math.sin(
           particle.flowOffset
           + localProgress * Math.PI * (3.2 + particle.random * 2.8)
           + motionTime * 0.52,
         );
-        const curl = contourWave * 0.035 * particle.curlStrength * particle.curlDirection * unsettled;
+        const curl = contourWave * 0.052 * particle.curlStrength * particle.curlDirection * unsettled;
         const currentX = Math.sin(
           motionTime + particle.phase + particle.targetY * 8.5,
         ) * particle.floatAmplitudeX * travellingFlow;
@@ -142,7 +142,7 @@ export function drawSilhouetteParticles({ canvas, particles, progress, time, wid
         ) * particle.floatAmplitudeY * travellingFlow;
         const riseSway = Math.sin(
           motionTime * 0.66 + particle.phase * 0.7 + particle.targetY * 4,
-        ) * 0.009 * unsettled;
+        ) * (0.012 + particle.random * 0.012) * unsettled;
         const x = (
           particle.originX
           + (particle.targetX - particle.originX) * eased

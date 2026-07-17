@@ -4,6 +4,7 @@
 @import "./styles/base.css";
 @import "./styles/layout.css";
 @import "./styles/components.css";
+@import "./styles/cursor.css";
 @import "./styles/pages.css";
 @import "./styles/particles.css";
 @import "./styles/home-scenes.css";

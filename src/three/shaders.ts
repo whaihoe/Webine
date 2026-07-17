@@ -28,6 +28,9 @@ export const particleVertexShader = `
   uniform float uTime;
   uniform float uAmbientDrift;
   uniform float uAmbientStrength;
+  uniform float uElectronDrift;
+  uniform float uElectronSpeed;
+  uniform float uTransitionSpread;
   uniform vec2 uPointer;
   uniform float uPointerStrength;
 
@@ -47,7 +50,7 @@ export const particleVertexShader = `
     float dispersedParticle = step(0.42, particleRandom);
 
     if (uHeroExitProgress > 0.0) {
-      float heroBurst = 1.0 + sin(uHeroExitProgress * 3.14159265) * 0.55;
+      float heroBurst = 1.0 + sin(uHeroExitProgress * 3.14159265) * uTransitionSpread;
       narrativeTarget = mix(
         targetHero,
         scatterTarget * heroBurst,
@@ -74,7 +77,7 @@ export const particleVertexShader = `
     }
 
     if (uReachExitProgress > 0.0) {
-      float reachBurst = 1.0 + sin(uReachExitProgress * 3.14159265) * 0.55;
+      float reachBurst = 1.0 + sin(uReachExitProgress * 3.14159265) * uTransitionSpread;
       narrativeTarget = mix(
         targetReach,
         scatterTarget * reachBurst,
@@ -109,7 +112,7 @@ export const particleVertexShader = `
     }
 
     if (uInterludeExitProgress > 0.0) {
-      float interludeBurst = 1.0 + sin(uInterludeExitProgress * 3.14159265) * 0.55;
+      float interludeBurst = 1.0 + sin(uInterludeExitProgress * 3.14159265) * uTransitionSpread;
       narrativeTarget = mix(
         targetInterlude,
         scatterTarget * interludeBurst,
@@ -186,7 +189,7 @@ export const particleVertexShader = `
     }
 
     if (uClosingExitProgress > 0.0) {
-      float closingBurst = 1.0 + sin(uClosingExitProgress * 3.14159265) * 0.55;
+      float closingBurst = 1.0 + sin(uClosingExitProgress * 3.14159265) * uTransitionSpread;
       narrativeTarget = mix(
         targetClosing,
         scatterTarget * closingBurst,
@@ -202,7 +205,7 @@ export const particleVertexShader = `
     vec3 formedPosition = mix(position, narrativeTarget, easedProgress);
     vec3 scatterDirection = normalize(position + vec3(0.001));
     formedPosition += scatterDirection * transitionWave *
-      (0.1 + particleRandom * 0.16);
+      (0.18 + particleRandom * 0.32);
 
     float ambientSpeed = 0.18 + particleRandom * 0.12;
     vec3 ambientPosition = position;
@@ -223,12 +226,16 @@ export const particleVertexShader = `
     );
 
     float settledMovement = smoothstep(0.72, 1.0, easedProgress);
-    particlePosition.x += sin(
-      uTime * 0.22 + particleRandom * 12.0
-    ) * 0.008 * settledMovement * (1.0 - particleAmbient);
-    particlePosition.y += cos(
-      uTime * 0.18 + particleRandom * 9.0
-    ) * 0.008 * settledMovement * (1.0 - particleAmbient);
+    float electronRate = uElectronSpeed * (0.58 + particleRandom * 1.34);
+    float electronAmplitude = uElectronDrift * (0.52 + particleRandom * 0.96);
+    float electronPhase = particleRandom * 31.4159265;
+    vec3 electronMotion = vec3(
+      sin(uTime * electronRate + electronPhase),
+      cos(uTime * electronRate * 0.79 + electronPhase * 1.37),
+      sin(uTime * electronRate * 0.63 + electronPhase * 0.71)
+    ) * electronAmplitude;
+    particlePosition += electronMotion * settledMovement *
+      mix(1.0, 0.38, particleAmbient);
 
     vec2 pointerDelta = particlePosition.xy - uPointer;
     float pointerDistance = length(pointerDelta);

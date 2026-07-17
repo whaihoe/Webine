@@ -15,6 +15,9 @@ type OrbParticle = {
   z: number;
   size: number;
   phase: number;
+  speed: number;
+  amplitude: number;
+  orbitBias: number;
   cyan: boolean;
 };
 
@@ -40,6 +43,9 @@ function createOrbParticles(count: number) {
       z: Math.sin(depthAngle) * (0.13 + band * 0.045),
       size: 0.65 + random() * 1.15,
       phase: random() * Math.PI * 2,
+      speed: 0.38 + random() * 0.92,
+      amplitude: 0.008 + random() * 0.021,
+      orbitBias: random() * Math.PI * 2,
       cyan: random() > 0.54,
     });
   }
@@ -100,14 +106,21 @@ export function ServicesParticleOrb({ motion }: ServicesParticleOrbProps) {
           context.fillStyle = cyan ? "rgb(34, 211, 238)" : "rgb(59, 130, 246)";
           for (const particle of particles) {
             if (particle.cyan !== cyan) continue;
-            const xzX = particle.x * cosY + particle.z * sinY;
-            const xzZ = -particle.x * sinY + particle.z * cosY;
-            const yzY = particle.y * cosX - xzZ * sinX;
-            const yzZ = particle.y * sinX + xzZ * cosX;
+            const electronTime = elapsed * particle.speed;
+            const electronX = Math.sin(electronTime + particle.phase) * particle.amplitude
+              + Math.sin(electronTime * 0.41 + particle.orbitBias) * particle.amplitude * 0.42;
+            const electronY = Math.cos(electronTime * 0.77 + particle.orbitBias) * particle.amplitude * 0.82;
+            const electronZ = Math.sin(electronTime * 0.59 + particle.phase * 1.31) * particle.amplitude * 1.18;
+            const localX = particle.x + electronX;
+            const localY = particle.y + electronY;
+            const localZ = particle.z + electronZ;
+            const xzX = localX * cosY + localZ * sinY;
+            const xzZ = -localX * sinY + localZ * cosY;
+            const yzY = localY * cosX - xzZ * sinX;
+            const yzZ = localY * sinX + xzZ * cosX;
             const perspective = 1 / Math.max(0.74, 1.12 - yzZ * 0.42);
-            const drift = Math.sin(elapsed * 0.32 + particle.phase) * 0.004;
-            const baseX = width * 0.5 + (xzX + drift) * scale * perspective;
-            const baseY = height * 0.5 + (yzY - drift) * scale * perspective;
+            const baseX = width * 0.5 + xzX * scale * perspective;
+            const baseY = height * 0.5 + yzY * scale * perspective;
             const pointerX = pointer.localX * width;
             const pointerY = pointer.localY * height;
             const deltaX = baseX - pointerX;

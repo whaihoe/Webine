@@ -218,6 +218,8 @@ test("enables the approved homepage experience layers", async () => {
   assert.match(config, /tablet:/);
   assert.match(config, /ambientMotion:/);
   assert.match(config, /colourCycleSeconds:\s*18/);
+  assert.match(config, /electronDrift:\s*0\.028/);
+  assert.match(config, /transitionSpread:\s*0\.88/);
   assert.match(config, /heroModel:\s*{[^}]*url:\s*"\/models\/webine-logo-particle\.glb"[^}]*targetSize:\s*5\.2[^}]*fit:\s*"largest"[^}]*localScale:\s*\[1, 1, 2\.5\]/s);
   assert.match(config, /closingModel:\s*{[^}]*url:\s*"\/models\/colony-planet-particle\.glb"[^}]*targetSize:\s*4\.8[^}]*fit:\s*"largest"[^}]*rotationDegrees:\s*\[58, -22, 0\][^}]*localScale:\s*\[1, 1, 1\][^}]*ambientRotationScale:\s*0\.42/s);
   assert.equal((config.match(/formation:\s*{/g) ?? []).length, 4);
@@ -312,6 +314,8 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.match(mobileParticles, /projection = prepareTarget[\s\S]*draw\(\);/);
   assert.match(mobileParticles, /targetZ/);
   assert.match(mobileParticles, /MOBILE_AMBIENT_FRAME_RATE/);
+  assert.match(mobileParticles, /electronRate = 0\.34/);
+  assert.match(mobileParticles, /electronAmplitude/);
   assert.match(mobileParticles, /data-mobile-particle-state|mobileParticleState/);
   assert.match(mobileParticles, /fillRect/);
   assert.doesNotMatch(mobileParticles, /displayCopies|copyIndex|jitterStrength/);
@@ -415,6 +419,8 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.match(shaders, /uPointerStrength/);
   assert.match(shaders, /uColourCycleSpeed/);
   assert.match(shaders, /particleAmbient/);
+  assert.match(shaders, /vec3 electronMotion/);
+  assert.match(shaders, /uTransitionSpread/);
   assert.match(shaders, /uHeroExitProgress/);
   assert.match(shaders, /uReachFormationProgress/);
   assert.match(shaders, /uReachExitProgress/);
@@ -782,6 +788,26 @@ test("provides accessible navigation foundations", async () => {
   assert.match(layout, /\.site-header\s*{[^}]*position:\s*fixed/s);
 });
 
+test("uses a fine-pointer dual-layer cursor without affecting touch or Admin", async () => {
+  const [shell, cursor, cursorStyles, app] = await Promise.all([
+    readFile(new URL("src/components/SiteShell.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/KineticCursor.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/styles/cursor.css", projectRoot), "utf8"),
+    readFile(new URL("src/App.tsx", projectRoot), "utf8"),
+  ]);
+
+  assert.match(shell, /<KineticCursor \/>/);
+  assert.doesNotMatch(app, /KineticCursor/);
+  assert.match(cursor, /kinetic-cursor__inner/);
+  assert.match(cursor, /kinetic-cursor__outer/);
+  assert.match(cursor, /INTERACTIVE_SELECTOR/);
+  assert.match(cursor, /pointerType === "touch"/);
+  assert.match(cursor, /requestAnimationFrame/);
+  assert.match(cursorStyles, /@media \(min-width:\s*48rem\) and \(hover:\s*hover\) and \(pointer:\s*fine\)/);
+  assert.match(cursorStyles, /data-interactive="true"/);
+  assert.match(cursorStyles, /pointer-events:\s*none/);
+});
+
 test("keeps one complete motion system without operating-system motion branches", async () => {
   const sourceNames = await readdir(new URL("src/", projectRoot), { recursive: true });
   const sourceFiles = sourceNames
@@ -813,8 +839,8 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(portrait, /<canvas/);
   assert.match(portraitParticles, /isEdge/);
   assert.match(portraitParticles, /originY:\s*1\.04/);
-  assert.match(portraitParticles, /const limit = mobile \? 595 : 1200/);
-  assert.match(portraitParticles, /floatSpeed:\s*0\.58 \+ random\(\) \* 1\.42/);
+  assert.match(portraitParticles, /const limit = mobile \? 595 : 900/);
+  assert.match(portraitParticles, /floatSpeed:\s*0\.54 \+ random\(\) \* 1\.78/);
   assert.match(portraitParticles, /floatAmplitudeX/);
   assert.match(portraitParticles, /curlDirection/);
   assert.match(portrait, /duration:\s*0\.55, onUpdate: scheduleDraw/);
@@ -865,6 +891,8 @@ test("builds the Services page from Webine's real offer and shared process", asy
   assert.match(chapters, /data-service-chapter/);
   assert.match(chapters, /ServicesParticleOrb/);
   assert.match(particleOrb, /createOrbParticles\(780\)/);
+  assert.match(particleOrb, /electronTime/);
+  assert.match(particleOrb, /orbitBias/);
   assert.match(particleOrb, /IntersectionObserver/);
   for (const service of ["Web design and development", "Website redesign", "Website maintenance", "SEO foundations", "Branding support"]) {
     assert.match(content, new RegExp(service));

@@ -94,6 +94,9 @@ export function ParticlePoints({
       uPointSize: { value: profile.pointSize },
       uTime: { value: 0 },
       uAmbientDrift: { value: ambientMotion.drift },
+      uElectronDrift: { value: ambientMotion.electronDrift },
+      uElectronSpeed: { value: ambientMotion.electronSpeed },
+      uTransitionSpread: { value: ambientMotion.transitionSpread },
       uAmbientStrength: { value: 1 },
       uColourCycleSpeed: {
         value: (Math.PI * 2) / ambientMotion.colourCycleSeconds,
@@ -106,6 +109,9 @@ export function ParticlePoints({
     [
       ambientMotion.colourCycleSeconds,
       ambientMotion.drift,
+      ambientMotion.electronDrift,
+      ambientMotion.electronSpeed,
+      ambientMotion.transitionSpread,
       profile.pointSize,
     ],
   );

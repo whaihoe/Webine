@@ -32,9 +32,9 @@ function createParticles(count: number): AmbientParticle[] {
       size: 0.75 + hash(seed * 4.3) * 2.35,
       alpha: 0.17 + hash(seed * 5.1) * 0.5,
       phase: hash(seed * 6.7) * Math.PI * 2,
-      speed: 0.055 + hash(seed * 7.9) * 0.075,
-      travelX: -34 + hash(seed * 9.1) * 68,
-      travelY: -44 + hash(seed * 11.3) * 74,
+      speed: 0.075 + hash(seed * 7.9) * 0.17,
+      travelX: 28 + hash(seed * 9.1) * 72,
+      travelY: 34 + hash(seed * 11.3) * 82,
       depth: 0.45 + hash(seed * 15.1) * 0.8,
       cyan: index % 3 === 0 || index % 7 === 0,
     };
@@ -92,9 +92,11 @@ export function AmbientParticleField({
             const wave = elapsed * particle.speed + particle.phase;
             const x = particle.x * width
               + Math.sin(wave) * particle.travelX
+              + Math.sin(wave * 0.43 + particle.phase * 1.7) * particle.travelX * 0.34
               + pointer.x * particle.depth * 14;
             const y = particle.y * height
               + Math.cos(wave * 0.83) * particle.travelY
+              + Math.sin(wave * 0.37 + particle.phase * 0.61) * particle.travelY * 0.28
               + pointer.y * particle.depth * 10;
             const pulse = 0.68 + Math.sin(wave * 2.4) * 0.24;
             const radius = particle.size * (pass === 0 ? 2.45 : 0.78);

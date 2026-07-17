@@ -135,3 +135,14 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - Every generated point has independently seeded `floatSpeed`, `floatAmplitudeX`, `floatAmplitudeY`, `curlStrength`, `curlDirection`, `phase` and `flowOffset` values. Travel and settled motion use these values instead of one shared drift frequency.
 - The canvas continues drawing throughout formation, the 0.55-second completed-outline hold and the 0.85-second fade, preventing the visible freeze before the grayscale handoff.
 - A 402 by 874 simulated phone render shows a complete readable Kidson silhouette at the reduced mobile rendering budget. The entrance remains aligned inside the portrait parallax wrapper.
+
+## 2026-07-18 electron-motion and cursor pass
+
+- Source inspection confirms the persistent GPU shader applies independent three-axis motion through `electronRate`, `electronAmplitude` and `electronPhase`, while its four dispersal branches use the configurable 0.88 transition spread.
+- Source inspection confirms all 2,200 mobile object points retain their existing budget and 30 FPS ceiling. Their scatter projection increases from 0.17 to 0.22 and every drawn point receives independently phased two-frequency x and y motion.
+- The About head retains 9,000 desktop and 5,600 mobile points with independent three-axis shader movement. The portrait contour uses 900 desktop and 595 mobile points, wider off-frame origins, larger varied currents and continuous drawing through hold and fade.
+- The Services orb retains 780 points, capped DPR, 45 FPS ceiling, viewport pause and Page Visibility pause. Every particle now owns a seeded speed, amplitude and orbit bias before the existing object rotation and pointer bulge are applied.
+- A live 1280 by 800 Home pass shows the complete folded Webine logo, readable hero content, ambient depth and zero horizontal overflow. Hovering Start a project changes the cursor state to interactive, contracts the core to seven pixels and morphs the halo to approximately 148 by 54 pixels.
+- A live 1280 by 800 About pass shows the head centred on initial load. Direct entry to the team section shows the wider contour field, then a clean particle-to-grayscale handoff with a 368 by 460 portrait canvas and zero horizontal overflow.
+- A live 1280 by 800 Services pass shows the 351 by 351 service object inside its sticky rail with independent local point movement, readable service content and zero horizontal overflow.
+- A 390 by 844 About pass retains a 358 by 447 portrait, complete grayscale handoff and zero horizontal overflow. The cursor CSS and runtime are both gated at 48rem plus fine-pointer capability, so phone layouts do not run the custom cursor.
