@@ -167,6 +167,15 @@
   isolation: isolate;
 }
 
+.portrait-reveal__media {
+  --portrait-parallax-y: 0%;
+  position: absolute;
+  inset: 0;
+  transform: translate3d(0, var(--portrait-parallax-y), 0) scale(1.08);
+  transform-origin: center;
+  will-change: transform;
+}
+
 .portrait-reveal__image,
 .portrait-reveal__mono-layer,
 .portrait-reveal__particles {

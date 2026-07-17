@@ -24,7 +24,8 @@ function seededVariation(value: number) {
 }
 
 export function useFluidGrayscaleMask(
-  frameRef: RefObject<HTMLDivElement | null>,
+  interactionRef: RefObject<HTMLDivElement | null>,
+  coordinateRef: RefObject<HTMLDivElement | null>,
   trailRef: RefObject<SVGGElement | null>,
 ) {
   const pointsRef = useRef<TrailPoint[]>([]);
@@ -103,14 +104,14 @@ export function useFluidGrayscaleMask(
   }, []);
 
   const samplePointer = useCallback((event: PointerEvent) => {
-    const frame = frameRef.current;
-    if (!frame) return { x: 0.5, y: 0.5 };
-    const bounds = frame.getBoundingClientRect();
+    const coordinateSpace = coordinateRef.current;
+    if (!coordinateSpace) return { x: 0.5, y: 0.5 };
+    const bounds = coordinateSpace.getBoundingClientRect();
     return {
       x: clamp((event.clientX - bounds.left) / bounds.width),
       y: clamp((event.clientY - bounds.top) / bounds.height),
     };
-  }, [frameRef]);
+  }, [coordinateRef]);
 
   const startTrail = useCallback((event: PointerEvent) => {
     if (event.pointerType === "touch") return;
@@ -151,7 +152,7 @@ export function useFluidGrayscaleMask(
   }, [ensureAnimation]);
 
   useEffect(() => {
-    const frame = frameRef.current;
+    const frame = interactionRef.current;
     if (!frame) return;
 
     frame.addEventListener("pointerenter", startTrail, { passive: true });
@@ -166,5 +167,5 @@ export function useFluidGrayscaleMask(
       frameRequestRef.current = 0;
       pointsRef.current = [];
     };
-  }, [endTrail, frameRef, moveTrail, startTrail]);
+  }, [endTrail, interactionRef, moveTrail, startTrail]);
 }

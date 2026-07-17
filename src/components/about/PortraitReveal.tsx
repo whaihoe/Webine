@@ -22,6 +22,7 @@ const MASK_CIRCLE_COUNT = 40;
 export function PortraitReveal({ name, role, portrait, mask, description, index, reverse = false }: PortraitRevealProps) {
   const rootRef = useRef<HTMLElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
+  const mediaRef = useRef<HTMLDivElement>(null);
   const particleCanvasRef = useRef<HTMLCanvasElement>(null);
   const fluidTrailRef = useRef<SVGGElement>(null);
   const particlesRef = useRef<SilhouetteParticle[]>([]);
@@ -30,13 +31,14 @@ export function PortraitReveal({ name, role, portrait, mask, description, index,
   const componentId = useId().replace(/:/g, "");
   const maskId = `portrait-mask-${componentId}`;
   const blurId = `portrait-blur-${componentId}`;
-  useFluidGrayscaleMask(frameRef, fluidTrailRef);
+  useFluidGrayscaleMask(frameRef, mediaRef, fluidTrailRef);
 
   useEffect(() => {
     const root = rootRef.current;
     const frame = frameRef.current;
+    const media = mediaRef.current;
     const canvas = particleCanvasRef.current;
-    if (!root || !frame || !canvas) return;
+    if (!root || !frame || !media || !canvas) return;
 
     const reveal = { value: 0 };
     let animationContext: ReturnType<typeof gsap.context> | null = null;
@@ -94,6 +96,23 @@ export function PortraitReveal({ name, role, portrait, mask, description, index,
       draw();
 
       animationContext = gsap.context(() => {
+        const parallaxDistance = () => window.innerWidth < 768 ? 2.2 : 3.8;
+        gsap.fromTo(
+          media,
+          { "--portrait-parallax-y": () => `${-parallaxDistance()}%` },
+          {
+            "--portrait-parallax-y": () => `${parallaxDistance()}%`,
+            ease: "none",
+            scrollTrigger: {
+              trigger: root,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: 1.1,
+              invalidateOnRefresh: true,
+            },
+          },
+        );
+
         const timeline = gsap.timeline({
           scrollTrigger: {
             trigger: root,
@@ -108,8 +127,8 @@ export function PortraitReveal({ name, role, portrait, mask, description, index,
             ease: "none",
             onUpdate: scheduleDraw,
           })
-          .to({}, { duration: 0.28 })
-          .to(canvas, { opacity: 0, duration: 0.85, ease: "power2.out" })
+          .to({}, { duration: 0.55, onUpdate: scheduleDraw })
+          .to(canvas, { opacity: 0, duration: 0.85, ease: "power2.out", onUpdate: scheduleDraw })
           .to(frame, { "--portrait-image-opacity": 1, duration: 0.9, ease: "power2.out" }, "<0.04");
       }, root);
     };
@@ -131,24 +150,26 @@ export function PortraitReveal({ name, role, portrait, mask, description, index,
   return (
     <article ref={rootRef} className={`portrait-story${reverse ? " portrait-story--reverse" : ""}`} data-gsap-managed="true">
       <div ref={frameRef} className="portrait-reveal">
-        <img className="portrait-reveal__image portrait-reveal__image--colour" src={portrait} alt={`Portrait of ${name}, ${role} at Webine`} width="1122" height="1402" loading="lazy" decoding="async" draggable="false" />
-        <svg className="portrait-reveal__mono-layer" viewBox="0 0 100 125" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-          <defs>
-            <filter id={blurId} x="-25%" y="-25%" width="150%" height="150%" colorInterpolationFilters="sRGB">
-              <feGaussianBlur stdDeviation="2.8" />
-            </filter>
-            <mask id={maskId} x="0" y="0" width="100" height="125" maskUnits="userSpaceOnUse" style={{ maskType: "luminance" }}>
-              <rect width="100" height="125" fill="white" />
-              <g ref={fluidTrailRef} filter={`url(#${blurId})`} fill="black">
-                {Array.from({ length: MASK_CIRCLE_COUNT }, (_, circleIndex) => (
-                  <circle key={circleIndex} cx="50" cy="62.5" r="0" opacity="0" />
-                ))}
-              </g>
-            </mask>
-          </defs>
-          <image className="portrait-reveal__mono-image" href={portrait} width="100" height="125" preserveAspectRatio="xMidYMid slice" mask={`url(#${maskId})`} />
-        </svg>
-        <canvas ref={particleCanvasRef} className="portrait-reveal__particles" aria-hidden="true" />
+        <div ref={mediaRef} className="portrait-reveal__media">
+          <img className="portrait-reveal__image portrait-reveal__image--colour" src={portrait} alt={`Portrait of ${name}, ${role} at Webine`} width="1122" height="1402" loading="lazy" decoding="async" draggable="false" />
+          <svg className="portrait-reveal__mono-layer" viewBox="0 0 100 125" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <defs>
+              <filter id={blurId} x="-25%" y="-25%" width="150%" height="150%" colorInterpolationFilters="sRGB">
+                <feGaussianBlur stdDeviation="2.8" />
+              </filter>
+              <mask id={maskId} x="0" y="0" width="100" height="125" maskUnits="userSpaceOnUse" style={{ maskType: "luminance" }}>
+                <rect width="100" height="125" fill="white" />
+                <g ref={fluidTrailRef} filter={`url(#${blurId})`} fill="black">
+                  {Array.from({ length: MASK_CIRCLE_COUNT }, (_, circleIndex) => (
+                    <circle key={circleIndex} cx="50" cy="62.5" r="0" opacity="0" />
+                  ))}
+                </g>
+              </mask>
+            </defs>
+            <image className="portrait-reveal__mono-image" href={portrait} width="100" height="125" preserveAspectRatio="xMidYMid slice" mask={`url(#${maskId})`} />
+          </svg>
+          <canvas ref={particleCanvasRef} className="portrait-reveal__particles" aria-hidden="true" />
+        </div>
         <span className="portrait-reveal__hint" aria-hidden="true">Move to reveal</span>
       </div>
       <div className="portrait-story__copy">

@@ -116,3 +116,22 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - The rendered desktop composition uses a 25rem portrait cap, oversized indexed names and tighter alternating rows without the earlier image-copy overlap. The following principles section starts sooner, reducing the empty transition area.
 - A 390 by 844 responsive pass confirms the image-first stack, large Whai Hoe name, role metadata and description remain within the viewport without clipping or horizontal overflow. Touch simulation does not show the desktop hover hint.
 - Automated coverage confirms the colour image and SVG grayscale layers, luminance mask, native listener cleanup, touch rejection, 25rem cap and large-name scale.
+
+## 2026-07-17 About portrait parallax alignment
+
+- Live Zen inspection found active section-specific parallax values of 0.4811% for the visible Kidson wrapper and -2.6364% for the approaching Whai Hoe wrapper at the same scroll position.
+- For both portraits, the shared media wrapper, colour image and particle canvas returned identical rendered x, y, width and height values. The visible Kidson stack measured 429.83 by 537.65 pixels across all three layers, proving the parallax transform cannot separate the contour from the photograph.
+- A real pointer trail across the already-transformed Kidson portrait continued revealing colour at the correct facial position. The mask samples the transformed media rectangle rather than the outer frame.
+- Regression coverage protects the shared wrapper ownership, scrubbed parallax, 1.08 overscan and transformed coordinate space.
+
+## 2026-07-17 About contour density reduction
+
+- Source inspection confirms the desktop limit is 1,680 and the mobile limit is 595, both exactly 70% of their previous budgets.
+- The change is isolated to contour sampling. Frame rate, DPR, seeded motion, glow policy, entrance timing, parallax and photograph handoff remain unchanged.
+
+## 2026-07-17 About contour flow refinement
+
+- Source inspection confirms a 1,200-point desktop cap and unchanged 595-point mobile cap.
+- Every generated point has independently seeded `floatSpeed`, `floatAmplitudeX`, `floatAmplitudeY`, `curlStrength`, `curlDirection`, `phase` and `flowOffset` values. Travel and settled motion use these values instead of one shared drift frequency.
+- The canvas continues drawing throughout formation, the 0.55-second completed-outline hold and the 0.85-second fade, preventing the visible freeze before the grayscale handoff.
+- A 402 by 874 simulated phone render shows a complete readable Kidson silhouette at the reduced mobile rendering budget. The entrance remains aligned inside the portrait parallax wrapper.

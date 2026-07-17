@@ -527,3 +527,21 @@
 - Reduced the desktop image cap from 28rem to 25rem. Rebuilt the adjacent copy with oversized Railway names, blue Georgia punctuation, indexed role rules, stronger descriptions and alternating alignment.
 - Tightened the team gaps, team padding and following principles clearance so the smaller photography does not create empty editorial rows.
 - Kept touch intentionally grayscale without a hover hint. The existing particle-outline entrance and grayscale handoff remain unchanged above the new photograph stack.
+
+## 2026-07-17, aligned About portrait parallax
+
+- Added a single moving media wrapper inside each clipped portrait frame. The colour image, SVG grayscale mask and silhouette particle canvas are all children of this one transform owner.
+- Applied restrained section-local parallax from -3.8% to 3.8% on desktop and -2.2% to 2.2% on phone, scrubbed at 1.1. The wrapper uses 1.08 overscan so movement cannot expose the frame background.
+- Changed hover coordinate sampling to use the transformed media rectangle rather than the static outer frame. The fluid colour reveal therefore stays beneath the pointer after scroll parallax has shifted the photograph.
+- Kept the text static for readability. Only the media stack moves.
+
+## 2026-07-17, reduced About contour density
+
+- Reduced the portrait-outline budgets by exactly 30% without changing their timing, seeded movement, parallax ownership or grayscale handoff.
+- Desktop now uses at most 1,680 particles instead of 2,400. Mobile now uses at most 595 instead of 850.
+
+## 2026-07-17, varied About contour flow
+
+- Reduced the desktop contour cap again, from 1,680 to 1,200. Mobile stays at 595 because its problem was rigid motion rather than remaining density.
+- Replaced the shared-looking settled drift with deterministic per-particle speed, amplitude, curl direction, curl strength, phase and flow offset values.
+- Added stronger individual currents during travel, smaller independent floating after arrival and subtle point-specific breathing. Motion remains alive through a 0.55-second hold and the complete fade into the grayscale portrait.

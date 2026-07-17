@@ -5,6 +5,12 @@ export type SilhouetteParticle = {
   originY: number;
   random: number;
   phase: number;
+  floatSpeed: number;
+  floatAmplitudeX: number;
+  floatAmplitudeY: number;
+  curlStrength: number;
+  curlDirection: number;
+  flowOffset: number;
   blue: boolean;
 };
 
@@ -84,12 +90,18 @@ export function createSilhouetteParticles(mask: HTMLImageElement, { mobile }: Cr
         originY: 1.04 + random() * 0.22,
         random: identity,
         phase: random() * Math.PI * 2,
+        floatSpeed: 0.58 + random() * 1.42,
+        floatAmplitudeX: 0.0024 + random() * 0.0048,
+        floatAmplitudeY: 0.002 + random() * 0.0042,
+        curlStrength: 0.68 + random() * 0.72,
+        curlDirection: random() > 0.5 ? 1 : -1,
+        flowOffset: random() * Math.PI * 2,
         blue: identity > gradient,
       });
     }
   }
 
-  const limit = mobile ? 850 : 2400;
+  const limit = mobile ? 595 : 1200;
   if (particles.length <= limit) return particles;
   return Array.from({ length: limit }, (_, index) => particles[Math.floor(index * particles.length / limit)]);
 }
@@ -114,13 +126,39 @@ export function drawSilhouetteParticles({ canvas, particles, progress, time, wid
         const eased = 1 - Math.pow(1 - localProgress, 3);
         const unsettled = 1 - eased;
         const settled = smoothstep(0.72, 1, localProgress);
-        const curl = Math.sin(particle.phase + localProgress * Math.PI * 4.5) * 0.04 * unsettled;
-        const driftX = Math.sin(time * 0.00032 + particle.phase) * 0.0018 * settled;
-        const driftY = Math.cos(time * 0.00027 + particle.phase * 1.4) * 0.0015 * settled;
-        const x = (particle.originX + (particle.targetX - particle.originX) * eased + curl + driftX) * width;
-        const y = (particle.originY + (particle.targetY - particle.originY) * eased + driftY) * height;
-        const alpha = smoothstep(0.02, 0.18, localProgress) * (0.72 + particle.random * 0.26);
-        const radius = (0.68 + particle.random * 0.92) * dpr;
+        const motionTime = time * 0.001 * particle.floatSpeed;
+        const travellingFlow = 0.42 + unsettled * 1.25;
+        const contourWave = Math.sin(
+          particle.flowOffset
+          + localProgress * Math.PI * (3.2 + particle.random * 2.8)
+          + motionTime * 0.52,
+        );
+        const curl = contourWave * 0.035 * particle.curlStrength * particle.curlDirection * unsettled;
+        const currentX = Math.sin(
+          motionTime + particle.phase + particle.targetY * 8.5,
+        ) * particle.floatAmplitudeX * travellingFlow;
+        const currentY = Math.cos(
+          motionTime * 0.79 + particle.flowOffset + particle.targetX * 6.2,
+        ) * particle.floatAmplitudeY * travellingFlow;
+        const riseSway = Math.sin(
+          motionTime * 0.66 + particle.phase * 0.7 + particle.targetY * 4,
+        ) * 0.009 * unsettled;
+        const x = (
+          particle.originX
+          + (particle.targetX - particle.originX) * eased
+          + curl
+          + currentX
+          + riseSway
+        ) * width;
+        const y = (
+          particle.originY
+          + (particle.targetY - particle.originY) * eased
+          + currentY
+          - Math.abs(currentX) * 0.18 * settled
+        ) * height;
+        const breathing = 0.94 + Math.sin(motionTime * 0.72 + particle.flowOffset) * 0.06 * settled;
+        const alpha = smoothstep(0.02, 0.18, localProgress) * (0.72 + particle.random * 0.26) * breathing;
+        const radius = (0.68 + particle.random * 0.92) * (0.96 + breathing * 0.04) * dpr;
 
         context.globalAlpha = pass === 0 ? alpha * 0.18 : alpha;
         context.beginPath();

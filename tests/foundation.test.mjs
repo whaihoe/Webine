@@ -813,11 +813,19 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(portrait, /<canvas/);
   assert.match(portraitParticles, /isEdge/);
   assert.match(portraitParticles, /originY:\s*1\.04/);
-  assert.match(portraitParticles, /const limit = mobile \? 850 : 2400/);
+  assert.match(portraitParticles, /const limit = mobile \? 595 : 1200/);
+  assert.match(portraitParticles, /floatSpeed:\s*0\.58 \+ random\(\) \* 1\.42/);
+  assert.match(portraitParticles, /floatAmplitudeX/);
+  assert.match(portraitParticles, /curlDirection/);
+  assert.match(portrait, /duration:\s*0\.55, onUpdate: scheduleDraw/);
+  assert.match(portraitParticles, /const breathing = 0\.94/);
   assert.match(portraitParticles, /glow: boolean/);
   assert.match(portrait, /portrait-reveal__image--colour/);
   assert.match(portrait, /portrait-reveal__mono-layer/);
+  assert.match(portrait, /className="portrait-reveal__media"[\s\S]*<canvas ref=\{particleCanvasRef\}/);
   assert.match(portrait, /mask=\{`url\(#\$\{maskId\}\)`\}/);
+  assert.match(portrait, /"--portrait-parallax-y"/);
+  assert.match(portrait, /scrub:\s*1\.1/);
   assert.match(portraitColour, /point\.life -= elapsed \/ 1450/);
   assert.match(portraitColour, /event\.pointerType === "touch"/);
   assert.match(portraitColour, /addEventListener\("pointerenter", startTrail/);
@@ -827,9 +835,10 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(head, /dpr=\{mobile \? \[0\.75, 1\.05\]/);
   assert.match(portrait, /start: "top 76%"/);
   assert.match(portrait, /once: true/);
-  assert.doesNotMatch(portrait, /aria-pressed|Reveal colour|scrub:/);
+  assert.doesNotMatch(portrait, /aria-pressed|Reveal colour/);
   assert.doesNotMatch(portraitStyles, /clip-path:\s*circle/);
   assert.match(portraitStyles, /width:\s*min\(100%, 25rem\)/);
+  assert.match(portraitStyles, /translate3d\(0, var\(--portrait-parallax-y\), 0\) scale\(1\.08\)/);
   assert.match(portraitStyles, /font-size:\s*clamp\(4\.25rem, 11vw, 7\.8rem\)/);
   assert.match(sitemap, /"\/about"/);
   await Promise.all([
