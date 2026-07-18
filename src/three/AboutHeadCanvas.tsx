@@ -54,12 +54,27 @@ const vertexShader = `
     float burst = sin(eased * 3.14159265);
     vec3 positionNow = mix(position, aScatter, eased);
     positionNow += normalize(aScatter + vec3(0.001)) * burst * (0.12 + aRandom * 0.28);
-    float electronRate = 0.32 + aRandom * 0.58;
-    float electronAmplitude = 0.018 + aRandom * 0.026;
+    vec3 objectSpreadDirection = normalize(vec3(
+      sin(aRandom * 91.73 + 0.17),
+      cos(aRandom * 67.19 + 1.31),
+      sin(aRandom * 113.41 + 2.07)
+    ));
+    positionNow += objectSpreadDirection * (0.028 + aRandom * 0.052) * (1.0 - eased * 0.24);
+    float electronRate = 0.24 + aRandom * 0.72;
+    float electronAmplitude = 0.032 + aRandom * 0.046;
     float electronPhase = aRandom * 31.4159265;
-    positionNow.x += sin(uTime * electronRate + electronPhase) * electronAmplitude;
-    positionNow.y += cos(uTime * electronRate * 0.77 + electronPhase * 1.31) * electronAmplitude * 0.82;
-    positionNow.z += sin(uTime * electronRate * 0.61 + electronPhase * 0.73) * electronAmplitude * 1.15;
+    positionNow.x += (
+      sin(uTime * electronRate + electronPhase)
+      + sin(uTime * electronRate * 0.29 + electronPhase * 1.71) * 0.35
+    ) * electronAmplitude;
+    positionNow.y += (
+      cos(uTime * electronRate * 0.73 + electronPhase * 1.31)
+      + sin(uTime * electronRate * 0.25 + electronPhase * 0.63) * 0.31
+    ) * electronAmplitude * 0.84;
+    positionNow.z += (
+      sin(uTime * electronRate * 0.57 + electronPhase * 0.73)
+      + cos(uTime * electronRate * 0.21 + electronPhase * 1.23) * 0.4
+    ) * electronAmplitude * 1.18;
     vec4 viewPosition = modelViewMatrix * vec4(positionNow, 1.0);
     vec4 clipPosition = projectionMatrix * viewPosition;
     vec2 screenPosition = clipPosition.xy / max(clipPosition.w, 0.001);

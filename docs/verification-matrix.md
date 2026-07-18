@@ -146,3 +146,11 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - A live 1280 by 800 About pass shows the head centred on initial load. Direct entry to the team section shows the wider contour field, then a clean particle-to-grayscale handoff with a 368 by 460 portrait canvas and zero horizontal overflow.
 - A live 1280 by 800 Services pass shows the 351 by 351 service object inside its sticky rail with independent local point movement, readable service content and zero horizontal overflow.
 - A 390 by 844 About pass retains a 358 by 447 portrait, complete grayscale handoff and zero horizontal overflow. The cursor CSS and runtime are both gated at 48rem plus fine-pointer capability, so phone layouts do not run the custom cursor.
+
+## 2026-07-18 porous particle and bounded-orientation pass
+
+- The final production shader uses a 0.075 formed-object halo, 0.056 three-axis travel and independent secondary low-frequency paths. The same geometry and particle budgets remain in place, so the change adds surface porosity without duplicating points or adding a renderer.
+- Home scroll rotation is clamped to plus or minus 0.26 radians and damped back to zero. Shared idle yaw is reduced to 0.34 radians. Services chapter rotation is bounded from -0.3 to 0.68 radians and its former unlimited time-based turn is replaced by a 0.14-radian reversing oscillation.
+- Phone Home objects keep all 2,200 points, a 30 FPS ceiling, a tighter 1.6-pixel static halo and multi-frequency paths. The final 390 by 844 production pass reports all five section canvases live, one H1 and zero horizontal overflow.
+- Live 1280 by 800 production checks show the Webine logo retaining its folded silhouette with a wider moving edge, the About head retaining its designed facing and the 351-pixel Services object remaining porous inside the sticky rail. Home, About and Services report zero horizontal overflow and no browser errors.
+- The complete ship-readiness run passes the production build, server type checks, isolated test-server build and all 50 automated tests. The existing large React Three Fiber chunk warning remains documented and did not change in this refinement.

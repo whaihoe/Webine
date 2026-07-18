@@ -475,7 +475,14 @@ export function MobileSectionParticles({
       const elapsed = timestamp / 1000;
       const currentScrollY = window.scrollY;
       const scrollDelta = Math.max(-120, Math.min(120, currentScrollY - lastScrollY));
-      scrollRotation += scrollDelta * 0.00072;
+      scrollRotation = Math.max(
+        -ambientMotion.scrollRotationLimit,
+        Math.min(
+          ambientMotion.scrollRotationLimit,
+          scrollRotation + scrollDelta * 0.00072,
+        ),
+      );
+      scrollRotation *= 0.982;
       lastScrollY = currentScrollY;
       const closingRotationScale = scene === "closing"
         ? experienceConfig.particles.closingModel.ambientRotationScale
@@ -537,22 +544,25 @@ export function MobileSectionParticles({
           const targetY = height * 0.5 -
             finalY * perspective * projection.scale + floatY;
           const identity = buffers.randomness[index];
-          const electronRate = 0.34 + identity * 0.82;
+          const electronRate = 0.23 + identity * 0.86;
           const electronPhase = identity * Math.PI * 10 + index * 0.017;
-          const electronAmplitude = (2.8 + identity * 6.4) *
+          const electronAmplitude = (3.2 + identity * experienceConfig.particles.mobile.electronDrift) *
             (0.74 + (1 - strength) * 0.62);
+          const objectLooseness = experienceConfig.particles.mobile.objectLooseness * strength;
+          const spreadX = Math.sin(identity * 91.73 + index * 0.013) * objectLooseness;
+          const spreadY = Math.cos(identity * 67.19 + index * 0.009) * objectLooseness * 0.82;
           const electronX = (
             Math.sin(elapsed * electronRate + electronPhase)
-            + Math.sin(elapsed * electronRate * 0.43 + electronPhase * 1.61) * 0.38
+            + Math.sin(elapsed * electronRate * 0.31 + electronPhase * 1.61) * 0.38
           ) * electronAmplitude;
           const electronY = (
-            Math.cos(elapsed * electronRate * 0.79 + electronPhase * 1.27)
-            + Math.sin(elapsed * electronRate * 0.37 + electronPhase * 0.73) * 0.34
+            Math.cos(elapsed * electronRate * 0.73 + electronPhase * 1.27)
+            + Math.sin(elapsed * electronRate * 0.27 + electronPhase * 0.73) * 0.34
           ) * electronAmplitude * 0.78;
           const x = projection.scatterX[index] +
-            (targetX - projection.scatterX[index]) * strength + electronX;
+            (targetX - projection.scatterX[index]) * strength + spreadX + electronX;
           const y = projection.scatterY[index] +
-            (targetY - projection.scatterY[index]) * strength + electronY;
+            (targetY - projection.scatterY[index]) * strength + spreadY + electronY;
           const size = pointSize *
             (0.72 + buffers.randomness[index] * 0.36);
           drawingContext.fillRect(x, y, size, size);

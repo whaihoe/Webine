@@ -94,6 +94,7 @@ export function ParticlePoints({
       uPointSize: { value: profile.pointSize },
       uTime: { value: 0 },
       uAmbientDrift: { value: ambientMotion.drift },
+      uObjectLooseness: { value: ambientMotion.objectLooseness },
       uElectronDrift: { value: ambientMotion.electronDrift },
       uElectronSpeed: { value: ambientMotion.electronSpeed },
       uTransitionSpread: { value: ambientMotion.transitionSpread },
@@ -111,6 +112,7 @@ export function ParticlePoints({
       ambientMotion.drift,
       ambientMotion.electronDrift,
       ambientMotion.electronSpeed,
+      ambientMotion.objectLooseness,
       ambientMotion.transitionSpread,
       profile.pointSize,
     ],
@@ -307,9 +309,19 @@ export function ParticlePoints({
     const currentScrollY = window.scrollY;
     if (lastScrollYRef.current !== null) {
       const scrollDelta = Math.max(-120, Math.min(120, currentScrollY - lastScrollYRef.current));
-      scrollRotationRef.current += scrollDelta * 0.00062;
+      scrollRotationRef.current = MathUtils.clamp(
+        scrollRotationRef.current + scrollDelta * 0.00062,
+        -ambientMotion.scrollRotationLimit,
+        ambientMotion.scrollRotationLimit,
+      );
     }
     lastScrollYRef.current = currentScrollY;
+    scrollRotationRef.current = MathUtils.damp(
+      scrollRotationRef.current,
+      0,
+      ambientMotion.scrollRotationReturn,
+      delta,
+    );
     const introSettledProgress = MathUtils.smoothstep(
       material.uniforms.uProgress.value,
       0.72,

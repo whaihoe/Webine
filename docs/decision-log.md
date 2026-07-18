@@ -554,3 +554,10 @@
 - Replaced short shared ambient oscillation with wider two-frequency paths. Existing full mobile density, DPR caps, frame ceilings, offscreen pause and Page Visibility pause remain unchanged.
 - Added one public `KineticCursor` through `SiteShell`. A tight higher-opacity core and slower lower-opacity halo follow the pointer independently. The halo morphs toward bounded clickable-control geometry and strengthens on press. It is disabled below 48rem, for touch and coarse pointers and throughout Admin.
 - Removed backdrop blur from the cursor after live inspection showed it softened button labels. The final cursor never intercepts input and does not replace keyboard focus or stable link and button states.
+
+## 2026-07-18, porous particle objects with bounded orientation
+
+- Used the supplied USTA motion recording to refine the distinction between particle-level motion and whole-object movement. Held forms now use a small seeded spatial halo plus secondary low-frequency paths, giving the surface visible gaps and a soft moving edge without changing particle counts.
+- Increased individual travel across the persistent Home GPU targets, About head, Services orb and section-owned phone targets. The phone envelope remains intentionally tighter than desktop so the Webine W stays legible on a narrow canvas.
+- Replaced accumulated Home scroll rotation with a clamped impulse limited to 0.26 radians that eases back to the authored pose. Reduced the shared idle yaw and changed the Services orb from an unlimited turn to a bounded -0.3 to 0.68 radian chapter range with a small reversing idle oscillation.
+- Preserved narrative rotations that communicate formation and dispersal. The change applies to idle and input contribution, so section state remains deterministic and reverse scrolling still produces the same scene.

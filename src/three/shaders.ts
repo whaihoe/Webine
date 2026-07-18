@@ -28,6 +28,7 @@ export const particleVertexShader = `
   uniform float uTime;
   uniform float uAmbientDrift;
   uniform float uAmbientStrength;
+  uniform float uObjectLooseness;
   uniform float uElectronDrift;
   uniform float uElectronSpeed;
   uniform float uTransitionSpread;
@@ -203,6 +204,13 @@ export const particleVertexShader = `
     }
 
     vec3 formedPosition = mix(position, narrativeTarget, easedProgress);
+    vec3 objectSpreadDirection = normalize(vec3(
+      sin(particleRandom * 91.73 + 0.17),
+      cos(particleRandom * 67.19 + 1.31),
+      sin(particleRandom * 113.41 + 2.07)
+    ));
+    formedPosition += objectSpreadDirection * uObjectLooseness *
+      (0.42 + particleRandom * 0.94) * easedProgress;
     vec3 scatterDirection = normalize(position + vec3(0.001));
     formedPosition += scatterDirection * transitionWave *
       (0.18 + particleRandom * 0.32);
@@ -226,13 +234,16 @@ export const particleVertexShader = `
     );
 
     float settledMovement = smoothstep(0.72, 1.0, easedProgress);
-    float electronRate = uElectronSpeed * (0.58 + particleRandom * 1.34);
-    float electronAmplitude = uElectronDrift * (0.52 + particleRandom * 0.96);
+    float electronRate = uElectronSpeed * (0.48 + particleRandom * 1.42);
+    float electronAmplitude = uElectronDrift * (0.38 + particleRandom * 1.12);
     float electronPhase = particleRandom * 31.4159265;
     vec3 electronMotion = vec3(
-      sin(uTime * electronRate + electronPhase),
-      cos(uTime * electronRate * 0.79 + electronPhase * 1.37),
-      sin(uTime * electronRate * 0.63 + electronPhase * 0.71)
+      sin(uTime * electronRate + electronPhase) +
+        sin(uTime * electronRate * 0.31 + electronPhase * 1.73) * 0.34,
+      cos(uTime * electronRate * 0.73 + electronPhase * 1.37) +
+        sin(uTime * electronRate * 0.27 + electronPhase * 0.61) * 0.3,
+      sin(uTime * electronRate * 0.57 + electronPhase * 0.71) +
+        cos(uTime * electronRate * 0.23 + electronPhase * 1.19) * 0.38
     ) * electronAmplitude;
     particlePosition += electronMotion * settledMovement *
       mix(1.0, 0.38, particleAmbient);

@@ -18,6 +18,9 @@ type OrbParticle = {
   speed: number;
   amplitude: number;
   orbitBias: number;
+  spreadX: number;
+  spreadY: number;
+  spreadZ: number;
   cyan: boolean;
 };
 
@@ -35,17 +38,20 @@ function createOrbParticles(count: number) {
   for (let index = 0; index < count; index += 1) {
     const band = index % 3;
     const angle = random() * Math.PI * 2;
-    const radius = 0.36 + band * 0.13 + (random() - 0.5) * 0.055;
+    const radius = 0.36 + band * 0.13 + (random() - 0.5) * 0.09;
     const depthAngle = angle * (1.15 + band * 0.12) + band * 1.7;
     particles.push({
       x: Math.cos(angle) * radius,
       y: Math.sin(angle) * radius * (0.8 + band * 0.055),
-      z: Math.sin(depthAngle) * (0.13 + band * 0.045),
+      z: Math.sin(depthAngle) * (0.14 + band * 0.052),
       size: 0.65 + random() * 1.15,
       phase: random() * Math.PI * 2,
-      speed: 0.38 + random() * 0.92,
-      amplitude: 0.008 + random() * 0.021,
+      speed: 0.25 + random() * 0.84,
+      amplitude: 0.016 + random() * 0.038,
       orbitBias: random() * Math.PI * 2,
+      spreadX: (random() - 0.5) * 0.052,
+      spreadY: (random() - 0.5) * 0.046,
+      spreadZ: (random() - 0.5) * 0.064,
       cyan: random() > 0.54,
     });
   }
@@ -88,7 +94,8 @@ export function ServicesParticleOrb({ motion }: ServicesParticleOrbProps) {
       pointer.localX += (pointerTarget.localX - pointer.localX) * 0.09;
       pointer.localY += (pointerTarget.localY - pointer.localY) * 0.09;
       pointer.active = pointerTarget.active;
-      const rotationY = motion.current.rotation + pointer.x * 0.22 + elapsed * 0.035;
+      const rotationY = motion.current.rotation + pointer.x * 0.18
+        + Math.sin(elapsed * 0.18) * 0.14;
       const rotationX = -0.18 + pointer.y * -0.16 + Math.sin(elapsed * 0.21) * 0.055;
       const sinX = Math.sin(rotationX);
       const cosX = Math.cos(rotationX);
@@ -108,12 +115,14 @@ export function ServicesParticleOrb({ motion }: ServicesParticleOrbProps) {
             if (particle.cyan !== cyan) continue;
             const electronTime = elapsed * particle.speed;
             const electronX = Math.sin(electronTime + particle.phase) * particle.amplitude
-              + Math.sin(electronTime * 0.41 + particle.orbitBias) * particle.amplitude * 0.42;
-            const electronY = Math.cos(electronTime * 0.77 + particle.orbitBias) * particle.amplitude * 0.82;
-            const electronZ = Math.sin(electronTime * 0.59 + particle.phase * 1.31) * particle.amplitude * 1.18;
-            const localX = particle.x + electronX;
-            const localY = particle.y + electronY;
-            const localZ = particle.z + electronZ;
+              + Math.sin(electronTime * 0.31 + particle.orbitBias) * particle.amplitude * 0.38;
+            const electronY = Math.cos(electronTime * 0.73 + particle.orbitBias) * particle.amplitude * 0.84
+              + Math.sin(electronTime * 0.27 + particle.phase * 0.61) * particle.amplitude * 0.31;
+            const electronZ = Math.sin(electronTime * 0.57 + particle.phase * 1.31) * particle.amplitude * 1.2
+              + Math.cos(electronTime * 0.23 + particle.orbitBias * 0.79) * particle.amplitude * 0.42;
+            const localX = particle.x + particle.spreadX + electronX;
+            const localY = particle.y + particle.spreadY + electronY;
+            const localZ = particle.z + particle.spreadZ + electronZ;
             const xzX = localX * cosY + localZ * sinY;
             const xzZ = -localX * sinY + localZ * cosY;
             const yzY = localY * cosX - xzZ * sinX;

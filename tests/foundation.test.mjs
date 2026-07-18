@@ -218,7 +218,9 @@ test("enables the approved homepage experience layers", async () => {
   assert.match(config, /tablet:/);
   assert.match(config, /ambientMotion:/);
   assert.match(config, /colourCycleSeconds:\s*18/);
-  assert.match(config, /electronDrift:\s*0\.028/);
+  assert.match(config, /objectLooseness:\s*0\.075/);
+  assert.match(config, /electronDrift:\s*0\.056/);
+  assert.match(config, /scrollRotationLimit:\s*0\.26/);
   assert.match(config, /transitionSpread:\s*0\.88/);
   assert.match(config, /heroModel:\s*{[^}]*url:\s*"\/models\/webine-logo-particle\.glb"[^}]*targetSize:\s*5\.2[^}]*fit:\s*"largest"[^}]*localScale:\s*\[1, 1, 2\.5\]/s);
   assert.match(config, /closingModel:\s*{[^}]*url:\s*"\/models\/colony-planet-particle\.glb"[^}]*targetSize:\s*4\.8[^}]*fit:\s*"largest"[^}]*rotationDegrees:\s*\[58, -22, 0\][^}]*localScale:\s*\[1, 1, 1\][^}]*ambientRotationScale:\s*0\.42/s);
@@ -314,7 +316,8 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.match(mobileParticles, /projection = prepareTarget[\s\S]*draw\(\);/);
   assert.match(mobileParticles, /targetZ/);
   assert.match(mobileParticles, /MOBILE_AMBIENT_FRAME_RATE/);
-  assert.match(mobileParticles, /electronRate = 0\.34/);
+  assert.match(mobileParticles, /electronRate = 0\.23/);
+  assert.match(mobileParticles, /objectLooseness/);
   assert.match(mobileParticles, /electronAmplitude/);
   assert.match(mobileParticles, /data-mobile-particle-state|mobileParticleState/);
   assert.match(mobileParticles, /fillRect/);
