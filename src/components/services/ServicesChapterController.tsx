@@ -39,7 +39,7 @@ export function ServicesChapterController() {
         });
       });
       gsap.fromTo(particleMotion.current, { rotation: -0.3, scale: 0.82 }, {
-          rotation: 0.68,
+          rotation: -1.1,
           scale: 1.08,
           ease: "none",
           scrollTrigger: { trigger: root, start: "top bottom", end: "bottom top", scrub: 1.4 },

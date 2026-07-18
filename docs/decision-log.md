@@ -561,3 +561,10 @@
 - Increased individual travel across the persistent Home GPU targets, About head, Services orb and section-owned phone targets. The phone envelope remains intentionally tighter than desktop so the Webine W stays legible on a narrow canvas.
 - Replaced accumulated Home scroll rotation with a clamped impulse limited to 0.26 radians that eases back to the authored pose. Reduced the shared idle yaw and changed the Services orb from an unlimited turn to a bounded -0.3 to 0.68 radian chapter range with a small reversing idle oscillation.
 - Preserved narrative rotations that communicate formation and dispersal. The change applies to idle and input contribution, so section state remains deterministic and reverse scrolling still produces the same scene.
+
+## 2026-07-18, restored particle facing and sharper mobile forms
+
+- Restored the authored whole-object motion profile from the earlier approved iteration, including its 0.38-radian idle yaw, restrained x and z rotation, slower full-turn timing and lighter pointer contribution. The newer point-level movement, porous surfaces and bounded scroll response remain unchanged.
+- Set the Services chapter endpoint to -1.1 radians. This reproduces the earlier final facing modulo a complete turn without restoring the unnecessary full revolution.
+- Tightened the phone target halo from 1.6 to 0.5 pixels and reduced its orbit envelope. An identity-squared mobility curve keeps most points close to the source form while a smaller group retains the lively independent movement.
+- Added an eased formation blend so the ring, Webine logo and closing object read clearly earlier in their section transition without changing the section thresholds or the 2,200-point mobile budget.

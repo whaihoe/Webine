@@ -468,6 +468,7 @@ export function MobileSectionParticles({
       const width = activeCanvas.width / MOBILE_PARTICLE_DPR;
       const height = activeCanvas.height / MOBILE_PARTICLE_DPR;
       const strength = getFormationStrength(store.getSnapshot(), scene);
+      const targetBlend = 1 - Math.pow(1 - strength, 2.4);
       const pointSize = experienceConfig.particles.mobile.pointSize;
       const count = Math.floor(
         projection.targetX.length * experienceConfig.particles.mobile.renderRatio,
@@ -544,11 +545,12 @@ export function MobileSectionParticles({
           const targetY = height * 0.5 -
             finalY * perspective * projection.scale + floatY;
           const identity = buffers.randomness[index];
+          const mobility = identity * identity;
           const electronRate = 0.23 + identity * 0.86;
           const electronPhase = identity * Math.PI * 10 + index * 0.017;
-          const electronAmplitude = (3.2 + identity * experienceConfig.particles.mobile.electronDrift) *
+          const electronAmplitude = (0.55 + mobility * experienceConfig.particles.mobile.electronDrift) *
             (0.74 + (1 - strength) * 0.62);
-          const objectLooseness = experienceConfig.particles.mobile.objectLooseness * strength;
+          const objectLooseness = experienceConfig.particles.mobile.objectLooseness * targetBlend;
           const spreadX = Math.sin(identity * 91.73 + index * 0.013) * objectLooseness;
           const spreadY = Math.cos(identity * 67.19 + index * 0.009) * objectLooseness * 0.82;
           const electronX = (
@@ -560,9 +562,9 @@ export function MobileSectionParticles({
             + Math.sin(elapsed * electronRate * 0.27 + electronPhase * 0.73) * 0.34
           ) * electronAmplitude * 0.78;
           const x = projection.scatterX[index] +
-            (targetX - projection.scatterX[index]) * strength + spreadX + electronX;
+            (targetX - projection.scatterX[index]) * targetBlend + spreadX + electronX;
           const y = projection.scatterY[index] +
-            (targetY - projection.scatterY[index]) * strength + spreadY + electronY;
+            (targetY - projection.scatterY[index]) * targetBlend + spreadY + electronY;
           const size = pointSize *
             (0.72 + buffers.randomness[index] * 0.36);
           drawingContext.fillRect(x, y, size, size);

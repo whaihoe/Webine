@@ -154,3 +154,9 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - Phone Home objects keep all 2,200 points, a 30 FPS ceiling, a tighter 1.6-pixel static halo and multi-frequency paths. The final 390 by 844 production pass reports all five section canvases live, one H1 and zero horizontal overflow.
 - Live 1280 by 800 production checks show the Webine logo retaining its folded silhouette with a wider moving edge, the About head retaining its designed facing and the 351-pixel Services object remaining porous inside the sticky rail. Home, About and Services report zero horizontal overflow and no browser errors.
 - The complete ship-readiness run passes the production build, server type checks, isolated test-server build and all 50 automated tests. The existing large React Three Fiber chunk warning remains documented and did not change in this refinement.
+
+## 2026-07-18 restored orientation and mobile-definition pass
+
+- Source comparison against the approved earlier revision confirms the shared object motion values are restored to 0.055 x rotation, 0.38 y rotation and 0.025 z rotation, with the original lighter float and pointer contributions.
+- A 390 by 844 production render at the Business Value scene shows the procedural ring as a readable formed object rather than a loose cloud. It retains all 2,200 points, independently phased paths, a 30 FPS ceiling and zero horizontal overflow.
+- Live 1280 by 800 production renders show the folded Home logo, centred About head and Services object retaining their intended facings. Home, About and Services have zero horizontal overflow, and the Services console reports no errors.
