@@ -576,3 +576,10 @@
 - Added slow point-specific cyan-to-blue changes to the GPU, phone, Services and ambient render paths. Added bounded GPU opacity pockets to create an uneven porous surface while retaining the complete point budget and readable source silhouette.
 - Kept phone Home objects at 2,200 points with the tightened 0.5-pixel halo, identity-squared mobility and eased target blend. A 390 by 844 production render shows the Business Value ring clearly defined while retaining the approved individual movement.
 - Completed the radius-token pass for Admin status, collection, error, content and asset controls. The expanded kinetic cursor already resolves to the shared card radius while its resting state remains circular.
+
+## 2026-07-18, coherent travelling particle surfaces
+
+- Replaced isolated point colour toggles with two broad moving object-space bands plus a small seeded residual term. Deep blue, cyan and light blue regions now travel across the Webine logo, Home forms, About head, Services orb and ambient canvases without turning the complete object into one colour.
+- Added a slower independent density field so sparse areas move coherently across each form. Points are dimmed rather than removed, keeping the full geometry and preserving the authored silhouette.
+- Kept the approved whole-object orientation values unchanged. Mobile retains the 2,200-point targets, 0.5-pixel halo and independently phased paths, while light scenes use darker blue endpoints and a higher density floor for definition.
+- Increased the shared ambient counts to 84 on Home, 76 on Contact, 84 on Services and 138 on Works. Existing DPR caps, frame ceilings, offscreen pause and hidden-document pause remain in place.

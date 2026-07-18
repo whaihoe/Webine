@@ -76,6 +76,7 @@ export function ParticlePoints({
     [closingTarget, heroTarget, proceduralTargets],
   );
   const ambientMotion = experienceConfig.particles.ambientMotion;
+  const surfaceField = experienceConfig.particles.surfaceField;
   const uniforms = useMemo(
     () => ({
       uProgress: { value: 0 },
@@ -100,25 +101,37 @@ export function ParticlePoints({
       uTransitionSpread: { value: ambientMotion.transitionSpread },
       uAmbientStrength: { value: 1 },
       uColourCycleSpeed: {
-        value: (Math.PI * 2) / ambientMotion.colourCycleSeconds,
+        value: (Math.PI * 2) / surfaceField.colourCycleSeconds,
       },
-      uColourCycleRange: { value: ambientMotion.colourCycleRange },
-      uDensityContrast: { value: ambientMotion.densityContrast },
+      uDensityCycleSpeed: {
+        value: (Math.PI * 2) / surfaceField.densityCycleSeconds,
+      },
+      uSurfacePrimaryScale: { value: surfaceField.primaryScale },
+      uSurfaceSecondaryScale: { value: surfaceField.secondaryScale },
+      uSurfaceResidualMix: { value: surfaceField.residualMix },
+      uDensityScale: { value: surfaceField.densityScale },
+      uDensityContrast: { value: surfaceField.densityContrast },
       uPointer: { value: pointerUniformRef.current },
       uPointerStrength: { value: 0 },
       uCyanColour: { value: getTokenColour("--primitive-cyan-400") },
       uBlueColour: { value: getTokenColour("--primitive-blue-500") },
+      uDeepBlueColour: { value: getTokenColour("--primitive-blue-600") },
+      uLightBlueColour: { value: getTokenColour("--primitive-blue-400") },
     }),
     [
-      ambientMotion.colourCycleSeconds,
-      ambientMotion.colourCycleRange,
-      ambientMotion.densityContrast,
       ambientMotion.drift,
       ambientMotion.electronDrift,
       ambientMotion.electronSpeed,
       ambientMotion.objectLooseness,
       ambientMotion.transitionSpread,
       profile.pointSize,
+      surfaceField.colourCycleSeconds,
+      surfaceField.densityContrast,
+      surfaceField.densityCycleSeconds,
+      surfaceField.densityScale,
+      surfaceField.primaryScale,
+      surfaceField.residualMix,
+      surfaceField.secondaryScale,
     ],
   );
   const heroScene = particleSceneConfig.hero[layout];

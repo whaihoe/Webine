@@ -32,14 +32,21 @@ export const particleVertexShader = `
   uniform float uElectronDrift;
   uniform float uElectronSpeed;
   uniform float uTransitionSpread;
+  uniform float uSurfacePrimaryScale;
+  uniform float uSurfaceSecondaryScale;
+  uniform float uSurfaceResidualMix;
+  uniform float uColourCycleSpeed;
+  uniform float uDensityScale;
+  uniform float uDensityCycleSpeed;
   uniform vec2 uPointer;
   uniform float uPointerStrength;
 
   varying float vRandom;
-  varying float vGradient;
   varying float vPointerInfluence;
   varying float vAmbient;
   varying float vNarrativeVisibility;
+  varying float vSurfaceColour;
+  varying float vSurfaceDensity;
 
   void main() {
     float easedProgress = smoothstep(0.0, 1.0, uProgress);
@@ -278,30 +285,51 @@ export const particleVertexShader = `
       (10.0 / max(1.0, -viewPosition.z));
 
     vRandom = particleRandom;
-    vGradient = clamp(
-      0.5 + particlePosition.x * 0.12 - particlePosition.y * 0.055,
-      0.04,
-      0.96
-    );
     vPointerInfluence = pointerInfluence;
     vAmbient = particleAmbient;
     vNarrativeVisibility = narrativeVisibility * uStoryVisibility;
+    float surfacePrimary = sin(
+      dot(particlePosition, vec3(1.13, 0.71, 0.89)) * uSurfacePrimaryScale
+        + uTime * uColourCycleSpeed
+    );
+    float surfaceSecondary = sin(
+      dot(particlePosition, vec3(-0.62, 1.37, -0.48)) * uSurfaceSecondaryScale
+        - uTime * uColourCycleSpeed * 0.68 + 1.7
+    );
+    float residualIsland = sin(
+      particleRandom * 43.7 + uTime * uColourCycleSpeed * 0.17
+    ) * uSurfaceResidualMix;
+    vSurfaceColour = clamp(
+      0.5 + surfacePrimary * 0.27 + surfaceSecondary * 0.18 + residualIsland,
+      0.0,
+      1.0
+    );
+    float densityPrimary = sin(
+      dot(particlePosition, vec3(0.74, -1.08, 0.63)) * uDensityScale
+        + uTime * uDensityCycleSpeed
+    );
+    float densitySecondary = sin(
+      dot(particlePosition, vec3(-0.39, 0.58, 1.17)) * uDensityScale * 1.7
+        - uTime * uDensityCycleSpeed * 0.61 + 2.1
+    );
+    vSurfaceDensity = 0.5 + densityPrimary * 0.31 + densitySecondary * 0.19;
   }
 `;
 
 export const particleFragmentShader = `
   uniform vec3 uCyanColour;
   uniform vec3 uBlueColour;
+  uniform vec3 uDeepBlueColour;
+  uniform vec3 uLightBlueColour;
   uniform float uTime;
-  uniform float uColourCycleSpeed;
-  uniform float uColourCycleRange;
   uniform float uDensityContrast;
 
   varying float vRandom;
-  varying float vGradient;
   varying float vPointerInfluence;
   varying float vAmbient;
   varying float vNarrativeVisibility;
+  varying float vSurfaceColour;
+  varying float vSurfaceDensity;
 
   void main() {
     float distanceToCentre = distance(gl_PointCoord, vec2(0.5));
@@ -311,20 +339,15 @@ export const particleFragmentShader = `
       discard;
     }
 
-    float breathingShift = sin(uTime * uColourCycleSpeed) * uColourCycleRange;
-    float ditherEdge = clamp(vGradient + breathingShift, 0.04, 0.96);
-    float blueDot = smoothstep(
-      ditherEdge - 0.035,
-      ditherEdge + 0.035,
-      vRandom
-    );
-    vec3 colour = mix(uCyanColour, uBlueColour, blueDot);
+    float blueToCyan = smoothstep(0.18, 0.68, vSurfaceColour);
+    float cyanToLight = smoothstep(0.7, 0.96, vSurfaceColour);
+    vec3 colour = mix(uDeepBlueColour, uCyanColour, blueToCyan);
+    colour = mix(colour, uLightBlueColour, cyanToLight * 0.78);
+    colour = mix(colour, uBlueColour, (vRandom - 0.5) * 0.14 + 0.07);
     colour = mix(colour, uCyanColour, vPointerInfluence * 0.24);
     float particleVariation = 0.9 + vRandom * 0.1;
-    float densityPocket = (1.0 - uDensityContrast) + uDensityContrast * smoothstep(
-      -0.48,
-      0.62,
-      sin(vGradient * 8.5 + vRandom * 3.0)
+    float densityPocket = 1.0 - uDensityContrast * (
+      1.0 - smoothstep(0.24, 0.68, vSurfaceDensity)
     );
     float ambientPulse = mix(
       1.0,

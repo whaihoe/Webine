@@ -167,3 +167,10 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - A fresh 390 by 844 production render at the Business Value section shows a readable ring with the complete 2,200-point budget, tighter formed-state silhouette and independently moving edge.
 - Direct-load and down-then-up About checks at 1280 by 800 retain the same centred head position. The Services object remains readable and bounded during chapter progress.
 - The production build passes. The existing large React Three Fiber chunk warning remains unchanged and documented.
+
+## 2026-07-18 coherent surface-field pass
+
+- Source comparison confirms the shared 0.055 x, 0.38 y and 0.025 z object rotation values still match the approved earlier orientation. The Services endpoint remains -1.1 radians and the closing GLB retains its authored 58, -22, 0 degree model preparation.
+- Fresh 390 by 844 production renders confirm a defined Business Value ring, centred About head and clearly formed closing planet. Light-scene particles use darker blue endpoints while keeping cyan and blue region movement.
+- Fresh 1280 by 800 renders confirm the About head and closing planet retain readable silhouettes with broad moving colour and density regions. Works and Contact mobile renders show the increased ambient fields without obscuring copy.
+- Lint, client and server type checks, production builds and all 50 automated tests pass. The existing React Three Fiber chunk warning remains unchanged.

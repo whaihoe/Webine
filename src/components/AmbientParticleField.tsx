@@ -1,5 +1,9 @@
 import { useEffect, useRef } from "react";
 import { experienceConfig } from "../config/experience";
+import {
+  getParticleSurfacePalette,
+  sampleParticleSurfaceField,
+} from "../utils/particle-surface-field";
 
 const ambientConfig = experienceConfig.particles.ambientField;
 type AmbientFieldVariant = keyof typeof ambientConfig.counts;
@@ -19,7 +23,6 @@ type AmbientParticle = {
   travelX: number;
   travelY: number;
   depth: number;
-  cyan: boolean;
 };
 
 function hash(value: number) {
@@ -40,7 +43,6 @@ function createParticles(count: number): AmbientParticle[] {
       travelX: ambientConfig.travelX.min + hash(seed * 9.1) * ambientConfig.travelX.range,
       travelY: ambientConfig.travelY.min + hash(seed * 11.3) * ambientConfig.travelY.range,
       depth: 0.45 + hash(seed * 15.1) * 0.8,
-      cyan: index % 3 === 0 || index % 7 === 0,
     };
   });
 }
@@ -60,6 +62,7 @@ export function AmbientParticleField({
     if (!context) return;
 
     const particles = createParticles(ambientConfig.counts[variant]);
+    const palette = getParticleSurfacePalette();
     const pointerTarget = { x: 0, y: 0 };
     const pointer = { x: 0, y: 0 };
     const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
@@ -90,16 +93,18 @@ export function AmbientParticleField({
       context.globalCompositeOperation = "lighter";
 
       for (let pass = 0; pass < 2; pass += 1) {
-        for (let colourIndex = 0; colourIndex < 2; colourIndex += 1) {
-          const cyan = colourIndex === 1;
-          context.fillStyle = cyan ? "rgb(34, 211, 238)" : "rgb(59, 130, 246)";
+        for (let colourIndex = 0; colourIndex < palette.length; colourIndex += 1) {
+          context.fillStyle = palette[colourIndex];
           for (const particle of particles) {
             const wave = elapsed * particle.speed + particle.phase;
-            const colourShift = Math.sin(
-              elapsed * ambientConfig.colourCycleSpeed + particle.phase * 1.9,
+            const surface = sampleParticleSurfaceField(
+              particle.x * 4 - 2,
+              particle.y * 4 - 2,
+              particle.depth,
+              elapsed,
+              particle.phase / (Math.PI * 2),
             );
-            const dynamicCyan = colourShift > 0.82 ? !particle.cyan : particle.cyan;
-            if (dynamicCyan !== cyan) continue;
+            if (surface.colourBucket !== colourIndex) continue;
             const x = particle.x * width
               + Math.sin(wave) * particle.travelX
               + Math.sin(wave * 0.43 + particle.phase * 1.7) * particle.travelX * 0.34

@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { experienceConfig } from "../../config/experience";
 import {
+  getParticleSurfacePalette,
+  sampleParticleSurfaceField,
+} from "../../utils/particle-surface-field";
+import {
   getMobileParticleTarget,
   loadMobileSectionParticleTargets,
   type MobileParticleSceneId,
@@ -19,7 +23,6 @@ type PreparedParticleTarget = {
   targetZ: Float32Array;
   scatterX: Float32Array;
   scatterY: Float32Array;
-  colourBucket: Uint8Array;
   scale: number;
 };
 
@@ -72,7 +75,6 @@ function prepareTarget(
   const targetZ = new Float32Array(count);
   const scatterX = new Float32Array(count);
   const scatterY = new Float32Array(count);
-  const colourBucket = new Uint8Array(count);
   let minRawX = Number.POSITIVE_INFINITY;
   let maxRawX = Number.NEGATIVE_INFINITY;
   let minRawY = Number.POSITIVE_INFINITY;
@@ -129,17 +131,6 @@ function prepareTarget(
 
   for (let index = 0; index < count; index += 1) {
     const offset = index * 3;
-    const x = target[offset] - centreX;
-    const y = target[offset + 1] - centreY;
-    const z = target[offset + 2] - centreZ;
-    const perspective = 6 / Math.max(3.5, 6 - z * 0.45);
-    const normalisedX = (x * perspective - minProjectedX) / targetWidth;
-    const normalisedY = (y * perspective - minProjectedY) / targetHeight;
-    const gradient = 0.12 +
-      (normalisedX * 0.68 + (1 - normalisedY) * 0.32) * 0.76;
-    colourBucket[index] = hash01(buffers.randomness[index] * 17.3) < gradient
-      ? 1
-      : 0;
     scatterX[index] = width * 0.5 + buffers.scatter[offset] * scatterScale;
     scatterY[index] = height * 0.5 - buffers.scatter[offset + 1] * scatterScale;
   }
@@ -150,7 +141,6 @@ function prepareTarget(
     targetZ,
     scatterX,
     scatterY,
-    colourBucket,
     scale,
   };
 }
@@ -158,25 +148,6 @@ function prepareTarget(
 function hash01(value: number) {
   const sine = Math.sin(value) * 43758.5453123;
   return sine - Math.floor(sine);
-}
-
-function getParticleColours() {
-  const styles = getComputedStyle(document.documentElement);
-  const getColour = (token: string, fallback: string) => {
-    const value = styles.getPropertyValue(token).trim();
-    const channels = value.split(/\s+/);
-
-    if (channels.length !== 3 || channels.some((channel) => !channel)) {
-      return fallback;
-    }
-
-    return `hsl(${channels[0]}, ${channels[1]}, ${channels[2]})`;
-  };
-
-  return [
-    getColour("--primitive-cyan-400", "hsl(188, 86%, 53%)"),
-    getColour("--primitive-blue-500", "hsl(217, 91%, 60%)"),
-  ] as const;
 }
 
 function smoothstepRange(edgeStart: number, edgeEnd: number, value: number) {
@@ -226,7 +197,7 @@ export function MobileTimelineFlowParticles() {
     let drawFrame = 0;
     let lastProgress = Number.NaN;
     let buffers: MobileSectionParticleTargets | null = null;
-    const colours = getParticleColours();
+    const colours = getParticleSurfacePalette();
 
     function draw() {
       drawFrame = 0;
@@ -263,7 +234,10 @@ export function MobileTimelineFlowParticles() {
 
         for (let index = 0; index < count; index += 1) {
           const randomness = hash01(buffers.randomness[index] * 41.7);
-          const colourBucket = randomness < 0.5 ? 0 : 1;
+          const colourBucket = Math.min(
+            colours.length - 1,
+            Math.floor(randomness * colours.length),
+          );
 
           if (colourBucket !== bucket) {
             continue;
@@ -429,7 +403,11 @@ export function MobileSectionParticles({
     let ambientTimer = 0;
     let scrollRotation = 0;
     let lastScrollY = window.scrollY;
-    const colours = getParticleColours();
+    const lightScene = scene === "reach" || scene === "interlude";
+    const colours = getParticleSurfacePalette(lightScene ? "light" : "dark");
+    const densityFloor = lightScene
+      ? experienceConfig.particles.surfaceField.mobileDensityFloor.light
+      : experienceConfig.particles.surfaceField.mobileDensityFloor.dark;
     const ambientMotion = experienceConfig.particles.ambientMotion;
     const ambientFrameInterval = 1000 / MOBILE_AMBIENT_FRAME_RATE;
 
@@ -520,19 +498,10 @@ export function MobileSectionParticles({
 
       for (let bucket = 0; bucket < colours.length; bucket += 1) {
         drawingContext.fillStyle = colours[bucket];
-        drawingContext.globalAlpha = 0.34 + strength * 0.62;
+        const baseAlpha = 0.34 + strength * 0.62;
 
         for (let index = 0; index < count; index += 1) {
           const identity = buffers.randomness[index];
-          const colourShift = Math.sin(
-            elapsed * experienceConfig.particles.mobile.colourCycleSpeed + identity * 10.7,
-          );
-          const baseBucket = projection.colourBucket[index];
-          const dynamicBucket = colourShift > 0.84 ? 1 - baseBucket : baseBucket;
-          if (dynamicBucket !== bucket) {
-            continue;
-          }
-
           const sourceX = projection.targetX[index];
           const sourceY = projection.targetY[index];
           const sourceZ = projection.targetZ[index];
@@ -542,6 +511,14 @@ export function MobileSectionParticles({
           const rotatedZ = sourceY * sinX + rotatedZFromY * cosX;
           const finalX = rotatedX * cosZ - rotatedY * sinZ;
           const finalY = rotatedX * sinZ + rotatedY * cosZ;
+          const surface = sampleParticleSurfaceField(
+            finalX,
+            finalY,
+            rotatedZ,
+            elapsed,
+            identity,
+          );
+          if (surface.colourBucket !== bucket) continue;
           const perspective = 6 / Math.max(
             3.5,
             6 - (rotatedZ + floatZ) * 0.45,
@@ -572,6 +549,7 @@ export function MobileSectionParticles({
             (targetY - projection.scatterY[index]) * targetBlend + spreadY + electronY;
           const size = pointSize *
             (0.72 + buffers.randomness[index] * 0.36);
+          drawingContext.globalAlpha = baseAlpha * Math.max(surface.density, densityFloor);
           drawingContext.fillRect(x, y, size, size);
         }
       }

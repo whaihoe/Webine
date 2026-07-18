@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useRef, type MutableRefObject } from "react";
 import { experienceConfig } from "../../config/experience";
+import {
+  getParticleSurfacePalette,
+  sampleParticleSurfaceField,
+} from "../../utils/particle-surface-field";
 
 const orbConfig = experienceConfig.particles.servicesOrb;
 
@@ -24,7 +28,6 @@ type OrbParticle = {
   spreadX: number;
   spreadY: number;
   spreadZ: number;
-  cyan: boolean;
 };
 
 function seededRandom(seed: number) {
@@ -55,7 +58,6 @@ function createOrbParticles(count: number) {
       spreadX: (random() - 0.5) * 0.052,
       spreadY: (random() - 0.5) * 0.046,
       spreadZ: (random() - 0.5) * 0.064,
-      cyan: random() > 0.54,
     });
   }
   return particles;
@@ -75,6 +77,7 @@ export function ServicesParticleOrb({ motion }: ServicesParticleOrbProps) {
 
     const pointerTarget = { x: 0, y: 0, localX: 0.5, localY: 0.5, active: false };
     const pointer = { x: 0, y: 0, localX: 0.5, localY: 0.5, active: false };
+    const palette = getParticleSurfacePalette();
     const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
     let width = 1;
     let height = 1;
@@ -111,15 +114,9 @@ export function ServicesParticleOrb({ motion }: ServicesParticleOrbProps) {
       context.globalCompositeOperation = "lighter";
 
       for (let pass = 0; pass < 2; pass += 1) {
-        for (let colourIndex = 0; colourIndex < 2; colourIndex += 1) {
-          const cyan = colourIndex === 1;
-          context.fillStyle = cyan ? "rgb(34, 211, 238)" : "rgb(59, 130, 246)";
+        for (let colourIndex = 0; colourIndex < palette.length; colourIndex += 1) {
+          context.fillStyle = palette[colourIndex];
           for (const particle of particles) {
-            const colourShift = Math.sin(
-              elapsed * orbConfig.colourCycleSpeed + particle.phase * 1.7,
-            );
-            const dynamicCyan = colourShift > 0.78 ? !particle.cyan : particle.cyan;
-            if (dynamicCyan !== cyan) continue;
             const electronTime = elapsed * particle.speed;
             const electronX = Math.sin(electronTime + particle.phase) * particle.amplitude
               + Math.sin(electronTime * 0.31 + particle.orbitBias) * particle.amplitude * 0.38;
@@ -130,6 +127,14 @@ export function ServicesParticleOrb({ motion }: ServicesParticleOrbProps) {
             const localX = particle.x + particle.spreadX + electronX;
             const localY = particle.y + particle.spreadY + electronY;
             const localZ = particle.z + particle.spreadZ + electronZ;
+            const surface = sampleParticleSurfaceField(
+              localX * 4.2,
+              localY * 4.2,
+              localZ * 4.2,
+              elapsed,
+              particle.phase / (Math.PI * 2),
+            );
+            if (surface.colourBucket !== colourIndex) continue;
             const xzX = localX * cosY + localZ * sinY;
             const xzZ = -localX * sinY + localZ * cosY;
             const yzY = localY * cosX - xzZ * sinX;
@@ -147,7 +152,9 @@ export function ServicesParticleOrb({ motion }: ServicesParticleOrbProps) {
             const inverseDistance = 1 / Math.max(distance, 1);
             const x = baseX + deltaX * inverseDistance * outward;
             const y = baseY + deltaY * inverseDistance * outward;
-            const alpha = (0.35 + perspective * 0.38 + influence * 0.18) * (pass === 0 ? 0.12 : 0.84);
+            const alpha = (0.35 + perspective * 0.38 + influence * 0.18)
+              * Math.max(surface.density, orbConfig.densityFloor)
+              * (pass === 0 ? 0.12 : 0.84);
             const radius = particle.size * perspective * (1 + influence * 0.9) * (pass === 0 ? 2.5 : 0.78);
             context.globalAlpha = alpha;
             context.beginPath();

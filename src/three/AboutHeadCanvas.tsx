@@ -23,6 +23,7 @@ type AboutHeadCanvasProps = {
 };
 
 const aboutHeadConfig = experienceConfig.particles.aboutHead;
+const surfaceField = experienceConfig.particles.surfaceField;
 
 function selectRuntimePositions(buffer: ArrayBuffer) {
   const source = new Float32Array(buffer);
@@ -47,8 +48,9 @@ const vertexShader = `
   uniform vec2 uPointer;
   uniform float uPointerStrength;
   varying float vRandom;
-  varying float vDepth;
   varying float vPointerInfluence;
+  varying float vSurfaceColour;
+  varying float vSurfaceDensity;
 
   void main() {
     float eased = smoothstep(0.0, 1.0, uDispersion);
@@ -87,29 +89,62 @@ const vertexShader = `
     gl_Position = projectionMatrix * viewPosition;
     gl_PointSize = uPointSize * (1.0 + pointerInfluence * 0.75) * (1.0 / max(0.4, -viewPosition.z));
     vRandom = aRandom;
-    vDepth = clamp((positionNow.z + 2.4) / 4.8, 0.0, 1.0);
     vPointerInfluence = pointerInfluence;
+    float colourTime = uTime * ${(Math.PI * 2) / surfaceField.colourCycleSeconds};
+    float colourPrimary = sin(
+      dot(positionNow, vec3(1.13, 0.71, 0.89)) * ${surfaceField.primaryScale}
+        + colourTime
+    );
+    float colourSecondary = sin(
+      dot(positionNow, vec3(-0.62, 1.37, -0.48)) * ${surfaceField.secondaryScale}
+        - colourTime * 0.68 + 1.7
+    );
+    float residualIsland = sin(aRandom * 43.7 + colourTime * 0.17) * ${surfaceField.residualMix};
+    vSurfaceColour = clamp(
+      0.5 + colourPrimary * 0.27 + colourSecondary * 0.18 + residualIsland,
+      0.0,
+      1.0
+    );
+    float densityTime = uTime * ${(Math.PI * 2) / surfaceField.densityCycleSeconds};
+    float densityPrimary = sin(
+      dot(positionNow, vec3(0.74, -1.08, 0.63)) * ${surfaceField.densityScale}
+        + densityTime
+    );
+    float densitySecondary = sin(
+      dot(positionNow, vec3(-0.39, 0.58, 1.17)) * ${surfaceField.densityScale * 1.7}
+        - densityTime * 0.61 + 2.1
+    );
+    vSurfaceDensity = 0.5 + densityPrimary * 0.31 + densitySecondary * 0.19;
   }
 `;
 
 const fragmentShader = `
+  uniform vec3 uDeepBlue;
   uniform vec3 uBlue;
   uniform vec3 uCyan;
-  uniform float uTime;
   varying float vRandom;
-  varying float vDepth;
   varying float vPointerInfluence;
+  varying float vSurfaceColour;
+  varying float vSurfaceDensity;
 
   void main() {
     vec2 point = gl_PointCoord - 0.5;
     float distanceFromCentre = length(point);
     if (distanceFromCentre > 0.5) discard;
     float edge = 1.0 - smoothstep(0.28, 0.5, distanceFromCentre);
-    float colourBreath = sin(uTime * ${aboutHeadConfig.colourCycleSpeed} + vRandom * 8.0) * 0.12;
-    float colourMix = clamp(vDepth * 0.66 + vRandom * 0.34 + colourBreath, 0.0, 1.0);
-    vec3 colour = mix(uBlue, uCyan, colourMix);
+    float blueToCyan = smoothstep(0.18, 0.68, vSurfaceColour);
+    float cyanToLight = smoothstep(0.7, 0.96, vSurfaceColour);
+    vec3 colour = mix(uDeepBlue, uCyan, blueToCyan);
+    colour = mix(colour, uBlue, cyanToLight * 0.78);
     colour = mix(colour, uCyan, vPointerInfluence * 0.36);
-    gl_FragColor = vec4(colour, edge * (0.62 + vRandom * 0.34 + vPointerInfluence * 0.2));
+    float density = 1.0 - ${surfaceField.densityContrast} * (
+      1.0 - smoothstep(0.24, 0.68, vSurfaceDensity)
+    );
+    density = max(density, ${aboutHeadConfig.densityFloor});
+    gl_FragColor = vec4(
+      colour,
+      edge * density * (0.72 + vRandom * 0.24 + vPointerInfluence * 0.2)
+    );
   }
 `;
 
@@ -172,7 +207,8 @@ function HeadPoints({ motion, positions, onReady }: AboutHeadCanvasProps & { pos
       uTime: { value: 0 },
       uPointer: { value: new Vector2(20, 20) },
       uPointerStrength: { value: 0 },
-      uBlue: { value: new Color("#2563eb") },
+      uDeepBlue: { value: new Color("#2563eb") },
+      uBlue: { value: new Color("#60a5fa") },
       uCyan: { value: new Color("#22d3ee") },
     },
   }), []);
