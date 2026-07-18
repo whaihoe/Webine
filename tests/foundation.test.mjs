@@ -163,10 +163,11 @@ test("connects published Site Settings to every public content route", async () 
 });
 
 test("uses the three-layer token architecture", async () => {
-  const [primitives, semantic, components] = await Promise.all([
+  const [primitives, semantic, components, pages] = await Promise.all([
     readFile(new URL("src/styles/tokens/primitives.css", projectRoot), "utf8"),
     readFile(new URL("src/styles/tokens/semantic.css", projectRoot), "utf8"),
     readFile(new URL("src/styles/tokens/components.css", projectRoot), "utf8"),
+    readFile(new URL("src/styles/pages.css", projectRoot), "utf8"),
   ]);
 
   assert.match(primitives, /--primitive-slate-950/);
@@ -180,6 +181,9 @@ test("uses the three-layer token architecture", async () => {
   assert.match(components, /--button-radius:\s*var\(--primitive-radius-default\)/);
   assert.match(components, /--project-media-radius:\s*var\(--primitive-radius-media\)/);
   assert.match(components, /--panel-radius:\s*var\(--primitive-radius-panel\)/);
+  for (const selector of ["admin-data-state", "admin-collection-card", "admin-form-error", "admin-content-block"]) {
+    assert.match(pages, new RegExp(`\\.${selector}[^}]*border-radius`, "s"));
+  }
 });
 
 test("enables the approved homepage experience layers", async () => {
@@ -218,6 +222,11 @@ test("enables the approved homepage experience layers", async () => {
   assert.match(config, /tablet:/);
   assert.match(config, /ambientMotion:/);
   assert.match(config, /colourCycleSeconds:\s*18/);
+  assert.match(config, /colourCycleRange:\s*0\.12/);
+  assert.match(config, /densityContrast:\s*0\.34/);
+  assert.match(config, /ambientField:/);
+  assert.match(config, /aboutHead:/);
+  assert.match(config, /servicesOrb:/);
   assert.match(config, /objectLooseness:\s*0\.075/);
   assert.match(config, /electronDrift:\s*0\.056/);
   assert.match(config, /scrollRotationLimit:\s*0\.26/);
@@ -324,9 +333,13 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.match(mobileParticles, /objectLooseness/);
   assert.match(mobileParticles, /targetBlend = 1 - Math\.pow\(1 - strength, 2\.4\)/);
   assert.match(mobileParticles, /electronAmplitude/);
+  assert.match(mobileParticles, /dynamicBucket/);
   assert.match(mobileParticles, /data-mobile-particle-state|mobileParticleState/);
   assert.match(mobileParticles, /fillRect/);
   assert.doesNotMatch(mobileParticles, /displayCopies|copyIndex|jitterStrength/);
+  assert.match(shaders, /uColourCycleRange/);
+  assert.match(shaders, /uDensityContrast/);
+  assert.match(shaders, /densityPocket/);
   assert.match(mobileParticles, /MobileTimelineFlowParticles/);
   assert.match(mobileParticles, /timelineIntakeProgress/);
   assert.doesNotMatch(mobileParticles, /@react-three\/fiber|useFrame|<Canvas(?:\s|>)/);
@@ -639,9 +652,9 @@ test("extends the Home motion language across Works and Contact without assignin
   assert.match(works, /project-case-study__media-frame/);
   assert.match(works, /works-foundation theme-dark/);
   assert.match(works, /<GalaxyBackdrop \/>/);
-  assert.match(galaxyBackdrop, /<AmbientParticleField\s+count=\{118\}/);
-  assert.match(homeExperience, /<AmbientParticleField count=\{58\} className="ambient-particle-field--hero" \/>/);
-  assert.match(contact, /<AmbientParticleField count=\{58\}/);
+  assert.match(galaxyBackdrop, /<AmbientParticleField[\s\S]*?variant="works"/);
+  assert.match(homeExperience, /<AmbientParticleField variant="home" className="ambient-particle-field--hero" \/>/);
+  assert.match(contact, /<AmbientParticleField variant="contact"/);
   assert.doesNotMatch(contact, /contact-section__signal/);
   assert.match(contact, /data-gsap-delay="0\.7"/);
   assert.match(contact, /<DirectionalArrow \/>/);
@@ -653,7 +666,7 @@ test("extends the Home motion language across Works and Contact without assignin
   assert.match(ambientParticles, /<canvas/);
   assert.match(ambientParticles, /IntersectionObserver/);
   assert.match(ambientParticles, /document\.visibilityState/);
-  assert.match(ambientParticles, /Math\.min\(window\.devicePixelRatio \|\| 1, 1\.25\)/);
+  assert.match(ambientParticles, /Math\.min\(window\.devicePixelRatio \|\| 1, ambientConfig\.pixelRatioCap\)/);
   assert.match(styles, /\.project-card__media:focus-visible \.project-card__overlay/);
   assert.doesNotMatch(styles, /@media \(hover: none\)\s*\{\s*\.project-card__overlay/);
   assert.match(styles, /\.galaxy-backdrop\s*{[^}]*position:\s*fixed/s);
@@ -864,7 +877,8 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(portraitColour, /event\.pointerType === "touch"/);
   assert.match(portraitColour, /addEventListener\("pointerenter", startTrail/);
   assert.match(portraitColour, /removeEventListener\("pointerenter", startTrail/);
-  assert.match(head, /MOBILE_HEAD_POINT_LIMIT = 5600/);
+  assert.match(head, /aboutHeadConfig\.mobilePointLimit/);
+  assert.match(head, /colourBreath/);
   assert.match(head, /centredPositions/);
   assert.match(head, /dpr=\{mobile \? \[0\.75, 1\.05\]/);
   assert.match(portrait, /start: "top 76%"/);
@@ -893,12 +907,13 @@ test("builds the Services page from Webine's real offer and shared process", asy
     readFile(new URL("server/api-routes/sitemap.ts", projectRoot), "utf8"),
   ]);
   assert.match(page, /ServicesChapterController/);
-  assert.match(page, /<AmbientParticleField count=\{64\}/);
+  assert.match(page, /<AmbientParticleField variant="services"/);
   assert.match(page, /useSiteSettings/);
   assert.match(chapters, /ScrollTrigger/);
   assert.match(chapters, /data-service-chapter/);
   assert.match(chapters, /ServicesParticleOrb/);
-  assert.match(particleOrb, /createOrbParticles\(780\)/);
+  assert.match(particleOrb, /createOrbParticles\(orbConfig\.count\)/);
+  assert.match(particleOrb, /dynamicCyan/);
   assert.match(particleOrb, /electronTime/);
   assert.match(particleOrb, /orbitBias/);
   assert.match(particleOrb, /IntersectionObserver/);

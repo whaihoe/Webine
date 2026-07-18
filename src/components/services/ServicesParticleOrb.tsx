@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useRef, type MutableRefObject } from "react";
+import { experienceConfig } from "../../config/experience";
+
+const orbConfig = experienceConfig.particles.servicesOrb;
 
 export type ServicesParticleMotion = {
   rotation: number;
@@ -47,7 +50,7 @@ function createOrbParticles(count: number) {
       size: 0.65 + random() * 1.15,
       phase: random() * Math.PI * 2,
       speed: 0.25 + random() * 0.84,
-      amplitude: 0.016 + random() * 0.038,
+      amplitude: orbConfig.electronAmplitude.min + random() * orbConfig.electronAmplitude.range,
       orbitBias: random() * Math.PI * 2,
       spreadX: (random() - 0.5) * 0.052,
       spreadY: (random() - 0.5) * 0.046,
@@ -61,7 +64,7 @@ function createOrbParticles(count: number) {
 export function ServicesParticleOrb({ motion }: ServicesParticleOrbProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const particles = useMemo(() => createOrbParticles(780), []);
+  const particles = useMemo(() => createOrbParticles(orbConfig.count), []);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -83,7 +86,7 @@ export function ServicesParticleOrb({ motion }: ServicesParticleOrbProps) {
     const draw = (time: number) => {
       frame = 0;
       if (!visible || document.visibilityState !== "visible") return;
-      if (time - previousFrame < 1000 / 45) {
+      if (time - previousFrame < 1000 / orbConfig.maxFrameRate) {
         frame = window.requestAnimationFrame(draw);
         return;
       }
@@ -94,9 +97,9 @@ export function ServicesParticleOrb({ motion }: ServicesParticleOrbProps) {
       pointer.localX += (pointerTarget.localX - pointer.localX) * 0.09;
       pointer.localY += (pointerTarget.localY - pointer.localY) * 0.09;
       pointer.active = pointerTarget.active;
-      const rotationY = motion.current.rotation + pointer.x * 0.18
-        + Math.sin(elapsed * 0.18) * 0.14;
-      const rotationX = -0.18 + pointer.y * -0.16 + Math.sin(elapsed * 0.21) * 0.055;
+      const rotationY = motion.current.rotation + pointer.x * orbConfig.pointerTilt.y
+        + Math.sin(elapsed * 0.18) * orbConfig.rotation.idleRange;
+      const rotationX = -0.18 + pointer.y * -orbConfig.pointerTilt.x + Math.sin(elapsed * 0.21) * 0.055;
       const sinX = Math.sin(rotationX);
       const cosX = Math.cos(rotationX);
       const sinY = Math.sin(rotationY);
@@ -112,7 +115,11 @@ export function ServicesParticleOrb({ motion }: ServicesParticleOrbProps) {
           const cyan = colourIndex === 1;
           context.fillStyle = cyan ? "rgb(34, 211, 238)" : "rgb(59, 130, 246)";
           for (const particle of particles) {
-            if (particle.cyan !== cyan) continue;
+            const colourShift = Math.sin(
+              elapsed * orbConfig.colourCycleSpeed + particle.phase * 1.7,
+            );
+            const dynamicCyan = colourShift > 0.78 ? !particle.cyan : particle.cyan;
+            if (dynamicCyan !== cyan) continue;
             const electronTime = elapsed * particle.speed;
             const electronX = Math.sin(electronTime + particle.phase) * particle.amplitude
               + Math.sin(electronTime * 0.31 + particle.orbitBias) * particle.amplitude * 0.38;
@@ -165,7 +172,7 @@ export function ServicesParticleOrb({ motion }: ServicesParticleOrbProps) {
       const bounds = root.getBoundingClientRect();
       width = Math.max(1, Math.round(bounds.width));
       height = Math.max(1, Math.round(bounds.height));
-      dpr = Math.min(window.devicePixelRatio || 1, 1.25);
+      dpr = Math.min(window.devicePixelRatio || 1, orbConfig.pixelRatioCap);
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
       canvas.style.width = `${width}px`;

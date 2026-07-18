@@ -294,6 +294,8 @@ export const particleFragmentShader = `
   uniform vec3 uBlueColour;
   uniform float uTime;
   uniform float uColourCycleSpeed;
+  uniform float uColourCycleRange;
+  uniform float uDensityContrast;
 
   varying float vRandom;
   varying float vGradient;
@@ -309,7 +311,7 @@ export const particleFragmentShader = `
       discard;
     }
 
-    float breathingShift = sin(uTime * uColourCycleSpeed) * 0.045;
+    float breathingShift = sin(uTime * uColourCycleSpeed) * uColourCycleRange;
     float ditherEdge = clamp(vGradient + breathingShift, 0.04, 0.96);
     float blueDot = smoothstep(
       ditherEdge - 0.035,
@@ -319,6 +321,11 @@ export const particleFragmentShader = `
     vec3 colour = mix(uCyanColour, uBlueColour, blueDot);
     colour = mix(colour, uCyanColour, vPointerInfluence * 0.24);
     float particleVariation = 0.9 + vRandom * 0.1;
+    float densityPocket = (1.0 - uDensityContrast) + uDensityContrast * smoothstep(
+      -0.48,
+      0.62,
+      sin(vGradient * 8.5 + vRandom * 3.0)
+    );
     float ambientPulse = mix(
       1.0,
       0.68 + 0.22 * sin(uTime * 0.38 + vRandom * 16.0),
@@ -327,7 +334,7 @@ export const particleFragmentShader = `
 
     gl_FragColor = vec4(
       colour * particleVariation,
-      alpha * ambientPulse * vNarrativeVisibility
+      alpha * densityPocket * ambientPulse * vNarrativeVisibility
     );
   }
 `;

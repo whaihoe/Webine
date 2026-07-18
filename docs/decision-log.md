@@ -568,3 +568,11 @@
 - Set the Services chapter endpoint to -1.1 radians. This reproduces the earlier final facing modulo a complete turn without restoring the unnecessary full revolution.
 - Tightened the phone target halo from 1.6 to 0.5 pixels and reduced its orbit envelope. An identity-squared mobility curve keeps most points close to the source form while a smaller group retains the lively independent movement.
 - Added an eased formation blend so the ring, Webine logo and closing object read clearly earlier in their section transition without changing the section thresholds or the 2,200-point mobile budget.
+
+## 2026-07-18, central particle tuning and colour-density refinement
+
+- Preserved the restored authored orientation values from the approved earlier iteration. The adjustment targets local point behaviour and silhouette clarity, not additional whole-object tumbling.
+- Centralised ambient-field, About-head and Services-orb counts, motion ranges, colour speeds, frame ceilings and pointer limits in `src/config/experience.ts`.
+- Added slow point-specific cyan-to-blue changes to the GPU, phone, Services and ambient render paths. Added bounded GPU opacity pockets to create an uneven porous surface while retaining the complete point budget and readable source silhouette.
+- Kept phone Home objects at 2,200 points with the tightened 0.5-pixel halo, identity-squared mobility and eased target blend. A 390 by 844 production render shows the Business Value ring clearly defined while retaining the approved individual movement.
+- Completed the radius-token pass for Admin status, collection, error, content and asset controls. The expanded kinetic cursor already resolves to the shared card radius while its resting state remains circular.

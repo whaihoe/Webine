@@ -102,6 +102,8 @@ export function ParticlePoints({
       uColourCycleSpeed: {
         value: (Math.PI * 2) / ambientMotion.colourCycleSeconds,
       },
+      uColourCycleRange: { value: ambientMotion.colourCycleRange },
+      uDensityContrast: { value: ambientMotion.densityContrast },
       uPointer: { value: pointerUniformRef.current },
       uPointerStrength: { value: 0 },
       uCyanColour: { value: getTokenColour("--primitive-cyan-400") },
@@ -109,6 +111,8 @@ export function ParticlePoints({
     }),
     [
       ambientMotion.colourCycleSeconds,
+      ambientMotion.colourCycleRange,
+      ambientMotion.densityContrast,
       ambientMotion.drift,
       ambientMotion.electronDrift,
       ambientMotion.electronSpeed,

@@ -523,7 +523,13 @@ export function MobileSectionParticles({
         drawingContext.globalAlpha = 0.34 + strength * 0.62;
 
         for (let index = 0; index < count; index += 1) {
-          if (projection.colourBucket[index] !== bucket) {
+          const identity = buffers.randomness[index];
+          const colourShift = Math.sin(
+            elapsed * experienceConfig.particles.mobile.colourCycleSpeed + identity * 10.7,
+          );
+          const baseBucket = projection.colourBucket[index];
+          const dynamicBucket = colourShift > 0.84 ? 1 - baseBucket : baseBucket;
+          if (dynamicBucket !== bucket) {
             continue;
           }
 
@@ -544,7 +550,6 @@ export function MobileSectionParticles({
             finalX * perspective * projection.scale;
           const targetY = height * 0.5 -
             finalY * perspective * projection.scale + floatY;
-          const identity = buffers.randomness[index];
           const mobility = identity * identity;
           const electronRate = 0.23 + identity * 0.86;
           const electronPhase = identity * Math.PI * 10 + index * 0.017;

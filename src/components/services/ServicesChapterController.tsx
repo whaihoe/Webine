@@ -1,11 +1,17 @@
 import { useLayoutEffect, useRef } from "react";
 import { gsap, ScrollTrigger } from "../../animation/scroll-runtime";
+import { experienceConfig } from "../../config/experience";
 import { servicesContent } from "../../content/services-content";
 import { ServicesParticleOrb, type ServicesParticleMotion } from "./ServicesParticleOrb";
 
+const orbConfig = experienceConfig.particles.servicesOrb;
+
 export function ServicesChapterController() {
   const rootRef = useRef<HTMLDivElement>(null);
-  const particleMotion = useRef<ServicesParticleMotion>({ rotation: -0.3, scale: 0.82 });
+  const particleMotion = useRef<ServicesParticleMotion>({
+    rotation: orbConfig.rotation.start,
+    scale: orbConfig.scale.start,
+  });
 
   useLayoutEffect(() => {
     const root = rootRef.current;
@@ -38,9 +44,12 @@ export function ServicesChapterController() {
           },
         });
       });
-      gsap.fromTo(particleMotion.current, { rotation: -0.3, scale: 0.82 }, {
-          rotation: -1.1,
-          scale: 1.08,
+      gsap.fromTo(particleMotion.current, {
+          rotation: orbConfig.rotation.start,
+          scale: orbConfig.scale.start,
+        }, {
+          rotation: orbConfig.rotation.end,
+          scale: orbConfig.scale.end,
           ease: "none",
           scrollTrigger: { trigger: root, start: "top bottom", end: "bottom top", scrub: 1.4 },
         });

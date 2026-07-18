@@ -81,7 +81,7 @@ export function ContactPage() {
   return (
     <SiteShell>
       <section className="contact-section theme-dark" aria-labelledby="contact-heading">
-        <AmbientParticleField count={58} />
+        <AmbientParticleField variant="contact" />
         <div className="site-container contact-section__grid">
           <div className="contact-section__intro page-header-copy page-header-copy--contact">
             <p className="eyebrow page-header-copy__eyebrow" data-gsap-reveal="copy">Start a project / Singapore</p>

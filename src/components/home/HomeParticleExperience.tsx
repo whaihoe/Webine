@@ -13,7 +13,7 @@ export function HomeParticleExperience({
   return (
     <ParticleSceneController>
       <div className="home-page">
-        <AmbientParticleField count={58} className="ambient-particle-field--hero" />
+        <AmbientParticleField variant="home" className="ambient-particle-field--hero" />
         <ParticleNarrativeLayer />
         {children}
       </div>

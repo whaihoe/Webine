@@ -1,7 +1,11 @@
 import { useEffect, useRef } from "react";
+import { experienceConfig } from "../config/experience";
+
+const ambientConfig = experienceConfig.particles.ambientField;
+type AmbientFieldVariant = keyof typeof ambientConfig.counts;
 
 type AmbientParticleFieldProps = {
-  count?: number;
+  variant?: AmbientFieldVariant;
   className?: string;
 };
 
@@ -33,8 +37,8 @@ function createParticles(count: number): AmbientParticle[] {
       alpha: 0.17 + hash(seed * 5.1) * 0.5,
       phase: hash(seed * 6.7) * Math.PI * 2,
       speed: 0.075 + hash(seed * 7.9) * 0.17,
-      travelX: 28 + hash(seed * 9.1) * 72,
-      travelY: 34 + hash(seed * 11.3) * 82,
+      travelX: ambientConfig.travelX.min + hash(seed * 9.1) * ambientConfig.travelX.range,
+      travelY: ambientConfig.travelY.min + hash(seed * 11.3) * ambientConfig.travelY.range,
       depth: 0.45 + hash(seed * 15.1) * 0.8,
       cyan: index % 3 === 0 || index % 7 === 0,
     };
@@ -42,7 +46,7 @@ function createParticles(count: number): AmbientParticle[] {
 }
 
 export function AmbientParticleField({
-  count = 52,
+  variant = "home",
   className = "",
 }: AmbientParticleFieldProps) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -55,11 +59,13 @@ export function AmbientParticleField({
     const context = canvas.getContext("2d", { alpha: true });
     if (!context) return;
 
-    const particles = createParticles(count);
+    const particles = createParticles(ambientConfig.counts[variant]);
     const pointerTarget = { x: 0, y: 0 };
     const pointer = { x: 0, y: 0 };
     const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
-    const frameInterval = 1000 / (window.innerWidth < 600 ? 30 : 45);
+    const frameInterval = 1000 / (
+      window.innerWidth < 600 ? ambientConfig.frameRate.mobile : ambientConfig.frameRate.desktop
+    );
     let visible = false;
     let frame = 0;
     let previousFrame = 0;
@@ -88,8 +94,12 @@ export function AmbientParticleField({
           const cyan = colourIndex === 1;
           context.fillStyle = cyan ? "rgb(34, 211, 238)" : "rgb(59, 130, 246)";
           for (const particle of particles) {
-            if (particle.cyan !== cyan) continue;
             const wave = elapsed * particle.speed + particle.phase;
+            const colourShift = Math.sin(
+              elapsed * ambientConfig.colourCycleSpeed + particle.phase * 1.9,
+            );
+            const dynamicCyan = colourShift > 0.82 ? !particle.cyan : particle.cyan;
+            if (dynamicCyan !== cyan) continue;
             const x = particle.x * width
               + Math.sin(wave) * particle.travelX
               + Math.sin(wave * 0.43 + particle.phase * 1.7) * particle.travelX * 0.34
@@ -126,7 +136,7 @@ export function AmbientParticleField({
       const bounds = root.getBoundingClientRect();
       width = Math.max(1, Math.round(bounds.width));
       height = Math.max(1, Math.round(bounds.height));
-      dpr = Math.min(window.devicePixelRatio || 1, 1.25);
+      dpr = Math.min(window.devicePixelRatio || 1, ambientConfig.pixelRatioCap);
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
       canvas.style.width = `${width}px`;
@@ -168,7 +178,7 @@ export function AmbientParticleField({
       document.documentElement.removeEventListener("pointerleave", handlePointerLeave);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
-  }, [count]);
+  }, [variant]);
 
   return (
     <div ref={rootRef} className={`ambient-particle-field ${className}`.trim()} aria-hidden="true">

@@ -17,7 +17,7 @@ export function ServicesPage() {
     <SiteShell>
       <div className="services-page theme-dark">
         <section className="services-hero" aria-labelledby="services-heading">
-          <AmbientParticleField count={64} className="ambient-particle-field--services" />
+          <AmbientParticleField variant="services" className="ambient-particle-field--services" />
           <div className="services-hero__field" aria-hidden="true"><span /><span /><span /></div>
           <div className="site-container services-hero__grid page-header-copy">
             <p className="eyebrow page-header-copy__eyebrow" data-gsap-reveal="copy">{servicesContent.hero.eyebrow}</p>

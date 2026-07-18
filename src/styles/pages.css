@@ -1227,6 +1227,7 @@
   margin-top: var(--primitive-space-8);
   padding: var(--primitive-space-5);
   border-left: 2px solid hsl(var(--color-brand));
+  border-radius: var(--primitive-radius-default);
   background: hsl(var(--color-surface));
 }
 
@@ -1313,6 +1314,7 @@
   margin-top: var(--primitive-space-8);
   padding: var(--primitive-space-6);
   border: var(--primitive-rule) solid hsl(var(--color-rule));
+  border-radius: var(--primitive-radius-default);
   background: hsl(var(--color-surface));
 }
 
@@ -1346,6 +1348,7 @@
   display: grid;
   gap: var(--primitive-space-6);
   border: var(--primitive-rule) solid hsl(var(--color-rule));
+  border-radius: var(--primitive-radius-default);
   background: hsl(var(--color-surface));
   color: inherit;
   text-decoration: none;
@@ -1913,6 +1916,7 @@
   height: 3rem;
   padding: 0.25rem;
   border: var(--primitive-rule) solid hsl(var(--color-rule-strong));
+  border-radius: var(--primitive-radius-small);
   background: hsl(var(--color-surface));
 }
 
@@ -1920,6 +1924,7 @@
   margin-top: var(--primitive-space-6);
   padding: var(--primitive-space-5);
   border-left: 3px solid hsl(var(--color-error));
+  border-radius: var(--primitive-radius-default);
   background: hsl(var(--color-surface));
 }
 
@@ -2049,6 +2054,7 @@
   display: grid;
   gap: var(--primitive-space-2);
   border: 2px solid transparent;
+  border-radius: var(--primitive-radius-small);
   background: transparent;
   color: inherit;
   font: inherit;
@@ -2085,6 +2091,7 @@
 .admin-content-block {
   padding: var(--primitive-space-5);
   border: 1px solid hsl(var(--color-rule));
+  border-radius: var(--primitive-radius-default);
 }
 
 .admin-content-block__top {
@@ -2102,6 +2109,7 @@
   min-height: 2.75rem;
   padding-inline: var(--primitive-space-3);
   border: 1px solid hsl(var(--color-rule-strong));
+  border-radius: var(--primitive-radius-small);
   background: transparent;
 }
 
