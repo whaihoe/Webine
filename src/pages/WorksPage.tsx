@@ -18,6 +18,14 @@ type ProjectBlockImage = {
   width?: unknown;
 };
 
+function formatCompletionDate(value?: string) {
+  if (!value) return "";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? value
+    : new Intl.DateTimeFormat("en", { month: "long", year: "numeric" }).format(date);
+}
+
 function ProjectCaseStudy({
   project,
   projects,
@@ -33,10 +41,20 @@ function ProjectCaseStudy({
   );
 
   const story = [
+    ["About the client", project.aboutClient],
     ["Challenge", project.challenge],
     ["Approach", project.approach],
     ["Outcome", project.outcome],
   ] as const;
+  const facts = [
+    ["Client", project.client],
+    ["Industry", project.industry],
+    ["Location", project.location],
+    ["Duration", project.duration],
+    ["Completed", formatCompletionDate(project.completedOn)],
+    ["Services", project.services.join(" / ")],
+    ["Platform", project.platform],
+  ].filter(([, value]) => value) as Array<[string, string]>;
 
   return (
     <section className="project-case-study theme-dark" aria-labelledby="case-study-heading">
@@ -50,6 +68,11 @@ function ProjectCaseStudy({
           <p className="eyebrow page-header-copy__eyebrow">{project.label} / {project.category}</p>
           <h1 className="page-header-copy__title" id="case-study-heading">{project.title}</h1>
           <p className="page-header-copy__summary">{project.summary}</p>
+          {project.projectUrl ? (
+            <a className="project-case-study__live-link" href={project.projectUrl} target="_blank" rel="noreferrer">
+              Visit live website <DirectionalArrow />
+            </a>
+          ) : null}
         </div>
         <div className="project-case-study__media-frame" data-gsap-reveal="media" data-gsap-delay="0.16">
           <img
@@ -63,6 +86,16 @@ function ProjectCaseStudy({
             style={{ objectPosition: `${project.heroImage.focalX * 100}% ${project.heroImage.focalY * 100}%` }}
           />
         </div>
+        {facts.length ? (
+          <dl className="project-case-study__facts" data-gsap-reveal="copy">
+            {facts.map(([label, value]) => (
+              <div key={label}>
+                <dt>{label}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
+          </dl>
+        ) : null}
       </div>
 
       <div className="site-container project-case-study__story">
@@ -78,21 +111,29 @@ function ProjectCaseStudy({
             : null;
 
           return (
-            <article key={`${String(block.type ?? "story")}-${blockIndex}`} data-block-type={String(block.type ?? "story")} data-gsap-reveal="card">
+            <article
+              key={`${String(block.type ?? "story")}-${blockIndex}`}
+              data-block-type={String(block.type ?? "story")}
+              data-block-layout={String(block.layout ?? "wide")}
+              data-gsap-reveal="card"
+            >
               <span>{String(block.heading ?? block.type ?? "Story")}</span>
               {image?.url ? (
-                <div className="project-case-study__media-frame project-case-study__media-frame--story">
-                  <img
-                    data-gsap-parallax="media"
-                    src={String(image.url)}
-                    alt={String(image.altText ?? "")}
-                    width={Number(image.width ?? 1)}
-                    height={Number(image.height ?? 1)}
-                    loading="lazy"
-                    decoding="async"
-                    style={{ objectPosition: `${Number(image.focalX ?? 0.5) * 100}% ${Number(image.focalY ?? 0.5) * 100}%` }}
-                  />
-                </div>
+                <figure>
+                  <div className="project-case-study__media-frame project-case-study__media-frame--story">
+                    <img
+                      data-gsap-parallax="media"
+                      src={String(image.url)}
+                      alt={String(image.altText ?? "")}
+                      width={Number(image.width ?? 1)}
+                      height={Number(image.height ?? 1)}
+                      loading="lazy"
+                      decoding="async"
+                      style={{ objectPosition: `${Number(image.focalX ?? 0.5) * 100}% ${Number(image.focalY ?? 0.5) * 100}%` }}
+                    />
+                  </div>
+                  {block.text ? <figcaption>{String(block.text)}</figcaption> : null}
+                </figure>
               ) : <p>{String(block.text ?? "")}</p>}
             </article>
           );

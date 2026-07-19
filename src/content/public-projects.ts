@@ -17,6 +17,12 @@ export type PublicProject = {
   challenge?: string;
   approach?: string;
   outcome?: string;
+  industry?: string;
+  location?: string;
+  duration?: string;
+  completedOn?: string;
+  platform?: string;
+  aboutClient?: string;
   contentBlocks: Array<Record<string, unknown>>;
   projectUrl?: string;
   credits: Array<Record<string, unknown>>;

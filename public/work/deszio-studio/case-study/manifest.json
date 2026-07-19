@@ -1,0 +1,128 @@
+[
+  {
+    "filename": "01-project-overview.webp",
+    "altText": "Deszio Studio website shown in desktop and mobile compositions",
+    "heading": "Project overview",
+    "layout": "full",
+    "caption": "A responsive digital home shaped around Deszio Studio’s calm, considered interior work."
+  },
+  {
+    "filename": "02-client-context.webp",
+    "altText": "Deszio Studio client context beside a calm interior scene",
+    "heading": "Client and business context",
+    "layout": "wide",
+    "caption": "The visual direction began with the same qualities found in Deszio’s spaces: restraint, warmth and precision."
+  },
+  {
+    "filename": "03-design-challenge.webp",
+    "altText": "Three design challenges covering positioning, structure and conversion",
+    "heading": "The challenge",
+    "layout": "wide",
+    "caption": "The experience needed to feel premium while still making the service and enquiry path easy to understand."
+  },
+  {
+    "filename": "04-project-objectives.webp",
+    "altText": "Four project goals for the Deszio Studio website",
+    "heading": "Project goals",
+    "layout": "wide",
+    "caption": "Four practical goals kept the one-month design and development process focused."
+  },
+  {
+    "filename": "05-user-journey.webp",
+    "altText": "Visitor journey from discovery to consultation",
+    "heading": "User journey",
+    "layout": "full",
+    "caption": "A simple journey moves visitors from an atmospheric first impression into proof, process and contact."
+  },
+  {
+    "filename": "06-sitemap.webp",
+    "altText": "Single-page sitemap connecting the Deszio Studio content sections",
+    "heading": "Information architecture",
+    "layout": "wide",
+    "caption": "The single-page structure keeps each question close and makes consultation available throughout the experience."
+  },
+  {
+    "filename": "07-homepage-content-map.webp",
+    "altText": "Homepage content sequence from promise to consultation",
+    "heading": "Homepage content map",
+    "layout": "wide",
+    "caption": "The content sequence moves from aspiration to evidence, reassurance and action."
+  },
+  {
+    "filename": "08-interface-structure.webp",
+    "altText": "Reconstructed final interface structure with annotated hierarchy",
+    "heading": "Interface structure",
+    "layout": "full",
+    "caption": "This reconstructed blueprint documents the hierarchy and spacing of the final implementation."
+  },
+  {
+    "filename": "09-visual-system.webp",
+    "altText": "Deszio Studio colour and typography system",
+    "heading": "Visual system",
+    "layout": "wide",
+    "caption": "Warm gold, soft neutrals and editorial type give the interface a quiet sense of confidence."
+  },
+  {
+    "filename": "10-component-language.webp",
+    "altText": "Navigation, portfolio, service and form component examples",
+    "heading": "Component language",
+    "layout": "full",
+    "caption": "A compact component system keeps navigation, imagery, service detail and forms visually connected."
+  },
+  {
+    "filename": "11-homepage-showcase.webp",
+    "altText": "Final homepage hero, portfolio and service sections",
+    "heading": "Homepage showcase",
+    "layout": "full",
+    "caption": "The final homepage balances full-bleed atmosphere with clear supporting information."
+  },
+  {
+    "filename": "12-key-sections.webp",
+    "altText": "Process, testimonial and enquiry sections",
+    "heading": "Key sections",
+    "layout": "wide",
+    "caption": "Process, trust and enquiry sections give visitors the practical detail needed to take the next step."
+  },
+  {
+    "filename": "13-responsive-experience.webp",
+    "altText": "Desktop and mobile versions of the Deszio Studio hero",
+    "heading": "Responsive experience",
+    "layout": "full",
+    "caption": "The hierarchy is re-composed for mobile rather than reduced into a smaller desktop layout."
+  },
+  {
+    "filename": "14-mobile-journey.webp",
+    "altText": "Four moments from the complete mobile journey",
+    "heading": "Mobile journey",
+    "layout": "full",
+    "caption": "The complete mobile experience preserves the project imagery, service explanation and consultation route."
+  },
+  {
+    "filename": "15-interaction-sequence.webp",
+    "altText": "Mobile menu, portfolio browsing and enquiry sequence",
+    "heading": "Interaction sequence",
+    "layout": "wide",
+    "caption": "Small transitions support orientation and feedback without competing with the interior imagery."
+  },
+  {
+    "filename": "16-final-collection.webp",
+    "altText": "Collection of final Deszio Studio interior imagery",
+    "heading": "Final collection",
+    "layout": "full",
+    "caption": "A restrained frame lets Deszio Studio’s completed spaces remain the centre of the visual story."
+  },
+  {
+    "filename": "17-project-outcome.webp",
+    "altText": "Verified project outcome covering delivery, responsiveness and enquiry flow",
+    "heading": "Outcome",
+    "layout": "wide",
+    "caption": "The result is a live responsive website, designed and developed in one month with a direct consultation journey."
+  },
+  {
+    "filename": "18-closing-frame.webp",
+    "altText": "Closing Deszio Studio case-study frame",
+    "heading": "Closing frame",
+    "layout": "full",
+    "caption": "A final frame returns the story to the work itself and provides a direct route to the live website."
+  }
+]

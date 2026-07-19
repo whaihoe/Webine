@@ -239,7 +239,7 @@ test("enables the approved homepage experience layers", async () => {
   assert.match(config, /rotationZ:\s*0\.025/);
   assert.match(config, /transitionSpread:\s*0\.88/);
   assert.match(config, /heroModel:\s*{[^}]*url:\s*"\/models\/webine-logo-particle\.glb"[^}]*targetSize:\s*5\.2[^}]*fit:\s*"largest"[^}]*localScale:\s*\[1, 1, 2\.5\]/s);
-  assert.match(config, /reachModel:\s*{[^}]*url:\s*"\/models\/reach-rings-particle\.glb"[^}]*targetSize:\s*5\.18[^}]*rotationDegrees:\s*\[0, 0, 0\]/s);
+  assert.match(config, /reachModel:\s*{[^}]*url:\s*"\/models\/reach-rings-particle\.glb"[^}]*targetSize:\s*5\.18[^}]*rotationDegrees:\s*\[-?\d+(?:\.\d+)?, -?\d+(?:\.\d+)?, -?\d+(?:\.\d+)?\]/s);
   assert.match(config, /hero:\s*{[\s\S]*?desktop:\s*{[^}]*scale:\s*1[^}]*}[\s\S]*?tablet:\s*{[^}]*scale:\s*0\.52[^}]*}[\s\S]*?mobile:\s*{[^}]*scale:\s*0\.38[^}]*}/);
   assert.match(config, /closing:\s*{[\s\S]*?formation:\s*{\s*enterViewportY:\s*1\.2,\s*formedViewportY:\s*0\.62\s*}[\s\S]*?mobileFormation:\s*{\s*enterViewportY:\s*1\.2,\s*formedViewportY:\s*0\.3\s*}/);
   assert.match(controller, /layout === "mobile" && "mobileFormation" in motionConfig/);

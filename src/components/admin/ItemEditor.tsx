@@ -74,7 +74,20 @@ function ContentBlocksControl({ field, value, onChange }: { field: FieldDefiniti
   return <div className="admin-content-blocks">
     {blocks.map((block, index) => <article key={index} className="admin-content-block">
       <div className="admin-content-block__top"><strong>Block {index + 1}</strong><select value={String(block.type ?? "statement")} onChange={(event) => update(index, { type: event.target.value })}><option value="statement">Statement</option><option value="text">Text</option><option value="image">Image</option></select><button type="button" onClick={() => onChange(blocks.filter((_, blockIndex) => blockIndex !== index))}>Remove</button></div>
-      {block.type === "image" ? <AssetFieldControl field={{ ...field, key: `${field.key}_${index}`, fieldType: "image" }} value={block.assetId} onChange={(assetId) => update(index, { assetId })} /> : <><input value={typeof block.heading === "string" ? block.heading : ""} placeholder="Optional heading" onChange={(event) => update(index, { heading: event.target.value })} /><textarea rows={block.type === "statement" ? 3 : 6} value={typeof block.text === "string" ? block.text : ""} placeholder="Block copy" onChange={(event) => update(index, { text: event.target.value })} /></>}
+      {block.type === "image" ? (
+        <>
+          <AssetFieldControl field={{ ...field, key: `${field.key}_${index}`, fieldType: "image" }} value={block.assetId} onChange={(assetId) => update(index, { assetId })} />
+          <input value={typeof block.heading === "string" ? block.heading : ""} placeholder="Image section heading" onChange={(event) => update(index, { heading: event.target.value })} />
+          <textarea rows={3} value={typeof block.text === "string" ? block.text : ""} placeholder="Optional image caption" onChange={(event) => update(index, { text: event.target.value })} />
+          <label>
+            <span>Image layout</span>
+            <select value={typeof block.layout === "string" ? block.layout : "wide"} onChange={(event) => update(index, { layout: event.target.value })}>
+              <option value="wide">Wide</option>
+              <option value="full">Full width</option>
+            </select>
+          </label>
+        </>
+      ) : <><input value={typeof block.heading === "string" ? block.heading : ""} placeholder="Optional heading" onChange={(event) => update(index, { heading: event.target.value })} /><textarea rows={block.type === "statement" ? 3 : 6} value={typeof block.text === "string" ? block.text : ""} placeholder="Block copy" onChange={(event) => update(index, { text: event.target.value })} /></>}
       <div className="admin-field-card__actions"><button type="button" disabled={index === 0} onClick={() => { const next = [...blocks]; [next[index - 1], next[index]] = [next[index], next[index - 1]]; onChange(next); }}>Move up</button><button type="button" disabled={index === blocks.length - 1} onClick={() => { const next = [...blocks]; [next[index], next[index + 1]] = [next[index + 1], next[index]]; onChange(next); }}>Move down</button></div>
     </article>)}
     <button className="admin-secondary-action" type="button" onClick={() => onChange([...blocks, { type: "statement", text: "" }])}>Add content block</button>

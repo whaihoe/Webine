@@ -91,7 +91,21 @@ test("creates the complete CMS schema from a clean database", async () => {
       databasePath,
       "SELECT count(*) FROM field_definitions WHERE collection_id = 'collection_projects';",
     ));
-    assert.equal(projectFieldCount, 22);
+    assert.equal(projectFieldCount, 28);
+
+    const caseStudyFields = JSON.parse(runSql(
+      databasePath,
+      "SELECT key FROM field_definitions WHERE id IN ('project_industry', 'project_location', 'project_duration', 'project_completed_on', 'project_platform', 'project_about_client') ORDER BY position;",
+      true,
+    )).map((field) => field.key);
+    assert.deepEqual(caseStudyFields, [
+      "industry",
+      "location",
+      "duration",
+      "completed_on",
+      "platform",
+      "about_client",
+    ]);
 
     const singletonCount = Number(runSql(
       databasePath,

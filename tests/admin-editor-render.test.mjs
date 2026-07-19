@@ -81,6 +81,19 @@ test("renders the collection builder and every generated item control", async ()
     const itemHtml = renderToStaticMarkup(
       React.createElement(StaticRouter, { location: "/admin/collections/render_test/items/new" }, React.createElement(ItemEditor, { collection })),
     );
+    const imageBlockHtml = renderToStaticMarkup(
+      React.createElement(StaticRouter, { location: "/admin/collections/render_test/items/item_case" }, React.createElement(ItemEditor, {
+        collection,
+        item: {
+          id: "item_case",
+          slug: null,
+          status: "draft",
+          version: 1,
+          updatedAt: "2026-07-19T00:00:00.000Z",
+          data: { blocks: [{ type: "image", assetId: "asset_case", heading: "Project goal", text: "Caption", layout: "full" }] },
+        },
+      })),
+    );
     const workspaceHtml = renderToStaticMarkup(
       React.createElement(
         StaticRouter,
@@ -100,6 +113,10 @@ test("renders the collection builder and every generated item control", async ()
     assert.match(itemHtml, /type="color"/);
     assert.match(itemHtml, /One content entry per line/);
     assert.match(itemHtml, /Loading referenced items/);
+    assert.match(imageBlockHtml, /Image section heading/);
+    assert.match(imageBlockHtml, /Optional image caption/);
+    assert.match(imageBlockHtml, /Image layout/);
+    assert.match(imageBlockHtml, /option value="full" selected="">Full width/);
     assert.equal((itemHtml.match(/<fieldset/g) ?? []).length, fields.length);
     assert.match(workspaceHtml, /aria-label="Webine Admin breadcrumb"/);
     assert.match(workspaceHtml, /href="\/admin">Admin<\/a>/);

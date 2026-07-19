@@ -17,6 +17,8 @@
     "db:backup": "node scripts/backup-local.mjs",
     "db:restore": "node scripts/restore-local.mjs",
     "generate:reach-model": "node scripts/generate-reach-model.mjs",
+    "generate:deszio-case-study": "node scripts/generate-deszio-case-study.mjs",
+    "publish:deszio": "node scripts/publish-deszio-project.mjs",
     "lint": "eslint src --ext .ts,.tsx --max-warnings 0",
     "typecheck:server": "tsc -p tsconfig.server.json",
     "build:test-server": "tsc -p tsconfig.server-test.json",

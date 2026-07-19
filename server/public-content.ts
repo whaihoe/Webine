@@ -20,6 +20,12 @@ export type PublicProject = {
   challenge?: string;
   approach?: string;
   outcome?: string;
+  industry?: string;
+  location?: string;
+  duration?: string;
+  completedOn?: string;
+  platform?: string;
+  aboutClient?: string;
   contentBlocks: Array<Record<string, unknown>>;
   projectUrl?: string;
   credits: Array<Record<string, unknown>>;
@@ -64,6 +70,12 @@ export async function listPublicProjects(options: { featuredOnly?: boolean } = {
       summary: String(data.short_summary ?? ""), heroImage: hero, cardTheme: data.card_theme === "dark" ? "dark" : "light",
       featured: data.featured === true, featuredOrder: typeof data.featured_order === "number" ? data.featured_order : null,
       challenge: textFromStructured(data.challenge), approach: textFromStructured(data.approach), outcome: textFromStructured(data.outcome),
+      industry: typeof data.industry === "string" ? data.industry : undefined,
+      location: typeof data.location === "string" ? data.location : undefined,
+      duration: typeof data.duration === "string" ? data.duration : undefined,
+      completedOn: typeof data.completed_on === "string" ? data.completed_on : undefined,
+      platform: typeof data.platform === "string" ? data.platform : undefined,
+      aboutClient: textFromStructured(data.about_client),
       contentBlocks: Array.isArray(data.content_blocks) ? (data.content_blocks as Array<Record<string, unknown>>).map((block) => {
         const image = block.type === "image" ? assets.get(String(block.assetId ?? "")) : undefined;
         return image ? { ...block, image } : block;
