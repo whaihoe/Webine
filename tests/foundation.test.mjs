@@ -173,7 +173,7 @@ test("uses the three-layer token architecture", async () => {
   assert.match(primitives, /--primitive-slate-950/);
   assert.match(primitives, /--primitive-space-4/);
   assert.match(primitives, /--primitive-radius-small:\s*0\.5rem/);
-  assert.match(primitives, /--primitive-radius-default:\s*0\.875rem/);
+  assert.match(primitives, /--primitive-radius-default:\s*2rem/);
   assert.match(primitives, /--primitive-radius-media:\s*1\.25rem/);
   assert.match(primitives, /--primitive-radius-panel:\s*1\.75rem/);
   assert.match(semantic, /--color-canvas:\s*var\(--primitive-slate-950\)/);
@@ -236,6 +236,7 @@ test("enables the approved homepage experience layers", async () => {
   assert.match(config, /rotationZ:\s*0\.025/);
   assert.match(config, /transitionSpread:\s*0\.88/);
   assert.match(config, /heroModel:\s*{[^}]*url:\s*"\/models\/webine-logo-particle\.glb"[^}]*targetSize:\s*5\.2[^}]*fit:\s*"largest"[^}]*localScale:\s*\[1, 1, 2\.5\]/s);
+  assert.match(config, /hero:\s*{[\s\S]*?desktop:\s*{[^}]*scale:\s*0\.92[^}]*}[\s\S]*?tablet:\s*{[^}]*scale:\s*0\.52[^}]*}[\s\S]*?mobile:\s*{[^}]*scale:\s*0\.38[^}]*}/);
   assert.match(config, /closingModel:\s*{[^}]*url:\s*"\/models\/colony-planet-particle\.glb"[^}]*targetSize:\s*4\.8[^}]*fit:\s*"largest"[^}]*rotationDegrees:\s*\[58, -22, 0\][^}]*localScale:\s*\[1, 1, 1\][^}]*ambientRotationScale:\s*0\.42/s);
   assert.equal((config.match(/formation:\s*{/g) ?? []).length, 4);
   assert.equal((config.match(/dispersion:\s*{/g) ?? []).length, 4);
@@ -882,6 +883,7 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(portraitColour, /addEventListener\("pointerenter", startTrail/);
   assert.match(portraitColour, /removeEventListener\("pointerenter", startTrail/);
   assert.match(head, /aboutHeadConfig\.mobilePointLimit/);
+  assert.doesNotMatch(portraitStyles, /\.about-head__visual\s*{[^}]*transform:/s);
   assert.match(head, /vSurfaceColour/);
   assert.match(head, /vSurfaceDensity/);
   assert.match(head, /centredPositions/);

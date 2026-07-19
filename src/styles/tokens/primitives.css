@@ -48,7 +48,7 @@
 
   /* Shape, rule and motion primitives. */
   --primitive-radius-small: 0.5rem;
-  --primitive-radius-default: 0.875rem;
+  --primitive-radius-default: 2rem;
   --primitive-radius-media: 1.25rem;
   --primitive-radius-panel: 1.75rem;
   --primitive-radius-pill: 999px;

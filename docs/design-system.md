@@ -56,7 +56,7 @@ Interactive components include default, hover, active, focus and disabled treatm
 | Role | Token | Value | Typical use |
 |---|---|---:|---|
 | Compact | `--primitive-radius-small` | 8 px | Admin utility actions, small labels and thumbnail crops |
-| Control | `--primitive-radius-default` | 14 px | Buttons, fields, choice rows and compact cards |
+| Control | `--primitive-radius-default` | 32 px | Buttons, fields, choice rows and compact cards |
 | Media | `--primitive-radius-media` | 20 px | Project media, portraits and large image frames |
 | Panel | `--primitive-radius-panel` | 28 px | Contact form, project-media overview and major invitation surfaces |
 | Pill | `--primitive-radius-pill` | Full | Navigation groups, filters and true status pills |

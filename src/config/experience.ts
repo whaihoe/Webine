@@ -158,9 +158,9 @@ export const particleSceneConfig = {
       formation: { enterViewportY: 1, formedViewportY: 0.5 },
       dispersion: { startViewportY: 0, completeViewportY: -0.34 },
     },
-    desktop: { anchorX: 0.75, anchorY: 0.46, scale: 0.82 },
-    tablet: { anchorX: 0.76, anchorY: 0.46, scale: 0.46 },
-    mobile: { anchorX: 0.68, anchorY: 0.42, scale: 0.34 },
+    desktop: { anchorX: 0.75, anchorY: 0.46, scale: 0.92 },
+    tablet: { anchorX: 0.76, anchorY: 0.46, scale: 0.52 },
+    mobile: { anchorX: 0.68, anchorY: 0.42, scale: 0.38 },
   },
   reach: {
     id: "reach",

@@ -583,3 +583,9 @@
 - Added a slower independent density field so sparse areas move coherently across each form. Points are dimmed rather than removed, keeping the full geometry and preserving the authored silhouette.
 - Kept the approved whole-object orientation values unchanged. Mobile retains the 2,200-point targets, 0.5-pixel halo and independently phased paths, while light scenes use darker blue endpoints and a higher density floor for definition.
 - Increased the shared ambient counts to 84 on Home, 76 on Contact, 84 on Services and 138 on Works. Existing DPR caps, frame ceilings, offscreen pause and hidden-document pause remain in place.
+
+## 2026-07-19, stable About canvas and central hero scale
+
+- Removed the ready-state scale transform from the element that owns the About Three.js canvas. Its entrance is now opacity-only, so React Three Fiber measures one stable viewport instead of resizing from 96% to 100% after the model becomes ready.
+- Increased the Home Webine logo scale through `particleSceneConfig.hero` for desktop, tablet and mobile. This remains the single global tuning surface for responsive scene size.
+- Changed the default control radius primitive to `2rem` and updated the design-system reference and regression coverage.

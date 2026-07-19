@@ -174,3 +174,9 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - Fresh 390 by 844 production renders confirm a defined Business Value ring, centred About head and clearly formed closing planet. Light-scene particles use darker blue endpoints while keeping cyan and blue region movement.
 - Fresh 1280 by 800 renders confirm the About head and closing planet retain readable silhouettes with broad moving colour and density regions. Works and Contact mobile renders show the increased ambient fields without obscuring copy.
 - Lint, client and server type checks, production builds and all 50 automated tests pass. The existing React Three Fiber chunk warning remains unchanged.
+
+## 2026-07-19 stable About canvas and hero scale pass
+
+- At a 1420 by 1027 viewport, the About Three.js canvas measures 1420 by 955 CSS pixels and 1917 by 1289 render pixels both before and after scrolling. The ready state no longer changes either dimension.
+- Fresh desktop and 390 by 844 Home renders show the enlarged Webine logo remaining behind readable hero copy with zero horizontal overflow.
+- The live document resolves `--primitive-radius-default` to `2rem`. Lint, production builds and all 50 automated tests pass.

@@ -47,13 +47,11 @@
   width: 100%;
   height: 100%;
   opacity: 0;
-  transform: scale(0.96);
-  transition: opacity 700ms var(--primitive-ease-standard), transform 900ms var(--primitive-ease-standard);
+  transition: opacity 700ms var(--primitive-ease-standard);
 }
 
 .about-head__visual.is-ready {
   opacity: 0.92;
-  transform: scale(1);
 }
 
 .about-head__canvas {
