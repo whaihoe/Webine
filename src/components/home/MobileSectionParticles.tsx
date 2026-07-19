@@ -81,15 +81,42 @@ function prepareTarget(
   let maxRawY = Number.NEGATIVE_INFINITY;
   let minRawZ = Number.POSITIVE_INFINITY;
   let maxRawZ = Number.NEGATIVE_INFINITY;
+  const rotationDegrees = scene === "reach"
+    ? experienceConfig.particles.reachModel.rotationDegrees
+    : [0, 0, 0] as const;
+  const rotationX = rotationDegrees[0] * (Math.PI / 180);
+  const rotationY = rotationDegrees[1] * (Math.PI / 180);
+  const rotationZ = rotationDegrees[2] * (Math.PI / 180);
+  const cosX = Math.cos(rotationX);
+  const sinX = Math.sin(rotationX);
+  const cosY = Math.cos(rotationY);
+  const sinY = Math.sin(rotationY);
+  const cosZ = Math.cos(rotationZ);
+  const sinZ = Math.sin(rotationZ);
 
   for (let index = 0; index < count; index += 1) {
     const offset = index * 3;
-    minRawX = Math.min(minRawX, target[offset]);
-    maxRawX = Math.max(maxRawX, target[offset]);
-    minRawY = Math.min(minRawY, target[offset + 1]);
-    maxRawY = Math.max(maxRawY, target[offset + 1]);
-    minRawZ = Math.min(minRawZ, target[offset + 2]);
-    maxRawZ = Math.max(maxRawZ, target[offset + 2]);
+    let x = target[offset];
+    let y = target[offset + 1];
+    let z = target[offset + 2];
+    const rotatedY = y * cosX - z * sinX;
+    z = y * sinX + z * cosX;
+    y = rotatedY;
+    const rotatedX = x * cosY + z * sinY;
+    z = -x * sinY + z * cosY;
+    x = rotatedX;
+    const finalX = x * cosZ - y * sinZ;
+    y = x * sinZ + y * cosZ;
+    x = finalX;
+    targetX[index] = x;
+    targetY[index] = y;
+    targetZ[index] = z;
+    minRawX = Math.min(minRawX, x);
+    maxRawX = Math.max(maxRawX, x);
+    minRawY = Math.min(minRawY, y);
+    maxRawY = Math.max(maxRawY, y);
+    minRawZ = Math.min(minRawZ, z);
+    maxRawZ = Math.max(maxRawZ, z);
   }
 
   const centreX = (minRawX + maxRawX) * 0.5;
@@ -101,10 +128,9 @@ function prepareTarget(
   let maxProjectedY = Number.NEGATIVE_INFINITY;
 
   for (let index = 0; index < count; index += 1) {
-    const offset = index * 3;
-    const x = target[offset] - centreX;
-    const y = target[offset + 1] - centreY;
-    const z = target[offset + 2] - centreZ;
+    const x = targetX[index] - centreX;
+    const y = targetY[index] - centreY;
+    const z = targetZ[index] - centreZ;
     const perspective = 6 / Math.max(3.5, 6 - z * 0.45);
     const projectedX = x * perspective;
     const projectedY = y * perspective;

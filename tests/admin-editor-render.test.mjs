@@ -109,6 +109,11 @@ test("renders the collection builder and every generated item control", async ()
     assert.match(workspaceHtml, /href="\/">Return to website<\/a>/);
   } finally {
     await server.close();
-    await rm(cacheDirectory, { recursive: true, force: true });
+    await rm(cacheDirectory, {
+      recursive: true,
+      force: true,
+      maxRetries: 5,
+      retryDelay: 100,
+    });
   }
 });

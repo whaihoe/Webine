@@ -123,6 +123,11 @@ export function ParticleSceneController({
         if (particleAnchorSceneIds.has(id as ParticleSceneAnchorId)) {
           const anchorId = id as ParticleSceneAnchorId;
           const sceneConfig = particleSceneConfig[anchorId][layout];
+          const motionConfig = particleSceneConfig[anchorId].motion;
+          const formationRange =
+            layout === "mobile" && "mobileFormation" in motionConfig
+              ? motionConfig.mobileFormation
+              : motionConfig.formation;
           const pointViewportY =
             (rect.top + rect.height * sceneConfig.anchorY) /
             Math.max(viewportHeight, 1);
@@ -136,7 +141,7 @@ export function ParticleSceneController({
           const motionProgress = {
             formation: getPointFormationProgress(
               pointViewportY,
-              particleSceneConfig[anchorId].motion.formation,
+              formationRange,
             ),
             dispersion: getPointDispersionProgress(
               pointViewportY,

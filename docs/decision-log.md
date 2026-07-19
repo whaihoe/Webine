@@ -589,3 +589,9 @@
 - Removed the ready-state scale transform from the element that owns the About Three.js canvas. Its entrance is now opacity-only, so React Three Fiber measures one stable viewport instead of resizing from 96% to 100% after the model becomes ready.
 - Increased the Home Webine logo scale through `particleSceneConfig.hero` for desktop, tablet and mobile. This remains the single global tuning surface for responsive scene size.
 - Changed the default control radius primitive to `2rem` and updated the design-system reference and regression coverage.
+
+## 2026-07-19, GLB-owned Reach particle form
+
+- Replaced the procedural desktop Reach target with `public/models/reach-rings-particle.glb`. The model preserves the existing three elliptical rings as real indexed mesh geometry.
+- Added `particles.reachModel.rotationDegrees` to the central experience configuration. Desktop and tablet apply it during GLB surface sampling, while mobile applies the same value to its baked neutral target before projection.
+- Added a deterministic model generator that rebuilds both the GLB and the Reach slice of the lightweight mobile binary, avoiding two manually maintained versions of the form.

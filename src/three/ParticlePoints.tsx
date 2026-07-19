@@ -42,6 +42,7 @@ type ParticlePointsProps = {
   progressStore: StoryProgressStore;
   layout: "tablet" | "desktop";
   heroTarget: Float32Array;
+  reachTarget: Float32Array;
   closingTarget: Float32Array;
   onReady: () => void;
 };
@@ -51,6 +52,7 @@ export function ParticlePoints({
   progressStore,
   layout,
   heroTarget,
+  reachTarget,
   closingTarget,
   onReady,
 }: ParticlePointsProps) {
@@ -71,9 +73,10 @@ export function ParticlePoints({
       createParticleTargetBuffers(
         proceduralTargets,
         heroTarget,
+        reachTarget,
         closingTarget,
       ),
-    [closingTarget, heroTarget, proceduralTargets],
+    [closingTarget, heroTarget, proceduralTargets, reachTarget],
   );
   const ambientMotion = experienceConfig.particles.ambientMotion;
   const surfaceField = experienceConfig.particles.surfaceField;

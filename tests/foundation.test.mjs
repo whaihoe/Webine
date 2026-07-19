@@ -187,10 +187,13 @@ test("uses the three-layer token architecture", async () => {
 });
 
 test("enables the approved homepage experience layers", async () => {
-  const config = await readFile(
-    new URL("src/config/experience.ts", projectRoot),
-    "utf8",
-  );
+  const [config, controller] = await Promise.all([
+    readFile(new URL("src/config/experience.ts", projectRoot), "utf8"),
+    readFile(
+      new URL("src/components/home/ParticleSceneController.tsx", projectRoot),
+      "utf8",
+    ),
+  ]);
 
   assert.equal((config.match(/enabled:\s*true/g) ?? []).length, 3);
   assert.equal((config.match(/enabled:\s*false/g) ?? []).length, 2);
@@ -236,7 +239,10 @@ test("enables the approved homepage experience layers", async () => {
   assert.match(config, /rotationZ:\s*0\.025/);
   assert.match(config, /transitionSpread:\s*0\.88/);
   assert.match(config, /heroModel:\s*{[^}]*url:\s*"\/models\/webine-logo-particle\.glb"[^}]*targetSize:\s*5\.2[^}]*fit:\s*"largest"[^}]*localScale:\s*\[1, 1, 2\.5\]/s);
-  assert.match(config, /hero:\s*{[\s\S]*?desktop:\s*{[^}]*scale:\s*0\.92[^}]*}[\s\S]*?tablet:\s*{[^}]*scale:\s*0\.52[^}]*}[\s\S]*?mobile:\s*{[^}]*scale:\s*0\.38[^}]*}/);
+  assert.match(config, /reachModel:\s*{[^}]*url:\s*"\/models\/reach-rings-particle\.glb"[^}]*targetSize:\s*5\.18[^}]*rotationDegrees:\s*\[0, 0, 0\]/s);
+  assert.match(config, /hero:\s*{[\s\S]*?desktop:\s*{[^}]*scale:\s*1[^}]*}[\s\S]*?tablet:\s*{[^}]*scale:\s*0\.52[^}]*}[\s\S]*?mobile:\s*{[^}]*scale:\s*0\.38[^}]*}/);
+  assert.match(config, /closing:\s*{[\s\S]*?formation:\s*{\s*enterViewportY:\s*1\.2,\s*formedViewportY:\s*0\.62\s*}[\s\S]*?mobileFormation:\s*{\s*enterViewportY:\s*1\.2,\s*formedViewportY:\s*0\.3\s*}/);
+  assert.match(controller, /layout === "mobile" && "mobileFormation" in motionConfig/);
   assert.match(config, /closingModel:\s*{[^}]*url:\s*"\/models\/colony-planet-particle\.glb"[^}]*targetSize:\s*4\.8[^}]*fit:\s*"largest"[^}]*rotationDegrees:\s*\[58, -22, 0\][^}]*localScale:\s*\[1, 1, 1\][^}]*ambientRotationScale:\s*0\.42/s);
   assert.equal((config.match(/formation:\s*{/g) ?? []).length, 4);
   assert.equal((config.match(/dispersion:\s*{/g) ?? []).length, 4);
@@ -359,6 +365,12 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   );
   assert.doesNotMatch(mobileParticleData, /GLTFLoader|MeshSurfaceSampler|three\//);
   await access(new URL("public/mobile-particles/section-targets.bin", projectRoot));
+  await access(new URL("public/models/reach-rings-particle.glb", projectRoot));
+  assert.match(canvas, /loadParticleModel\(reachModelConfig\.url\)/);
+  assert.match(canvas, /models\.reach/);
+  assert.match(points, /reachTarget:\s*Float32Array/);
+  assert.doesNotMatch(targets, /const reach = new Float32Array/);
+  assert.match(mobileParticles, /reachModel\.rotationDegrees/);
   assert.equal((canvas.match(/<Canvas(?:\s|>)/g) ?? []).length, 1);
   assert.equal((points.match(/<bufferGeometry>/g) ?? []).length, 1);
   assert.match(points, /attributes-position/);

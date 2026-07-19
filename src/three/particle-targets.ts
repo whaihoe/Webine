@@ -17,7 +17,7 @@ export type ParticleTargetBuffers = {
 
 type ProceduralParticleTargetBuffers = Omit<
   ParticleTargetBuffers,
-  "hero" | "closing"
+  "hero" | "reach" | "closing"
 >;
 
 export function createSeededRandom(seed: number) {
@@ -56,7 +56,6 @@ export function createProceduralParticleTargets(count: number, ambientRatio: num
   const source = new Float32Array(count * 3);
   const scatter = new Float32Array(count * 3);
   const release = new Float32Array(count * 3);
-  const reach = new Float32Array(count * 3);
   const workA = new Float32Array(count * 3);
   const workB = new Float32Array(count * 3);
   const workC = new Float32Array(count * 3);
@@ -97,10 +96,6 @@ export function createProceduralParticleTargets(count: number, ambientRatio: num
     release[offset + 1] = releaseDirection[1] * releaseDepth;
     release[offset + 2] = releaseDirection[2] * releaseDepth;
 
-    const reachBand = index % 3;
-    const reachPoint = sampleEllipticalTorus(random, 1.15 + reachBand * 0.62, 0.82 + reachBand * 0.42, 0.15 + reachBand * 0.025);
-    reach.set(reachPoint, offset);
-
     const frameSide = index % 4;
     const frameT = random() * 2 - 1;
     const frameDepth = (random() - 0.5) * 0.16;
@@ -120,13 +115,27 @@ export function createProceduralParticleTargets(count: number, ambientRatio: num
     interlude.set(interludePoint, offset);
   }
 
-  return { source, scatter, release, reach, workA, workB, workC, interlude, randomness, ambientMask };
+  return { source, scatter, release, workA, workB, workC, interlude, randomness, ambientMask };
 }
 
-export function createParticleTargetBuffers(proceduralTargets: ProceduralParticleTargetBuffers, heroTarget: Float32Array, closingTarget: Float32Array): ParticleTargetBuffers {
+export function createParticleTargetBuffers(
+  proceduralTargets: ProceduralParticleTargetBuffers,
+  heroTarget: Float32Array,
+  reachTarget: Float32Array,
+  closingTarget: Float32Array,
+): ParticleTargetBuffers {
   const expectedLength = proceduralTargets.source.length;
-  if (heroTarget.length !== expectedLength || closingTarget.length !== expectedLength) {
+  if (
+    heroTarget.length !== expectedLength ||
+    reachTarget.length !== expectedLength ||
+    closingTarget.length !== expectedLength
+  ) {
     throw new Error("Particle target buffers must use the same particle count.");
   }
-  return { ...proceduralTargets, hero: heroTarget, closing: closingTarget };
+  return {
+    ...proceduralTargets,
+    hero: heroTarget,
+    reach: reachTarget,
+    closing: closingTarget,
+  };
 }

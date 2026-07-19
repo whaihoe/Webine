@@ -180,3 +180,9 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - At a 1420 by 1027 viewport, the About Three.js canvas measures 1420 by 955 CSS pixels and 1917 by 1289 render pixels both before and after scrolling. The ready state no longer changes either dimension.
 - Fresh desktop and 390 by 844 Home renders show the enlarged Webine logo remaining behind readable hero copy with zero horizontal overflow.
 - The live document resolves `--primitive-radius-default` to `2rem`. Lint, production builds and all 50 automated tests pass.
+
+## 2026-07-19 Reach GLB pass
+
+- The production loader reads `reach-rings-particle.glb` without falling back, samples it into the persistent desktop particle geometry and shows the three-ring silhouette at complete Reach formation.
+- A 390 by 844 production render shows the baked model-derived Reach rings with zero horizontal overflow. Mobile retains its six lightweight canvases and does not import Three.js.
+- Regression coverage protects the model asset, central rotation configuration, desktop model load, removed procedural Reach buffer and mobile rotation path.

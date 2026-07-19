@@ -12,6 +12,7 @@ type ParticleLayout = "tablet" | "desktop";
 
 type LoadedParticleModels = {
   hero: Awaited<ReturnType<typeof loadParticleModel>>;
+  reach: Awaited<ReturnType<typeof loadParticleModel>>;
   closing: Awaited<ReturnType<typeof loadParticleModel>>;
 };
 
@@ -74,15 +75,17 @@ export default function ParticleNarrativeCanvas({
   useEffect(() => {
     let cancelled = false;
     const heroModelConfig = experienceConfig.particles.heroModel;
+    const reachModelConfig = experienceConfig.particles.reachModel;
     const closingModelConfig = experienceConfig.particles.closingModel;
 
     Promise.all([
       loadParticleModel(heroModelConfig.url),
+      loadParticleModel(reachModelConfig.url),
       loadParticleModel(closingModelConfig.url),
     ])
-      .then(([hero, closing]) => {
+      .then(([hero, reach, closing]) => {
         if (!cancelled) {
-          setModels({ hero, closing });
+          setModels({ hero, reach, closing });
         }
       })
       .catch((error: unknown) => {
@@ -124,7 +127,18 @@ export default function ParticleNarrativeCanvas({
       experienceConfig.particles.closingModel,
     );
   }, [models, profile.count]);
-  if (!heroTarget || !closingTarget) {
+  const reachTarget = useMemo(() => {
+    if (!models) {
+      return null;
+    }
+
+    return sampleParticleModelSurface(
+      models.reach,
+      profile.count,
+      experienceConfig.particles.reachModel,
+    );
+  }, [models, profile.count]);
+  if (!heroTarget || !reachTarget || !closingTarget) {
     return null;
   }
 
@@ -147,6 +161,7 @@ export default function ParticleNarrativeCanvas({
         progressStore={progressStore}
         layout={layout}
         heroTarget={heroTarget}
+        reachTarget={reachTarget}
         closingTarget={closingTarget}
         onReady={onReady}
       />
