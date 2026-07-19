@@ -662,6 +662,8 @@ test("extends the Home motion language across Works and Contact without assignin
 
   assert.match(works, /data-gsap-parallax="media"/);
   assert.match(styles, /\.project-case-study__media-frame\s*{[^}]*width:\s*100%[^}]*min-width:\s*0[^}]*min-height:\s*0/s);
+  assert.match(styles, /\.project-case-study__media-frame\s*{[^}]*--project-media-safe-inset:/s);
+  assert.match(styles, /\.project-case-study__media-frame img\s*{[^}]*var\(--project-media-safe-inset\)[^}]*object-fit:\s*contain/s);
   assert.match(projectCard, /data-gsap-parallax=\{compact \? undefined : "media"\}/);
   assert.doesNotMatch(projectCard, /addEventListener\("scroll"/);
   assert.doesNotMatch(projectCard, /--project-parallax/);
