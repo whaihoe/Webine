@@ -37,12 +37,15 @@ test("keeps Contact as the primary project action instead of duplicate navigatio
 
   const publicItems = navigation.slice(0, navigation.indexOf("] as const"));
   assert.doesNotMatch(publicItems, /label:\s*["']Contact["']/);
+  assert.match(publicItems, /Home[\s\S]*Works[\s\S]*Services[\s\S]*About/);
   assert.match(header, /href=["']\/contact["'][\s\S]*Start a project/);
   assert.match(mobileMenu, /href=["']\/contact["'][\s\S]*Start a project/);
   assert.match(header, /window\.scrollY > 24/);
   assert.match(header, /data-scrolled=\{scrolled\}/);
   assert.match(styles, /\.site-header\s*{[^}]*position:\s*fixed/s);
   assert.match(styles, /\.site-header__inner\s*{[^}]*backdrop-filter:\s*blur/s);
+  assert.match(styles, /background:\s*hsl\(var\(--header-background\) \/ 0\.58\)/);
+  assert.doesNotMatch(styles, /\.site-shell\s*{[^}]*padding-top:/s);
 });
 
 test("uses one flexible secondary-page heading system", async () => {
@@ -118,6 +121,8 @@ test("keeps global route motion purposeful and restorable", async () => {
   assert.match(smoothScroll, /from "\.\.\/animation\/scroll-runtime"/);
   assert.doesNotMatch(smoothScroll, /import\("gsap\/ScrollTrigger"\)/);
   assert.match(pageStyles, /\.project-card__media-motion\s*{[^}]*inset:\s*-8% 0/s);
+  assert.match(pageStyles, /\.hero-section\s*{[^}]*min-height:\s*100svh/s);
+  assert.match(pageStyles, /\.hero-section__grid\s*{[^}]*min-height:\s*100svh/s);
   assert.match(pageStyles, /\.contact-form\s*{[^}]*transition:\s*box-shadow/s);
   assert.doesNotMatch(pageStyles, /\.contact-form\s*{[^}]*transition:[^}]*transform/s);
   assert.match(menu, /mobile-menu__navigation/);
@@ -861,19 +866,41 @@ test("keeps one complete motion system without operating-system motion branches"
 });
 
 test("keeps the About page model-derived, portrait-led and accessible", async () => {
-  const [app, page, head, portrait, portraitParticles, portraitColour, portraitStyles, sitemap] = await Promise.all([
+  const [
+    app,
+    page,
+    headExperience,
+    head,
+    portrait,
+    portraitParticles,
+    portraitColour,
+    portraitStyles,
+    config,
+    sitemap,
+  ] = await Promise.all([
     readFile(new URL("src/App.tsx", projectRoot), "utf8"),
     readFile(new URL("src/pages/AboutPage.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/about/AboutHeadExperience.tsx", projectRoot), "utf8"),
     readFile(new URL("src/three/AboutHeadCanvas.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/about/PortraitReveal.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/about/portrait-particle-engine.ts", projectRoot), "utf8"),
     readFile(new URL("src/components/about/useFluidGrayscaleMask.ts", projectRoot), "utf8"),
     readFile(new URL("src/styles/about.css", projectRoot), "utf8"),
+    readFile(new URL("src/config/experience.ts", projectRoot), "utf8"),
     readFile(new URL("server/api-routes/sitemap.ts", projectRoot), "utf8"),
   ]);
 
   assert.match(app, /path="\/about"/);
   assert.match(page, /AboutHeadExperience/);
+  assert.match(page, /data-about-hero-frame/);
+  assert.match(headExperience, /gsap\.timeline/);
+  assert.match(headExperience, /pin:\s*hero/);
+  assert.match(headExperience, /pinSpacing:\s*true/);
+  assert.match(headExperience, /rotation:\s*1[\s\S]*dispersion:\s*1/);
+  assert.match(headExperience, /scaleX:\s*frameScale\.scaleX/);
+  assert.doesNotMatch(headExperience, /preventDefault|addEventListener\(["'](?:wheel|touchmove)/);
+  assert.match(config, /scrollScreens:\s*\{\s*desktop:\s*2\.4,\s*mobile:\s*2\.1\s*\}/);
+  assert.match(config, /scroll:\s*\{\s*x:\s*-0\.14,\s*y:\s*0\.84\s*\}/);
   assert.equal((page.match(/<PortraitReveal/g) ?? []).length, 1);
   assert.match(head, /\/about\/simple-head-points\.bin/);
   assert.match(portrait, /<canvas/);
@@ -901,6 +928,8 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(head, /vSurfaceColour/);
   assert.match(head, /vSurfaceDensity/);
   assert.match(head, /centredPositions/);
+  assert.match(head, /motion\.current\.rotation/);
+  assert.match(head, /motion\.current\.dispersion/);
   assert.match(head, /dpr=\{mobile \? \[0\.75, 1\.05\]/);
   assert.match(portrait, /start: "top 76%"/);
   assert.match(portrait, /once: true/);
@@ -909,6 +938,8 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(portraitStyles, /width:\s*min\(100%, 25rem\)/);
   assert.match(portraitStyles, /translate3d\(0, var\(--portrait-parallax-y\), 0\) scale\(1\.08\)/);
   assert.match(portraitStyles, /font-size:\s*clamp\(4\.25rem, 11vw, 7\.8rem\)/);
+  assert.match(portraitStyles, /\.about-hero__frame\s*\{[^}]*will-change:\s*transform, border-radius/s);
+  assert.match(portraitStyles, /\.about-head__canvas\s+canvas\s*\{[^}]*width:\s*100%\s*!important/s);
   assert.match(sitemap, /"\/about"/);
   await Promise.all([
     access(new URL("public/about/simple-head-points.bin", projectRoot)),

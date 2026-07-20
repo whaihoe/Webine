@@ -4,8 +4,17 @@
 
 .about-hero {
   position: relative;
-  min-height: 220svh;
-  border-bottom: 1px solid hsl(var(--color-rule));
+  height: 100svh;
+  background: hsl(var(--primitive-slate-50));
+}
+
+.about-hero__frame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: hsl(var(--primitive-slate-950));
+  transform-origin: center;
+  will-change: transform, border-radius;
 }
 
 .about-hero__copy {
@@ -33,9 +42,8 @@
 }
 
 .about-head__sticky {
-  position: sticky;
-  top: var(--header-height);
-  height: calc(100svh - var(--header-height));
+  position: absolute;
+  inset: 0;
   display: grid;
   place-items: center;
   overflow: hidden;
@@ -55,6 +63,11 @@
 }
 
 .about-head__canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.about-head__canvas canvas {
   width: 100% !important;
   height: 100% !important;
 }

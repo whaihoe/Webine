@@ -1,6 +1,6 @@
 .hero-section {
   position: relative;
-  min-height: calc(100svh - var(--header-height));
+  min-height: 100svh;
   overflow: hidden;
 }
 
@@ -38,7 +38,7 @@
 
 .hero-section__grid {
   position: relative;
-  min-height: calc(100svh - var(--header-height));
+  min-height: 100svh;
   padding-block: var(--primitive-space-16) var(--primitive-space-8);
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -191,7 +191,7 @@
   bottom: auto;
   left: 0;
   z-index: var(--layer-hero-ambient);
-  height: calc(100svh - var(--header-height));
+  height: 100svh;
   opacity: 0.5;
   mask-image: linear-gradient(to bottom, black 0%, black 68%, transparent 96%);
 }
@@ -2381,7 +2381,7 @@
 
 @media (min-width: 80rem) {
   .hero-section {
-    min-height: max(calc(100svh - var(--header-height)), 45rem);
+    min-height: max(100svh, 45rem);
   }
 
   .hero-section__grid,

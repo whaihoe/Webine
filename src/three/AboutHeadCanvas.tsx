@@ -13,7 +13,8 @@ import {
 import { experienceConfig } from "../config/experience";
 
 type HeadMotion = {
-  progress: number;
+  rotation: number;
+  dispersion: number;
 };
 
 type AboutHeadCanvasProps = {
@@ -244,13 +245,19 @@ function HeadPoints({ motion, positions, onReady }: AboutHeadCanvasProps & { pos
     const group = groupRef.current;
     const shader = materialRef.current;
     if (!group || !shader) return;
-    const target = motion.current.progress;
+    const rotationProgress = motion.current.rotation;
+    const dispersionProgress = motion.current.dispersion;
     const pointer = pointerRef.current;
     const pointerX = pointer.active ? pointer.x * aboutHeadConfig.rotation.pointer.y : 0;
     const pointerY = pointer.active ? -pointer.y * aboutHeadConfig.rotation.pointer.x : 0;
     const idleY = Math.sin(clock.elapsedTime * 0.22) * aboutHeadConfig.rotation.idle.y;
     const idleX = Math.cos(clock.elapsedTime * 0.18) * aboutHeadConfig.rotation.idle.x;
-    shader.uniforms.uDispersion.value = MathUtils.damp(shader.uniforms.uDispersion.value, target, 5.2, delta);
+    shader.uniforms.uDispersion.value = MathUtils.damp(
+      shader.uniforms.uDispersion.value,
+      dispersionProgress,
+      5.2,
+      delta,
+    );
     shader.uniforms.uTime.value = clock.elapsedTime;
     shader.uniforms.uPointer.value.x = MathUtils.damp(
       shader.uniforms.uPointer.value.x,
@@ -272,13 +279,19 @@ function HeadPoints({ motion, positions, onReady }: AboutHeadCanvasProps & { pos
     );
     group.rotation.y = MathUtils.damp(
       group.rotation.y,
-      aboutHeadConfig.rotation.resting.y + target * aboutHeadConfig.rotation.scroll.y + idleY + pointerX,
+      aboutHeadConfig.rotation.resting.y
+        + rotationProgress * aboutHeadConfig.rotation.scroll.y
+        + idleY
+        + pointerX,
       4.2,
       delta,
     );
     group.rotation.x = MathUtils.damp(
       group.rotation.x,
-      aboutHeadConfig.rotation.resting.x + target * aboutHeadConfig.rotation.scroll.x + idleX + pointerY,
+      aboutHeadConfig.rotation.resting.x
+        + rotationProgress * aboutHeadConfig.rotation.scroll.x
+        + idleX
+        + pointerY,
       4.2,
       delta,
     );

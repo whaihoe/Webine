@@ -1,8 +1,8 @@
 export const publicNavigation = [
   { href: "/", label: "Home" },
-  { href: "/about", label: "About" },
-  { href: "/services", label: "Services" },
   { href: "/works", label: "Works" },
+  { href: "/services", label: "Services" },
+  { href: "/about", label: "About" },
 ] as const;
 
 export const routeTitles: Record<string, string> = {

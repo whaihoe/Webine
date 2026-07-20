@@ -7,7 +7,6 @@
 
 .site-shell {
   min-height: 100svh;
-  padding-top: var(--header-height);
 }
 
 .route-transition {
@@ -79,11 +78,12 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--primitive-space-6);
-  border: var(--primitive-rule) solid hsl(var(--header-border) / 0.82);
+  border: var(--primitive-rule) solid hsl(var(--header-border) / 0.62);
   border-radius: var(--primitive-radius-pill);
-  background: hsl(var(--header-background) / 0.82);
+  background: hsl(var(--header-background) / 0.58);
   box-shadow: 0 0.75rem 2.5rem hsl(var(--primitive-slate-950) / 0.12);
-  backdrop-filter: blur(18px) saturate(1.18);
+  -webkit-backdrop-filter: blur(16px) saturate(1.12);
+  backdrop-filter: blur(16px) saturate(1.12);
   pointer-events: auto;
   transition:
     background-color var(--primitive-duration-standard) ease,
@@ -93,8 +93,8 @@
 }
 
 .site-header[data-scrolled="true"] .site-header__inner {
-  background: hsl(var(--header-background) / 0.94);
-  border-color: hsl(var(--header-border));
+  background: hsl(var(--header-background) / 0.7);
+  border-color: hsl(var(--header-border) / 0.78);
   box-shadow: 0 1rem 3.25rem hsl(var(--primitive-slate-950) / 0.24);
   transform: translateY(-0.15rem);
 }

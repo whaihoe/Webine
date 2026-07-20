@@ -15,14 +15,16 @@ export function AboutPage() {
     <SiteShell>
       <div className="about-page theme-dark">
         <section className="about-hero" aria-labelledby="about-heading">
-          <div className="site-container about-hero__copy page-header-copy">
-            <p className="eyebrow page-header-copy__eyebrow" data-gsap-reveal="copy">{aboutContent.hero.eyebrow}</p>
-            <h1 className="page-header-copy__title" id="about-heading" data-gsap-reveal="copy" data-gsap-delay="0.08">
-              {aboutContent.hero.headingLead} <em>{aboutContent.hero.headingAccent}</em>
-            </h1>
-            <p className="page-header-copy__summary" data-gsap-reveal="copy" data-gsap-delay="0.16">{aboutContent.hero.introduction}</p>
+          <div className="about-hero__frame" data-about-hero-frame>
+            <div className="site-container about-hero__copy page-header-copy" data-about-hero-copy>
+              <p className="eyebrow page-header-copy__eyebrow" data-gsap-reveal="copy">{aboutContent.hero.eyebrow}</p>
+              <h1 className="page-header-copy__title" id="about-heading" data-gsap-reveal="copy" data-gsap-delay="0.08">
+                {aboutContent.hero.headingLead} <em>{aboutContent.hero.headingAccent}</em>
+              </h1>
+              <p className="page-header-copy__summary" data-gsap-reveal="copy" data-gsap-delay="0.16">{aboutContent.hero.introduction}</p>
+            </div>
+            <AboutHeadExperience />
           </div>
-          <AboutHeadExperience />
         </section>
 
         <section className="about-statement" aria-labelledby="about-statement-heading">

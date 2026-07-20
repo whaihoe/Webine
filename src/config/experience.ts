@@ -53,9 +53,17 @@ export const experienceConfig = {
       pointSize: 9.2,
       scale: 0.88,
       densityFloor: 0.52,
+      sequence: {
+        scrollScreens: { desktop: 2.4, mobile: 2.1 },
+        scrub: { desktop: 1.1, mobile: 0.78 },
+        frame: {
+          desktop: { scaleX: 0.965, scaleY: 0.94 },
+          mobile: { scaleX: 0.94, scaleY: 0.93 },
+        },
+      },
       rotation: {
         resting: { x: 0.03, y: -0.2 },
-        scroll: { x: -0.22, y: 1.3 },
+        scroll: { x: -0.14, y: 0.84 },
         pointer: { x: 0.11, y: 0.14 },
         idle: { x: 0.018, y: 0.055 },
       },
