@@ -595,3 +595,40 @@
 - Replaced the procedural desktop Reach target with `public/models/reach-rings-particle.glb`. The model preserves the existing three elliptical rings as real indexed mesh geometry.
 - Added `particles.reachModel.rotationDegrees` to the central experience configuration. Desktop and tablet apply it during GLB surface sampling, while mobile applies the same value to its baked neutral target before projection.
 - Added a deterministic model generator that rebuilds both the GLB and the Reach slice of the lightweight mobile binary, avoiding two manually maintained versions of the form.
+
+## 2026-07-20, mobile portrait lifecycle and navigation alignment
+
+- Kept the complete 595-point mobile and 900-point desktop portrait-outline sequences unchanged, including their movement, timing, parallax and grayscale handoff.
+- Released each one-shot portrait canvas after its fade completes by disconnecting resize observation, cancelling pending animation work, clearing the particle array and reducing the transparent backing buffer to 1 by 1 pixel.
+- Kept the SVG residual colour reveal for devices with any fine hover pointer. Touch-only devices skip its blurred paint layer and use the same photograph with a static grayscale filter because touch has no hover reveal.
+- Limited portrait transform promotion to the section's active parallax range and added paint containment around each clipped portrait.
+- Rebuilt the mobile menu corner as one border-box-aligned 14-pixel mark centred within its 44-pixel trigger. Kidson and Whai Hoe now share the title Co-founder.
+
+## 2026-07-20, liquid portrait reveal and axis-aware image parallax
+
+- Rebuilt the fine-pointer portrait reveal as expanding, displaced radial waves layered with the existing residual trail. The colour now blooms beyond the pointer with a soft irregular boundary, while leaving the frame still returns the portrait to grayscale.
+- Centralised the portrait outline, completed-outline hold, particle fade, image reveal, image reveal delay and hover ripple values in `src/config/experience.ts`.
+- Added one `createImageParallax` helper with an explicit horizontal or vertical axis, one transform owner, clamped viewport ranges, refresh-safe measurements and active-only transform promotion.
+- Assigned vertical parallax to About portraits, Works cards and case-study media. The Home selected-work runway keeps horizontal image travel through the same axis contract.
+- Disabled immediate `from` rendering for image parallax so a pinned hero refresh cannot apply an early transform to content below it and cause a direct-load jump.
+## 2026-07-20, asset-aware Webine loading system
+
+- Replaced the public-only two-panel route curtain with one loader shared by Home, Works, Services, About, Contact, Admin, preview and not-found routes.
+- Adapted the supplied The First The Last reference at the concept level. Webine's split `WEB` and `INE` wordmark converges across a dotted cyan-to-blue signal, expressing the established scattered-to-shaped brand story without copying the reference's tags, Lottie or fake five-second percentage.
+- Reduced the final visual to a flat slate background and a small converging wordmark with generous empty space. `WEB` and `INE` now use the same primary typeface, and their shrinking distance is the only progress indicator. Removed the percentage, line, dots, bar, ambient glow, loader grid, eyebrow and status labels.
+- Progress now follows fonts, route-specific GLB or binary assets, Site Settings and CMS pending signals, particle-engine readiness, current image decoding and settled layout frames. A 12-second ceiling prevents a failed asset from trapping the route.
+- Delayed global GSAP setup until the loader's left-to-right wipe fully closes. The Home hero holds its particle intro at zero behind the loader, then begins its breathing and gathering choreography after the screen clears.
+- Removed `RouteTransition`, its CSS keyframes and the obsolete transition configuration instead of retaining two route-entry systems.
+
+## 2026-07-20, complete particle-object configuration surface
+
+- Added `particles.interludeObject` for the Section 4 elliptical particle form. Band count, x and y radii, band spacing, tube radius and orientation now live in `src/config/experience.ts` instead of being hidden in the target generator.
+- Connected the central values to desktop procedural target generation and the same orientation to the mobile baked target path. Default values reproduce the current approved object without a visual reset.
+- Confirmed that every formed object now has a named central block: Home hero, Reach, Section 4 interlude and closing objects, About head and portrait outline, and the Services orb. Responsive Home scale and anchors remain alongside them in `particleSceneConfig`.
+
+## 2026-07-20, unclipped editorial typography
+
+- Limited the shared GSAP reveal clip path to media. Copy still receives the coordinated opacity and vertical reveal, but returns to `clip-path: none` so italic overshoots, descenders and wide Georgia phrases remain visible after the entrance completes.
+- Gave the Contact accent phrase a wider text column, a responsive single-line scale and a small glyph-safe inline gutter so “unmistakable” remains complete without reducing the surrounding headline unnecessarily.
+- Added lower and inline breathing room to the Services hero accent so “Ready to evolve.” retains its descenders and italic edge at wide viewports.
+- Removed the oversized decorative outline arrow from the Works commissioning panel. The labelled Start a project control remains the only directional action in that panel.

@@ -3,6 +3,7 @@
 @import "./styles/tokens/components.css";
 @import "./styles/base.css";
 @import "./styles/layout.css";
+@import "./styles/page-loader.css";
 @import "./styles/components.css";
 @import "./styles/cursor.css";
 @import "./styles/pages.css";

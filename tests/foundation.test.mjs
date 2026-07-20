@@ -68,23 +68,42 @@ test("uses one flexible secondary-page heading system", async () => {
   assert.match(styles, /\.project-case-study\s*{[^}]*padding-block:\s*var\(--page-header-clearance\)/s);
 });
 
-test("keeps global route motion purposeful and restorable", async () => {
-  const [app, effects, transition, revealController, shell, scrollRuntime, smoothScroll, projectCard, menu, styles, pageStyles] = await Promise.all([
+test("keeps global route motion purposeful, asset-aware and restorable", async () => {
+  const [app, effects, loader, assets, revealController, imageParallax, shell, heroEntrance, scrollRuntime, smoothScroll, projectCard, menu, styles, loaderStyles, pageStyles] = await Promise.all([
     readFile(new URL("src/App.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/RouteEffects.tsx", projectRoot), "utf8"),
-    readFile(new URL("src/components/RouteTransition.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/PageLoadProvider.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/loading/page-assets.ts", projectRoot), "utf8"),
     readFile(new URL("src/components/GsapRevealController.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/animation/image-parallax.ts", projectRoot), "utf8"),
     readFile(new URL("src/components/SiteShell.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/home/HeroEntranceTimeline.tsx", projectRoot), "utf8"),
     readFile(new URL("src/animation/scroll-runtime.ts", projectRoot), "utf8"),
     readFile(new URL("src/components/PublicSmoothScroll.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/projects/ProjectCard.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/MobileMenu.tsx", projectRoot), "utf8"),
     readFile(new URL("src/styles/layout.css", projectRoot), "utf8"),
+    readFile(new URL("src/styles/page-loader.css", projectRoot), "utf8"),
     readFile(new URL("src/styles/pages.css", projectRoot), "utf8"),
   ]);
-  assert.match(app, /<RouteTransition/);
-  assert.match(transition, /aria-hidden="true"/);
-  assert.match(transition, /!location\.pathname\.startsWith\("\/admin"\)/);
+  assert.match(app, /<PageLoadProvider>/);
+  assert.match(app, /data-page-load-pending="true"/);
+  assert.match(loader, /preparePageAssets/);
+  assert.match(loader, /role="status"/);
+  assert.doesNotMatch(loader, /page-loader__count/);
+  assert.doesNotMatch(loader, /page-loader__glow/);
+  assert.match(loader, /page-loader__word--first">WEB/);
+  assert.match(loader, /page-loader__word--last">INE/);
+  assert.match(loader, /location\.pathname/);
+  assert.match(loader, /onClosed={closeLoader}/);
+  assert.match(assets, /document\.fonts\.ready/);
+  assert.match(assets, /webine-logo-particle\.glb/);
+  assert.match(assets, /simple-head-points\.bin/);
+  assert.match(assets, /#root img\[src\]/);
+  assert.match(assets, /data-page-load-pending/);
+  assert.match(assets, /data-particle-state/);
+  assert.match(assets, /about-head__visual\.is-ready/);
+  assert.match(assets, /maximumWaitMs/);
   assert.match(effects, /scrollPositions/);
   assert.match(effects, /navigationType === "POP"/);
   assert.match(effects, /hashTarget\.scrollIntoView/);
@@ -101,22 +120,30 @@ test("keeps global route motion purposeful and restorable", async () => {
   assert.match(revealController, /ScrollTrigger\.refresh\(\)/);
   assert.match(revealController, /dataset\.gsapDelay/);
   assert.match(revealController, /dataset\.gsapParallax/);
-  assert.match(revealController, /startsInViewport \? 0\.42 : 0/);
+  assert.match(revealController, /startsInViewport \? 0\.08 : 0/);
   assert.match(revealController, /compactViewport\(\) \? -24 : -72/);
   assert.match(revealController, /compactViewport\(\) \? 36 : 96/);
-  assert.match(revealController, /compactViewport\(\) \? -6 : -8/);
-  assert.match(revealController, /compactViewport\(\) \? 6 : 8/);
+  assert.match(revealController, /createImageParallax/);
+  assert.match(revealController, /requestedAxis === "horizontal"/);
   assert.equal((revealController.match(/yPercent:\s*isFloatingCard/g) ?? []).length, 2);
-  assert.match(revealController, /scrub:\s*isFloatingCard \? 1\.35 : isMedia \? 1\.05 : 1\.15/);
+  assert.match(revealController, /scrub:\s*isFloatingCard \? 1\.35 : 1\.15/);
+  assert.match(imageParallax, /ImageParallaxAxis = "horizontal" \| "vertical"/);
+  assert.match(imageParallax, /immediateRender:\s*false/);
+  assert.match(imageParallax, /start:\s*"clamp\(top bottom\)"/);
+  assert.match(imageParallax, /end:\s*"clamp\(bottom top\)"/);
   assert.match(revealController, /invalidateOnRefresh:\s*true/);
   assert.match(revealController, /gsapController = "ready"/);
   assert.match(revealController, /root:\s*HTMLElement/);
   assert.doesNotMatch(revealController, /rootRef\.current/);
   assert.match(revealController, /opacity:\s*0/);
   assert.doesNotMatch(revealController, /autoAlpha/);
+  assert.match(revealController, /clipPath:\s*media \? "inset\(0% 0 0% 0 round 0rem\)" : "none"/);
   assert.match(shell, /useState<HTMLDivElement \| null>\(null\)/);
   assert.match(shell, /ref={setShellElement}/);
-  assert.match(shell, /shellElement \? <GsapRevealController root={shellElement} \/>/);
+  assert.match(shell, /shellElement && isPageReady \? <GsapRevealController root={shellElement} \/>/);
+  assert.match(heroEntrance, /if \(!isPageReady\)/);
+  assert.match(heroEntrance, /heroIntroState = "waiting"/);
+  assert.match(heroEntrance, /fullEntrance \? 0\.4 : 0\.2/);
   assert.match(scrollRuntime, /gsap\.registerPlugin\(ScrollTrigger\)/);
   assert.match(smoothScroll, /from "\.\.\/animation\/scroll-runtime"/);
   assert.doesNotMatch(smoothScroll, /import\("gsap\/ScrollTrigger"\)/);
@@ -126,11 +153,14 @@ test("keeps global route motion purposeful and restorable", async () => {
   assert.match(pageStyles, /\.contact-form\s*{[^}]*transition:\s*box-shadow/s);
   assert.doesNotMatch(pageStyles, /\.contact-form\s*{[^}]*transition:[^}]*transform/s);
   assert.match(menu, /mobile-menu__navigation/);
-  assert.match(transition, /previousPath/);
-  assert.match(transition, /setTimeout\(\(\) => setVisible\(false\), 760\)/);
   assert.doesNotMatch(projectCard, /viewTransition/);
-  assert.match(styles, /pointer-events:\s*none/);
-  assert.match(styles, /route-curtain-reveal/);
+  assert.doesNotMatch(styles, /route-curtain-reveal/);
+  assert.match(loaderStyles, /\.page-loader\s*{[^}]*position:\s*fixed/s);
+  assert.match(loaderStyles, /page-loader-exit/);
+  assert.match(loaderStyles, /clip-path:\s*inset\(0 0 0 100%\)/);
+  assert.doesNotMatch(loaderStyles, /page-loader__bridge/);
+  assert.doesNotMatch(loaderStyles, /page-loader__progress-fill/);
+  assert.match(loaderStyles, /font-family:\s*var\(--font-primary\)/);
   assert.match(styles, /\.site-header--light\s*{[^}]*--button-outline-text:\s*var\(--primitive-slate-950\)/s);
   assert.match(await readFile(new URL("src/styles/base.css", projectRoot), "utf8"), /\[data-gsap-reveal\]:focus-within/);
 });
@@ -200,11 +230,13 @@ test("enables the approved homepage experience layers", async () => {
     ),
   ]);
 
-  assert.equal((config.match(/enabled:\s*true/g) ?? []).length, 3);
-  assert.equal((config.match(/enabled:\s*false/g) ?? []).length, 2);
+  assert.equal((config.match(/enabled:\s*true/g) ?? []).length, 4);
+  assert.equal((config.match(/enabled:\s*false/g) ?? []).length, 1);
+  assert.match(config, /pageLoader:\s*{\s*enabled:\s*true/);
   assert.match(config, /particles:\s*{\s*enabled:\s*true/);
   assert.match(config, /smoothScroll:\s*{\s*enabled:\s*true/);
   assert.match(config, /signalGrid:\s*{\s*enabled:\s*true/);
+  assert.match(config, /interludeObject:\s*{[\s\S]*?type:\s*"elliptical-torus-bands"[\s\S]*?rotationDegrees:\s*\[0, 0, 0\]/);
   assert.match(config, /count:\s*6000/);
   assert.match(config, /count:\s*1800/);
   assert.match(config, /pixelRatioCap:\s*1\.25/);
@@ -539,7 +571,8 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.match(selectedWork, /projectCards/);
   assert.match(selectedWork, /projectMedia/);
   assert.match(selectedWork, /projectImages/);
-  assert.match(selectedWork, /xPercent/);
+  assert.match(selectedWork, /setImageParallaxOffset/);
+  assert.match(selectedWork, /"horizontal"/);
   assert.match(selectedWork, /revealTimeline/);
   assert.match(selectedWork, /projectCards\.forEach\(\(card, index\)/);
   assert.match(selectedWork, /0\.2 \+ index \* 0\.28/);
@@ -666,10 +699,12 @@ test("extends the Home motion language across Works and Contact without assignin
   ]);
 
   assert.match(works, /data-gsap-parallax="media"/);
+  assert.match(works, /data-gsap-parallax-axis="vertical"/);
   assert.match(styles, /\.project-case-study__media-frame\s*{[^}]*width:\s*100%[^}]*min-width:\s*0[^}]*min-height:\s*0/s);
   assert.match(styles, /\.project-case-study__media-frame\s*{[^}]*--project-media-safe-inset:/s);
   assert.match(styles, /\.project-case-study__media-frame img\s*{[^}]*var\(--project-media-safe-inset\)[^}]*object-fit:\s*contain/s);
   assert.match(projectCard, /data-gsap-parallax=\{compact \? undefined : "media"\}/);
+  assert.match(projectCard, /data-image-parallax-axis=\{compact \? "horizontal" : undefined\}/);
   assert.doesNotMatch(projectCard, /addEventListener\("scroll"/);
   assert.doesNotMatch(projectCard, /--project-parallax/);
   assert.match(works, /revealDelay=\{\(index % 2\) \* 0\.14\}/);
@@ -722,7 +757,7 @@ test("uses vector arrows instead of emoji-prone Unicode arrows", async () => {
 
   assert.match(buttonLink, /DirectionalArrow/);
   assert.match(selectedWork, /DirectionalArrow direction="down"/);
-  assert.match(works, /className="works-commission__mark"[\s\S]*<DirectionalArrow \/>/);
+  assert.doesNotMatch(works, /works-commission__mark/);
   assert.match(arrow, /<svg viewBox="0 0 12 12"/);
   assert.doesNotMatch(buttonLink, /\u2197|\u2193/u);
   assert.doesNotMatch(selectedWork, /\u2197|\u2193/u);
@@ -910,17 +945,31 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(portraitParticles, /floatSpeed:\s*0\.54 \+ random\(\) \* 1\.78/);
   assert.match(portraitParticles, /floatAmplitudeX/);
   assert.match(portraitParticles, /curlDirection/);
-  assert.match(portrait, /duration:\s*0\.55, onUpdate: scheduleDraw/);
+  assert.match(portrait, /portraitSequence\.completedOutlineHoldSeconds/);
+  assert.match(portrait, /onComplete:\s*releaseParticleRenderer/);
+  assert.match(portrait, /canvas\.width = 1/);
+  assert.match(portrait, /particlesRef\.current = \[\]/);
   assert.match(portraitParticles, /const breathing = 0\.94/);
   assert.match(portraitParticles, /glow: boolean/);
   assert.match(portrait, /portrait-reveal__image--colour/);
   assert.match(portrait, /portrait-reveal__mono-layer/);
   assert.match(portrait, /className="portrait-reveal__media"[\s\S]*<canvas ref=\{particleCanvasRef\}/);
   assert.match(portrait, /mask=\{`url\(#\$\{maskId\}\)`\}/);
-  assert.match(portrait, /"--portrait-parallax-y"/);
+  assert.match(portrait, /axis:\s*"vertical"/);
+  assert.match(portrait, /createImageParallax/);
   assert.match(portrait, /scrub:\s*1\.1/);
-  assert.match(portraitColour, /point\.life -= elapsed \/ 1450/);
+  assert.match(portraitColour, /portraitHoverConfig\.trailDecayMs/);
+  assert.match(portraitColour, /RIPPLE_CIRCLES_PER_WAVE = 3/);
+  assert.match(portraitColour, /portraitHoverConfig\.rippleDurationMs/);
+  assert.match(portraitColour, /portraitHoverConfig\.rippleRadii/);
+  assert.match(portraitColour, /rippleFadeIn/);
+  assert.match(portraitColour, /rippleFadeOut/);
+  assert.match(portrait, /<feTurbulence/);
+  assert.match(portrait, /<feDisplacementMap/);
+  assert.match(portrait, /<radialGradient/);
+  assert.match(portrait, /ref=\{fluidRippleRef\}/);
   assert.match(portraitColour, /event\.pointerType === "touch"/);
+  assert.match(portraitColour, /\(any-hover: hover\) and \(any-pointer: fine\)/);
   assert.match(portraitColour, /addEventListener\("pointerenter", startTrail/);
   assert.match(portraitColour, /removeEventListener\("pointerenter", startTrail/);
   assert.match(head, /aboutHeadConfig\.mobilePointLimit/);
@@ -933,10 +982,16 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(head, /dpr=\{mobile \? \[0\.75, 1\.05\]/);
   assert.match(portrait, /start: "top 76%"/);
   assert.match(portrait, /once: true/);
+  assert.match(config, /aboutPortrait:\s*{[\s\S]*outlineDurationSeconds:\s*2\.35/);
+  assert.match(config, /completedOutlineHoldSeconds:\s*0\.55/);
+  assert.match(config, /particleFadeSeconds:\s*0\.85/);
+  assert.match(config, /imageRevealSeconds:\s*0\.9/);
+  assert.match(config, /imageRevealDelayAfterParticleFadeStartsSeconds:\s*0\.04/);
+  assert.match(portraitStyles, /@media \(any-hover: none\) and \(any-pointer: coarse\)[\s\S]*\.portrait-reveal__mono-layer\s*{[^}]*display:\s*none/s);
   assert.doesNotMatch(portrait, /aria-pressed|Reveal colour/);
   assert.doesNotMatch(portraitStyles, /clip-path:\s*circle/);
   assert.match(portraitStyles, /width:\s*min\(100%, 25rem\)/);
-  assert.match(portraitStyles, /translate3d\(0, var\(--portrait-parallax-y\), 0\) scale\(1\.08\)/);
+  assert.match(portraitStyles, /\.portrait-reveal__media\s*{[^}]*transform:\s*scale\(1\.08\)/s);
   assert.match(portraitStyles, /font-size:\s*clamp\(4\.25rem, 11vw, 7\.8rem\)/);
   assert.match(portraitStyles, /\.about-hero__frame\s*\{[^}]*will-change:\s*transform, border-radius/s);
   assert.match(portraitStyles, /\.about-head__canvas\s+canvas\s*\{[^}]*width:\s*100%\s*!important/s);

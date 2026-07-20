@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { experienceMode } from "../config/experience";
+import { usePageLoad } from "../loading/page-load-context";
 import { PublicSmoothScroll } from "./PublicSmoothScroll";
 import { SiteFooter } from "./SiteFooter";
 import { SiteHeader } from "./SiteHeader";
@@ -16,10 +17,11 @@ export function SiteShell({
   headerTheme = "dark",
 }: SiteShellProps) {
   const [shellElement, setShellElement] = useState<HTMLDivElement | null>(null);
+  const { isPageReady } = usePageLoad();
 
   return (
     <div ref={setShellElement} className="site-shell" data-experience-mode={experienceMode}>
-      {shellElement ? <GsapRevealController root={shellElement} /> : null}
+      {shellElement && isPageReady ? <GsapRevealController root={shellElement} /> : null}
       <KineticCursor />
       <a className="skip-link" href="#main-content">
         Skip to main content

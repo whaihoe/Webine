@@ -15,7 +15,7 @@ export const aboutContent = {
   team: [
     {
       name: "Kidson",
-      role: "Partner",
+      role: "Co-founder",
       portrait: "/about/kidson-portrait.png",
       mask: "/about/kidson-mask.png",
       description:
@@ -23,7 +23,7 @@ export const aboutContent = {
     },
     {
       name: "Whai Hoe",
-      role: "Founder",
+      role: "Co-founder",
       portrait: "/about/whai-hoe-portrait.png",
       mask: "/about/whai-hoe-mask.png",
       description:

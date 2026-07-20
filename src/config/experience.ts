@@ -1,4 +1,12 @@
 export const experienceConfig = {
+  pageLoader: {
+    enabled: true,
+    minimumVisibleMs: 1100,
+    completionHoldMs: 360,
+    exitDurationMs: 720,
+    maximumWaitMs: 12000,
+    assetSettleMs: 180,
+  },
   motion: {
     enabled: false,
     revealPreset: "clip-rise",
@@ -72,6 +80,24 @@ export const experienceConfig = {
         amplitude: { min: 0.032, range: 0.046 },
       },
     },
+    aboutPortrait: {
+      sequence: {
+        outlineDurationSeconds: 2.35,
+        completedOutlineHoldSeconds: 0.55,
+        particleFadeSeconds: 0.85,
+        imageRevealSeconds: 0.9,
+        imageRevealDelayAfterParticleFadeStartsSeconds: 0.04,
+      },
+      hoverReveal: {
+        trailDecayMs: 1450,
+        rippleDurationMs: 1350,
+        stationaryRippleIntervalMs: 760,
+        movementRippleThreshold: 0.075,
+        maxRipples: 4,
+        rippleRadii: [42, 30, 18],
+        rippleOpacities: [0.88, 0.82, 1],
+      },
+    },
     servicesOrb: {
       count: 780,
       densityFloor: 0.56,
@@ -99,6 +125,14 @@ export const experienceConfig = {
       offset: [0, 0, 0],
       localScale: [1, 1, 1],
       seed: 20260719,
+    },
+    interludeObject: {
+      type: "elliptical-torus-bands",
+      bandCount: 3,
+      radiusX: { base: 1.32, step: 0.48 },
+      radiusY: { base: 0.92, step: 0.32 },
+      tubeRadius: 0.2,
+      rotationDegrees: [0, 0, 0],
     },
     closingModel: {
       url: "/models/colony-planet-particle.glb",
@@ -157,11 +191,6 @@ export const experienceConfig = {
     sections: ["hero", "closing-cta"],
     desktopCellSize: 48,
     mobileCellSize: 32,
-  },
-  pageTransitions: {
-    enabled: false,
-    preset: "folded-panel-wipe",
-    durationMs: 600,
   },
 } as const;
 

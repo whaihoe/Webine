@@ -17,15 +17,16 @@
 | `KineticCursor` | USTA-informed public desktop cursor with separate tight and loose tracking layers | Resting dot and halo, clickable-control morph, pressed, hidden, touch-disabled and Admin-excluded |
 | `WorkspaceShell` | Reserved Admin application frame | Mobile strip, desktop sidebar and horizontally safe clickable ancestor breadcrumbs |
 | `RouteEffects` | Page title, route announcement, scroll and heading focus | Push, replace and browser history |
-| `RouteTransition` | Non-blocking public-route reveal curtain | Public route entry and absent from Admin or preview |
-| `GsapRevealController` | Shared scroll-entry and parallax choreography for public copy, cards and media | Production-safe resolved shell ownership, route-curtain-aware entry, stronger media travel, pixel-owned Contact form float, focus-safe opacity, coalesced async CMS refresh, reverse and cleanup |
+| `PageLoadProvider` | Route-wide asset-readiness boundary and Webine loading choreography | Initial entry and every route, real readiness phases, degraded timeout, fixed scroll lock, left-to-right exit and ready context |
+| `page-assets` | Route-specific model, binary, data-signal, font and current-image preparation | Home desktop or mobile, About, CMS-backed routes, Admin lazy entry, failed asset and 12-second ceiling |
+| `GsapRevealController` | Shared scroll-entry and parallax choreography for public copy, cards and media | Production-safe resolved shell ownership, loader-gated entry, axis-aware refresh-safe media travel, pixel-owned Contact form float, focus-safe opacity, coalesced async CMS refresh, reverse and cleanup |
 | `AmbientParticleField` | Lightweight sparse atmosphere outside the Home narrative geometry | One deterministic canvas, wide two-frequency electron orbits, cyan or blue depth points, fine-pointer parallax, full mobile density, capped DPR and offscreen or hidden-page pause |
 | `GalaxyBackdrop` | Fixed atmospheric field shared by the Works index and case studies | Slate-950 base, clearly visible lower-half cyan or blue horizon, 118 drifting stars and content-safe fixed layering |
 | `AppErrorBoundary` | Application failure fallback | Error |
 | `PublicSmoothScroll` | Single Lenis public scroll runtime synchronized with the GSAP ticker and ScrollTrigger | Weighted wheel interpolation, nonlinear extreme-input cap, unchanged touch path, same-page anchor focus, route cleanup and ready diagnostics |
 | `AboutHeadExperience` | About-only full-frame sticky story scene built from the supplied simple head | Initially centred, formed, additive scroll and pointer rotation, viewport-wide dispersion, failed fallback and offscreen pause |
 | `AboutHeadCanvas` | Lazy model-derived point renderer with centred runtime geometry | 9,000 desktop points, 5,600 mobile points, porous seeded spacing, individual multi-frequency three-axis drift, loading, ready, deterministic scroll rotation, pointer bulge, dispersed and fallback |
-| `PortraitReveal` | Layered colour portrait, SVG-masked grayscale portrait, rising silhouette particles and editorial team copy | Viewport-triggered bottom-up outline, 595-point mobile and 900-point desktop caps, wide-field origins, independently seeded float, curl and breathing motion, 30 FPS mobile rendering, shared-wrapper parallax, grayscale handoff, native fluid erasure trail, 25rem desktop frame cap and oversized indexed names |
+| `PortraitReveal` | Layered colour portrait, SVG-masked grayscale portrait, rising silhouette particles and editorial team copy | Viewport-triggered bottom-up outline, centrally configurable sequence timing, 595-point mobile and 900-point desktop caps, wide-field origins, independently seeded float, curl and breathing motion, 30 FPS mobile rendering, shared-wrapper vertical parallax, grayscale handoff, displaced liquid ripple and residual trail, 25rem desktop frame cap and oversized indexed names |
 | `ServicesChapterController` | Scroll-owned service narrative with one sticky chapter rail | Five active offer chapters, scrubbed copy hierarchy, bounded particle-orb orientation and mobile linear flow |
 | `ServicesParticleOrb` | Lightweight particle object replacing the previous outlined service circle | 780 porous points with individual multi-frequency three-axis orbits, bounded idle reversal, pointer tilt, local fine-pointer bulge, capped DPR and visibility-aware rendering |
 | `HomeParticleExperience` | Home-only boundary for the persistent visual layer | Mounted and unmounted by route |
@@ -33,7 +34,7 @@
 | `ParticleNarrativeCanvas` | One lazy React Three Fiber canvas for the tablet and desktop Home story | Loading, live, paused and failed |
 | `MobileSectionParticles` | Section-owned 2D particle canvases that scroll naturally with their phone scenes | Loading, nearby, formed, wide dispersed field, independently orbiting and inactive |
 | `ParticlePosterFallback` | Visible composition before WebGL and after failure | Loading, fallback and hidden-live |
-| `HeroEntranceTimeline` | Coordinates the first-load breathing period, particle formation and staged HTML reveal | First load, short return, restored and interrupted |
+| `HeroEntranceTimeline` | Coordinates the post-loader breathing period, particle formation and staged HTML reveal | Waiting behind loader, first load, short return, restored and interrupted |
 | `HeroCoverTransition` | Selects the desktop GSAP pin or native coarse-touch sticky cover | Desktop pin, native sticky and cleanup |
 | `SignalGrid` | Faint CSS grid with a fine-pointer local light response | Resting touch, active pointer and offscreen-paused |
 | `ReachSection` | Practical found, trusted and chosen business-value chapter | Entered, revealed and expanded examples |
@@ -63,4 +64,4 @@
 
 ## Later components
 
-The following inputs remain outside the current implementation: approved final poster art, commissioned project media, licensed Railway files, final domain and measured production performance evidence. The route transition, coordinated public reveals, CMS database, authenticated Admin, collection builder, generated editors, media library, publishing controls, public Works, CMS-backed homepage runway, enquiry pipeline, robots and sitemap now exist.
+The following inputs remain outside the current implementation: approved final poster art, commissioned project media, licensed Railway files, final domain and measured production performance evidence. The asset-aware loading transition, coordinated public reveals, CMS database, authenticated Admin, collection builder, generated editors, media library, publishing controls, public Works, CMS-backed homepage runway, enquiry pipeline, robots and sitemap now exist.

@@ -186,3 +186,31 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - The production loader reads `reach-rings-particle.glb` without falling back, samples it into the persistent desktop particle geometry and shows the three-ring silhouette at complete Reach formation.
 - A 390 by 844 production render shows the baked model-derived Reach rings with zero horizontal overflow. Mobile retains its six lightweight canvases and does not import Three.js.
 - Regression coverage protects the model asset, central rotation configuration, desktop model load, removed procedural Reach buffer and mobile rotation path.
+
+## 2026-07-20 mobile portrait lifecycle pass
+
+- At 390 by 844, the mobile Menu control remains 44 pixels high and its 14-pixel corner mark is centred within 0.5 pixels of the trigger centre. The page has zero horizontal overflow.
+- Both team entries render Co-founder. Their existing 358 by 447, 595-point outline canvases complete the full entrance and fade before each backing buffer is reduced to a hidden 1 by 1 surface.
+- Touch-only CSS removes the unavailable SVG blur layer and keeps the final photograph grayscale. Devices with any fine hover pointer retain the residual colour reveal and pointer-type validation.
+- Lint, the production build, server type checks, the test-server build and all 50 automated tests pass. The existing React Three Fiber chunk warning and Three.js Clock deprecation warning remain dependency-owned and unchanged.
+
+## 2026-07-20 liquid reveal and parallax stability pass
+
+- Compared the supplied hover recording against the implemented portrait mask. Fine-pointer movement now creates expanding radial waves with turbulence displacement, a soft edge and a decaying residual trail rather than one fixed circular cutout.
+- A direct About reload at scroll position 3387 measured the same portrait frame top and media top immediately and 900 milliseconds later. The media transform remained vertical and did not jump after the pinned hero and ScrollTrigger refresh settled.
+- Source checks confirm horizontal image travel for the Home runway and vertical travel for About portraits, Works cards and case-study images. Every shared image tween uses clamped viewport ranges, `immediateRender: false` and refresh invalidation.
+- Lint, the production client build, server type checks, test-server build and all 50 automated tests pass. The existing React Three Fiber chunk warning remains unchanged.
+## 2026-07-20 asset-aware loader pass
+
+- Fresh Home entry at 1280 by 800 shows the loader while the hero reports `waiting`. After the loader wipe, the hero reports `running`, retains its breathing pause and reaches `complete` without horizontal overflow.
+- Fresh About entry at 390 by 844 starts with scroll locked, completes only after the head visual reports ready, restores scrolling and has zero horizontal overflow. Both word halves remain inside the viewport during the separated state.
+- Services, Contact, Works and Admin each show the loader on direct entry, release within the expected readiness window, leave no pending markers and report zero horizontal overflow at 1280 by 800.
+- Browser console checks report no application errors. The existing dependency-owned Three.js Clock deprecation warning remains unchanged.
+- Lint, the production client build, server type checks, isolated test-server build and all 50 automated tests pass. The existing large React Three Fiber chunk warning remains unchanged.
+
+## 2026-07-20 typography overflow pass
+
+- Source inspection confirms shared copy reveals finish with `clip-path: none`, while media reveals retain their inset mask. This removes the common clipping cause without weakening image reveal choreography.
+- Contact now gives the Georgia accent a full-width title measure, responsive scale and glyph-safe right padding. Services gives its accent explicit inline and descender clearance.
+- The Works commissioning panel no longer renders or styles the oversized decorative outline arrow. Its semantic Start a project action remains intact.
+- Lint, the production client build, server type checks, isolated test-server build and all 50 automated tests pass. `git diff --check` reports no whitespace errors. A fresh browser screenshot pass was unavailable because starting the local preview server was not approved in this session.

@@ -9,31 +9,6 @@
   min-height: 100svh;
 }
 
-.route-transition {
-  position: fixed;
-  inset: 0;
-  z-index: 90;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  pointer-events: none;
-}
-
-.route-transition span {
-  background: hsl(var(--primitive-blue-600));
-  transform-origin: top;
-  animation: route-curtain-reveal 620ms cubic-bezier(0.76, 0, 0.24, 1) both;
-}
-
-.route-transition span:last-child {
-  background: hsl(var(--primitive-slate-950));
-  animation-delay: 70ms;
-}
-
-@keyframes route-curtain-reveal {
-  from { transform: scaleY(1); }
-  to { transform: scaleY(0); }
-}
-
 .site-container {
   width: 100%;
   max-width: var(--layout-max);

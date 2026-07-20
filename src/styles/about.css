@@ -175,16 +175,15 @@
   border: 1px solid hsl(var(--color-rule-strong));
   border-radius: var(--primitive-radius-media);
   background: hsl(var(--primitive-slate-900));
+  contain: layout paint;
   isolation: isolate;
 }
 
 .portrait-reveal__media {
-  --portrait-parallax-y: 0%;
   position: absolute;
   inset: 0;
-  transform: translate3d(0, var(--portrait-parallax-y), 0) scale(1.08);
+  transform: scale(1.08);
   transform-origin: center;
-  will-change: transform;
 }
 
 .portrait-reveal__image,
@@ -470,5 +469,15 @@
 @media (hover: hover) and (pointer: fine) {
   .portrait-reveal__hint {
     display: block;
+  }
+}
+
+@media (any-hover: none) and (any-pointer: coarse) {
+  .portrait-reveal__mono-layer {
+    display: none;
+  }
+
+  .portrait-reveal__image--colour {
+    filter: grayscale(1) contrast(1.04);
   }
 }

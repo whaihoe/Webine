@@ -1,6 +1,7 @@
 import { DirectionalArrow } from "../DirectionalArrow";
 import { useLayoutEffect, useRef, useState } from "react";
 import { gsap, ScrollTrigger } from "../../animation/scroll-runtime";
+import { setImageParallaxOffset } from "../../animation/image-parallax";
 import { ProjectCard } from "../projects/ProjectCard";
 import { usePublicProjects } from "../../hooks/usePublicProjects";
 import { useSiteSettings } from "../../content/SiteSettingsProvider";
@@ -242,7 +243,11 @@ export function SelectedWorkRunway() {
               if (!image) return;
               const rect = card.getBoundingClientRect();
               const distance = (rect.left + rect.width / 2 - viewportCentre) / Math.max(viewportCentre + rect.width / 2, 1);
-              gsap.set(image, { xPercent: Math.max(-1, Math.min(1, distance)) * -7 });
+              setImageParallaxOffset(
+                image,
+                "horizontal",
+                Math.max(-1, Math.min(1, distance)) * -7,
+              );
             });
             const expandedThreshold = isMobile
               ? mobileInterludeRevealStart
@@ -435,7 +440,7 @@ export function SelectedWorkRunway() {
           </div>
 
           <div ref={trackRef} className="work-runway__track">
-            {projectsResource.status === "loading" ? <div className="work-runway__data-state" aria-live="polite">Loading selected work…</div> : null}
+            {projectsResource.status === "loading" ? <div className="work-runway__data-state" data-page-load-pending="true" aria-live="polite">Loading selected work</div> : null}
             {projectsResource.status === "error" ? <div className="work-runway__data-state"><p>Selected work could not load.</p><button type="button" onClick={projectsResource.retry}>Try again</button></div> : null}
             {featuredProjects.map((project, index) => <ProjectCard key={project.id} project={project} compact active={currentIndex === index} onFocus={() => focusFrame(index)} />)}
 

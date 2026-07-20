@@ -23,7 +23,7 @@ export function PreviewPage() {
     `/api/admin/preview/${encodeURIComponent(collection)}/${encodeURIComponent(id)}`,
   );
   const back = collection && id ? `/admin/collections/${collection}/items/${id}` : "/admin";
-  if (resource.status === "loading") return <main className="admin-entry-state theme-light">Loading protected preview…</main>;
+  if (resource.status === "loading") return <main className="admin-entry-state theme-light" data-page-load-pending="true">Loading protected preview</main>;
   if (resource.status === "error") return <main className="admin-entry-state theme-light"><h1>Preview could not load.</h1><p>{resource.error.message}</p><Link to={back}>Return to Admin</Link></main>;
   const data = resource.data.item.data;
   const asset = resource.data.assets.find((candidate) => candidate.id === data.hero_image);

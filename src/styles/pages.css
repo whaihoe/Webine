@@ -454,7 +454,7 @@
 
 .page-header-copy--contact {
   --page-header-title-size: clamp(3rem, 6.3vw, 6.75rem);
-  --page-header-title-width: 10ch;
+  --page-header-title-width: 100%;
   --page-header-summary-width: 36rem;
 }
 
@@ -731,26 +731,6 @@
   --button-outline-text: var(--primitive-slate-50);
 }
 
-.works-commission__mark {
-  position: absolute;
-  right: clamp(-5rem, -4vw, -2rem);
-  bottom: clamp(-5rem, -5vw, -2.5rem);
-  width: clamp(12rem, 28vw, 28rem);
-  aspect-ratio: 1;
-  color: hsl(var(--primitive-blue-400) / 0.18);
-  pointer-events: none;
-}
-
-.works-commission__mark .directional-arrow {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-.works-commission__mark svg {
-  stroke-width: 0.32;
-}
-
 .project-case-study__missing-media {
   aspect-ratio: 4 / 3;
   display: grid;
@@ -823,7 +803,11 @@
 
 .contact-section__intro h1 em {
   display: block;
-  max-width: 100%;
+  width: fit-content;
+  max-width: none;
+  padding-inline: 0.02em 0.12em;
+  font-size: clamp(2.65rem, 5.4vw, 4.5rem);
+  line-height: 1.08;
   white-space: nowrap;
 }
 
@@ -883,7 +867,9 @@
   }
 
   .contact-section__intro h1 em {
-    white-space: normal;
+    max-width: 100%;
+    padding-right: 0.08em;
+    white-space: nowrap;
   }
 }
 
@@ -2412,7 +2398,7 @@
   }
 
   .contact-section__intro {
-    grid-column: 1 / 6;
+    grid-column: 1 / 7;
   }
 
   .contact-form {

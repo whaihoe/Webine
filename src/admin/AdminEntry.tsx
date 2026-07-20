@@ -22,7 +22,7 @@ function ClerkAdminBridge() {
     <AdminAuthProvider value={authValue}>
       {isLoaded
         ? <AdminPage />
-        : <main className="admin-entry-state theme-light">Loading Admin…</main>}
+        : <main className="admin-entry-state theme-light" data-page-load-pending="true">Loading Admin</main>}
     </AdminAuthProvider>
   );
 }

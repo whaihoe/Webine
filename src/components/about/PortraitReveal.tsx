@@ -1,11 +1,13 @@
 import { useEffect, useId, useRef } from "react";
 import { gsap } from "../../animation/scroll-runtime";
+import { createImageParallax } from "../../animation/image-parallax";
+import { experienceConfig } from "../../config/experience";
 import {
   createSilhouetteParticles,
   drawSilhouetteParticles,
   type SilhouetteParticle,
 } from "./portrait-particle-engine";
-import { useFluidGrayscaleMask } from "./useFluidGrayscaleMask";
+import { RIPPLE_CIRCLE_COUNT, useFluidGrayscaleMask } from "./useFluidGrayscaleMask";
 
 type PortraitRevealProps = {
   name: string;
@@ -18,6 +20,7 @@ type PortraitRevealProps = {
 };
 
 const MASK_CIRCLE_COUNT = 40;
+const portraitSequence = experienceConfig.particles.aboutPortrait.sequence;
 
 export function PortraitReveal({ name, role, portrait, mask, description, index, reverse = false }: PortraitRevealProps) {
   const rootRef = useRef<HTMLElement>(null);
@@ -25,13 +28,16 @@ export function PortraitReveal({ name, role, portrait, mask, description, index,
   const mediaRef = useRef<HTMLDivElement>(null);
   const particleCanvasRef = useRef<HTMLCanvasElement>(null);
   const fluidTrailRef = useRef<SVGGElement>(null);
+  const fluidRippleRef = useRef<SVGGElement>(null);
   const particlesRef = useRef<SilhouetteParticle[]>([]);
   const frameRefId = useRef(0);
   const renderMetricsRef = useRef({ width: 1, height: 1, dpr: 1, mobile: false });
   const componentId = useId().replace(/:/g, "");
   const maskId = `portrait-mask-${componentId}`;
   const blurId = `portrait-blur-${componentId}`;
-  useFluidGrayscaleMask(frameRef, mediaRef, fluidTrailRef);
+  const liquidId = `portrait-liquid-${componentId}`;
+  const rippleGradientId = `portrait-ripple-gradient-${componentId}`;
+  useFluidGrayscaleMask(frameRef, mediaRef, fluidTrailRef, fluidRippleRef);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -43,9 +49,11 @@ export function PortraitReveal({ name, role, portrait, mask, description, index,
     const reveal = { value: 0 };
     let animationContext: ReturnType<typeof gsap.context> | null = null;
     let lastDrawTime = 0;
+    let revealComplete = false;
     const image = new Image();
 
     const measure = () => {
+      if (revealComplete) return;
       const bounds = frame.getBoundingClientRect();
       const mobile = window.innerWidth < 768;
       const dpr = Math.min(window.devicePixelRatio || 1, mobile ? 1 : 1.35);
@@ -60,6 +68,7 @@ export function PortraitReveal({ name, role, portrait, mask, description, index,
 
     const draw = (time = performance.now()) => {
       frameRefId.current = 0;
+      if (revealComplete) return;
       const metrics = renderMetricsRef.current;
       const interval = metrics.mobile ? 1000 / 30 : 1000 / 45;
       if (time - lastDrawTime < interval) {
@@ -78,7 +87,19 @@ export function PortraitReveal({ name, role, portrait, mask, description, index,
     };
 
     const scheduleDraw = () => {
+      if (revealComplete) return;
       if (!frameRefId.current) frameRefId.current = requestAnimationFrame(draw);
+    };
+    const releaseParticleRenderer = () => {
+      if (revealComplete) return;
+      revealComplete = true;
+      observer.disconnect();
+      cancelAnimationFrame(frameRefId.current);
+      frameRefId.current = 0;
+      particlesRef.current = [];
+      canvas.width = 1;
+      canvas.height = 1;
+      canvas.style.visibility = "hidden";
     };
     const observer = new ResizeObserver(() => {
       const wasMobile = renderMetricsRef.current.mobile;
@@ -97,21 +118,13 @@ export function PortraitReveal({ name, role, portrait, mask, description, index,
 
       animationContext = gsap.context(() => {
         const parallaxDistance = () => window.innerWidth < 768 ? 2.2 : 3.8;
-        gsap.fromTo(
-          media,
-          { "--portrait-parallax-y": () => `${-parallaxDistance()}%` },
-          {
-            "--portrait-parallax-y": () => `${parallaxDistance()}%`,
-            ease: "none",
-            scrollTrigger: {
-              trigger: root,
-              start: "top bottom",
-              end: "bottom top",
-              scrub: 1.1,
-              invalidateOnRefresh: true,
-            },
-          },
-        );
+        createImageParallax({
+          target: media,
+          trigger: root,
+          axis: "vertical",
+          distancePercent: parallaxDistance,
+          scrub: 1.1,
+        });
 
         const timeline = gsap.timeline({
           scrollTrigger: {
@@ -123,18 +136,32 @@ export function PortraitReveal({ name, role, portrait, mask, description, index,
         timeline
           .to(reveal, {
             value: 1,
-            duration: 2.35,
+            duration: portraitSequence.outlineDurationSeconds,
             ease: "none",
             onUpdate: scheduleDraw,
           })
-          .to({}, { duration: 0.55, onUpdate: scheduleDraw })
-          .to(canvas, { opacity: 0, duration: 0.85, ease: "power2.out", onUpdate: scheduleDraw })
-          .to(frame, { "--portrait-image-opacity": 1, duration: 0.9, ease: "power2.out" }, "<0.04");
+          .to({}, {
+            duration: portraitSequence.completedOutlineHoldSeconds,
+            onUpdate: scheduleDraw,
+          })
+          .to(canvas, {
+            opacity: 0,
+            duration: portraitSequence.particleFadeSeconds,
+            ease: "power2.out",
+            onUpdate: scheduleDraw,
+            onComplete: releaseParticleRenderer,
+          })
+          .to(frame, {
+            "--portrait-image-opacity": 1,
+            duration: portraitSequence.imageRevealSeconds,
+            ease: "power2.out",
+          }, `<${portraitSequence.imageRevealDelayAfterParticleFadeStartsSeconds}`);
       }, root);
     };
     image.onerror = () => {
       frame.style.setProperty("--portrait-image-opacity", "1");
       canvas.style.opacity = "0";
+      releaseParticleRenderer();
     };
     image.src = mask;
 
@@ -144,21 +171,38 @@ export function PortraitReveal({ name, role, portrait, mask, description, index,
       animationContext?.revert();
       observer.disconnect();
       cancelAnimationFrame(frameRefId.current);
+      particlesRef.current = [];
     };
   }, [mask]);
 
   return (
     <article ref={rootRef} className={`portrait-story${reverse ? " portrait-story--reverse" : ""}`} data-gsap-managed="true">
       <div ref={frameRef} className="portrait-reveal">
-        <div ref={mediaRef} className="portrait-reveal__media">
+        <div ref={mediaRef} className="portrait-reveal__media" data-image-parallax-axis="vertical">
           <img className="portrait-reveal__image portrait-reveal__image--colour" src={portrait} alt={`Portrait of ${name}, ${role} at Webine`} width="1122" height="1402" loading="lazy" decoding="async" draggable="false" />
           <svg className="portrait-reveal__mono-layer" viewBox="0 0 100 125" preserveAspectRatio="none" aria-hidden="true" focusable="false">
             <defs>
               <filter id={blurId} x="-25%" y="-25%" width="150%" height="150%" colorInterpolationFilters="sRGB">
                 <feGaussianBlur stdDeviation="2.8" />
               </filter>
+              <filter id={liquidId} x="-35%" y="-35%" width="170%" height="170%" colorInterpolationFilters="sRGB">
+                <feTurbulence type="fractalNoise" baseFrequency="0.018 0.027" numOctaves="2" seed="17" result="liquid-noise" />
+                <feDisplacementMap in="SourceGraphic" in2="liquid-noise" scale="5.2" xChannelSelector="R" yChannelSelector="B" />
+                <feGaussianBlur stdDeviation="1.35" />
+              </filter>
+              <radialGradient id={rippleGradientId} cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="black" />
+                <stop offset="56%" stopColor="black" />
+                <stop offset="82%" stopColor="#737373" />
+                <stop offset="100%" stopColor="white" />
+              </radialGradient>
               <mask id={maskId} x="0" y="0" width="100" height="125" maskUnits="userSpaceOnUse" style={{ maskType: "luminance" }}>
                 <rect width="100" height="125" fill="white" />
+                <g ref={fluidRippleRef} filter={`url(#${liquidId})`} fill={`url(#${rippleGradientId})`}>
+                  {Array.from({ length: RIPPLE_CIRCLE_COUNT }, (_, circleIndex) => (
+                    <circle key={circleIndex} cx="50" cy="62.5" r="0" opacity="0" />
+                  ))}
+                </g>
                 <g ref={fluidTrailRef} filter={`url(#${blurId})`} fill="black">
                   {Array.from({ length: MASK_CIRCLE_COUNT }, (_, circleIndex) => (
                     <circle key={circleIndex} cx="50" cy="62.5" r="0" opacity="0" />

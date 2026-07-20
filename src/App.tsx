@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
+import { PageLoadProvider } from "./components/PageLoadProvider";
 import { RouteEffects } from "./components/RouteEffects";
-import { RouteTransition } from "./components/RouteTransition";
 import { ContactPage } from "./pages/ContactPage";
 import { AboutPage } from "./pages/AboutPage";
 import { HomePage } from "./pages/HomePage";
@@ -17,18 +17,28 @@ export function App() {
   return (
     <>
       <RouteEffects />
-      <RouteTransition />
-      <SiteSettingsProvider><Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/services" element={<ServicesPage />} />
-        <Route path="/works" element={<WorksPage />} />
-        <Route path="/works/:projectSlug" element={<WorksPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/admin/*" element={<Suspense fallback={<main className="admin-entry-state theme-light">Loading Admin…</main>}><AdminEntry /></Suspense>} />
-        <Route path="/preview" element={<PreviewPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes></SiteSettingsProvider>
+      <PageLoadProvider>
+        <SiteSettingsProvider>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/services" element={<ServicesPage />} />
+            <Route path="/works" element={<WorksPage />} />
+            <Route path="/works/:projectSlug" element={<WorksPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route
+              path="/admin/*"
+              element={(
+                <Suspense fallback={<main className="admin-entry-state theme-light" data-page-load-pending="true">Loading Admin</main>}>
+                  <AdminEntry />
+                </Suspense>
+              )}
+            />
+            <Route path="/preview" element={<PreviewPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </SiteSettingsProvider>
+      </PageLoadProvider>
     </>
   );
 }

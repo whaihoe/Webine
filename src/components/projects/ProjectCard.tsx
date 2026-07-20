@@ -39,8 +39,10 @@ export function ProjectCard({
         <span
           className="project-card__media-motion"
           data-gsap-parallax={compact ? undefined : "media"}
+          data-gsap-parallax-axis={compact ? undefined : "vertical"}
         >
           <img
+            data-image-parallax-axis={compact ? "horizontal" : undefined}
             src={project.heroImage.url}
             alt={project.heroImage.altText}
             width={project.heroImage.width}

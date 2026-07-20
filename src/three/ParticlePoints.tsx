@@ -65,7 +65,11 @@ export function ParticlePoints({
   const lastScrollYRef = useRef<number | null>(null);
   const positionInitialisedRef = useRef(false);
   const proceduralTargets = useMemo(
-    () => createProceduralParticleTargets(profile.count, profile.ambientRatio),
+    () => createProceduralParticleTargets(
+      profile.count,
+      profile.ambientRatio,
+      experienceConfig.particles.interludeObject,
+    ),
     [profile.ambientRatio, profile.count],
   );
   const targets = useMemo(

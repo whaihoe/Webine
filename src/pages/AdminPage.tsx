@@ -21,7 +21,7 @@ import { WorkspaceShell } from "../components/WorkspaceShell";
 
 function LoadingState() {
   return (
-    <div className="admin-skeleton" aria-label="Loading Admin content" aria-busy="true">
+    <div className="admin-skeleton" data-page-load-pending="true" aria-label="Loading Admin content" aria-busy="true">
       <span />
       <span />
       <span />

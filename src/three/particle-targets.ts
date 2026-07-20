@@ -1,5 +1,13 @@
 type Point3 = readonly [number, number, number];
 
+type InterludeObjectConfig = {
+  bandCount: number;
+  radiusX: { base: number; step: number };
+  radiusY: { base: number; step: number };
+  tubeRadius: number;
+  rotationDegrees: readonly [number, number, number];
+};
+
 export type ParticleTargetBuffers = {
   source: Float32Array;
   scatter: Float32Array;
@@ -51,7 +59,35 @@ function sampleEllipticalTorus(random: () => number, radiusX: number, radiusY: n
   ];
 }
 
-export function createProceduralParticleTargets(count: number, ambientRatio: number): ProceduralParticleTargetBuffers {
+function rotatePoint(
+  [xValue, yValue, zValue]: Point3,
+  rotationDegrees: readonly [number, number, number],
+): Point3 {
+  const [rotationX, rotationY, rotationZ] = rotationDegrees.map(
+    (value) => value * (Math.PI / 180),
+  );
+  const cosX = Math.cos(rotationX);
+  const sinX = Math.sin(rotationX);
+  const cosY = Math.cos(rotationY);
+  const sinY = Math.sin(rotationY);
+  const cosZ = Math.cos(rotationZ);
+  const sinZ = Math.sin(rotationZ);
+  let x = xValue;
+  let y = yValue * cosX - zValue * sinX;
+  let z = yValue * sinX + zValue * cosX;
+  const rotatedX = x * cosY + z * sinY;
+  z = -x * sinY + z * cosY;
+  x = rotatedX;
+  const finalX = x * cosZ - y * sinZ;
+  y = x * sinZ + y * cosZ;
+  return [finalX, y, z];
+}
+
+export function createProceduralParticleTargets(
+  count: number,
+  ambientRatio: number,
+  interludeConfig: InterludeObjectConfig,
+): ProceduralParticleTargetBuffers {
   const random = createSeededRandom(20260713 + count);
   const source = new Float32Array(count * 3);
   const scatter = new Float32Array(count * 3);
@@ -110,8 +146,16 @@ export function createProceduralParticleTargets(count: number, ambientRatio: num
     const clusterT = random() * 2 - 1;
     const clusterBand = (index % 3) - 1;
     workC.set([clusterT * 1.55 + clusterBand * 0.16, clusterT * 0.58 + clusterBand * 0.34, frameDepth + clusterBand * 0.06], offset);
-    const interludeBand = index % 3;
-    const interludePoint = sampleEllipticalTorus(random, 1.32 + interludeBand * 0.48, 0.92 + interludeBand * 0.32, 0.2);
+    const interludeBand = index % interludeConfig.bandCount;
+    const interludePoint = rotatePoint(
+      sampleEllipticalTorus(
+        random,
+        interludeConfig.radiusX.base + interludeBand * interludeConfig.radiusX.step,
+        interludeConfig.radiusY.base + interludeBand * interludeConfig.radiusY.step,
+        interludeConfig.tubeRadius,
+      ),
+      interludeConfig.rotationDegrees,
+    );
     interlude.set(interludePoint, offset);
   }
 

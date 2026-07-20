@@ -83,6 +83,8 @@ function prepareTarget(
   let maxRawZ = Number.NEGATIVE_INFINITY;
   const rotationDegrees = scene === "reach"
     ? experienceConfig.particles.reachModel.rotationDegrees
+    : scene === "interlude"
+      ? experienceConfig.particles.interludeObject.rotationDegrees
     : [0, 0, 0] as const;
   const rotationX = rotationDegrees[0] * (Math.PI / 180);
   const rotationY = rotationDegrees[1] * (Math.PI / 180);

@@ -1,5 +1,6 @@
 import { useLayoutEffect } from "react";
 import { gsap, ScrollTrigger } from "../animation/scroll-runtime";
+import { createImageParallax, type ImageParallaxAxis } from "../animation/image-parallax";
 
 export function GsapRevealController({ root }: { root: HTMLElement }) {
   useLayoutEffect(() => {
@@ -21,7 +22,7 @@ export function GsapRevealController({ root }: { root: HTMLElement }) {
       const startsInViewport = window.scrollY < 32
         && initialRect.bottom > 0
         && initialRect.top < window.innerHeight;
-      const delay = boundedDelay + (startsInViewport ? 0.42 : 0);
+      const delay = boundedDelay + (startsInViewport ? 0.08 : 0);
 
       gsap.fromTo(element, {
         opacity: 0,
@@ -30,7 +31,7 @@ export function GsapRevealController({ root }: { root: HTMLElement }) {
       }, {
         opacity: 1,
         y: 0,
-        clipPath: "inset(0% 0 0% 0 round 0rem)",
+        clipPath: media ? "inset(0% 0 0% 0 round 0rem)" : "none",
         duration: media ? 1.3 : 1,
         delay,
         ease: "power3.out",
@@ -57,30 +58,41 @@ export function GsapRevealController({ root }: { root: HTMLElement }) {
           : 0;
       const compactViewport = () => window.innerWidth < 768;
 
+      if (isMedia) {
+        const requestedAxis = element.dataset.gsapParallaxAxis
+          ?? element.dataset.imageParallaxAxis;
+        const axis: ImageParallaxAxis = requestedAxis === "horizontal"
+          ? "horizontal"
+          : "vertical";
+        createImageParallax({
+          target: element,
+          axis,
+          distancePercent: () => compactViewport() ? 6 : 8,
+          scrub: 1.05,
+        });
+        return;
+      }
+
       gsap.fromTo(element, {
         xPercent: horizontalDirection * -4,
         y: isFloatingCard ? () => compactViewport() ? -24 : -72 : 0,
         yPercent: isFloatingCard
           ? 0
-          : isMedia
-            ? () => compactViewport() ? -6 : -8
-            : isOrbit ? 12 : horizontalDirection ? 3 : 4,
+          : isOrbit ? 12 : horizontalDirection ? 3 : 4,
         rotation: isOrbit ? -22 : 0,
       }, {
         xPercent: horizontalDirection * 4,
         y: isFloatingCard ? () => compactViewport() ? 36 : 96 : 0,
         yPercent: isFloatingCard
           ? 0
-          : isMedia
-            ? () => compactViewport() ? 6 : 8
-            : isOrbit ? -12 : horizontalDirection ? -3 : -4,
+          : isOrbit ? -12 : horizontalDirection ? -3 : -4,
         rotation: isOrbit ? 26 : 0,
         ease: "none",
         scrollTrigger: {
           trigger: element,
           start: "top bottom",
           end: "bottom top",
-          scrub: isFloatingCard ? 1.35 : isMedia ? 1.05 : 1.15,
+          scrub: isFloatingCard ? 1.35 : 1.15,
           invalidateOnRefresh: true,
         },
       });

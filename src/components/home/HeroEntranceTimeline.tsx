@@ -1,5 +1,6 @@
 import { gsap } from "gsap";
 import { useLayoutEffect, type RefObject } from "react";
+import { usePageLoad } from "../../loading/page-load-context";
 import { useParticleController } from "./ParticleSceneController";
 
 type HeroEntranceTimelineProps = {
@@ -28,9 +29,16 @@ export function HeroEntranceTimeline({
   rootRef,
 }: HeroEntranceTimelineProps) {
   const { store } = useParticleController();
+  const { isPageReady } = usePageLoad();
 
   useLayoutEffect(() => {
     const root = rootRef.current;
+
+    if (!isPageReady) {
+      store.setIntroProgress(0);
+      if (root) root.dataset.heroIntroState = "waiting";
+      return;
+    }
 
     if (!root) {
       store.setIntroProgress(1);
@@ -102,7 +110,7 @@ export function HeroEntranceTimeline({
       defaults: { ease: "power3.out" },
       onComplete: complete,
     });
-    const gatherStart = fullEntrance ? 0.4 : 0.04;
+    const gatherStart = fullEntrance ? 0.4 : 0.2;
 
     timeline.to(introState, {
       progress: 1,
@@ -183,7 +191,7 @@ export function HeroEntranceTimeline({
         gsap.set(header, { clearProps: "opacity,visibility,transform" });
       }
     };
-  }, [rootRef, store]);
+  }, [isPageReady, rootRef, store]);
 
   return null;
 }

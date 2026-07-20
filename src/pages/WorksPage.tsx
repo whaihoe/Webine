@@ -77,6 +77,7 @@ function ProjectCaseStudy({
         <div className="project-case-study__media-frame" data-gsap-reveal="media" data-gsap-delay="0.16">
           <img
             data-gsap-parallax="media"
+            data-gsap-parallax-axis="vertical"
             src={project.heroImage.url}
             alt={project.heroImage.altText}
             width={project.heroImage.width}
@@ -123,6 +124,7 @@ function ProjectCaseStudy({
                   <div className="project-case-study__media-frame project-case-study__media-frame--story">
                     <img
                       data-gsap-parallax="media"
+                      data-gsap-parallax-axis="vertical"
                       src={String(image.url)}
                       alt={String(image.altText ?? "")}
                       width={Number(image.width ?? 1)}
@@ -152,9 +154,19 @@ function ProjectCaseStudy({
   );
 }
 
-function ProjectState({ title, copy, retry }: { title: string; copy?: string; retry?: () => void }) {
+function ProjectState({
+  title,
+  copy,
+  retry,
+  pending = false,
+}: {
+  title: string;
+  copy?: string;
+  retry?: () => void;
+  pending?: boolean;
+}) {
   return (
-    <section className="reserved-page theme-dark">
+    <section className="reserved-page theme-dark" data-page-load-pending={pending ? "true" : undefined}>
       <div className="site-container empty-state">
         <h1>{title}</h1>
         {copy ? <p>{copy}</p> : null}
@@ -185,7 +197,7 @@ export function WorksPage() {
 
   if (projectSlug) {
     if (resource.status === "loading") {
-      return <SiteShell><ProjectState title="Loading project…" /></SiteShell>;
+      return <SiteShell><ProjectState title="Loading project" pending /></SiteShell>;
     }
     if (resource.status === "error") {
       return <SiteShell><ProjectState title="Project could not load." copy={resource.message} retry={resource.retry} /></SiteShell>;
@@ -230,7 +242,7 @@ export function WorksPage() {
             <p className="works-filter__status" aria-live="polite">Showing {visible.length} {visible.length === 1 ? "project" : "projects"}</p>
           </div>
           <div className="site-container project-grid">
-            {resource.status === "loading" ? <div className="project-loading" aria-label="Loading projects"><span /><span /><span /></div> : null}
+            {resource.status === "loading" ? <div className="project-loading" data-page-load-pending="true" aria-label="Loading projects"><span /><span /><span /></div> : null}
             {resource.status === "error" ? <div className="empty-state"><h2>Projects could not load.</h2><p>{resource.message}</p><button type="button" onClick={resource.retry}>Try again</button></div> : null}
             {resource.status === "ready" && visible.length === 0 ? <div className="empty-state"><h2>No published work in this view.</h2><p>Choose another filter or publish a project from Admin.</p></div> : null}
             {visible.map((project, index) => (
@@ -243,9 +255,6 @@ export function WorksPage() {
               <h2>Have a real project for this workbench?</h2>
               <p>Commissioned projects will replace concept positions as approved material becomes available.</p>
               <ButtonLink href="/contact" variant="outline">Start a project</ButtonLink>
-              <span className="works-commission__mark" data-gsap-parallax="orbit" aria-hidden="true">
-                <DirectionalArrow />
-              </span>
             </div>
           </div>
         </section>
