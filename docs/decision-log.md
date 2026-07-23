@@ -655,3 +655,9 @@
 - Consolidated the shared API envelope, validation issue and published Project contracts. Admin fetch and mutation responses now pass through one parser and return a stable typed error when a proxy or function responds with non-JSON.
 - Added a Node 22 version file, exact navbar and lazy-route regression checks and malformed Admin-response coverage. The complete suite now contains 57 passing tests.
 - Browser review at 320 × 700, 390 × 844 and 1280 × 800 confirms the intended responsive padding, zero horizontal overflow, successful lazy loading across every public route and no branded loader in Admin.
+
+## 2026-07-23, hero backlight containment
+
+- Stopped the desktop hero backlight immediately when the persistent particle layer moves above the Reach surface. The Reach particle object keeps its existing position, density, colour and motion.
+- The correction is keyed to particle-layer depth rather than the active-scene label because the pinned hero can remain geometrically closest while Reach is already covering it.
+- Rendered review confirms zero backlight opacity during the Reach formation at 1280 × 800 and a clean opaque Reach cover at 390 × 844, both without horizontal overflow.

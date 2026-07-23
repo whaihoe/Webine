@@ -80,6 +80,7 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - The final refactor pass expands linting to client, server, API, development adapters, scripts, tests and Vite configuration, and enables unused-code, implicit-return, fallthrough and override compiler checks. All 57 automated tests pass.
 - Route-level splitting reduces the initial application entry from approximately 145.01 KB gzip to 74.05 KB gzip. Direct mobile navigation through About, Services, Works, Contact and Preview confirms every lazy route resolves, removes its pending signal and retains zero horizontal overflow.
 - Responsive header verification at 320 and 390 CSS pixels confirms exactly 20 px of internal horizontal padding, the requested -4.8 px menu-mark offset and zero horizontal overflow. The 1280 px header retains its existing 12 px desktop padding and desktop navigation.
+- The hero-backlight containment check reproduces the pinned transition state where `activeScene` remains `hero` while particle depth has moved to `reach`. At 1280 × 800 the backlight computes to opacity 0 with no transition, Reach particles remain visible and the document has zero horizontal overflow. The 390 × 844 opaque Reach cover also remains clean.
 
 ## Measurements still required
 

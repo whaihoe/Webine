@@ -662,6 +662,10 @@ test("keeps reach particles between the section background and content", async (
   );
   assert.match(
     particleStyles,
+    /\.particle-narrative-layer\[data-particle-depth="reach"\]::before\s*{[^}]*opacity:\s*0[^}]*transition:\s*none/s,
+  );
+  assert.match(
+    particleStyles,
     /\.hero-reach-cover\s*>\s*\.hero-section\s*{[^}]*position:\s*sticky/s,
   );
   assert.doesNotMatch(
