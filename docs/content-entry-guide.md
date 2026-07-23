@@ -40,7 +40,7 @@ Keep important text, logos and faces inside the central 80 percent of the image.
 
 After later edits, save the new draft, preview it and choose **Republish**. Use **Unpublish** to remove the public version while keeping an editable draft. Use **Archive** when published work should leave the website but remain in Admin. Archived and draft Projects can be permanently deleted by typing `DELETE`; this purges the Project and its snapshots.
 
-The accent colour belongs only to that Project's `/works/:slug` case study gradient. It does not recolour the Works index or the Home runway.
+The accent colour belongs only to that Project's `/works/:slug` galaxy nebula. The page keeps the shared Works particles and dark background, while the nebula derives its atmospheric gradient from the selected colour. It does not recolour the Works index, particles or Home runway.
 
 For a shorter, image-led case study, keep the optional story copy empty and add an **Image** content block as the final block. Choose **Bento feature** and upload one finished 16:10 bento composition. The block renders edge to edge without a forced heading, while an optional caption can still provide context.
 

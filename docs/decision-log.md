@@ -680,3 +680,9 @@
 - Added a final `Bento feature` option to the existing image content block. It accepts one finished 16:10 composition and removes the forced section label, letting a shorter case study close visually.
 - Added migration `0010_project_showcase_presentation.sql` and the existing schema-generated colour control now edits a per-Project accent. Only `/works/:slug` applies that value to its local background gradient. Invalid or unset legacy values fall back to Webine blue.
 - Recommended 2400 × 1500 px for Project cover, hover, story and bento media, with 1600 × 1000 px as the minimum. Important content remains inside the central 80 percent to tolerate focal cropping and parallax.
+
+## 2026-07-23, Project nebula colour ownership correction
+
+- Removed the independent case-study section gradient from the preceding presentation pass.
+- Added an optional Project accent to `GalaxyBackdrop`. Valid Project slugs pass their accent to the nebula only, with atmospheric stops derived from the same hue at different transparencies.
+- Preserved the fixed dark background, complete ambient particle canvas and original cyan-to-blue `/works` nebula.

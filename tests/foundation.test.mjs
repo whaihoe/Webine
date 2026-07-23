@@ -734,12 +734,13 @@ test("extends the Home motion language across Works and Contact without assignin
   assert.match(styles, /\.project-case-study__media-frame\s*{[^}]*width:\s*100%[^}]*min-width:\s*0[^}]*min-height:\s*0/s);
   assert.doesNotMatch(styles, /--project-media-safe-inset/);
   assert.match(styles, /\.project-case-study__media-frame img\s*{[^}]*inset:\s*-8% 0[^}]*object-fit:\s*cover/s);
-  assert.match(styles, /\.project-case-study\.theme-dark\s*{[^}]*--project-accent:[^}]*radial-gradient/s);
+  assert.match(styles, /\.galaxy-backdrop--project \.galaxy-backdrop__nebula\s*{[^}]*var\(--galaxy-project-accent\)/s);
+  assert.doesNotMatch(styles, /--project-accent/);
   assert.match(styles, /\.project-grid > \.project-card:first-child \.project-card__media/);
   assert.match(styles, /data-block-layout="bento"/);
   assert.match(homeStyles, /\.work-runway\[data-scroll-mode="pinned"\] \.work-card\s*{[^}]*grid-template-rows:\s*minmax\(0, 1fr\)/s);
   assert.match(homeStyles, /\.work-card__media\s*{[^}]*aspect-ratio:\s*16 \/ 10/s);
-  assert.match(works, /"--project-accent": project\.accentColour/);
+  assert.match(works, /<GalaxyBackdrop accentColour=\{active\.accentColour\} \/>/);
   assert.match(projectCard, /data-gsap-parallax=\{compact \? undefined : "media"\}/);
   assert.match(projectCard, /data-image-parallax-axis=\{compact \? "horizontal" : undefined\}/);
   assert.doesNotMatch(projectCard, /addEventListener\("scroll"/);

@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { DirectionalArrow } from "../components/DirectionalArrow";
 import { GalaxyBackdrop } from "../components/GalaxyBackdrop";
@@ -55,16 +54,8 @@ function ProjectCaseStudy({
     ["Services", project.services.join(" / ")],
     ["Platform", project.platform],
   ].filter(([, value]) => value) as Array<[string, string]>;
-  const caseStudyStyle = {
-    "--project-accent": project.accentColour,
-  } as CSSProperties;
-
   return (
-    <section
-      className="project-case-study theme-dark"
-      aria-labelledby="case-study-heading"
-      style={caseStudyStyle}
-    >
+    <section className="project-case-study theme-dark" aria-labelledby="case-study-heading">
       <div className="site-container project-case-study__top" data-gsap-reveal="copy">
         <Link to="/works">Close project</Link>
         <p>{String(index + 1).padStart(2, "0")} / {String(projects.length).padStart(2, "0")}</p>
@@ -214,7 +205,7 @@ export function WorksPage() {
         {active
           ? (
               <div className="works-experience">
-                <GalaxyBackdrop />
+                <GalaxyBackdrop accentColour={active.accentColour} />
                 <ProjectCaseStudy project={active} projects={projects} index={activeIndex} />
               </div>
             )

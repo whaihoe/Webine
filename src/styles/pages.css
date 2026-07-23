@@ -152,6 +152,27 @@
   filter: blur(2.5rem);
 }
 
+.galaxy-backdrop--project .galaxy-backdrop__nebula {
+  background:
+    radial-gradient(
+      ellipse at 50% 82%,
+      color-mix(in srgb, var(--galaxy-project-accent) 38%, transparent) 0%,
+      color-mix(in srgb, var(--galaxy-project-accent) 34%, transparent) 20%,
+      color-mix(in srgb, var(--galaxy-project-accent) 26%, transparent) 42%,
+      color-mix(in srgb, var(--galaxy-project-accent) 14%, transparent) 58%,
+      transparent 76%
+    );
+}
+
+.galaxy-backdrop--project .galaxy-backdrop__nebula::after {
+  background: radial-gradient(
+    ellipse at 50% 82%,
+    color-mix(in srgb, var(--galaxy-project-accent) 24%, transparent),
+    color-mix(in srgb, var(--galaxy-project-accent) 14%, transparent) 32%,
+    transparent 68%
+  );
+}
+
 .works-foundation {
   position: relative;
   overflow: hidden;
@@ -493,18 +514,6 @@
   overflow: hidden;
   padding-block: var(--page-header-clearance) var(--space-section-y);
   border-top: 1px solid hsl(var(--color-rule));
-}
-
-.project-case-study.theme-dark {
-  --project-accent: #2563eb;
-  background:
-    radial-gradient(
-      circle at 78% 16%,
-      color-mix(in srgb, var(--project-accent) 24%, transparent) 0,
-      color-mix(in srgb, var(--project-accent) 10%, transparent) 24rem,
-      transparent 52rem
-    ),
-    hsl(var(--primitive-slate-950));
 }
 
 .project-case-study__top,

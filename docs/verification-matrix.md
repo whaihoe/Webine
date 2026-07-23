@@ -227,5 +227,5 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 
 - At 1280 × 720, all four Home runway Project cards measure 382 px high and every media frame measures the same 382 px. The document retains zero horizontal overflow and the next card remains deliberately visible at the right edge.
 - The Deszio case-study hero fills its 686 × 429 frame edge to edge. The image keeps 8 percent vertical bleed for parallax, computes to `object-fit: cover` and causes no page-level horizontal overflow.
-- The slug case study computes a local radial gradient from `--project-accent`. The Works index and Home runway do not receive that variable or gradient.
+- A valid slug keeps the fixed galaxy and particle canvas, while `--galaxy-project-accent` changes only the nebula and its secondary haze. The case-study section has no independent background image. The Works index retains the original primitive cyan-to-blue nebula and does not receive the Project modifier or accent variable.
 - The migrated local Admin renders `Case study accent colour` with linked colour and text inputs. Editing the text input to `#e879a8` updates both controls without saving during QA. Every image content block offers Wide, Full width and Bento feature layouts.
