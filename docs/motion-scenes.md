@@ -8,7 +8,7 @@ The current homepage uses one coordinated scene controller. Settings and layout 
 | Particle narrative | Persistent GPU layer on tablet and desktop, section-owned 2D canvases on phones | Homepage narrative |
 | Smooth scrolling | One Lenis runtime with weighted wheel interpolation, extreme-input normalisation and unchanged synchronised touch values | Stage 3 onward |
 | Signal Grid response | Enabled only for the hero and closing CTA | Homepage narrative |
-| Page loading and transitions | Asset-aware Webine wordmark convergence followed by a clip wipe | Every route, including Admin and preview |
+| Page loading and transitions | Asset-aware Webine wordmark convergence followed by a clip wipe | Public routes and preview; Admin deliberately uses functional inline states only |
 
 The static HTML and CSS composition must remain complete when every feature is disabled. Future implementations should read this configuration instead of creating separate hardcoded switches inside page components.
 

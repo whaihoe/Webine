@@ -191,8 +191,10 @@ function ContentBlocksControl({ field, value, onChange }: { field: FieldDefiniti
             <select value={typeof block.layout === "string" ? block.layout : "wide"} onChange={(event) => update(index, { layout: event.target.value })}>
               <option value="wide">Wide</option>
               <option value="full">Full width</option>
+              <option value="bento">Bento feature</option>
             </select>
           </label>
+          {block.layout === "bento" ? <p className="admin-field-note">Place this block last and upload one finished 16:10 bento composition.</p> : null}
         </>
       ) : <><input value={typeof block.heading === "string" ? block.heading : ""} placeholder="Optional heading" onChange={(event) => update(index, { heading: event.target.value })} /><textarea rows={block.type === "statement" ? 3 : 6} value={typeof block.text === "string" ? block.text : ""} placeholder="Block copy" onChange={(event) => update(index, { text: event.target.value })} /></>}
       <div className="admin-field-card__actions"><button type="button" disabled={index === 0} onClick={() => { const next = [...blocks]; [next[index - 1], next[index]] = [next[index], next[index - 1]]; onChange(next); }}>Move up</button><button type="button" disabled={index === blocks.length - 1} onClick={() => { const next = [...blocks]; [next[index], next[index + 1]] = [next[index + 1], next[index]]; onChange(next); }}>Move down</button></div>

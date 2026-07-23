@@ -495,6 +495,18 @@
   border-top: 1px solid hsl(var(--color-rule));
 }
 
+.project-case-study.theme-dark {
+  --project-accent: #2563eb;
+  background:
+    radial-gradient(
+      circle at 78% 16%,
+      color-mix(in srgb, var(--project-accent) 24%, transparent) 0,
+      color-mix(in srgb, var(--project-accent) 10%, transparent) 24rem,
+      transparent 52rem
+    ),
+    hsl(var(--primitive-slate-950));
+}
+
 .project-case-study__top,
 .project-case-study__nav {
   display: flex;
@@ -549,13 +561,15 @@
 }
 
 .project-case-study__media-frame img {
-  width: calc(100% - (var(--project-media-safe-inset) * 2));
-  height: calc(100% - (var(--project-media-safe-inset) * 2));
-  object-fit: contain;
+  position: absolute;
+  inset: -8% 0;
+  width: 100%;
+  height: 116%;
+  object-fit: cover;
 }
 
 .project-case-study__media-frame {
-  --project-media-safe-inset: clamp(1.5rem, 7vw, 2rem);
+  position: relative;
   width: 100%;
   min-width: 0;
   min-height: 0;
@@ -569,7 +583,6 @@
 }
 
 .project-case-study__media-frame--story {
-  --project-media-safe-inset: clamp(1.25rem, 6vw, 1.75rem);
   min-height: 0;
   max-height: none;
 }
@@ -622,6 +635,19 @@
 .project-case-study__story article[data-block-type="image"][data-block-layout="wide"] figure {
   width: min(100%, 84rem);
   margin-inline: auto;
+}
+
+.project-case-study__story article[data-block-type="image"][data-block-layout="bento"] {
+  padding-block: clamp(4rem, 9vw, 8rem);
+  grid-template-columns: 1fr;
+}
+
+.project-case-study__story article[data-block-type="image"][data-block-layout="bento"] > span {
+  display: none;
+}
+
+.project-case-study__story article[data-block-type="image"][data-block-layout="bento"] figure {
+  width: 100%;
 }
 
 .project-case-study__nav {
@@ -2232,25 +2258,17 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .project-card:first-child {
+  .project-grid > .project-card:first-child {
     grid-column: 1 / -1;
   }
 
-  .project-card:first-child .project-card__media {
+  .project-grid > .project-card:first-child .project-card__media {
     aspect-ratio: 16 / 8;
   }
 
   .project-case-study__hero {
     grid-template-columns: 0.8fr 1.2fr;
     align-items: end;
-  }
-
-  .project-case-study__media-frame {
-    --project-media-safe-inset: clamp(2.5rem, 5vw, 5rem);
-  }
-
-  .project-case-study__media-frame--story {
-    --project-media-safe-inset: clamp(2rem, 4vw, 4rem);
   }
 
   .project-case-study__facts {

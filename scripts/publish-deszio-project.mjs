@@ -99,6 +99,7 @@ const projectData = {
   },
   content_blocks: contentBlocks,
   project_url: "https://desziostudio.com/",
+  accent_colour: "#e879a8",
   credits: [{ text: "Webine / Website strategy, interface design and responsive development" }],
   seo_title: "Deszio Studio website design and development",
   seo_description: "A Webine case study for the one-month design and development of Deszio Studio’s responsive interior design website.",

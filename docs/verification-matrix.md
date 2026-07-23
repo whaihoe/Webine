@@ -61,7 +61,7 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - The Stage 4 validation pass completes lint, production build, server type checks and all 48 automated tests.
 - The shared secondary-page heading system passes rendered review on About, Services, Works and Contact at 390 × 844, and Works, Services, Contact plus a published case study at 1280 × 800. All checked headings and summaries remain unclipped with zero horizontal overflow. Georgia accents compute to the theme-aware brand blue. The case-study utility row begins below the floating header at both widths.
 - The Stage 5 validation pass completes lint, production build, server type checks and all 49 automated tests.
-- The radius-scale pass is render-verified on Works and Contact at 1280 × 800 and the Project Admin at 1280 × 800 plus 390 × 844. Computed values are 14 px for standard controls, 20 px for project media and 28 px for major panels. The compact Admin navigation remains 8 px, no card content clips and every checked route retains zero horizontal overflow.
+- The earlier radius-scale pass was render-verified on Works and Contact at 1280 × 800 and the Project Admin at 1280 × 800 plus 390 × 844. It measured 14 px standard controls before that value was superseded. The current default control radius is verified later in this matrix as `2rem`; project media remains 20 px, major panels remain 28 px and compact Admin surfaces remain 8 px.
 - The Stage 6 validation pass completes lint, production build, server type checks and all 49 automated tests.
 - Lenis 1.3.25 input normalisation is measured with real browser wheel events. A normal 24-pixel event settles at 22 pixels, while a 5,000-pixel event settles at 83 pixels instead of jumping through a scene. Eight extreme events advance progressively, five opposite events reverse direction and both `data-scroll-runtime` and the GSAP controller remain ready.
 - Rapid controlled input reaches the Home runway with its section held at the viewport top and a live horizontal track transform, then continues into Process without trapping input. The 390 × 844 path retains four section-owned particle canvases, reports live mobile states, loads no desktop particle canvas and has zero horizontal overflow.
@@ -222,3 +222,10 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - Contact now gives the Georgia accent a full-width title measure, responsive scale and glyph-safe right padding. Services gives its accent explicit inline and descender clearance.
 - The Works commissioning panel was later removed completely. Project cards and the persistent project CTA provide the remaining conversion paths.
 - Lint, the production client build, server type checks, isolated test-server build and all 50 automated tests pass. `git diff --check` reports no whitespace errors. A fresh browser screenshot pass was unavailable because starting the local preview server was not approved in this session.
+
+## 2026-07-23 Project showcase presentation pass
+
+- At 1280 × 720, all four Home runway Project cards measure 382 px high and every media frame measures the same 382 px. The document retains zero horizontal overflow and the next card remains deliberately visible at the right edge.
+- The Deszio case-study hero fills its 686 × 429 frame edge to edge. The image keeps 8 percent vertical bleed for parallax, computes to `object-fit: cover` and causes no page-level horizontal overflow.
+- The slug case study computes a local radial gradient from `--project-accent`. The Works index and Home runway do not receive that variable or gradient.
+- The migrated local Admin renders `Case study accent colour` with linked colour and text inputs. Editing the text input to `#e879a8` updates both controls without saving during QA. Every image content block offers Wide, Full width and Bento feature layouts.

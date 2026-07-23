@@ -16,11 +16,22 @@ Editors select images from the media library. They never paste a filesystem path
 
 Archive is available directly on each asset card. An asset used by published content stays protected. Replace or unpublish that content first, then archive the asset. Archive removes the asset from ordinary selection without destroying its audit history.
 
+### Project image sizes
+
+Prepare Project images around the website's 16:10 media frame:
+
+- Cover and hover images: 2400 × 1500 px recommended, 1600 × 1000 px minimum
+- Story images: 2400 × 1500 px recommended
+- Final bento composition: 2400 × 1500 px recommended
+- Social sharing image: 2400 × 1260 px, which is a 1.91:1 share ratio
+
+Keep important text, logos and faces inside the central 80 percent of the image. The website fills the frame edge to edge and uses the saved focal point during responsive cropping and parallax. Any deliberate breathing room should be part of the exported image itself.
+
 ## Create and publish a Project
 
 1. Open **Collections**, then **Projects**.
 2. Choose **New item**.
-3. Complete the working title, slug, honest project kind, category, year, services, summary and hero image.
+3. Complete the working title, slug, honest project kind, category, year, services, summary, hero image and case-study accent colour.
 4. Label internal studies and concept work honestly. Do not add invented clients, results or testimonials.
 5. Save the draft. Saving never changes the public website.
 6. Use **Preview** to review the protected draft composition.
@@ -28,6 +39,10 @@ Archive is available directly on each asset card. An asset used by published con
 8. Publish when the content is approved. Home and Works read the same published snapshot.
 
 After later edits, save the new draft, preview it and choose **Republish**. Use **Unpublish** to remove the public version while keeping an editable draft. Use **Archive** when published work should leave the website but remain in Admin. Archived and draft Projects can be permanently deleted by typing `DELETE`; this purges the Project and its snapshots.
+
+The accent colour belongs only to that Project's `/works/:slug` case study gradient. It does not recolour the Works index or the Home runway.
+
+For a shorter, image-led case study, keep the optional story copy empty and add an **Image** content block as the final block. Choose **Bento feature** and upload one finished 16:10 bento composition. The block renders edge to edge without a forced heading, while an optional caption can still provide context.
 
 ## Featured homepage order
 

@@ -250,6 +250,7 @@
 .work-runway[data-scroll-mode="pinned"] .work-card__media {
   height: 100%;
   min-height: 0;
+  aspect-ratio: auto;
 }
 
 .work-runway[data-scroll-mode="pinned"] .work-card__content {
@@ -391,7 +392,9 @@
 
 .work-card__media {
   position: relative;
-  min-height: clamp(21rem, 56vw, 34rem);
+  width: 100%;
+  min-height: 0;
+  aspect-ratio: 16 / 10;
   overflow: hidden;
   border-radius: var(--primitive-radius-media);
   isolation: isolate;
@@ -644,7 +647,7 @@
   }
 
   .work-runway[data-scroll-mode="pinned"] .work-card {
-    grid-template-rows: none;
+    grid-template-rows: minmax(0, 1fr);
   }
 
   .work-runway[data-scroll-mode="pinned"] .work-card__content > p {
@@ -656,7 +659,9 @@
   }
 
   .work-card__media {
+    height: 100%;
     min-height: min(53vh, 34rem);
+    aspect-ratio: auto;
   }
 
   .work-card__content {

@@ -38,7 +38,7 @@ test("links uploaded media through draft, publish, public query and archive prot
       title: "Workflow project", slug: "workflow-project", client: "Concept study", project_kind: "concept",
       project_type: "category_web", year: 2026, services: ["service_design"],
       short_summary: "A complete media and publishing workflow check.", hero_image: "asset_workflow",
-      card_theme: "dark", featured: true, featured_order: 0,
+      card_theme: "dark", accent_colour: "#14b8a6", featured: true, featured_order: 0,
     }, "owner", "request_item", client);
     assert.equal((await getAsset("asset_workflow", client)).usageCount, 1);
 
@@ -46,6 +46,7 @@ test("links uploaded media through draft, publish, public query and archive prot
     assert.equal(published.status, "published");
     const publicProjects = await listPublicProjects({ featuredOnly: true }, client);
     assert.equal(publicProjects[0].slug, "workflow-project");
+    assert.equal(publicProjects[0].accentColour, "#14b8a6");
     await assert.rejects(() => archiveAsset("asset_workflow", "owner", "request_archive", client), (error) => error.code === "ASSET_IN_USE");
 
     const unpublished = await changeItemStatus("projects", draft.id, { action: "unpublish", version: published.version }, "owner", "request_unpublish", client);

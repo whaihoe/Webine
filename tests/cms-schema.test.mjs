@@ -91,7 +91,20 @@ test("creates the complete CMS schema from a clean database", async () => {
       databasePath,
       "SELECT count(*) FROM field_definitions WHERE collection_id = 'collection_projects';",
     ));
-    assert.equal(projectFieldCount, 28);
+    assert.equal(projectFieldCount, 29);
+
+    const accentColourField = JSON.parse(runSql(
+      databasePath,
+      "SELECT key, label, field_type, required, position FROM field_definitions WHERE id = 'project_accent_colour';",
+      true,
+    ))[0];
+    assert.deepEqual(accentColourField, {
+      key: "accent_colour",
+      label: "Case study accent colour",
+      field_type: "colour",
+      required: 0,
+      position: 28,
+    });
 
     const caseStudyFields = JSON.parse(runSql(
       databasePath,
@@ -164,9 +177,13 @@ test("upgrades an existing core database without losing content", async () => {
 
 test("does not replace Site Settings that were edited before the defaults migration", async () => {
   const migrations = await getMigrations();
+  const defaultsIndex = migrations.findIndex((migration) =>
+    migration.name === "0009_site_settings_defaults.sql"
+  );
+  assert.notEqual(defaultsIndex, -1);
 
   await withTemporaryDatabase(async (databasePath) => {
-    migrations.slice(0, -1).forEach((migration) =>
+    migrations.slice(0, defaultsIndex).forEach((migration) =>
       runSql(databasePath, migration.sql),
     );
     runSql(
@@ -175,7 +192,7 @@ test("does not replace Site Settings that were edited before the defaults migrat
        SET data_json = '{"home_hero_heading_before":"Owner wording"}'
        WHERE id = 'item_site_settings';`,
     );
-    runSql(databasePath, migrations.at(-1).sql);
+    runSql(databasePath, migrations[defaultsIndex].sql);
 
     const settings = JSON.parse(runSql(
       databasePath,

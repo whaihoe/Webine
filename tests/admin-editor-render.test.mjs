@@ -115,6 +115,7 @@ test("renders the collection builder and every generated item control", async ()
     assert.match(itemHtml, /Loading referenced items/);
     assert.match(imageBlockHtml, /Image section heading/);
     assert.match(imageBlockHtml, /Optional image caption/);
+    assert.match(imageBlockHtml, /Bento feature/);
     assert.match(imageBlockHtml, /Image layout/);
     assert.match(imageBlockHtml, /option value="full" selected="">Full width/);
     assert.equal((itemHtml.match(/<fieldset/g) ?? []).length, fields.length);

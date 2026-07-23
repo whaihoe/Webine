@@ -672,3 +672,11 @@
 - Kept particle choreography in `src/config/experience.ts` because those settings affect renderer performance and section geometry. Ordinary CMS changes cannot silently destabilise the particle engine.
 - Raised the shared image policy from 20 MB to 50 MB, preserved animated GIF payloads and retained the 12,000-pixel and 500-frame safety caps. The browser, Vercel token and completed-upload verifier read the same policy.
 - Applied the new migration to the ignored local database. Lint, production build, server type checking and all 60 automated tests pass.
+
+## 2026-07-23, Project media and case-study presentation
+
+- Removed the website-generated inset from Project hero and story images. Frames now fill edge to edge with eight percent vertical bleed for the existing parallax, while the CMS focal point remains the responsive composition control.
+- Standardised the Home selected-work runway to a 16:10 media contract and a single full-height desktop grid row. The Works-only featured-card selector is now scoped to the Works grid, so it cannot change the first Home card.
+- Added a final `Bento feature` option to the existing image content block. It accepts one finished 16:10 composition and removes the forced section label, letting a shorter case study close visually.
+- Added migration `0010_project_showcase_presentation.sql` and the existing schema-generated colour control now edits a per-Project accent. Only `/works/:slug` applies that value to its local background gradient. Invalid or unset legacy values fall back to Webine blue.
+- Recommended 2400 × 1500 px for Project cover, hover, story and bento media, with 1600 × 1000 px as the minimum. Important content remains inside the central 80 percent to tolerate focal cropping and parallax.

@@ -38,11 +38,11 @@
 | `SignalGrid` | Faint CSS grid with a fine-pointer local light response | Resting touch, active pointer and offscreen-paused |
 | `ReachSection` | Practical found, trusted and chosen business-value chapter | Entered, revealed and expanded examples |
 | `SelectedWorkRunway` | Responsive portfolio chapter ending in an expanding chapter 04 card | Vertical-driven horizontal movement on every breakpoint, centred stop, card expansion, progress, keyboard focus and reversible interlude handoff |
-| `ProjectCard` | Shared published Project presentation for Works and Home | Intrinsic media sizing, priority or lazy loading, restrained GSAP media parallax outside Home, hover or keyboard-focus image overlay, clean touch media, minimal Works metadata and full runway copy inside Home |
+| `ProjectCard` | Shared published Project presentation for Works and Home | Fixed 16:10 Home runway media, priority or lazy loading, restrained GSAP media parallax outside Home, hover or keyboard-focus image overlay, clean touch media, minimal Works metadata and full runway copy inside Home |
 | `MediaLibrary` | Admin upload and reusable asset workspace | Drag or button upload, 50 MB client and server validation, animated GIF preservation, progress, preview, metadata, focal point, usage and archive protection |
 | `AssetFieldControl` | Project-aware image and gallery selector joined to the shared library | Inline upload, existing asset choice, cover or supporting role, replacement, removal, ordered gallery and pending-save states |
 | `ProjectMediaOverview` | Project editor summary of cover, hover, story and social media | Assigned thumbnails, empty roles, saved and unsaved |
-| `ItemEditor` | Schema-generated draft and Project workflow | Repeated top and bottom Project actions, save, preview, publish, republish, unpublish, archive, confirmed purge and flexible content blocks |
+| `ItemEditor` | Schema-generated draft and Project workflow | Repeated top and bottom Project actions, save, preview, publish, republish, unpublish, archive, confirmed purge, per-Project case-study colour and flexible image blocks with a final bento layout |
 | `QuietInterlude` | Full long-term-value chapter aligned directly beneath the expanded runway card | Seamless takeover, section-owned point formation, top-point dispersion and reverse |
 | `ProcessTimeline` | Semantic four-stage process with line fill, early point-contact intake and centred outlet geometry | Waiting, absorbing, active, complete, emitting and reverse |
 | `ClosingCallToAction` | Final momentum scene and primary contact route | Resting grid and early-forming opaque section-anchored particle colony planet |

@@ -16,6 +16,12 @@ function textFromStructured(value: unknown) {
     : undefined;
 }
 
+function projectAccentColour(value: unknown) {
+  return typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value)
+    ? value.toLowerCase()
+    : "#2563eb";
+}
+
 function mapPublicAsset(row: Row): PublicAsset {
   return {
     id: String(row.id),
@@ -85,6 +91,7 @@ export async function listPublicProjects(
       summary: String(data.short_summary ?? ""),
       heroImage: hero,
       cardTheme: data.card_theme === "dark" ? "dark" : "light",
+      accentColour: projectAccentColour(data.accent_colour),
       featured: data.featured === true,
       featuredOrder: typeof data.featured_order === "number"
         ? data.featured_order

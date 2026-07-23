@@ -12,6 +12,7 @@ export type PublicProject = {
   heroImage: { id: string; url: string; altText: string; focalX: number; focalY: number; width: number; height: number };
   hoverImage?: { id: string; url: string; altText: string; focalX: number; focalY: number; width: number; height: number };
   cardTheme: "light" | "dark";
+  accentColour: string;
   featured: boolean;
   featuredOrder: number | null;
   challenge?: string;

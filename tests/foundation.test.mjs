@@ -715,7 +715,7 @@ test("keeps the process line behind its timeline nodes", async () => {
 });
 
 test("extends the Home motion language across Works and Contact without assigning GSAP to particles", async () => {
-  const [homeExperience, works, contact, galaxyBackdrop, projectCard, ambientParticles, particleCanvas, mobileParticles, styles, particleStyles] = await Promise.all([
+  const [homeExperience, works, contact, galaxyBackdrop, projectCard, ambientParticles, particleCanvas, mobileParticles, styles, homeStyles, particleStyles] = await Promise.all([
     readFile(new URL("src/components/home/HomeParticleExperience.tsx", projectRoot), "utf8"),
     readFile(new URL("src/pages/WorksPage.tsx", projectRoot), "utf8"),
     readFile(new URL("src/pages/ContactPage.tsx", projectRoot), "utf8"),
@@ -725,14 +725,21 @@ test("extends the Home motion language across Works and Contact without assignin
     readFile(new URL("src/three/ParticleNarrativeCanvas.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/home/MobileSectionParticles.tsx", projectRoot), "utf8"),
     readFile(new URL("src/styles/pages.css", projectRoot), "utf8"),
+    readFile(new URL("src/styles/home-scenes.css", projectRoot), "utf8"),
     readFile(new URL("src/styles/particles.css", projectRoot), "utf8"),
   ]);
 
   assert.match(works, /data-gsap-parallax="media"/);
   assert.match(works, /data-gsap-parallax-axis="vertical"/);
   assert.match(styles, /\.project-case-study__media-frame\s*{[^}]*width:\s*100%[^}]*min-width:\s*0[^}]*min-height:\s*0/s);
-  assert.match(styles, /\.project-case-study__media-frame\s*{[^}]*--project-media-safe-inset:/s);
-  assert.match(styles, /\.project-case-study__media-frame img\s*{[^}]*var\(--project-media-safe-inset\)[^}]*object-fit:\s*contain/s);
+  assert.doesNotMatch(styles, /--project-media-safe-inset/);
+  assert.match(styles, /\.project-case-study__media-frame img\s*{[^}]*inset:\s*-8% 0[^}]*object-fit:\s*cover/s);
+  assert.match(styles, /\.project-case-study\.theme-dark\s*{[^}]*--project-accent:[^}]*radial-gradient/s);
+  assert.match(styles, /\.project-grid > \.project-card:first-child \.project-card__media/);
+  assert.match(styles, /data-block-layout="bento"/);
+  assert.match(homeStyles, /\.work-runway\[data-scroll-mode="pinned"\] \.work-card\s*{[^}]*grid-template-rows:\s*minmax\(0, 1fr\)/s);
+  assert.match(homeStyles, /\.work-card__media\s*{[^}]*aspect-ratio:\s*16 \/ 10/s);
+  assert.match(works, /"--project-accent": project\.accentColour/);
   assert.match(projectCard, /data-gsap-parallax=\{compact \? undefined : "media"\}/);
   assert.match(projectCard, /data-image-parallax-axis=\{compact \? "horizontal" : undefined\}/);
   assert.doesNotMatch(projectCard, /addEventListener\("scroll"/);
