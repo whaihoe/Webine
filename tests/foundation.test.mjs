@@ -151,6 +151,9 @@ test("keeps global route motion purposeful, asset-aware and restorable", async (
   assert.match(revealController, /compactViewport\(\) \? 36 : 96/);
   assert.match(revealController, /createImageParallax/);
   assert.match(revealController, /requestedAxis === "horizontal"/);
+  assert.match(revealController, /dataset\.gsapParallaxDistanceMobile/);
+  assert.match(revealController, /dataset\.gsapParallaxDistance/);
+  assert.match(revealController, /Math\.min\(Math\.max\(parsedDistance, 0\), 12\)/);
   assert.equal((revealController.match(/yPercent:\s*isFloatingCard/g) ?? []).length, 2);
   assert.match(revealController, /scrub:\s*isFloatingCard \? 1\.35 : 1\.15/);
   assert.match(imageParallax, /ImageParallaxAxis = "horizontal" \| "vertical"/);
@@ -273,14 +276,15 @@ test("enables the approved homepage experience layers", async () => {
     /mobile:\s*{[\s\S]*?count:\s*2200[\s\S]*?renderRatio:\s*1[\s\S]*?pointSize:\s*1\.69[\s\S]*?maxFrameRate:\s*30[\s\S]*?measurementSettleMs:\s*90/,
   );
   assert.doesNotMatch(config, /settledFrameRate|renderBurstMs/);
-  assert.match(config, /lerp:\s*0\.075/);
+  assert.match(config, /lerp:\s*0\.065/);
   assert.match(config, /smoothWheel:\s*true/);
-  assert.match(config, /wheelMultiplier:\s*0\.92/);
-  assert.match(config, /maxWheelDelta:\s*84/);
+  assert.match(config, /wheelMultiplier:\s*0\.86/);
+  assert.match(config, /maxWheelDelta:\s*72/);
   assert.match(config, /syncTouch:\s*true/);
-  assert.match(config, /syncTouchLerp:\s*0\.075/);
-  assert.match(config, /touchInertiaExponent:\s*1\.7/);
-  assert.match(config, /touchMultiplier:\s*1/);
+  assert.match(config, /syncTouchLerp:\s*0\.05/);
+  assert.match(config, /touchInertiaExponent:\s*1\.35/);
+  assert.match(config, /touchMultiplier:\s*0\.9/);
+  assert.match(config, /maxTouchDelta:\s*48/);
   assert.match(config, /overscroll:\s*true/);
   assert.doesNotMatch(config, /nativeTouchMaxWidth/);
   assert.match(config, /minWidth:\s*1024/);
@@ -731,9 +735,11 @@ test("extends the Home motion language across Works and Contact without assignin
 
   assert.match(works, /data-gsap-parallax="media"/);
   assert.match(works, /data-gsap-parallax-axis="vertical"/);
+  assert.match(works, /data-gsap-parallax-distance="4"/);
+  assert.match(works, /data-gsap-parallax-distance-mobile="3"/);
   assert.match(styles, /\.project-case-study__media-frame\s*{[^}]*width:\s*100%[^}]*min-width:\s*0[^}]*min-height:\s*0/s);
   assert.doesNotMatch(styles, /--project-media-safe-inset/);
-  assert.match(styles, /\.project-case-study__media-frame img\s*{[^}]*inset:\s*-8% 0[^}]*object-fit:\s*cover/s);
+  assert.match(styles, /\.project-case-study__media-frame img\s*{[^}]*inset:\s*-4% -2%[^}]*width:\s*104%[^}]*height:\s*108%[^}]*object-fit:\s*contain/s);
   assert.match(styles, /\.galaxy-backdrop--project \.galaxy-backdrop__nebula\s*{[^}]*var\(--galaxy-project-accent\)/s);
   assert.doesNotMatch(styles, /--project-accent/);
   assert.match(styles, /\.project-grid > \.project-card:first-child \.project-card__media/);
@@ -889,7 +895,9 @@ test("cleans up the public smooth-scroll layer", async () => {
   assert.match(smoothScroll, /lenis\.on\("scroll", updateScrollTrigger\)/);
   assert.match(smoothScroll, /gsap\.ticker\.add\(updateLenis\)/);
   assert.match(smoothScroll, /gsap\.ticker\.remove\(updateLenis\)/);
-  assert.match(smoothScroll, /virtualScroll:\s*\(input\) => normaliseWheelInput\(input, config\.maxWheelDelta\)/);
+  assert.match(smoothScroll, /virtualScroll:\s*\(input\) => normaliseScrollInput\(/);
+  assert.match(smoothScroll, /config\.maxWheelDelta/);
+  assert.match(smoothScroll, /config\.maxTouchDelta/);
   assert.match(smoothScroll, /data(?:set)?\.scrollRuntime|dataset\.scrollRuntime/);
   assert.match(smoothScroll, /handleAnchorNavigation/);
   assert.match(smoothScroll, /event\.preventDefault\(\)/);
@@ -899,7 +907,7 @@ test("cleans up the public smooth-scroll layer", async () => {
   assert.match(smoothScroll, /getBoundingClientRect\(\)\.bottom \+ 16/);
   assert.doesNotMatch(smoothScroll, /anchors:\s*\{/);
   assert.match(scrollInput, /Math\.tanh\(delta \/ maximum\)/);
-  assert.match(scrollInput, /!input\.event\.type\.includes\("wheel"\)/);
+  assert.match(scrollInput, /input\.event\.type\.includes\("touch"\)/);
   assert.doesNotMatch(smoothScroll, /ScrollSmoother/);
   assert.doesNotMatch(smoothScroll, /smooth-wrapper|smooth-content/);
 });

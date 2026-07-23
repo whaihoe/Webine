@@ -76,6 +76,8 @@ function ProjectCaseStudy({
           <img
             data-gsap-parallax="media"
             data-gsap-parallax-axis="vertical"
+            data-gsap-parallax-distance="4"
+            data-gsap-parallax-distance-mobile="3"
             src={project.heroImage.url}
             alt={project.heroImage.altText}
             width={project.heroImage.width}
@@ -123,6 +125,8 @@ function ProjectCaseStudy({
                     <img
                       data-gsap-parallax="media"
                       data-gsap-parallax-axis="vertical"
+                      data-gsap-parallax-distance="4"
+                      data-gsap-parallax-distance-mobile="3"
                       src={String(image.url)}
                       alt={String(image.altText ?? "")}
                       width={Number(image.width ?? 1)}

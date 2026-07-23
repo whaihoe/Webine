@@ -686,3 +686,22 @@
 - Removed the independent case-study section gradient from the preceding presentation pass.
 - Added an optional Project accent to `GalaxyBackdrop`. Valid Project slugs pass their accent to the nebula only, with atmospheric stops derived from the same hue at different transparencies.
 - Preserved the fixed dark background, complete ambient particle canvas and original cyan-to-blue `/works` nebula.
+
+## 2026-07-23, Project editor case-study grouping
+
+- Moved Industry, Location, Project duration, Completed on, Platform and stack, About the client, URL and Case study accent colour directly below Slug through migration `0011_project_editor_field_order.sql`.
+- Removed the unused Card theme schema field, its public content property and its stored draft, published and snapshot values.
+- Restyled the native colour input so its swatch remains visible in WebKit and Firefox, while retaining the linked hex input.
+
+## 2026-07-23, capped touch glide and refined public scroll
+
+- Kept one Lenis runtime and one `virtualScroll` input normaliser. No second physics loop, touch trap or page-owned scroll controller was introduced.
+- Changed desktop interpolation from `0.075` to `0.065`, wheel multiplier from `0.92` to `0.86` and the nonlinear wheel ceiling from 84 to 72 pixels.
+- Added a separate 48-pixel nonlinear touch ceiling. Reduced the touch release exponent from `1.7` to `1.35`, touch multiplier from `1` to `0.9` and inertia interpolation from `0.075` to `0.05`, compressing extreme swipes while extending the visible glide after release.
+
+## 2026-07-23, protected case-study media framing
+
+- Retained one consistent 16:10 frame for Project hero and story media so mixed case studies keep a stable editorial rhythm.
+- Replaced aggressive edge-to-edge cover cropping with a contained 104 by 108 percent image layer inside a dark matte. Most source content now remains visible even when an uploaded screenshot is not exactly 16:10.
+- Reduced case-study image parallax to four percent on desktop and three percent on compact viewports. Other Works, Home and About parallax distances remain unchanged.
+- Kept 2400 × 1500 px as the preferred Project image export because it matches the frame exactly and provides enough resolution for large desktop displays.

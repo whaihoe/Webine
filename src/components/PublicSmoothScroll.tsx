@@ -1,6 +1,6 @@
 import Lenis from "lenis";
 import { useEffect, type ReactNode } from "react";
-import { normaliseWheelInput } from "../animation/scroll-input";
+import { normaliseScrollInput } from "../animation/scroll-input";
 import { gsap, ScrollTrigger } from "../animation/scroll-runtime";
 import { experienceConfig } from "../config/experience";
 
@@ -36,7 +36,11 @@ export function PublicSmoothScroll({ children }: PublicSmoothScrollProps) {
       touchInertiaExponent: config.touchInertiaExponent,
       touchMultiplier: config.touchMultiplier,
       overscroll: config.overscroll,
-      virtualScroll: (input) => normaliseWheelInput(input, config.maxWheelDelta),
+      virtualScroll: (input) => normaliseScrollInput(
+        input,
+        config.maxWheelDelta,
+        config.maxTouchDelta,
+      ),
       stopInertiaOnNavigate: true,
     });
 

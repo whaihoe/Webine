@@ -90,7 +90,6 @@ export async function listPublicProjects(
       services: references?.get("project_services") ?? [],
       summary: String(data.short_summary ?? ""),
       heroImage: hero,
-      cardTheme: data.card_theme === "dark" ? "dark" : "light",
       accentColour: projectAccentColour(data.accent_colour),
       featured: data.featured === true,
       featuredOrder: typeof data.featured_order === "number"
