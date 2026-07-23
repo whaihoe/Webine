@@ -661,3 +661,14 @@
 - Stopped the desktop hero backlight immediately when the persistent particle layer moves above the Reach surface. The Reach particle object keeps its existing position, density, colour and motion.
 - The correction is keyed to particle-layer depth rather than the active-scene label because the pinned hero can remain geometrically closest while Reach is already covering it.
 - Rendered review confirms zero backlight opacity during the Reach formation at 1280 × 800 and a clean opaque Reach cover at 390 × 844, both without horizontal overflow.
+
+## 2026-07-23, Admin lifecycle, notifications and media policy
+
+- Replaced the Project item table with responsive stretched-link cards. The complete card opens its editor, while isolated quick actions publish drafts, archive published work and permanently delete only draft or archived records.
+- Kept archived records visible so the published → archived → purged lifecycle can be completed. Permanent deletion requires typing `DELETE`, rejects published or referenced records, removes snapshots transactionally and retains an audit event.
+- Reused one Project editor action component at the top and bottom of the form. Save, preview, publish, republish, unpublish, archive, purge and cancel therefore share one behaviour contract.
+- Added direct Resend email delivery after the enquiry has been stored, with visitor reply-to, an idempotency key and the existing HTTPS webhook retained as an alternative. Admin explains pending, sent and failed states and deployment readiness reports whether either notification provider is complete.
+- Added migration `0009_site_settings_defaults.sql`. It publishes the exact current website copy only when the singleton is still `{}`, preserving owner edits. Nested setting groups now keep valid object or array structures instead of being flattened into text.
+- Kept particle choreography in `src/config/experience.ts` because those settings affect renderer performance and section geometry. Ordinary CMS changes cannot silently destabilise the particle engine.
+- Raised the shared image policy from 20 MB to 50 MB, preserved animated GIF payloads and retained the 12,000-pixel and 500-frame safety caps. The browser, Vercel token and completed-upload verifier read the same policy.
+- Applied the new migration to the ignored local database. Lint, production build, server type checking and all 60 automated tests pass.

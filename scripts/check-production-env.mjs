@@ -23,6 +23,25 @@ if (enquirySecret && enquirySecret.length < 32) {
   issues.push("ENQUIRY_HASH_SECRET must contain at least 32 characters");
 }
 
+const resendVariables = [
+  "RESEND_API_KEY",
+  "ENQUIRY_NOTIFICATION_EMAIL",
+  "ENQUIRY_NOTIFICATION_FROM_EMAIL",
+];
+const configuredResendVariables = resendVariables.filter((key) =>
+  process.env[key]?.trim()
+);
+if (
+  configuredResendVariables.length > 0 &&
+  configuredResendVariables.length !== resendVariables.length
+) {
+  for (const key of resendVariables) {
+    if (!process.env[key]?.trim()) {
+      issues.push(`${key} is required when Resend enquiry notifications are enabled`);
+    }
+  }
+}
+
 const authorisedParties = (process.env.CLERK_AUTHORIZED_PARTIES ?? "")
   .split(",")
   .map((value) => value.trim())

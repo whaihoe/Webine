@@ -118,6 +118,7 @@ export type AdminDashboard = {
   readiness: {
     mediaUploads: AdminReadinessItem;
     enquiries: AdminReadinessItem;
+    enquiryNotifications: AdminReadinessItem;
   };
 };
 

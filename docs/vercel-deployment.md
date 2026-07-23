@@ -15,6 +15,9 @@ Add these under **Vercel project → Settings → Environment Variables**. Set t
 | `TURSO_AUTH_TOKEN` | Yes | Preview and Production | Private database token |
 | `BLOB_READ_WRITE_TOKEN` | Yes | Preview and Production | Added automatically when the Vercel Blob store is connected |
 | `ENQUIRY_HASH_SECRET` | Yes | Preview and Production | Random secret of at least 32 characters used to hash rate-limit and deduplication keys |
+| `RESEND_API_KEY` | No | Preview and Production | Server-only Resend key used to email the owner when a new enquiry is stored |
+| `ENQUIRY_NOTIFICATION_EMAIL` | No | Preview and Production | Private inbox that receives new-enquiry emails |
+| `ENQUIRY_NOTIFICATION_FROM_EMAIL` | No | Preview and Production | Sender on a domain verified in Resend |
 | `ENQUIRY_NOTIFICATION_WEBHOOK_URL` | No | Preview and Production | HTTPS endpoint that receives a new-enquiry notification |
 | `ENQUIRY_NOTIFICATION_TOKEN` | No | Preview and Production | Bearer token for the optional notification endpoint |
 | `VITE_PUBLIC_CONTACT_EMAIL` | No | Preview and Production | Public email shown on Contact, the closing CTA and footer |
@@ -35,7 +38,7 @@ When a Turso database is first connected, run the migration command against that
 2. Sign in to Clerk once, copy your exact Clerk user ID into `ADMIN_USER_ID` and approve the Vercel origin in `CLERK_AUTHORIZED_PARTIES`.
 3. Create or select the Turso database, add its URL and a newly generated auth token, then apply every file in `migrations/` in filename order.
 4. Link a Vercel Blob store. Vercel should create `BLOB_READ_WRITE_TOKEN` for the selected environments.
-5. Generate `ENQUIRY_HASH_SECRET`, add the optional notification values only if a webhook exists and add the public contact email if wanted.
+5. Generate `ENQUIRY_HASH_SECRET`. For direct email alerts, create a Resend API key, verify the sending domain and add all three Resend values. The HTTPS webhook remains an alternative.
 6. Redeploy after changing variables. Test `/api/site-settings`, `/works`, `/contact` and finally `/admin` with the approved Clerk account.
 
 If Admin says **“The workspace could not load”**, check the Vercel Function logs first. The most common causes are a missing Turso variable, migrations not applied, an incorrect Clerk secret or the current origin missing from `CLERK_AUTHORIZED_PARTIES`.
@@ -52,16 +55,27 @@ To restore media uploads:
 4. Enable the option that adds a read-write token to the project, then connect the store to both Preview and Production.
 5. In **Settings → Environment Variables**, confirm `BLOB_READ_WRITE_TOKEN` exists for both Preview and Production. Do not copy this value into GitHub, documentation or Obsidian.
 6. Redeploy the affected environment. An already-built deployment does not pick up a newly connected store automatically.
-7. Sign in to `/admin/media`, upload one JPEG and one GIF, confirm both previews load from Blob, then archive an unused test asset. An asset used by published content must remain protected until that content is replaced or unpublished.
+7. Sign in to `/admin/media`, upload one JPEG and one animated GIF, confirm both previews load from Blob, then archive an unused test asset. The shared upload limit is 50 MB, 12,000 pixels per side and 500 GIF frames. An asset used by published content must remain protected until that content is replaced or unpublished.
 
 To restore Contact submissions:
 
 1. Generate a private value locally with `openssl rand -hex 32`.
 2. Add it to Vercel as `ENQUIRY_HASH_SECRET` for both Preview and Production. Do not paste it into chat, GitHub or documentation.
-3. Confirm every database migration has been applied in filename order through `0008_project_case_study_details.sql`. Contact specifically depends on `0007_enquiry_pipeline.sql`.
+3. Confirm every database migration has been applied in filename order through `0009_site_settings_defaults.sql`. Contact specifically depends on `0007_enquiry_pipeline.sql`.
 4. Redeploy, submit a real test enquiry through `/contact` and confirm it appears in `/admin/enquiries`.
 
-`ENQUIRY_NOTIFICATION_WEBHOOK_URL` remains optional. Without it, a valid enquiry is still stored in Admin and may show a pending notification state.
+The enquiry is committed to Turso before notification is attempted. When all three Resend variables are present, Webine sends a private email and sets reply-to to the visitor. `ENQUIRY_NOTIFICATION_WEBHOOK_URL` remains an optional alternative. Without either provider, the enquiry stays safely stored in Admin with a pending notification state.
+
+To configure Resend:
+
+1. Create or open the Webine account in Resend.
+2. Add and verify the domain used by `ENQUIRY_NOTIFICATION_FROM_EMAIL`.
+3. Create an API key with sending access and copy it once into `RESEND_API_KEY`.
+4. Set `ENQUIRY_NOTIFICATION_EMAIL` to the private inbox that should receive leads.
+5. Set `ENQUIRY_NOTIFICATION_FROM_EMAIL` to a verified sender such as `Webine <enquiries@webine.sg>`.
+6. Redeploy, submit one real test enquiry and confirm both the email and protected Admin record.
+
+If any Resend value is present, all three are required. The build check rejects a partial Resend configuration.
 
 Production builds run `npm run build:vercel`, which checks the complete required environment contract before compiling. A deployment with missing Clerk, Turso, Blob or enquiry configuration now fails early instead of publishing a partly broken Admin or Contact experience.
 

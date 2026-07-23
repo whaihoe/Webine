@@ -51,6 +51,9 @@ function validInput(index = 0) {
 test("stores valid enquiries, hides bot submissions and deduplicates repeats", async () => {
   process.env.ENQUIRY_HASH_SECRET = "test-enquiry-secret";
   delete process.env.ENQUIRY_NOTIFICATION_WEBHOOK_URL;
+  delete process.env.RESEND_API_KEY;
+  delete process.env.ENQUIRY_NOTIFICATION_EMAIL;
+  delete process.env.ENQUIRY_NOTIFICATION_FROM_EMAIL;
   await withDatabase(async (client) => {
     assert.deepEqual(await createEnquiry(validInput(), request("10.0.0.1"), "request-1", client), { accepted: true, duplicate: false });
     assert.deepEqual(await createEnquiry(validInput(), request("10.0.0.2"), "request-2", client), { accepted: true, duplicate: true });
@@ -85,6 +88,9 @@ test("rejects invalid submissions and limits repeated clients", async () => {
 test("keeps notification retries reviewable when no provider is configured", async () => {
   process.env.ENQUIRY_HASH_SECRET = "test-enquiry-secret";
   delete process.env.ENQUIRY_NOTIFICATION_WEBHOOK_URL;
+  delete process.env.RESEND_API_KEY;
+  delete process.env.ENQUIRY_NOTIFICATION_EMAIL;
+  delete process.env.ENQUIRY_NOTIFICATION_FROM_EMAIL;
   await withDatabase(async (client) => {
     await createEnquiry(validInput(), request("10.0.2.1"), "request-1", client);
     const [enquiry] = await listEnquiries(client);
@@ -92,4 +98,38 @@ test("keeps notification retries reviewable when no provider is configured", asy
     const [retried] = await listEnquiries(client);
     assert.equal(retried.notificationAttempts, 0);
   });
+});
+
+test("sends a private Resend email for a newly stored enquiry", async () => {
+  process.env.ENQUIRY_HASH_SECRET = "test-enquiry-secret";
+  process.env.RESEND_API_KEY = "re_test";
+  process.env.ENQUIRY_NOTIFICATION_EMAIL = "owner@example.com";
+  process.env.ENQUIRY_NOTIFICATION_FROM_EMAIL = "Webine <enquiries@example.com>";
+  delete process.env.ENQUIRY_NOTIFICATION_WEBHOOK_URL;
+  const originalFetch = globalThis.fetch;
+  let requestBody;
+
+  globalThis.fetch = async (url, init) => {
+    assert.equal(url, "https://api.resend.com/emails");
+    assert.equal(init.headers.Authorization, "Bearer re_test");
+    requestBody = JSON.parse(init.body);
+    return new Response(JSON.stringify({ id: "email_test" }), { status: 200 });
+  };
+
+  try {
+    await withDatabase(async (client) => {
+      await createEnquiry(validInput(), request("10.0.3.1"), "request-email", client);
+      const [enquiry] = await listEnquiries(client);
+      assert.equal(enquiry.notificationStatus, "sent");
+      assert.equal(enquiry.notificationAttempts, 1);
+      assert.equal(requestBody.reply_to, "prospect0@example.com");
+      assert.deepEqual(requestBody.to, ["owner@example.com"]);
+      assert.match(requestBody.subject, /Example business/);
+    });
+  } finally {
+    globalThis.fetch = originalFetch;
+    delete process.env.RESEND_API_KEY;
+    delete process.env.ENQUIRY_NOTIFICATION_EMAIL;
+    delete process.env.ENQUIRY_NOTIFICATION_FROM_EMAIL;
+  }
 });

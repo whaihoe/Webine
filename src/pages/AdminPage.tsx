@@ -179,9 +179,61 @@ function CollectionsPage() {
 
 function CollectionItemsPage() {
   const { collectionKey = "" } = useParams();
+  const mutateAdminResource = useAdminMutation();
   const resource = useAdminResource<AdminItemSummary[]>(
     `/api/admin/collections/${collectionKey}/items`,
   );
+  const [busyItemId, setBusyItemId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState("");
+
+  async function changeStatus(
+    item: AdminItemSummary,
+    action: "publish" | "archive",
+  ) {
+    if (
+      action === "archive" &&
+      !window.confirm(`Archive ${item.label}? It will be removed from the public website.`)
+    ) {
+      return;
+    }
+
+    setBusyItemId(item.id);
+    setActionError("");
+    try {
+      await mutateAdminResource(
+        `/api/admin/collections/${collectionKey}/items/${item.id}/status`,
+        "POST",
+        { action, version: item.version },
+      );
+      resource.retry();
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : "The item could not be updated.");
+    } finally {
+      setBusyItemId(null);
+    }
+  }
+
+  async function purge(item: AdminItemSummary) {
+    const confirmation = window.prompt(
+      `Permanently delete ${item.label} and its saved history? Type DELETE to continue.`,
+    );
+    if (confirmation !== "DELETE") return;
+
+    setBusyItemId(item.id);
+    setActionError("");
+    try {
+      await mutateAdminResource(
+        `/api/admin/collections/${collectionKey}/items/${item.id}`,
+        "DELETE",
+        { version: item.version },
+      );
+      resource.retry();
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : "The item could not be deleted.");
+    } finally {
+      setBusyItemId(null);
+    }
+  }
 
   if (resource.status === "loading") return <LoadingState />;
   if (resource.status === "error") {
@@ -203,33 +255,47 @@ function CollectionItemsPage() {
         </Link>
       </div>
 
+      {actionError ? <p className="admin-inline-error" role="alert">{actionError}</p> : null}
       {resource.data.length === 0 ? (
         <AdminDataState
           title="This collection is empty."
           description="Create the first draft item when the generated form stage is ready."
         />
       ) : (
-        <div className="admin-item-table-wrap">
-          <table className="admin-item-table">
-            <thead>
-              <tr>
-                <th>Item</th>
-                <th>Status</th>
-                <th>Updated</th>
-                <th><span className="sr-only">Open</span></th>
-              </tr>
-            </thead>
-            <tbody>
-              {resource.data.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.label}</td>
-                  <td><span className="status-pill">{item.status}</span></td>
-                  <td>{new Intl.DateTimeFormat("en-SG", { dateStyle: "medium" }).format(new Date(item.updatedAt))}</td>
-                  <td><Link to={`/admin/collections/${collectionKey}/items/${item.id}`}>Open</Link></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="admin-item-list">
+          {resource.data.map((item) => {
+            const busy = busyItemId === item.id;
+            return (
+              <article className="admin-item-card" data-status={item.status} key={item.id}>
+                <Link
+                  className="admin-item-card__link"
+                  to={`/admin/collections/${collectionKey}/items/${item.id}`}
+                  aria-label={`Open ${item.label}`}
+                />
+                <div className="admin-item-card__content">
+                  <span className="status-pill">{item.status}</span>
+                  <h2>{item.label}</h2>
+                  <p>Updated {new Intl.DateTimeFormat("en-SG", { dateStyle: "medium" }).format(new Date(item.updatedAt))}</p>
+                </div>
+                <div className="admin-item-card__actions" aria-label={`Quick actions for ${item.label}`}>
+                  {item.status !== "published" ? (
+                    <button type="button" disabled={busy} onClick={() => void changeStatus(item, "publish")}>
+                      {busy ? "Working..." : "Publish"}
+                    </button>
+                  ) : (
+                    <button type="button" disabled={busy} onClick={() => void changeStatus(item, "archive")}>
+                      {busy ? "Working..." : "Archive"}
+                    </button>
+                  )}
+                  {item.status !== "published" && item.id !== "item_site_settings" ? (
+                    <button className="admin-item-card__danger" type="button" disabled={busy} onClick={() => void purge(item)}>
+                      Delete permanently
+                    </button>
+                  ) : null}
+                </div>
+              </article>
+            );
+          })}
         </div>
       )}
     </section>
@@ -299,6 +365,10 @@ function SettingsEditorPage() {
     <section className="workspace-page admin-editor-shell" aria-labelledby="settings-editor-heading">
       <p className="eyebrow">Website content / Site settings</p>
       <h1 id="settings-editor-heading">Edit the shared website content.</h1>
+      <div className="workspace-notice" role="note">
+        <strong>What Site Settings controls</strong>
+        <p>This singleton contains the current Home, Works, Contact, privacy and footer copy. Save changes as a draft, preview where available and publish only after review. Particle choreography stays in the typed experience configuration so a content edit cannot break the visual engine.</p>
+      </div>
       <ExistingItemEditorPage collectionKey="site_settings" itemId="item_site_settings" />
     </section>
   );
@@ -334,6 +404,10 @@ function EnquiriesPage() {
           <h1 id="enquiries-heading">New conversations, kept private.</h1>
         </div>
       </div>
+      <div className="workspace-notice" role="note">
+        <strong>How notifications work</strong>
+        <p>Every accepted enquiry is stored here first. Add the three Resend environment values to receive a private email with reply-to set to the visitor, or connect the optional webhook for another notification service. Pending means no provider is configured. Failed means delivery was attempted and can be retried after the configuration is fixed.</p>
+      </div>
       {retryError ? <p className="admin-inline-error" role="alert">{retryError}</p> : null}
       {resource.data.length === 0 ? (
         <AdminDataState title="No enquiries yet." description="New Contact form submissions will appear here." />
@@ -356,6 +430,9 @@ function EnquiriesPage() {
                 {enquiry.website ? <div><dt>Website</dt><dd><a href={enquiry.website} target="_blank" rel="noreferrer">Open website</a></dd></div> : null}
               </dl>
               <p className="admin-enquiry-card__details">{enquiry.details}</p>
+              {enquiry.notificationStatus === "failed" && enquiry.lastNotificationError ? (
+                <p className="admin-field-note">Delivery detail: {enquiry.lastNotificationError.replace(/_/g, " ")}</p>
+              ) : null}
               {enquiry.notificationStatus !== "sent" ? <button className="admin-secondary-action" type="button" onClick={() => void retryNotification(enquiry.id)} disabled={retryingId === enquiry.id}>{retryingId === enquiry.id ? "Retrying..." : "Retry notification"}</button> : null}
             </article>
           ))}

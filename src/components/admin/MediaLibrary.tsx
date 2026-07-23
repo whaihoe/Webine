@@ -5,6 +5,7 @@ import { useAdminResource } from "../../admin/useAdminResource";
 import { useAdminMutation } from "../../admin/useAdminMutation";
 import { AdminDataState } from "./AdminDataState";
 import { useAdminAuth } from "../../admin/AdminAuthContext";
+import { MAX_IMAGE_SIZE_LABEL, validateImageFile } from "../../../shared/media-policy";
 
 function MediaAssetCard({ asset, onChanged }: { asset: AdminAsset; onChanged: () => void }) {
   const mutateAdminResource = useAdminMutation();
@@ -75,6 +76,13 @@ export function MediaLibrary() {
 
   function choose(candidate?: File) {
     if (!candidate) return;
+    const validationMessage = validateImageFile(candidate);
+    if (validationMessage) {
+      setFile(null);
+      setError(validationMessage);
+      if (inputRef.current) inputRef.current.value = "";
+      return;
+    }
     setFile(candidate);
     setError("");
   }
@@ -117,7 +125,7 @@ export function MediaLibrary() {
         <div className="admin-dropzone" onDragOver={(event) => event.preventDefault()} onDrop={drop}>
           <input ref={inputRef} id="media-file" type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/gif" onChange={(event: ChangeEvent<HTMLInputElement>) => choose(event.target.files?.[0])} />
           <label className="admin-primary-action" htmlFor="media-file">Choose image</label>
-          <p>or drop a JPEG, PNG, WebP, AVIF or GIF here, up to 20 MB</p>
+          <p>or drop a JPEG, PNG, WebP, AVIF or animated GIF here, up to {MAX_IMAGE_SIZE_LABEL}</p>
         </div>
         {file ? (
           <div className="admin-upload-details">

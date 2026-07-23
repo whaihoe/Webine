@@ -1,16 +1,18 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { extname, resolve } from "node:path";
 import sharp from "sharp";
+import {
+  ACCEPTED_IMAGE_TYPES,
+  MAX_GIF_FRAMES,
+  MAX_IMAGE_BYTES,
+  MAX_IMAGE_DIMENSION,
+} from "../shared/media-policy.js";
 
-export const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
-export const MAX_IMAGE_DIMENSION = 12_000;
-export const ACCEPTED_IMAGE_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/avif",
-  "image/gif",
-] as const;
+export {
+  ACCEPTED_IMAGE_TYPES,
+  MAX_IMAGE_BYTES,
+  MAX_IMAGE_DIMENSION,
+};
 
 const extensionByMime = new Map<string, string>([
   ["image/jpeg", ".jpg"],
@@ -49,7 +51,7 @@ export async function validateImageBuffer(bytes: ArrayBuffer, declaredMimeType: 
     height < 1 ||
     width > MAX_IMAGE_DIMENSION ||
     height > MAX_IMAGE_DIMENSION ||
-    pages > 500
+    pages > MAX_GIF_FRAMES
   ) {
     throw new Error("IMAGE_CONTENT_INVALID");
   }

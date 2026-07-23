@@ -572,3 +572,74 @@ export async function changeItemStatus(
   }
   return getItem(collectionKey, itemId, client);
 }
+
+export async function purgeItem(
+  collectionKey: string,
+  itemId: string,
+  value: unknown,
+  actorId: string,
+  requestId: string,
+  client: Client = getDatabase(),
+) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new CmsRepositoryError("INVALID_ACTION", "Confirm the item version before deleting it.", 422);
+  }
+
+  const { version } = value as { version?: unknown };
+  if (typeof version !== "number") {
+    throw new CmsRepositoryError("VERSION_REQUIRED", "The item version is required.", 422);
+  }
+
+  const current = await getItem(collectionKey, itemId, client);
+  if (!current) throw new CmsRepositoryError("NOT_FOUND", "That item does not exist.", 404);
+  if (current.version !== version) {
+    throw new CmsRepositoryError("VERSION_CONFLICT", "This item changed after it was opened.", 409);
+  }
+  if (current.status === "published") {
+    throw new CmsRepositoryError("ARCHIVE_REQUIRED", "Archive this published item before deleting it permanently.", 409);
+  }
+  if (itemId === "item_site_settings") {
+    throw new CmsRepositoryError("SYSTEM_ITEM_PROTECTED", "Site Settings cannot be deleted.", 409);
+  }
+
+  const inbound = await client.execute({
+    sql: "SELECT count(*) AS total FROM item_references WHERE target_item_id = ?",
+    args: [itemId],
+  });
+  if (numberValue(inbound.rows[0]?.total) > 0) {
+    throw new CmsRepositoryError("ITEM_IN_USE", "Remove this item from other content before deleting it permanently.", 409);
+  }
+
+  let transaction: Awaited<ReturnType<Client["transaction"]>> | undefined;
+  try {
+    transaction = await client.transaction("write");
+    await transaction.execute({
+      sql: "DELETE FROM item_snapshots WHERE item_id = ?",
+      args: [itemId],
+    });
+    const deleted = await transaction.execute({
+      sql: "DELETE FROM collection_items WHERE id = ? AND version = ? AND status != 'published'",
+      args: [itemId, version],
+    });
+    if (deleted.rowsAffected !== 1) {
+      throw new CmsRepositoryError("VERSION_CONFLICT", "This item changed while it was being deleted.", 409);
+    }
+    await transaction.execute(auditStatement(
+      actorId,
+      "item.purge",
+      "collection_item",
+      itemId,
+      requestId,
+    ));
+    await transaction.commit();
+  } catch (error) {
+    await transaction?.rollback();
+    if (error instanceof CmsRepositoryError) throw error;
+    if (isDatabaseBusy(error)) {
+      throw new CmsRepositoryError("VERSION_CONFLICT", "This item is already being changed. Reload before trying again.", 409);
+    }
+    throw error;
+  }
+
+  return { id: itemId, purged: true };
+}

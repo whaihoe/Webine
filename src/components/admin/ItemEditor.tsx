@@ -17,6 +17,68 @@ type ItemEditorProps = {
   item?: AdminItem;
 };
 
+type ItemEditorActionsProps = {
+  collectionKey: string;
+  currentItem?: AdminItem;
+  dirty: boolean;
+  saving: boolean;
+  onStatusChange: (action: "publish" | "unpublish" | "archive") => void;
+  onPurge: () => void;
+  onCancel: () => void;
+};
+
+function ItemEditorActions({
+  collectionKey,
+  currentItem,
+  dirty,
+  saving,
+  onStatusChange,
+  onPurge,
+  onCancel,
+}: ItemEditorActionsProps) {
+  return (
+    <div className="admin-form-actions">
+      <button className="admin-primary-action" type="submit" disabled={saving || !dirty}>
+        {saving ? "Working..." : dirty ? "Save draft" : "Draft saved"}
+      </button>
+      {currentItem && !dirty ? (
+        <Link className="admin-secondary-action" to={`/preview?collection=${collectionKey}&id=${currentItem.id}`}>
+          Preview
+        </Link>
+      ) : currentItem ? (
+        <span className="admin-action-note">Save changes to preview</span>
+      ) : null}
+      {currentItem?.status !== "published" ? (
+        <button className="admin-secondary-action" type="button" disabled={saving || dirty || !currentItem} onClick={() => onStatusChange("publish")}>
+          Publish
+        </button>
+      ) : (
+        <button className="admin-secondary-action" type="button" disabled={saving || dirty} onClick={() => onStatusChange("publish")}>
+          Republish
+        </button>
+      )}
+      {currentItem?.status === "published" ? (
+        <>
+          <button className="admin-secondary-action" type="button" disabled={saving || dirty} onClick={() => onStatusChange("unpublish")}>
+            Unpublish
+          </button>
+          <button className="admin-secondary-action" type="button" disabled={saving || dirty} onClick={() => onStatusChange("archive")}>
+            Archive
+          </button>
+        </>
+      ) : null}
+      {currentItem && currentItem.status !== "published" && currentItem.id !== "item_site_settings" ? (
+        <button className="admin-danger-action" type="button" disabled={saving || dirty} onClick={onPurge}>
+          Delete permanently
+        </button>
+      ) : null}
+      <button className="admin-secondary-action" type="button" onClick={onCancel}>
+        Cancel
+      </button>
+    </div>
+  );
+}
+
 function structuredText(value: unknown) {
   if (typeof value === "object" && value !== null && "text" in value) {
     return String((value as { text: unknown }).text ?? "");
@@ -31,6 +93,51 @@ function repeatedText(value: unknown) {
       ? String((entry as { text: unknown }).text ?? "")
       : JSON.stringify(entry)
   ).join("\n");
+}
+
+function StructuredJsonControl({
+  value,
+  expected,
+  onChange,
+}: {
+  value: unknown;
+  expected: "object" | "array";
+  onChange: (value: unknown) => void;
+}) {
+  const fallback = expected === "object" ? {} : [];
+  const [draft, setDraft] = useState(() => JSON.stringify(value ?? fallback, null, 2));
+  const [message, setMessage] = useState("");
+
+  function update(next: string) {
+    setDraft(next);
+    try {
+      const parsed = JSON.parse(next) as unknown;
+      const valid = expected === "array"
+        ? Array.isArray(parsed)
+        : Boolean(parsed) && typeof parsed === "object" && !Array.isArray(parsed);
+      if (!valid) {
+        setMessage(`Enter a JSON ${expected}.`);
+        return;
+      }
+      setMessage("");
+      onChange(parsed);
+    } catch {
+      setMessage("Finish the JSON structure before saving.");
+    }
+  }
+
+  return (
+    <div className="admin-json-control">
+      <textarea
+        rows={12}
+        value={draft}
+        spellCheck={false}
+        aria-invalid={Boolean(message)}
+        onChange={(event) => update(event.target.value)}
+      />
+      <small>{message || `Structured ${expected}. Keep property names and quotation marks intact.`}</small>
+    </div>
+  );
 }
 
 function ReferenceControl({
@@ -140,11 +247,18 @@ function GeneratedControl({
     return <div className="admin-colour-control"><input type="color" value={typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value) ? value : "#2563eb"} onChange={(event) => onChange(event.target.value)} /><input value={typeof value === "string" ? value : ""} placeholder="#2563eb or a design token" onChange={(event) => onChange(event.target.value || undefined)} /></div>;
   }
 
-  if (field.fieldType === "rich_text" || field.fieldType === "field_group") {
-    return <textarea rows={field.fieldType === "rich_text" ? 8 : 5} value={structuredText(value)} placeholder={field.placeholder || "Enter structured copy"} onChange={(event) => onChange(event.target.value ? { text: event.target.value } : undefined)} />;
+  if (field.fieldType === "field_group") {
+    return <StructuredJsonControl value={value} expected="object" onChange={onChange} />;
+  }
+
+  if (field.fieldType === "rich_text") {
+    return <textarea rows={8} value={structuredText(value)} placeholder={field.placeholder || "Enter structured copy"} onChange={(event) => onChange(event.target.value ? { text: event.target.value } : undefined)} />;
   }
 
   if (field.fieldType === "repeatable_group") {
+    if (field.key === "home_principles" || field.key === "home_process_steps") {
+      return <StructuredJsonControl value={value} expected="array" onChange={onChange} />;
+    }
     return <textarea rows={8} value={repeatedText(value)} placeholder="One content entry per line" onChange={(event) => onChange(event.target.value ? event.target.value.split("\n").filter(Boolean).map((text) => ({ text })) : [])} />;
   }
 
@@ -232,12 +346,57 @@ export function ItemEditor({ collection, item }: ItemEditorProps) {
     }
   }
 
+  async function purge() {
+    if (!currentItem) return;
+    const label = typeof data[collection.displayFieldKey] === "string"
+      ? data[collection.displayFieldKey]
+      : "this item";
+    const confirmation = window.prompt(
+      `Permanently delete ${label} and its saved history? Type DELETE to continue.`,
+    );
+    if (confirmation !== "DELETE") return;
+
+    setSaving(true);
+    setError(null);
+    try {
+      await mutateAdminResource(
+        `/api/admin/collections/${collection.key}/items/${currentItem.id}`,
+        "DELETE",
+        { version: currentItem.version },
+      );
+      navigate(`/admin/collections/${collection.key}/items`, { replace: true });
+    } catch (caught) {
+      setError(caught instanceof AdminApiError
+        ? caught
+        : new AdminApiError(500, "DELETE_FAILED", "The item could not be deleted."));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function cancel() {
+    if (!dirty || window.confirm("Leave without saving these changes?")) {
+      navigate(`/admin/collections/${collection.key}/items`);
+    }
+  }
+
   return (
     <form className="admin-item-form" onSubmit={submit}>
       <div className="admin-item-form__intro">
         <p>Drafts may be saved before every required publishing field is complete. Entered values are still validated now.</p>
         {currentItem ? <span>Version {currentItem.version} · {currentItem.status} · {dirty ? "Changes not saved" : "Saved"}</span> : <span>New draft · {dirty ? "Changes not saved" : "Nothing entered yet"}</span>}
       </div>
+      {collection.key === "projects" ? (
+        <ItemEditorActions
+          collectionKey={collection.key}
+          currentItem={currentItem}
+          dirty={dirty}
+          saving={saving}
+          onStatusChange={(action) => void changeStatus(action)}
+          onPurge={() => void purge()}
+          onCancel={cancel}
+        />
+      ) : null}
       {collection.key === "projects" ? <ProjectMediaOverview data={data} dirty={dirty} /> : null}
       <div className="admin-generated-fields">
         {collection.fields.map((field) => (
@@ -249,14 +408,15 @@ export function ItemEditor({ collection, item }: ItemEditorProps) {
         ))}
       </div>
       {error ? <div className="admin-form-error" role="alert"><strong>{error.message}</strong>{error.issues.length ? <ul>{error.issues.map((entry) => <li key={`${entry.path}-${entry.code}`}>{entry.path}: {entry.message}</li>)}</ul> : null}</div> : null}
-      <div className="admin-form-actions">
-        <button className="admin-primary-action" type="submit" disabled={saving || !dirty}>{saving ? "Working…" : dirty ? "Save draft" : "Draft saved"}</button>
-        {currentItem && !dirty ? <Link className="admin-secondary-action" to={`/preview?collection=${collection.key}&id=${currentItem.id}`}>Preview</Link> : currentItem ? <span className="admin-action-note">Save changes to preview</span> : null}
-        {currentItem?.status !== "published" ? <button className="admin-secondary-action" type="button" disabled={saving || dirty || !currentItem} onClick={() => void changeStatus("publish")}>Publish</button> : <button className="admin-secondary-action" type="button" disabled={saving || dirty} onClick={() => void changeStatus("publish")}>Republish</button>}
-        {currentItem?.status === "published" ? <button className="admin-secondary-action" type="button" disabled={saving || dirty} onClick={() => void changeStatus("unpublish")}>Unpublish</button> : null}
-        {currentItem ? <button className="admin-secondary-action" type="button" disabled={saving || dirty} onClick={() => void changeStatus("archive")}>Archive</button> : null}
-        <button className="admin-secondary-action" type="button" onClick={() => { if (!dirty || window.confirm("Leave without saving these changes?")) navigate(`/admin/collections/${collection.key}/items`); }}>Cancel</button>
-      </div>
+      <ItemEditorActions
+        collectionKey={collection.key}
+        currentItem={currentItem}
+        dirty={dirty}
+        saving={saving}
+        onStatusChange={(action) => void changeStatus(action)}
+        onPurge={() => void purge()}
+        onCancel={cancel}
+      />
     </form>
   );
 }

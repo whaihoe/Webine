@@ -7,7 +7,7 @@ Open `/admin` and sign in with the Clerk account whose user ID matches `ADMIN_US
 ## Add media first
 
 1. Open **Media**.
-2. Choose or drag a JPEG, PNG, WebP, AVIF or GIF image.
+2. Choose or drag a JPEG, PNG, WebP, AVIF or animated GIF image no larger than 50 MB. GIFs retain their animation and may contain up to 500 frames.
 3. Add meaningful alt text, or mark the image decorative only when it conveys no information.
 4. Adjust the focal point so responsive crops preserve the important subject.
 5. Complete the upload. The image can now be reused without uploading another copy.
@@ -27,7 +27,7 @@ Archive is available directly on each asset card. An asset used by published con
 7. Fix required-field, reference, image or alt-text warnings.
 8. Publish when the content is approved. Home and Works read the same published snapshot.
 
-After later edits, save the new draft, preview it and choose **Republish**. Use **Unpublish** to remove the public version without deleting the working record. Archive only when the item is no longer referenced by published content.
+After later edits, save the new draft, preview it and choose **Republish**. Use **Unpublish** to remove the public version while keeping an editable draft. Use **Archive** when published work should leave the website but remain in Admin. Archived and draft Projects can be permanently deleted by typing `DELETE`; this purges the Project and its snapshots.
 
 ## Featured homepage order
 
@@ -41,7 +41,13 @@ Custom collections remain private until a developer deliberately connects them t
 
 ## Enquiries
 
-Open **Enquiries** to review Contact submissions. Use the visitor's email link to reply. A pending notification means no delivery provider is configured. A failed notification can be retried after its Vercel configuration is corrected. Never copy enquiry data into public CMS fields or application logs.
+Open **Enquiries** to review Contact submissions. Every accepted submission is stored here before notification is attempted. With the three Resend variables configured, a private email is sent to the owner and reply-to points to the visitor. The HTTPS webhook is an alternative. Pending means no provider is configured. Failed means delivery was attempted and can be retried after the environment is corrected. Never copy enquiry data into public CMS fields or application logs.
+
+## Site Settings
+
+**Site Settings** is the singleton source for the current Home, Works, Contact, privacy and footer copy. New databases receive the current website values instead of an empty draft. Save changes first, then publish them to update the public snapshot. Structured groups use valid JSON so nested CTA, process and principle values keep their shape.
+
+Particle counts, object transforms and scroll choreography remain in `src/config/experience.ts`. Those values affect rendering performance and layout, so they are reviewed and tested as code rather than exposed as ordinary content fields.
 
 ## Safe operating rules
 

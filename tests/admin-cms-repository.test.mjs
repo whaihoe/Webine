@@ -6,13 +6,16 @@ import { join } from "node:path";
 import test from "node:test";
 import {
   CmsRepositoryError,
+  changeItemStatus,
   createCollection,
   createItem,
   getCollectionDefinition,
   getItem,
+  purgeItem,
   updateCollection,
   updateItem,
 } from "../.test-build/server/cms-repository.js";
+import { listCollectionItems } from "../.test-build/server/database.js";
 
 const projectRoot = new URL("../", import.meta.url);
 const migrationRoot = new URL("migrations/", projectRoot);
@@ -185,5 +188,71 @@ test("allows only one concurrent save for the same item version", async () => {
     } finally {
       await secondClient.close();
     }
+  });
+});
+
+test("archives published items before allowing a permanent purge", async () => {
+  await withDatabase(async (client) => {
+    await createCollection(notesCollection, "user_owner", "request_collection", client);
+    const draft = await createItem(
+      "notes",
+      { title: "Disposable note", slug: "disposable-note" },
+      "user_owner",
+      "request_item",
+      client,
+    );
+    const published = await changeItemStatus(
+      "notes",
+      draft.id,
+      { action: "publish", version: draft.version },
+      "user_owner",
+      "request_publish",
+      client,
+    );
+
+    await assert.rejects(
+      () => purgeItem(
+        "notes",
+        published.id,
+        { version: published.version },
+        "user_owner",
+        "request_early_purge",
+        client,
+      ),
+      (error) => error instanceof CmsRepositoryError &&
+        error.code === "ARCHIVE_REQUIRED",
+    );
+
+    const archived = await changeItemStatus(
+      "notes",
+      published.id,
+      { action: "archive", version: published.version },
+      "user_owner",
+      "request_archive",
+      client,
+    );
+    assert.equal(archived.status, "archived");
+    assert.equal(
+      (await listCollectionItems("notes", client)).find((item) => item.id === archived.id).status,
+      "archived",
+    );
+    assert.deepEqual(
+      await purgeItem(
+        "notes",
+        archived.id,
+        { version: archived.version },
+        "user_owner",
+        "request_purge",
+        client,
+      ),
+      { id: archived.id, purged: true },
+    );
+    assert.equal(await getItem("notes", archived.id, client), null);
+
+    const audit = await client.execute({
+      sql: "SELECT action FROM audit_events WHERE entity_id = ? ORDER BY created_at",
+      args: [archived.id],
+    });
+    assert.ok(audit.rows.some((row) => row.action === "item.purge"));
   });
 });

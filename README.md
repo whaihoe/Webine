@@ -25,13 +25,13 @@ Open the local address shown in the terminal, normally `http://127.0.0.1:5173`. 
 
 Admin data APIs use Clerk authentication with a single approved owner ID. The ignored local bypass is development-only. Production always requires the approved Clerk login.
 
-Stages 8 to 20 now provide the schema engine, protected Admin, collection builder, generated forms, media library, complete Project workflow, published public API, Works experience, CMS-backed homepage runway, process timeline, working enquiry pipeline and completed closing action. Local data uses SQLite through libSQL, while Vercel Preview and Production use Turso. Local media uses ignored application data. Production media uses direct Vercel Blob upload and requires `BLOB_READ_WRITE_TOKEN`.
+Stages 8 to 20 now provide the schema engine, protected Admin, collection builder, generated forms, media library, complete Project workflow, published public API, Works experience, CMS-backed homepage runway, process timeline, working enquiry pipeline and completed closing action. Project lists retain draft, published and archived records, with quick publishing, safe archiving and audited permanent deletion. Local data uses SQLite through libSQL, while Vercel Preview and Production use Turso. Local media uses ignored application data. Production media uses direct Vercel Blob upload and requires `BLOB_READ_WRITE_TOKEN`.
 
 ## Vercel-first environment
 
 Copy `.env.example` to a local `.env` and provide Clerk keys when testing the real sign-in flow. `ADMIN_DEV_BYPASS=true` is accepted only outside Vercel and outside production. Run `npm run db:migrate` to create the local database or apply the same reviewable migrations to a configured Turso database. The ordinary `npm run dev` command runs the same grouped API handlers through a development-only Vite adapter. Vercel Preview and Production use seven consolidated Function entrypoints under `/api`, with rewrites preserving the existing Admin, Projects and media URLs.
 
-Vercel should receive the Clerk, owner allowlist, Turso, Vercel Blob and enquiry-security values listed in `.env.example`. The notification webhook is optional. Real values must never be committed. `vercel.json` preserves React Router deep links while leaving `/api/*` to Vercel Functions.
+Vercel should receive the Clerk, owner allowlist, Turso, Vercel Blob and enquiry-security values listed in `.env.example`. Resend email notification and the alternative webhook are optional, while accepted enquiries are always stored first. Real values must never be committed. `vercel.json` preserves React Router deep links while leaving `/api/*` to Vercel Functions.
 
 The complete environment scope and GitHub boundary are documented in `docs/vercel-deployment.md`.
 

@@ -85,7 +85,74 @@ function submissionHash(input: EnquiryInput) {
   return digest([input.email, input.company.toLowerCase(), input.details.toLowerCase()].join("\n"));
 }
 
+function escapeHtml(value: string) {
+  return value.replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "\"": "&quot;",
+    "'": "&#39;",
+  })[character] ?? character);
+}
+
+function emailText(enquiry: EnquiryInput, id: string) {
+  return [
+    "New Webine project enquiry",
+    "",
+    `Reference: ${id}`,
+    `Name: ${enquiry.name}`,
+    `Email: ${enquiry.email}`,
+    `Company: ${enquiry.company || "Not provided"}`,
+    `Website: ${enquiry.website || "Not provided"}`,
+    `Service: ${enquiry.serviceInterest}`,
+    `Budget: ${enquiry.budgetRange || "Not specified"}`,
+    `Timeline: ${enquiry.timeline}`,
+    "",
+    enquiry.details,
+    "",
+    "The complete enquiry is also stored in the protected Webine Admin workspace.",
+  ].join("\n");
+}
+
+async function sendEmailNotification(enquiry: EnquiryInput, id: string) {
+  const apiKey = process.env.RESEND_API_KEY?.trim();
+  const recipient = process.env.ENQUIRY_NOTIFICATION_EMAIL?.trim();
+  const sender = process.env.ENQUIRY_NOTIFICATION_FROM_EMAIL?.trim();
+  if (!apiKey || !recipient || !sender) return null;
+
+  const subjectName = (enquiry.company || enquiry.name).replace(/\s+/g, " ").trim();
+  const text = emailText(enquiry, id);
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+      "Idempotency-Key": `webine-enquiry-${id}`,
+    },
+    body: JSON.stringify({
+      from: sender,
+      to: [recipient],
+      reply_to: enquiry.email,
+      subject: `New Webine enquiry from ${subjectName}`,
+      text,
+      html: `<h1>New Webine project enquiry</h1><p><strong>Reference:</strong> ${escapeHtml(id)}</p><p><strong>Name:</strong> ${escapeHtml(enquiry.name)}<br><strong>Email:</strong> ${escapeHtml(enquiry.email)}<br><strong>Company:</strong> ${escapeHtml(enquiry.company || "Not provided")}<br><strong>Website:</strong> ${escapeHtml(enquiry.website || "Not provided")}<br><strong>Service:</strong> ${escapeHtml(enquiry.serviceInterest)}<br><strong>Budget:</strong> ${escapeHtml(enquiry.budgetRange || "Not specified")}<br><strong>Timeline:</strong> ${escapeHtml(enquiry.timeline)}</p><p>${escapeHtml(enquiry.details).replace(/\n/g, "<br>")}</p><p>The complete enquiry is also stored in the protected Webine Admin workspace.</p>`,
+    }),
+    signal: AbortSignal.timeout(8000),
+  });
+
+  return response.ok
+    ? { status: "sent" as const, error: "", attempted: true }
+    : { status: "failed" as const, error: `email_provider_http_${response.status}`, attempted: true };
+}
+
 async function sendNotification(enquiry: EnquiryInput, id: string) {
+  try {
+    const emailResult = await sendEmailNotification(enquiry, id);
+    if (emailResult) return emailResult;
+  } catch {
+    return { status: "failed" as const, error: "email_provider_unreachable", attempted: true };
+  }
+
   const endpoint = process.env.ENQUIRY_NOTIFICATION_WEBHOOK_URL?.trim();
   if (!endpoint) return { status: "pending" as const, error: "", attempted: false };
   let url: URL;

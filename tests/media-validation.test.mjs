@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   ACCEPTED_IMAGE_TYPES,
+  MAX_IMAGE_BYTES,
   validateImageBuffer,
 } from "../.test-build/server/media-service.js";
 
@@ -19,6 +20,7 @@ function asArrayBuffer(buffer) {
 
 test("accepts verified GIF media without changing the original animation payload", async () => {
   assert.ok(ACCEPTED_IMAGE_TYPES.includes("image/gif"));
+  assert.equal(MAX_IMAGE_BYTES, 50 * 1024 * 1024);
   const image = await validateImageBuffer(asArrayBuffer(onePixelGif), "image/gif");
   assert.equal(image.mimeType, "image/gif");
   assert.equal(image.width, 1);

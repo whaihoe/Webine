@@ -5,6 +5,7 @@ import { useAdminMutation } from "../../admin/useAdminMutation";
 import { useAdminResource } from "../../admin/useAdminResource";
 import { useAdminAuth } from "../../admin/AdminAuthContext";
 import type { FieldDefinition } from "../../cms/schema";
+import { validateImageFile } from "../../../shared/media-policy";
 
 function fieldRole(field: FieldDefinition) {
   if (field.key === "hero_image") return "Project cover";
@@ -62,13 +63,29 @@ function InlineAssetUpload({ field, onUploaded }: { field: FieldDefinition; onUp
     }
   }
 
+  function choose(candidate: File | null) {
+    if (!candidate) {
+      setFile(null);
+      return;
+    }
+    const validationMessage = validateImageFile(candidate);
+    if (validationMessage) {
+      setFile(null);
+      setError(validationMessage);
+      if (inputRef.current) inputRef.current.value = "";
+      return;
+    }
+    setFile(candidate);
+    setError("");
+  }
+
   return (
     <form className="admin-inline-upload" onSubmit={submit}>
       <div className="admin-inline-upload__intro">
         <strong>Upload for {fieldRole(field)}</strong>
         <span>The file is added to the shared library and selected here. Save the draft to assign it to this project.</span>
       </div>
-      <input ref={inputRef} id={`upload-${field.key}`} type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/gif" onChange={(event: ChangeEvent<HTMLInputElement>) => { setFile(event.target.files?.[0] ?? null); setError(""); }} />
+      <input ref={inputRef} id={`upload-${field.key}`} type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/gif" onChange={(event: ChangeEvent<HTMLInputElement>) => choose(event.target.files?.[0] ?? null)} />
       <label className="admin-secondary-action" htmlFor={`upload-${field.key}`}>{file ? "Choose a different image" : "Choose image"}</label>
       {file ? (
         <div className="admin-inline-upload__details">

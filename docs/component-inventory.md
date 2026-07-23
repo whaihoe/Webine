@@ -39,15 +39,15 @@
 | `ReachSection` | Practical found, trusted and chosen business-value chapter | Entered, revealed and expanded examples |
 | `SelectedWorkRunway` | Responsive portfolio chapter ending in an expanding chapter 04 card | Vertical-driven horizontal movement on every breakpoint, centred stop, card expansion, progress, keyboard focus and reversible interlude handoff |
 | `ProjectCard` | Shared published Project presentation for Works and Home | Intrinsic media sizing, priority or lazy loading, restrained GSAP media parallax outside Home, hover or keyboard-focus image overlay, clean touch media, minimal Works metadata and full runway copy inside Home |
-| `MediaLibrary` | Admin upload and reusable asset workspace | Drag or button upload, progress, preview, metadata, focal point, usage and archive protection |
+| `MediaLibrary` | Admin upload and reusable asset workspace | Drag or button upload, 50 MB client and server validation, animated GIF preservation, progress, preview, metadata, focal point, usage and archive protection |
 | `AssetFieldControl` | Project-aware image and gallery selector joined to the shared library | Inline upload, existing asset choice, cover or supporting role, replacement, removal, ordered gallery and pending-save states |
 | `ProjectMediaOverview` | Project editor summary of cover, hover, story and social media | Assigned thumbnails, empty roles, saved and unsaved |
-| `ItemEditor` | Schema-generated draft and Project workflow | Save, preview, publish, republish, unpublish, archive and flexible content blocks |
+| `ItemEditor` | Schema-generated draft and Project workflow | Repeated top and bottom Project actions, save, preview, publish, republish, unpublish, archive, confirmed purge and flexible content blocks |
 | `QuietInterlude` | Full long-term-value chapter aligned directly beneath the expanded runway card | Seamless takeover, section-owned point formation, top-point dispersion and reverse |
 | `ProcessTimeline` | Semantic four-stage process with line fill, early point-contact intake and centred outlet geometry | Waiting, absorbing, active, complete, emitting and reverse |
 | `ClosingCallToAction` | Final momentum scene and primary contact route | Resting grid and early-forming opaque section-anchored particle colony planet |
 | `ContactPage` | Public project enquiry and privacy experience | Scroll-scrubbed floating form, sparse ambient field, protected headline or form separation, idle, submitting, success, error and recovery |
-| `EnquiriesPage` | Protected owner review of stored project enquiries | Loading, empty, ready, notification pending or failed and retry |
+| `EnquiriesPage` | Protected owner review of stored project enquiries | Loading, empty, ready, Resend or webhook explanation, notification pending or failed and retry |
 | `CMS schema domain` | Shared collection, field, item, reference and archive validation for future server handlers | Valid, invalid, incompatible mutation and published-usage block |
 
 ## Route compositions
@@ -57,7 +57,7 @@
 - Services: business-outcome hero, five scroll-linked real-offer chapters, ownership statement, CMS-backed working path and project CTA
 - Works: cohesive dark editorial introduction, one fixed galaxy across the index and case studies, outlined scroll field, filters, image-led project grid with minimal copy, accessible hover or keyboard overlays and loading or error states
 - Contact: responsive dark introduction, slow floating light enquiry form, sparse ambient points and linked privacy section
-- Admin: 264 px desktop sidebar, flexible content canvas, clickable ancestor breadcrumbs, reusable JPEG, PNG, WebP, AVIF and GIF media, direct archive controls, deployment-readiness diagnostics and protected enquiry inbox. Admin uses functional inline skeletons without the branded public loader.
+- Admin: 264 px desktop sidebar, flexible content canvas, clickable ancestor breadcrumbs, stretched-link Project cards with isolated quick actions, visible draft, published and archived states, current Site Settings defaults, reusable JPEG, PNG, WebP, AVIF and GIF media, deployment-readiness diagnostics and protected enquiry inbox. Admin uses functional inline skeletons without the branded public loader.
 - Preview: protected draft Project composition using current media and story fields
 - Not found: dark action-oriented fallback
 

@@ -113,6 +113,25 @@ test("creates the complete CMS schema from a clean database", async () => {
     ));
     assert.equal(singletonCount, 1);
 
+    const siteSettings = JSON.parse(runSql(
+      databasePath,
+      "SELECT status, data_json, published_data_json FROM collection_items WHERE id = 'item_site_settings';",
+      true,
+    ))[0];
+    assert.equal(siteSettings.status, "published");
+    assert.equal(
+      JSON.parse(siteSettings.data_json).home_hero_heading_before,
+      "Make the ordinary",
+    );
+    assert.equal(
+      JSON.parse(siteSettings.published_data_json).contact_heading,
+      "Have something worth making unmistakable?",
+    );
+    assert.equal(Number(runSql(
+      databasePath,
+      "SELECT required FROM field_definitions WHERE id = 'settings_contact_email';",
+    )), 0);
+
     assert.throws(() => runSql(
       databasePath,
       "INSERT INTO collection_items (id, collection_id, data_json, created_by, updated_by) VALUES ('bad', 'collection_projects', 'not-json', 'test', 'test');",
@@ -140,6 +159,34 @@ test("upgrades an existing core database without losing content", async () => {
       true,
     ));
     assert.deepEqual(customCollection, [{ key: "notes", is_system: 0 }]);
+  });
+});
+
+test("does not replace Site Settings that were edited before the defaults migration", async () => {
+  const migrations = await getMigrations();
+
+  await withTemporaryDatabase(async (databasePath) => {
+    migrations.slice(0, -1).forEach((migration) =>
+      runSql(databasePath, migration.sql),
+    );
+    runSql(
+      databasePath,
+      `UPDATE collection_items
+       SET data_json = '{"home_hero_heading_before":"Owner wording"}'
+       WHERE id = 'item_site_settings';`,
+    );
+    runSql(databasePath, migrations.at(-1).sql);
+
+    const settings = JSON.parse(runSql(
+      databasePath,
+      "SELECT status, data_json FROM collection_items WHERE id = 'item_site_settings';",
+      true,
+    ))[0];
+    assert.equal(settings.status, "draft");
+    assert.equal(
+      JSON.parse(settings.data_json).home_hero_heading_before,
+      "Owner wording",
+    );
   });
 });
 

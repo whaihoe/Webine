@@ -84,7 +84,7 @@ export async function listCollectionItems(
     sql: `
       SELECT id, slug, status, data_json, version, updated_at
       FROM collection_items
-      WHERE collection_id = ? AND status != 'archived'
+      WHERE collection_id = ?
       ORDER BY updated_at DESC
       LIMIT 100
     `,

@@ -7,6 +7,7 @@ import {
   createItem,
   getCollectionDefinition,
   getItem,
+  purgeItem,
   updateCollection,
   updateItem,
 } from "../cms-repository.js";
@@ -203,6 +204,19 @@ async function handleCollectionItem(
         return jsonResponse(item, requestId);
       }
 
+      if (request.method === "DELETE") {
+        return jsonResponse(
+          await purgeItem(
+            collectionKey,
+            itemId,
+            await readJsonRequest(request),
+            identity.userId,
+            requestId,
+          ),
+          requestId,
+        );
+      }
+
       const item = await getItem(collectionKey, itemId);
       return item
         ? jsonResponse(item, requestId)
@@ -212,7 +226,7 @@ async function handleCollectionItem(
             404,
           );
     },
-    { methods: ["GET", "PATCH"] },
+    { methods: ["GET", "PATCH", "DELETE"] },
   );
 }
 
@@ -413,7 +427,7 @@ async function handleLocalMediaUpload(request: Request) {
       } catch {
         throw new CmsRepositoryError(
           "IMAGE_INVALID",
-          "Use a JPEG, PNG, WebP, AVIF or GIF under 20 MB and 12,000 pixels per side.",
+          "Use a JPEG, PNG, WebP, AVIF or GIF no larger than 50 MB and 12,000 pixels per side.",
           422,
         );
       }

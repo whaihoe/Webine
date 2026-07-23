@@ -3,6 +3,7 @@ import type { ApiEnvelope } from "../content/api-envelope";
 import type { AdminAsset } from "./api";
 import { AdminApiError } from "./api";
 import type { AdminTokenProvider } from "./AdminAuthContext";
+import { validateImageFile } from "../../shared/media-policy";
 
 export type UploadDetails = {
   altText: string;
@@ -53,6 +54,15 @@ export async function uploadAdminImage(
   completeUpload: (path: string, method: "POST", body: unknown) => Promise<AdminAsset>,
   getToken?: AdminTokenProvider,
 ) {
+  const validationMessage = validateImageFile(file);
+  if (validationMessage) {
+    throw new AdminApiError(
+      422,
+      "IMAGE_INVALID",
+      validationMessage,
+    );
+  }
+
   if (import.meta.env.DEV) return localUpload(file, details, onProgress);
 
   const sessionToken = await getToken?.();
