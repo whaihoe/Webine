@@ -10,14 +10,13 @@
 | `SiteFooter` | Public navigation, location, contact, privacy and colophon | Dark |
 | `ButtonLink` | Primary and secondary navigation actions | Primary, outline, quiet, hover and focus |
 | `DirectionalArrow` | The only directional-arrow primitive allowed in the rendered interface, preventing platform emoji glyph fallback | Up-right and down, small controls and large decorative marks |
-| `SectionHeading` | Editorial section index, title and explanation | Light and dark through tokens |
 | `page-header-copy` system | Shared CSS contract for secondary-page eyebrow, display heading, accented Georgia phrase and summary while page layouts keep their own composition | Default, Works, Contact and case-study scales across dark and light themes |
 | `FormField` | Accessible controlled input and textarea structure | Text, email, URL, textarea, required, invalid and focused |
 | `SiteShell` | Public header, main content, footer and desktop fine-pointer interaction composition | Dark or light header with dual-layer kinetic cursor |
 | `KineticCursor` | USTA-informed public desktop cursor with separate tight and loose tracking layers | Resting dot and halo, clickable-control morph, pressed, hidden, touch-disabled and Admin-excluded |
 | `WorkspaceShell` | Reserved Admin application frame | Mobile strip, desktop sidebar and horizontally safe clickable ancestor breadcrumbs |
 | `RouteEffects` | Page title, route announcement, scroll and heading focus | Push, replace and browser history |
-| `PageLoadProvider` | Route-wide asset-readiness boundary and Webine loading choreography | Initial entry and every route, real readiness phases, degraded timeout, fixed scroll lock, left-to-right exit and ready context |
+| `PageLoadProvider` | Public route asset-readiness boundary and Webine loading choreography | Initial public entry and route changes, real readiness phases, degraded timeout, fixed scroll lock, left-to-right exit and ready context; Admin deliberately skips branded presentation |
 | `page-assets` | Route-specific model, binary, data-signal, font and current-image preparation | Home desktop or mobile, About, CMS-backed routes, Admin lazy entry, failed asset and 12-second ceiling |
 | `GsapRevealController` | Shared scroll-entry and parallax choreography for public copy, cards and media | Production-safe resolved shell ownership, loader-gated entry, axis-aware refresh-safe media travel, pixel-owned Contact form float, focus-safe opacity, coalesced async CMS refresh, reverse and cleanup |
 | `AmbientParticleField` | Lightweight sparse atmosphere outside the Home narrative geometry | One deterministic canvas, wide two-frequency electron orbits, cyan or blue depth points, fine-pointer parallax, full mobile density, capped DPR and offscreen or hidden-page pause |
@@ -61,6 +60,8 @@
 - Admin: 264 px desktop sidebar, flexible content canvas, clickable ancestor breadcrumbs, reusable JPEG, PNG, WebP, AVIF and GIF media, direct archive controls, deployment-readiness diagnostics and protected enquiry inbox. Admin uses functional inline skeletons without the branded public loader.
 - Preview: protected draft Project composition using current media and story fields
 - Not found: dark action-oriented fallback
+
+Home stays in the initial readable application entry. About, Services, Works, Contact, Preview, not-found and Admin are route-level lazy chunks behind one hidden pending signal that the asset-aware loader can observe. This keeps route ownership clear while preventing a blank or competing visual loader.
 
 ## Later components
 

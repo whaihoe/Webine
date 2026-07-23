@@ -23,7 +23,7 @@ This checklist keeps code readiness separate from production approval. Do not ma
 | Vercel project | Live, old build | `webine.vercel.app` is serving the 20 July bundle. Confirm the linked branch, configure required variables and deploy the reviewed release |
 | Preview and Production Turso | Production public read pass | The live Project API returns three published records. Confirm every migration through `0008_project_case_study_details.sql`, keep Preview separate and test restore |
 | Clerk | Open | Configure keys, exact owner ID and exact authorised origins |
-| Vercel Blob | Open | Link the public store and verify upload or delivery |
+| Vercel Blob | Open | Create the public `webine-blob` store, connect Preview and Production, redeploy and verify JPEG plus GIF upload |
 | Secrets | Prepared | Add the variables in `docs/vercel-deployment.md`, never GitHub |
 | Analytics | Open | Select a privacy-compatible measurement setup |
 | Backups | Local pass | Configure provider backups and complete a non-production restore |
@@ -44,7 +44,7 @@ This checklist keeps code readiness separate from production approval. Do not ma
 
 | Gate | Status | Evidence or next action |
 |---|---|---|
-| Automated build, types and tests | Pass | Final local audit passes lint, production build, server types and all 55 tests. Run again on the exact release commit |
+| Automated build, types and tests | Pass | Final local audit passes expanded lint, strict client and server types, production build and all 57 tests. Run again on the exact release commit |
 | Dependency audit | Pass | Repeat on the exact release commit |
 | Responsive visual matrix | Local browser pass | Complete the physical-device and cross-browser rows in `docs/verification-matrix.md` |
 | Physical iPhone sticky and particle story | Open | User confirmation on Safari and Chrome |
@@ -57,9 +57,11 @@ This checklist keeps code readiness separate from production approval. Do not ma
 
 1. Back up the target database.
 2. Apply migrations.
-3. Deploy the exact reviewed Git commit to Preview.
-4. Run Admin, media, Project and enquiry smoke tests.
-5. Complete the visual, accessibility and performance matrix.
-6. Promote the same reviewed source and environment contract to Production.
-7. Verify robots, sitemap, headers, analytics and backups on the public origin.
-8. Connect the purchased domain only after every required row passes.
+3. Create and connect the public `webine-blob` Vercel Blob store to Preview and Production.
+4. Add `ENQUIRY_HASH_SECRET`, confirm every required Clerk and Turso variable and redeploy.
+5. Deploy the exact reviewed Git commit to Preview.
+6. Run Admin, JPEG, GIF, Project and enquiry smoke tests.
+7. Complete the physical-device, accessibility and performance matrix.
+8. Promote the same reviewed source and environment contract to Production.
+9. Verify robots, sitemap, headers, analytics and backups on the public origin.
+10. Connect the purchased domain only after every required row passes.

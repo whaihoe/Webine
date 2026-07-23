@@ -24,9 +24,9 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 
 ## Automated and production-build evidence
 
-- Production build completes. Public CSS is about 15.61 KB gzip and the public application entry is about 111.47 KB gzip.
-- Admin remains a separate lazy chunk at about 67.41 KB gzip.
-- The desktop and tablet particle chunk remains lazy at about 246.08 KB gzip. Phones do not import it.
+- Production build completes. Public CSS is 19.18 KB gzip and the initial application entry is 74.05 KB gzip after route-level splitting.
+- About, Services, Works, Contact, Preview and not-found are separate lazy route chunks. Admin remains a separate lazy chunk at 69.97 KB gzip.
+- The React Three Fiber dependency remains lazy at 226.34 KB gzip and is not part of the initial application entry. The remaining Vite large-chunk warning is recorded rather than hidden.
 - One WebGL canvas and one particle geometry serve the complete tablet or desktop narrative.
 - Section-owned phone canvases use the baked 2D targets and capped controller profile.
 - Signal Grid pointer work is visibility-gated and requestAnimationFrame-throttled.
@@ -77,6 +77,9 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - The About and Services refinement passes lint, the production build, server type checks, the isolated test-server build and all 49 automated tests. The built preview reports both the Lenis and GSAP controllers ready. The existing React Three Fiber `THREE.Clock` deprecation is the only About warning; no page error was recorded.
 - The fluid portrait pass renders a cyan-to-blue contour rising from below the image, holds the completed silhouette and hands it to the grayscale portrait at 1280 × 800. The fine-pointer colour layer is now a transient canvas mask made from overlapping blurred lobes with a 1.15-second residual decay, replacing the earlier circle clip. The 390 × 844 pass retains zero horizontal overflow and does not create a touch colour-toggle state.
 - The 23 July production-readiness pass completes lint, the client production build, server type checks, all 55 automated tests, `git diff --check` and a production dependency audit with zero known vulnerabilities. Browser review at 1280 × 800 and 390 × 844 covers Home, About, Services, Works, Contact and Admin with zero horizontal overflow. Admin renders no branded page loader, accepts GIF input, exposes direct Archive actions and reports the missing local Blob and enquiry configuration accurately. Home and About render their new backlights behind the particle objects rather than above their copy. Vercel configuration now assigns private no-store and noindex headers to Admin and preview documents.
+- The final refactor pass expands linting to client, server, API, development adapters, scripts, tests and Vite configuration, and enables unused-code, implicit-return, fallthrough and override compiler checks. All 57 automated tests pass.
+- Route-level splitting reduces the initial application entry from approximately 145.01 KB gzip to 74.05 KB gzip. Direct mobile navigation through About, Services, Works, Contact and Preview confirms every lazy route resolves, removes its pending signal and retains zero horizontal overflow.
+- Responsive header verification at 320 and 390 CSS pixels confirms exactly 20 px of internal horizontal padding, the requested -4.8 px menu-mark offset and zero horizontal overflow. The 1280 px header retains its existing 12 px desktop padding and desktop navigation.
 
 ## Measurements still required
 

@@ -645,3 +645,13 @@
 - Added explicit `private, no-store` and `X-Robots-Tag: noindex, nofollow` document headers to `/admin`, nested Admin routes and `/preview`. Client metadata and robots rules remain the second layer rather than the only protection.
 - Rechecked Home, About, Services, Works, Contact and Admin at 1280 by 800 and 390 by 844. Every checked route has zero horizontal overflow, the previously clipped Contact and Services accents remain complete and the removed Works panel does not leave a blank section.
 - Lint, client production build, server type checking, all 55 automated tests, diff whitespace validation and the production dependency audit pass.
+
+## 2026-07-23, production refactor and mobile navigation precision
+
+- Set the mobile header's internal horizontal padding to the requested 20 px and moved the menu corner mark by -0.3rem on both axes. The desktop header keeps its existing 12 px padding.
+- Lazy-loaded About, Services, Works, Contact, Preview and not-found alongside the existing Admin boundary. Home remains eager and readable. The initial application entry falls from approximately 145.01 KB gzip to 74.05 KB gzip without changing route behaviour or adding another visible loader.
+- Added strict unused-code, implicit-return, switch-fallthrough, side-effect-import and override compiler checks. Expanded zero-warning ESLint coverage from the browser source to server modules, Vercel handlers, development adapters, scripts, tests and Vite configuration.
+- Removed the unused `SectionHeading`, obsolete section-grid and work-card shape styles, one retired font-status style and unused primitive tokens. No compatibility duplicate or commented replacement remains.
+- Consolidated the shared API envelope, validation issue and published Project contracts. Admin fetch and mutation responses now pass through one parser and return a stable typed error when a proxy or function responds with non-JSON.
+- Added a Node 22 version file, exact navbar and lazy-route regression checks and malformed Admin-response coverage. The complete suite now contains 57 passing tests.
+- Browser review at 320 × 700, 390 × 844 and 1280 × 800 confirms the intended responsive padding, zero horizontal overflow, successful lazy loading across every public route and no branded loader in Admin.

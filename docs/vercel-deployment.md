@@ -47,10 +47,12 @@ The Admin overview includes a protected **Deployment readiness** panel. It repor
 To restore media uploads:
 
 1. Open the Webine project in Vercel.
-2. Open **Storage**, create or select a Blob store and connect it to this project.
-3. In **Settings → Environment Variables**, confirm `BLOB_READ_WRITE_TOKEN` exists for both Preview and Production.
-4. Redeploy the affected environment. An already-built deployment does not pick up a newly connected store automatically.
-5. Sign in to `/admin/media`, upload one JPEG and one GIF, then archive an unused test asset. An asset used by published content must remain protected until that content is replaced or unpublished.
+2. Open **Storage**, choose **Create Database**, select **Blob** and name the store `webine-blob`.
+3. Choose the Singapore region when Vercel offers it and set access to **Public**. The current media adapter deliberately writes public Blob URLs for published website images.
+4. Enable the option that adds a read-write token to the project, then connect the store to both Preview and Production.
+5. In **Settings → Environment Variables**, confirm `BLOB_READ_WRITE_TOKEN` exists for both Preview and Production. Do not copy this value into GitHub, documentation or Obsidian.
+6. Redeploy the affected environment. An already-built deployment does not pick up a newly connected store automatically.
+7. Sign in to `/admin/media`, upload one JPEG and one GIF, confirm both previews load from Blob, then archive an unused test asset. An asset used by published content must remain protected until that content is replaced or unpublished.
 
 To restore Contact submissions:
 

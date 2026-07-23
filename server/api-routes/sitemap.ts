@@ -2,7 +2,7 @@ import { listPublicProjects } from "../public-content.js";
 
 function escapeXml(value: string) {
   return value.replace(
-    /[<>&'\"]/g,
+    /[<>&'"]/g,
     (character) =>
       ({
         "<": "&lt;",

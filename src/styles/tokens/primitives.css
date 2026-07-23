@@ -6,7 +6,6 @@
   --primitive-slate-200: 214 32% 91%;
   --primitive-slate-300: 213 27% 84%;
   --primitive-slate-400: 215 20% 65%;
-  --primitive-slate-500: 215 16% 47%;
   --primitive-slate-600: 215 19% 35%;
   --primitive-slate-700: 215 25% 27%;
   --primitive-slate-800: 217 33% 17%;
@@ -32,8 +31,6 @@
   --primitive-space-16: 4rem;
   --primitive-space-20: 5rem;
   --primitive-space-24: 6rem;
-  --primitive-space-32: 8rem;
-  --primitive-space-40: 10rem;
 
   /* Typography primitives. */
   --primitive-font-primary: "Railway", Arial, sans-serif;

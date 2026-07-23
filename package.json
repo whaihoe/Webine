@@ -21,7 +21,7 @@
     "generate:reach-model": "node scripts/generate-reach-model.mjs",
     "generate:deszio-case-study": "node scripts/generate-deszio-case-study.mjs",
     "publish:deszio": "node scripts/publish-deszio-project.mjs",
-    "lint": "eslint src --ext .ts,.tsx --max-warnings 0",
+    "lint": "eslint src server api dev scripts tests vite.config.ts --ext .ts,.tsx,.mjs --max-warnings 0",
     "typecheck:server": "tsc -p tsconfig.server.json",
     "build:test-server": "tsc -p tsconfig.server-test.json",
     "test": "npm run build && npm run typecheck:server && npm run build:test-server && node --test tests/*.test.mjs"

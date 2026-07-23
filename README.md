@@ -7,6 +7,7 @@ Webine's website runs as a React application prepared for a Vercel-first launch.
 The project requires Node.js 22.12 or newer.
 
 ```bash
+nvm use
 npm install
 npm run dev
 ```
@@ -36,7 +37,7 @@ The complete environment scope and GitHub boundary are documented in `docs/verce
 
 ## Checks
 
-- `npm run lint`, code-quality check
+- `npm run lint`, zero-warning quality check across client, server, API handlers, development adapters, scripts, tests and Vite configuration
 - `npm run build`, local production build
 - `npm run typecheck:server`, Vercel Function and server-module type check
 - `npm run db:migrate`, local SQLite or configured Turso migration

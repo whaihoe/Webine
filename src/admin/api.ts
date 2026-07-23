@@ -1,11 +1,6 @@
 import type { CollectionDefinition, ValidationIssue } from "../cms/schema";
+import type { ApiEnvelope } from "../content/api-envelope";
 import type { AdminTokenProvider } from "./AdminAuthContext";
-
-export type ApiEnvelope<T> = {
-  data: T | null;
-  error: { code: string; message: string; issues?: ValidationIssue[] } | null;
-  meta: { requestId: string };
-};
 
 export class AdminApiError extends Error {
   status: number;
@@ -40,6 +35,35 @@ async function createAdminHeaders(
   return headers;
 }
 
+async function readAdminResponse<T>(
+  response: Response,
+  fallbackCode: string,
+  fallbackMessage: string,
+) {
+  let envelope: ApiEnvelope<T>;
+
+  try {
+    envelope = await response.json() as ApiEnvelope<T>;
+  } catch {
+    throw new AdminApiError(
+      response.status,
+      fallbackCode,
+      fallbackMessage,
+    );
+  }
+
+  if (!response.ok || envelope.data === null) {
+    throw new AdminApiError(
+      response.status,
+      envelope.error?.code ?? fallbackCode,
+      envelope.error?.message ?? fallbackMessage,
+      envelope.error?.issues ?? [],
+    );
+  }
+
+  return envelope.data;
+}
+
 export async function fetchAdminResource<T>(
   path: string,
   signal?: AbortSignal,
@@ -53,18 +77,11 @@ export async function fetchAdminResource<T>(
     ),
     signal,
   });
-  const envelope = await response.json() as ApiEnvelope<T>;
-
-  if (!response.ok || envelope.data === null) {
-    throw new AdminApiError(
-      response.status,
-      envelope.error?.code ?? "ADMIN_REQUEST_FAILED",
-      envelope.error?.message ?? "The Admin request could not be completed.",
-      envelope.error?.issues ?? [],
-    );
-  }
-
-  return envelope.data;
+  return readAdminResponse(
+    response,
+    "ADMIN_REQUEST_FAILED",
+    "The Admin request could not be completed.",
+  );
 }
 
 export async function mutateAdminResource<T>(
@@ -85,18 +102,11 @@ export async function mutateAdminResource<T>(
     ),
     body: JSON.stringify(body),
   });
-  const envelope = await response.json() as ApiEnvelope<T>;
-
-  if (!response.ok || envelope.data === null) {
-    throw new AdminApiError(
-      response.status,
-      envelope.error?.code ?? "ADMIN_MUTATION_FAILED",
-      envelope.error?.message ?? "The Admin change could not be saved.",
-      envelope.error?.issues ?? [],
-    );
-  }
-
-  return envelope.data;
+  return readAdminResponse(
+    response,
+    "ADMIN_MUTATION_FAILED",
+    "The Admin change could not be saved.",
+  );
 }
 
 export type AdminSession = { label: string };

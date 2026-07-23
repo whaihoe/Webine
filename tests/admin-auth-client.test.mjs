@@ -83,3 +83,28 @@ test("keeps local Admin requests working when no Clerk token provider exists", a
     globalThis.fetch = originalFetch;
   }
 });
+
+test("returns a stable Admin error when an API response is not JSON", async () => {
+  const { AdminApiError, fetchAdminResource } = await loadAdminApi();
+  const originalFetch = globalThis.fetch;
+
+  globalThis.fetch = async () => new Response("<!doctype html>", {
+    status: 502,
+    headers: { "content-type": "text/html" },
+  });
+
+  try {
+    await assert.rejects(
+      fetchAdminResource("/api/admin/session"),
+      (error) => {
+        assert.ok(error instanceof AdminApiError);
+        assert.equal(error.status, 502);
+        assert.equal(error.code, "ADMIN_REQUEST_FAILED");
+        assert.equal(error.message, "The Admin request could not be completed.");
+        return true;
+      },
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});

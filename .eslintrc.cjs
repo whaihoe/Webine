@@ -13,4 +13,17 @@ module.exports = {
     sourceType: "module",
   },
   plugins: ["@typescript-eslint"],
+  overrides: [
+    {
+      files: [
+        "api/**/*.ts",
+        "dev/**/*.ts",
+        "scripts/**/*.mjs",
+        "server/**/*.ts",
+        "tests/**/*.mjs",
+        "vite.config.ts",
+      ],
+      env: { browser: false, node: true },
+    },
+  ],
 };

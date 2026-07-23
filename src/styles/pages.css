@@ -628,15 +628,6 @@
   padding-top: var(--primitive-space-16);
 }
 
-.font-status {
-  margin: var(--primitive-space-12) 0 0;
-  padding: var(--primitive-space-4);
-  border-left: 2px solid hsl(var(--color-brand));
-  background: hsl(var(--color-surface));
-  color: hsl(var(--color-text-secondary));
-  font-size: var(--label);
-}
-
 .works-intro {
   position: relative;
   min-height: 58svh;

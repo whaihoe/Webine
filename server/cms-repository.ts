@@ -1,6 +1,5 @@
 import type { Client, InStatement, Row } from "@libsql/client";
 import {
-  fieldTypes,
   validateCollectionDefinition,
   validateCollectionMutation,
   validateItemData,

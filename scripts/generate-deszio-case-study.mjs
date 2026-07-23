@@ -162,7 +162,7 @@ async function sitemap() {
     ["Testimonials", 1074, 610, 250, 104],
     ["Contact", 1360, 610, 170, 104],
   ];
-  const links = nodes.slice(1).map(([, x, y, w]) => `<path d="M800 400V510H${Number(x) + Number(w) / 2}V610" fill="none" stroke="${colours.rule}" stroke-width="2"/>`).join("");
+  const links = nodes.slice(1).map(([, x, , w]) => `<path d="M800 400V510H${Number(x) + Number(w) / 2}V610" fill="none" stroke="${colours.rule}" stroke-width="2"/>`).join("");
   const nodeMarkup = nodes.map(([label, x, y, w, h, active]) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="18" fill="${active ? colours.gold : colours.panel}" stroke="${active ? colours.gold : colours.rule}"/>${lines(label, Number(x) + Number(w) / 2, Number(y) + Number(h) / 2 + 9, { size: active ? 30 : 24, fill: active ? colours.ink : colours.text, weight: 600, anchor: "middle" })}`).join("");
   await writeBoard("06-sitemap.webp", `${header("06", "Information architecture", "One page, one connected narrative", "Each anchor supports a distinct visitor question and returns to consultation.")}${links}${nodeMarkup}`);
 }

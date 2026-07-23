@@ -25,6 +25,9 @@ test("keeps every current route", async () => {
   assert.match(app, /path=["']\/admin\/\*["']/);
   assert.match(main, /v7_relativeSplatPath:\s*true/);
   assert.match(main, /v7_startTransition:\s*true/);
+  assert.equal((app.match(/lazy\(\(\) =>/g) ?? []).length, 7);
+  assert.match(app, /data-page-load-pending="true"/);
+  assert.match(app, /<Suspense[\s\S]*?fallback=\{\([\s\S]*?data-page-load-pending="true"/);
 });
 
 test("keeps Contact as the primary project action instead of duplicate navigation", async () => {
@@ -44,8 +47,28 @@ test("keeps Contact as the primary project action instead of duplicate navigatio
   assert.match(header, /data-scrolled=\{scrolled\}/);
   assert.match(styles, /\.site-header\s*{[^}]*position:\s*fixed/s);
   assert.match(styles, /\.site-header__inner\s*{[^}]*backdrop-filter:\s*blur/s);
+  assert.match(
+    styles,
+    /\.site-header__inner\s*{[^}]*padding:\s*var\(--primitive-space-2\)\s+var\(--primitive-space-5\)/s,
+  );
+  assert.match(
+    styles,
+    /@media \(min-width:\s*48rem\)[\s\S]*?\.site-header__inner\s*{[^}]*padding-inline:\s*var\(--primitive-space-3\)/s,
+  );
   assert.match(styles, /background:\s*hsl\(var\(--header-background\) \/ 0\.58\)/);
   assert.doesNotMatch(styles, /\.site-shell\s*{[^}]*padding-top:/s);
+});
+
+test("keeps the mobile menu mark optically aligned", async () => {
+  const styles = await readFile(
+    new URL("src/styles/components.css", projectRoot),
+    "utf8",
+  );
+
+  assert.match(
+    styles,
+    /\.mobile-menu-trigger__mark\s*{[^}]*transform:\s*translate\(-0\.3rem,\s*-0\.3rem\)/s,
+  );
 });
 
 test("uses one flexible secondary-page heading system", async () => {
@@ -87,7 +110,7 @@ test("keeps global route motion purposeful, asset-aware and restorable", async (
     readFile(new URL("src/styles/pages.css", projectRoot), "utf8"),
   ]);
   assert.match(app, /<PageLoadProvider>/);
-  assert.match(app, /<Suspense fallback={null}>/);
+  assert.match(app, /<Suspense[\s\S]*?fallback=\{\([\s\S]*?data-page-load-pending="true"/);
   assert.match(loader, /preparePageAssets/);
   assert.match(loader, /role="status"/);
   assert.doesNotMatch(loader, /page-loader__count/);
@@ -485,10 +508,10 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.equal((canvas.match(/loadParticleModel\(closingModelConfig\.url\)/g) ?? []).length, 1);
   assert.match(canvas, /heroTarget={heroTarget}/);
   assert.match(canvas, /closingTarget={closingTarget}/);
-  await access(new URL("public\/models\/webine-logo-particle.glb", projectRoot));
-  await access(new URL("public\/models\/colony-planet-particle.glb", projectRoot));
+  await access(new URL("public/models/webine-logo-particle.glb", projectRoot));
+  await access(new URL("public/models/colony-planet-particle.glb", projectRoot));
   await assert.rejects(
-    access(new URL("public\/models\/cell-phone-retro-particle.glb", projectRoot)),
+    access(new URL("public/models/cell-phone-retro-particle.glb", projectRoot)),
   );
   assert.match(shaders, /attribute vec3 targetHero/);
   assert.match(shaders, /attribute vec3 targetReach/);

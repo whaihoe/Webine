@@ -33,18 +33,18 @@ class ParticleCanvasErrorBoundary extends Component<
   ParticleCanvasErrorBoundaryProps,
   ParticleCanvasErrorBoundaryState
 > {
-  state: ParticleCanvasErrorBoundaryState = { failed: false };
+  override state: ParticleCanvasErrorBoundaryState = { failed: false };
 
   static getDerivedStateFromError(): ParticleCanvasErrorBoundaryState {
     return { failed: true };
   }
 
-  componentDidCatch() {
+  override componentDidCatch() {
     console.error("Webine particle rendering failed.");
     this.props.onFailure();
   }
 
-  render() {
+  override render() {
     return this.state.failed ? null : this.props.children;
   }
 }

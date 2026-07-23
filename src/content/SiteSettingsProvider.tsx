@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import type { ApiEnvelope } from "../admin/api";
+import type { ApiEnvelope } from "./api-envelope";
 import { defaultSiteSettings, normalizeSiteSettings, type PublicSiteSettings } from "./site-settings";
 
 const SiteSettingsContext = createContext<PublicSiteSettings>(defaultSiteSettings);

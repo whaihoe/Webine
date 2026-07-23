@@ -397,66 +397,6 @@
   isolation: isolate;
 }
 
-.work-card__media::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -2;
-}
-
-.work-card__media--fold::before {
-  background:
-    linear-gradient(135deg, transparent 48%, hsl(var(--primitive-cyan-400) / 0.7) 49% 56%, transparent 57%),
-    linear-gradient(45deg, hsl(var(--primitive-slate-950)), hsl(var(--primitive-blue-700)));
-}
-
-.work-card__media--signal::before {
-  background:
-    repeating-radial-gradient(circle at 70% 35%, transparent 0 2rem, hsl(var(--primitive-blue-400) / 0.25) 2.05rem 2.12rem),
-    hsl(var(--primitive-slate-900));
-}
-
-.work-card__media--portal::before {
-  background:
-    linear-gradient(90deg, hsl(var(--primitive-slate-950) / 0.25) 1px, transparent 1px),
-    linear-gradient(hsl(var(--primitive-slate-950) / 0.25) 1px, transparent 1px),
-    linear-gradient(135deg, hsl(var(--primitive-cyan-400)), hsl(var(--primitive-blue-700)));
-  background-size: 2rem 2rem, 2rem 2rem, auto;
-}
-
-.work-card__shape {
-  position: absolute;
-  display: block;
-  border: 1px solid hsl(var(--primitive-white) / 0.48);
-}
-
-.work-card__shape--one {
-  width: 52%;
-  aspect-ratio: 1;
-  top: 16%;
-  left: 12%;
-  transform: rotate(18deg);
-}
-
-.work-card__shape--two {
-  width: 36%;
-  aspect-ratio: 1;
-  right: 10%;
-  bottom: 11%;
-  border-radius: 50%;
-  background: hsl(var(--primitive-slate-950) / 0.2);
-  backdrop-filter: blur(0.6rem);
-}
-
-.work-card__media-label {
-  position: absolute;
-  left: var(--primitive-space-5);
-  bottom: var(--primitive-space-5);
-  font-size: var(--label);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
 .work-card__content {
   position: relative;
   z-index: 3;

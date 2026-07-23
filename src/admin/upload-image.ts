@@ -1,5 +1,6 @@
 import { upload } from "@vercel/blob/client";
-import type { AdminAsset, ApiEnvelope } from "./api";
+import type { ApiEnvelope } from "../content/api-envelope";
+import type { AdminAsset } from "./api";
 import { AdminApiError } from "./api";
 import type { AdminTokenProvider } from "./AdminAuthContext";
 
