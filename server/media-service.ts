@@ -4,13 +4,20 @@ import sharp from "sharp";
 
 export const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
 export const MAX_IMAGE_DIMENSION = 12_000;
-export const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"] as const;
+export const ACCEPTED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/avif",
+  "image/gif",
+] as const;
 
 const extensionByMime = new Map<string, string>([
   ["image/jpeg", ".jpg"],
   ["image/png", ".png"],
   ["image/webp", ".webp"],
   ["image/avif", ".avif"],
+  ["image/gif", ".gif"],
 ]);
 
 export type ValidatedImage = {
@@ -33,9 +40,17 @@ export async function validateImageBuffer(bytes: ArrayBuffer, declaredMimeType: 
   const metadata = await sharp(buffer, { limitInputPixels: MAX_IMAGE_DIMENSION ** 2 }).metadata();
   const width = metadata.width ?? 0;
   const height = metadata.height ?? 0;
+  const pages = metadata.pages ?? 1;
   const detectedMime = metadata.format === "jpeg" ? "image/jpeg" : `image/${metadata.format}`;
 
-  if (detectedMime !== declaredMimeType || width < 1 || height < 1 || width > MAX_IMAGE_DIMENSION || height > MAX_IMAGE_DIMENSION) {
+  if (
+    detectedMime !== declaredMimeType ||
+    width < 1 ||
+    height < 1 ||
+    width > MAX_IMAGE_DIMENSION ||
+    height > MAX_IMAGE_DIMENSION ||
+    pages > 500
+  ) {
     throw new Error("IMAGE_CONTENT_INVALID");
   }
 

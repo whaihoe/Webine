@@ -87,7 +87,7 @@ test("keeps global route motion purposeful, asset-aware and restorable", async (
     readFile(new URL("src/styles/pages.css", projectRoot), "utf8"),
   ]);
   assert.match(app, /<PageLoadProvider>/);
-  assert.match(app, /data-page-load-pending="true"/);
+  assert.match(app, /<Suspense fallback={null}>/);
   assert.match(loader, /preparePageAssets/);
   assert.match(loader, /role="status"/);
   assert.doesNotMatch(loader, /page-loader__count/);
@@ -96,6 +96,9 @@ test("keeps global route motion purposeful, asset-aware and restorable", async (
   assert.match(loader, /page-loader__word--last">INE/);
   assert.match(loader, /location\.pathname/);
   assert.match(loader, /onClosed={closeLoader}/);
+  assert.match(loader, /location\.pathname\.startsWith\("\/admin"\)/);
+  assert.match(loader, /const isPageReady = skipLoader \|\| closedRoute === routeId/);
+  assert.match(loader, /!skipLoader && !isPageReady/);
   assert.match(assets, /document\.fonts\.ready/);
   assert.match(assets, /webine-logo-particle\.glb/);
   assert.match(assets, /simple-head-points\.bin/);
@@ -711,6 +714,8 @@ test("extends the Home motion language across Works and Contact without assignin
   assert.match(works, /project-case-study__media-frame/);
   assert.match(works, /works-foundation theme-dark/);
   assert.match(works, /<GalaxyBackdrop \/>/);
+  assert.doesNotMatch(works, /works-commission/);
+  assert.doesNotMatch(styles, /\.works-commission/);
   assert.match(galaxyBackdrop, /<AmbientParticleField[\s\S]*?variant="works"/);
   assert.match(homeExperience, /<AmbientParticleField variant="home" className="ambient-particle-field--hero" \/>/);
   assert.match(contact, /<AmbientParticleField variant="contact"/);
@@ -734,6 +739,8 @@ test("extends the Home motion language across Works and Contact without assignin
   assert.match(particleStyles, /--layer-hero-ambient:\s*0/);
   assert.match(particleStyles, /--layer-particles-base:\s*1/);
   assert.match(particleStyles, /\.particle-narrative-layer\s*{[^}]*z-index:\s*var\(--layer-particles-base\)/s);
+  assert.match(particleStyles, /\.particle-narrative-layer\[data-active-scene="hero"\]::before/);
+  assert.match(particleStyles, /\.home-page \.hero-section::before/);
   assert.match(particleStyles, /\.home-page \.hero-section__grid\s*{[^}]*z-index:\s*2/s);
   assert.match(styles, /\.ambient-particle-field canvas\s*\{/);
   assert.doesNotMatch(particleCanvas, /data-gsap-(?:reveal|parallax)/);
@@ -791,14 +798,16 @@ test("keeps the lazy particle bundle inside its transfer budget", async () => {
 });
 
 test("keeps the generated CMS editor protected and out of the public bundle", async () => {
-  const [app, collectionEditor, itemEditor, assetField, mediaOverview, uploadImage, adminPage] = await Promise.all([
+  const [app, collectionEditor, itemEditor, assetField, mediaOverview, mediaLibrary, uploadImage, adminPage, adminRoutes] = await Promise.all([
     readFile(new URL("src/App.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/admin/CollectionEditor.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/admin/ItemEditor.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/admin/AssetFieldControl.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/admin/ProjectMediaOverview.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/admin/MediaLibrary.tsx", projectRoot), "utf8"),
     readFile(new URL("src/admin/upload-image.ts", projectRoot), "utf8"),
     readFile(new URL("src/pages/AdminPage.tsx", projectRoot), "utf8"),
+    readFile(new URL("server/api-routes/admin.ts", projectRoot), "utf8"),
   ]);
   const assetNames = await readdir(new URL("dist/assets/", projectRoot));
 
@@ -821,6 +830,14 @@ test("keeps the generated CMS editor protected and out of the public bundle", as
   assert.match(mediaOverview, /Cover/);
   assert.match(mediaOverview, /Story/);
   assert.match(uploadImage, /uploadAdminImage/);
+  assert.match(uploadImage, /Authorization: `Bearer \$\{sessionToken\}`/);
+  assert.match(uploadImage, /contentType: file\.type/);
+  assert.match(assetField, /image\/gif/);
+  assert.match(mediaLibrary, /image\/gif/);
+  assert.match(mediaLibrary, />Archive<\/button>/);
+  assert.match(mediaLibrary, /Replace or unpublish this media before archiving it/);
+  assert.match(adminRoutes, /MEDIA_STORAGE_NOT_CONFIGURED/);
+  assert.match(adminRoutes, /getRuntimeReadiness/);
   assert.doesNotMatch(itemEditor, /image path|provider URL/i);
   assert.match(adminPage, /collections\/:collectionKey\/schema/);
   assert.match(adminPage, /collections\/:collectionKey\/items\/:itemId/);
@@ -995,6 +1012,7 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(portraitStyles, /font-size:\s*clamp\(4\.25rem, 11vw, 7\.8rem\)/);
   assert.match(portraitStyles, /\.about-hero__frame\s*\{[^}]*will-change:\s*transform, border-radius/s);
   assert.match(portraitStyles, /\.about-head__canvas\s+canvas\s*\{[^}]*width:\s*100%\s*!important/s);
+  assert.match(portraitStyles, /\.about-head__visual::before\s*\{[^}]*radial-gradient/s);
   assert.match(sitemap, /"\/about"/);
   await Promise.all([
     access(new URL("public/about/simple-head-points.bin", projectRoot)),

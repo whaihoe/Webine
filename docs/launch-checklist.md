@@ -20,8 +20,8 @@ This checklist keeps code readiness separate from production approval. Do not ma
 
 | Gate | Status | Evidence or next action |
 |---|---|---|
-| Vercel project | Open | Connect the GitHub repository and configure Preview first |
-| Preview and Production Turso | Open | Prefer separate databases, apply all migrations and test restore |
+| Vercel project | Live, old build | `webine.vercel.app` is serving the 20 July bundle. Confirm the linked branch, configure required variables and deploy the reviewed release |
+| Preview and Production Turso | Production public read pass | The live Project API returns three published records. Confirm every migration through `0008_project_case_study_details.sql`, keep Preview separate and test restore |
 | Clerk | Open | Configure keys, exact owner ID and exact authorised origins |
 | Vercel Blob | Open | Link the public store and verify upload or delivery |
 | Secrets | Prepared | Add the variables in `docs/vercel-deployment.md`, never GitHub |
@@ -37,14 +37,14 @@ This checklist keeps code readiness separate from production approval. Do not ma
 | Project-specific metadata | Pass in code | Confirm rendered metadata on Preview |
 | Robots and dynamic sitemap | Pass in automated tests | Confirm the deployed origin and published Project URLs |
 | Social image | Open | Supply or approve final 1200 × 630 artwork |
-| Security headers | Prepared | Verify Vercel response headers and add a tested CSP after Clerk and media hosts are final |
+| Security headers | Core live pass, private-route fix prepared | HSTS, frame denial, MIME sniffing, referrer and permissions headers are live. The reviewed release adds no-store and noindex document headers to Admin and Preview. Add a tested CSP after final Clerk and media hosts are known |
 | Repository secret scan | Pass locally | Repeat before first push and each release |
 
 ## Quality approval
 
 | Gate | Status | Evidence or next action |
 |---|---|---|
-| Automated build, types and tests | Pass | Final local audit passes lint, production build, server types and all 49 tests. Run again on the exact release commit |
+| Automated build, types and tests | Pass | Final local audit passes lint, production build, server types and all 55 tests. Run again on the exact release commit |
 | Dependency audit | Pass | Repeat on the exact release commit |
 | Responsive visual matrix | Local browser pass | Complete the physical-device and cross-browser rows in `docs/verification-matrix.md` |
 | Physical iPhone sticky and particle story | Open | User confirmation on Safari and Chrome |

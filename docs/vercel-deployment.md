@@ -13,8 +13,8 @@ Add these under **Vercel project → Settings → Environment Variables**. Set t
 | `CLERK_AUTHORIZED_PARTIES` | Yes | Preview and Production | Comma-separated exact website origins allowed to authenticate |
 | `TURSO_DATABASE_URL` | Yes | Preview and Production | libSQL database connection |
 | `TURSO_AUTH_TOKEN` | Yes | Preview and Production | Private database token |
-| `BLOB_READ_WRITE_TOKEN` | Yes for Admin uploads | Preview and Production | Added automatically when the Vercel Blob store is connected |
-| `ENQUIRY_HASH_SECRET` | Yes | Preview and Production | Long random secret used to hash rate-limit and deduplication keys |
+| `BLOB_READ_WRITE_TOKEN` | Yes | Preview and Production | Added automatically when the Vercel Blob store is connected |
+| `ENQUIRY_HASH_SECRET` | Yes | Preview and Production | Random secret of at least 32 characters used to hash rate-limit and deduplication keys |
 | `ENQUIRY_NOTIFICATION_WEBHOOK_URL` | No | Preview and Production | HTTPS endpoint that receives a new-enquiry notification |
 | `ENQUIRY_NOTIFICATION_TOKEN` | No | Preview and Production | Bearer token for the optional notification endpoint |
 | `VITE_PUBLIC_CONTACT_EMAIL` | No | Preview and Production | Public email shown on Contact, the closing CTA and footer |
@@ -39,6 +39,29 @@ When a Turso database is first connected, run the migration command against that
 6. Redeploy after changing variables. Test `/api/site-settings`, `/works`, `/contact` and finally `/admin` with the approved Clerk account.
 
 If Admin says **“The workspace could not load”**, check the Vercel Function logs first. The most common causes are a missing Turso variable, migrations not applied, an incorrect Clerk secret or the current origin missing from `CLERK_AUTHORIZED_PARTIES`.
+
+### Repair the current production upload and enquiry errors
+
+The Admin overview includes a protected **Deployment readiness** panel. It reports only whether required services are configured and never exposes their values.
+
+To restore media uploads:
+
+1. Open the Webine project in Vercel.
+2. Open **Storage**, create or select a Blob store and connect it to this project.
+3. In **Settings → Environment Variables**, confirm `BLOB_READ_WRITE_TOKEN` exists for both Preview and Production.
+4. Redeploy the affected environment. An already-built deployment does not pick up a newly connected store automatically.
+5. Sign in to `/admin/media`, upload one JPEG and one GIF, then archive an unused test asset. An asset used by published content must remain protected until that content is replaced or unpublished.
+
+To restore Contact submissions:
+
+1. Generate a private value locally with `openssl rand -hex 32`.
+2. Add it to Vercel as `ENQUIRY_HASH_SECRET` for both Preview and Production. Do not paste it into chat, GitHub or documentation.
+3. Confirm every database migration has been applied in filename order through `0008_project_case_study_details.sql`. Contact specifically depends on `0007_enquiry_pipeline.sql`.
+4. Redeploy, submit a real test enquiry through `/contact` and confirm it appears in `/admin/enquiries`.
+
+`ENQUIRY_NOTIFICATION_WEBHOOK_URL` remains optional. Without it, a valid enquiry is still stored in Admin and may show a pending notification state.
+
+Production builds run `npm run build:vercel`, which checks the complete required environment contract before compiling. A deployment with missing Clerk, Turso, Blob or enquiry configuration now fails early instead of publishing a partly broken Admin or Contact experience.
 
 ## Vercel Function topology
 

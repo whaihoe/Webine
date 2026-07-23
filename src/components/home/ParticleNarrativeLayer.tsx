@@ -159,6 +159,7 @@ export function ParticleNarrativeLayer() {
       className="particle-narrative-layer"
       data-particle-state={renderState}
       data-particle-depth={layerDepth}
+      data-active-scene={activity.activeSceneId ?? ""}
       aria-hidden="true"
     >
       <ParticlePosterFallback state={renderState} />

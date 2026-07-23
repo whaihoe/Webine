@@ -2,6 +2,7 @@ import { createHmac } from "node:crypto";
 import type { Client, Row } from "@libsql/client";
 import { CmsRepositoryError } from "./cms-repository.js";
 import { getDatabase } from "./database.js";
+import { getEnquiryHashSecret } from "./runtime-readiness.js";
 
 const RATE_LIMIT_MAX = 5;
 const RATE_LIMIT_WINDOW_SECONDS = 15 * 60;
@@ -54,7 +55,7 @@ function isHoneypotSubmission(value: unknown) {
 }
 
 function secret() {
-  const configured = process.env.ENQUIRY_HASH_SECRET?.trim();
+  const configured = getEnquiryHashSecret();
   if (configured) return configured;
   if (process.env.VERCEL === "1" || process.env.NODE_ENV === "production") throw new CmsRepositoryError("ENQUIRY_NOT_CONFIGURED", "The enquiry service is temporarily unavailable.", 503);
   return "webine-local-enquiry-secret";

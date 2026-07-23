@@ -48,9 +48,11 @@ test("keeps credentials and generated deployment state out of GitHub", async () 
 });
 
 test("documents every application-owned Vercel variable", async () => {
-  const [example, guide] = await Promise.all([
+  const [example, guide, packageJson, vercel] = await Promise.all([
     readFile(new URL(".env.example", projectRoot), "utf8"),
     readFile(new URL("docs/vercel-deployment.md", projectRoot), "utf8"),
+    readFile(new URL("package.json", projectRoot), "utf8"),
+    readFile(new URL("vercel.json", projectRoot), "utf8"),
   ]);
   const variables = [
     "VITE_CLERK_PUBLISHABLE_KEY",
@@ -73,5 +75,59 @@ test("documents every application-owned Vercel variable", async () => {
       guide.includes(`| \`${variable}\` |`),
       `${variable} is missing from the Vercel environment table`,
     );
+  }
+  assert.match(packageJson, /"check:production-env":\s*"node scripts\/check-production-env\.mjs"/);
+  assert.match(packageJson, /"build:vercel":\s*"npm run check:production-env && npm run build"/);
+  assert.match(vercel, /"buildCommand":\s*"npm run build:vercel"/);
+});
+
+test("blocks production builds when required services are not configured", () => {
+  const configured = {
+    ...process.env,
+    VITE_CLERK_PUBLISHABLE_KEY: "pk_test_example",
+    CLERK_PUBLISHABLE_KEY: "pk_test_example",
+    CLERK_SECRET_KEY: "sk_test_example",
+    ADMIN_USER_ID: "user_example",
+    CLERK_AUTHORIZED_PARTIES: "https://webine.example.com",
+    TURSO_DATABASE_URL: "libsql://webine.example.turso.io",
+    TURSO_AUTH_TOKEN: "database-token",
+    BLOB_READ_WRITE_TOKEN: "blob-token",
+    ENQUIRY_HASH_SECRET: "a".repeat(64),
+    ADMIN_DEV_BYPASS: "false",
+  };
+  const ready = spawnSync(
+    process.execPath,
+    ["scripts/check-production-env.mjs"],
+    { cwd: projectRoot, encoding: "utf8", env: configured },
+  );
+  assert.equal(ready.status, 0, ready.stderr);
+
+  const incomplete = { ...configured };
+  delete incomplete.BLOB_READ_WRITE_TOKEN;
+  const blocked = spawnSync(
+    process.execPath,
+    ["scripts/check-production-env.mjs"],
+    { cwd: projectRoot, encoding: "utf8", env: incomplete },
+  );
+  assert.equal(blocked.status, 1);
+  assert.match(blocked.stderr, /BLOB_READ_WRITE_TOKEN is missing/);
+});
+
+test("keeps private route documents out of caches and search indexes", async () => {
+  const vercel = JSON.parse(
+    await readFile(new URL("vercel.json", projectRoot), "utf8"),
+  );
+  const privateSources = new Map(
+    vercel.headers.map((entry) => [entry.source, entry.headers]),
+  );
+
+  for (const source of ["/admin", "/admin/:path*", "/preview"]) {
+    const headers = privateSources.get(source);
+    assert.ok(headers, `${source} is missing private document headers`);
+    const values = new Map(
+      headers.map((header) => [header.key, header.value]),
+    );
+    assert.equal(values.get("Cache-Control"), "private, no-store");
+    assert.equal(values.get("X-Robots-Tag"), "noindex, nofollow");
   }
 });

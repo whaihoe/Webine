@@ -1,6 +1,7 @@
 import { upload } from "@vercel/blob/client";
 import type { AdminAsset, ApiEnvelope } from "./api";
 import { AdminApiError } from "./api";
+import type { AdminTokenProvider } from "./AdminAuthContext";
 
 export type UploadDetails = {
   altText: string;
@@ -49,12 +50,18 @@ export async function uploadAdminImage(
   details: UploadDetails,
   onProgress: (value: number) => void,
   completeUpload: (path: string, method: "POST", body: unknown) => Promise<AdminAsset>,
+  getToken?: AdminTokenProvider,
 ) {
   if (import.meta.env.DEV) return localUpload(file, details, onProgress);
 
+  const sessionToken = await getToken?.();
   const blob = await upload(`webine/${file.name}`, file, {
     access: "public",
     handleUploadUrl: "/api/admin/media/upload-token",
+    contentType: file.type,
+    headers: sessionToken
+      ? { Authorization: `Bearer ${sessionToken}` }
+      : undefined,
     multipart: file.size > 4 * 1024 * 1024,
     onUploadProgress: ({ percentage }) => onProgress(Math.round(percentage)),
   });

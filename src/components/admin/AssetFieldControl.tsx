@@ -3,6 +3,7 @@ import type { AdminAsset } from "../../admin/api";
 import { initialUploadDetails, uploadAdminImage } from "../../admin/upload-image";
 import { useAdminMutation } from "../../admin/useAdminMutation";
 import { useAdminResource } from "../../admin/useAdminResource";
+import { useAdminAuth } from "../../admin/AdminAuthContext";
 import type { FieldDefinition } from "../../cms/schema";
 
 function fieldRole(field: FieldDefinition) {
@@ -16,6 +17,7 @@ function fieldRole(field: FieldDefinition) {
 
 function InlineAssetUpload({ field, onUploaded }: { field: FieldDefinition; onUploaded: (asset: AdminAsset) => void }) {
   const mutateAdminResource = useAdminMutation();
+  const { getToken } = useAdminAuth();
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState("");
@@ -42,7 +44,13 @@ function InlineAssetUpload({ field, onUploaded }: { field: FieldDefinition; onUp
     setProgress(0);
     setError("");
     try {
-      const asset = await uploadAdminImage(file, details, setProgress, mutateAdminResource);
+      const asset = await uploadAdminImage(
+        file,
+        details,
+        setProgress,
+        mutateAdminResource,
+        getToken,
+      );
       onUploaded(asset);
       setFile(null);
       setDetails(initialUploadDetails);
@@ -60,7 +68,7 @@ function InlineAssetUpload({ field, onUploaded }: { field: FieldDefinition; onUp
         <strong>Upload for {fieldRole(field)}</strong>
         <span>The file is added to the shared library and selected here. Save the draft to assign it to this project.</span>
       </div>
-      <input ref={inputRef} id={`upload-${field.key}`} type="file" accept="image/jpeg,image/png,image/webp,image/avif" onChange={(event: ChangeEvent<HTMLInputElement>) => { setFile(event.target.files?.[0] ?? null); setError(""); }} />
+      <input ref={inputRef} id={`upload-${field.key}`} type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/gif" onChange={(event: ChangeEvent<HTMLInputElement>) => { setFile(event.target.files?.[0] ?? null); setError(""); }} />
       <label className="admin-secondary-action" htmlFor={`upload-${field.key}`}>{file ? "Choose a different image" : "Choose image"}</label>
       {file ? (
         <div className="admin-inline-upload__details">

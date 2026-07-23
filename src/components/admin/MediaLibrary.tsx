@@ -4,6 +4,7 @@ import { initialUploadDetails, uploadAdminImage, type UploadDetails } from "../.
 import { useAdminResource } from "../../admin/useAdminResource";
 import { useAdminMutation } from "../../admin/useAdminMutation";
 import { AdminDataState } from "./AdminDataState";
+import { useAdminAuth } from "../../admin/AdminAuthContext";
 
 function MediaAssetCard({ asset, onChanged }: { asset: AdminAsset; onChanged: () => void }) {
   const mutateAdminResource = useAdminMutation();
@@ -18,14 +19,26 @@ function MediaAssetCard({ asset, onChanged }: { asset: AdminAsset; onChanged: ()
     finally { setBusy(false); }
   }
   async function archive() {
+    if (!window.confirm(`Archive ${asset.originalFilename}? It will be removed from the reusable media library.`)) return;
     setBusy(true); setError("");
     try { await mutateAdminResource(`/api/admin/media/${asset.id}`, "DELETE", {}); onChanged(); }
     catch (caught) { setError(caught instanceof Error ? caught.message : "The media item could not be archived."); }
     finally { setBusy(false); }
   }
+  const archiveBlocked = asset.publishedUsageCount > 0;
   return <article className="admin-media-card">
     <img src={asset.url} alt={asset.decorative ? "" : asset.altText} style={{ objectPosition: `${details.focalX * 100}% ${details.focalY * 100}%` }} />
-    <div><strong>{asset.originalFilename}</strong><span>{asset.width} × {asset.height}</span><span>{asset.usageCount} use{asset.usageCount === 1 ? "" : "s"}{asset.publishedUsageCount ? `, ${asset.publishedUsageCount} published` : ""}</span><button type="button" onClick={() => setEditing((value) => !value)}>{editing ? "Close details" : "Edit details"}</button></div>
+    <div>
+      <strong>{asset.originalFilename}</strong>
+      <span>{asset.width} × {asset.height}</span>
+      <span>{asset.usageCount} use{asset.usageCount === 1 ? "" : "s"}{asset.publishedUsageCount ? `, ${asset.publishedUsageCount} published` : ""}</span>
+      <div className="admin-media-card__actions">
+        <button type="button" onClick={() => setEditing((value) => !value)}>{editing ? "Close details" : "Edit details"}</button>
+        <button type="button" disabled={busy || archiveBlocked} onClick={() => void archive()}>Archive</button>
+      </div>
+      {archiveBlocked ? <small>Replace or unpublish this media before archiving it.</small> : null}
+      {!editing && error ? <p className="admin-form-error" role="alert">{error}</p> : null}
+    </div>
     {editing ? <form className="admin-media-card__editor" onSubmit={save}>
       <label className="admin-field"><span>Alt text</span><input value={details.altText} disabled={details.decorative} onChange={(event) => setDetails({ ...details, altText: event.target.value })} /></label>
       <label className="admin-field"><span>Caption</span><input value={details.caption} onChange={(event) => setDetails({ ...details, caption: event.target.value })} /></label>
@@ -33,13 +46,14 @@ function MediaAssetCard({ asset, onChanged }: { asset: AdminAsset; onChanged: ()
       <label className="admin-field"><span>Horizontal focal point</span><input type="range" min="0" max="1" step="0.01" value={details.focalX} onChange={(event) => setDetails({ ...details, focalX: Number(event.target.value) })} /></label>
       <label className="admin-field"><span>Vertical focal point</span><input type="range" min="0" max="1" step="0.01" value={details.focalY} onChange={(event) => setDetails({ ...details, focalY: Number(event.target.value) })} /></label>
       {error ? <p className="admin-form-error" role="alert">{error}</p> : null}
-      <div className="admin-form-actions"><button className="admin-primary-action" type="submit" disabled={busy}>Save details</button><button className="admin-secondary-action" type="button" disabled={busy || asset.publishedUsageCount > 0} onClick={() => void archive()}>Archive</button></div>
+      <div className="admin-form-actions"><button className="admin-primary-action" type="submit" disabled={busy}>Save details</button></div>
     </form> : null}
   </article>;
 }
 
 export function MediaLibrary() {
   const mutateAdminResource = useAdminMutation();
+  const { getToken } = useAdminAuth();
   const resource = useAdminResource<AdminAsset[]>("/api/admin/media");
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -73,7 +87,13 @@ export function MediaLibrary() {
     setProgress(0);
     setError("");
     try {
-      await uploadAdminImage(file, details, setProgress, mutateAdminResource);
+      await uploadAdminImage(
+        file,
+        details,
+        setProgress,
+        mutateAdminResource,
+        getToken,
+      );
       setFile(null);
       setDetails(initialUploadDetails);
       setProgress(100);
@@ -95,9 +115,9 @@ export function MediaLibrary() {
     <div className="admin-media-layout">
       <form className="admin-media-uploader" onSubmit={submit}>
         <div className="admin-dropzone" onDragOver={(event) => event.preventDefault()} onDrop={drop}>
-          <input ref={inputRef} id="media-file" type="file" accept="image/jpeg,image/png,image/webp,image/avif" onChange={(event: ChangeEvent<HTMLInputElement>) => choose(event.target.files?.[0])} />
+          <input ref={inputRef} id="media-file" type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/gif" onChange={(event: ChangeEvent<HTMLInputElement>) => choose(event.target.files?.[0])} />
           <label className="admin-primary-action" htmlFor="media-file">Choose image</label>
-          <p>or drop a JPEG, PNG, WebP or AVIF here, up to 20 MB</p>
+          <p>or drop a JPEG, PNG, WebP, AVIF or GIF here, up to 20 MB</p>
         </div>
         {file ? (
           <div className="admin-upload-details">

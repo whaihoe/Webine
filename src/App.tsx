@@ -29,7 +29,7 @@ export function App() {
             <Route
               path="/admin/*"
               element={(
-                <Suspense fallback={<main className="admin-entry-state theme-light" data-page-load-pending="true">Loading Admin</main>}>
+                <Suspense fallback={null}>
                   <AdminEntry />
                 </Suspense>
               )}

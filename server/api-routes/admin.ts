@@ -37,6 +37,10 @@ import {
   jsonResponse,
   readJsonRequest,
 } from "../responses.js";
+import {
+  getBlobReadWriteToken,
+  getRuntimeReadiness,
+} from "../runtime-readiness.js";
 
 const COLLECTION_KEY_PATTERN = "([a-z][a-z0-9_]{1,49})";
 const ITEM_ID_PATTERN = "([a-zA-Z0-9_-]+)";
@@ -92,7 +96,10 @@ async function handleSession(request: Request) {
 
 async function handleDashboard(request: Request) {
   return handleProtectedAdminRequest(request, async (_identity, requestId) =>
-    jsonResponse(await getDashboard(), requestId));
+    jsonResponse({
+      ...await getDashboard(),
+      readiness: getRuntimeReadiness(),
+    }, requestId));
 }
 
 async function handleCollections(request: Request) {
@@ -406,7 +413,7 @@ async function handleLocalMediaUpload(request: Request) {
       } catch {
         throw new CmsRepositoryError(
           "IMAGE_INVALID",
-          "Use a JPEG, PNG, WebP or AVIF under 20 MB and 12,000 pixels per side.",
+          "Use a JPEG, PNG, WebP, AVIF or GIF under 20 MB and 12,000 pixels per side.",
           422,
         );
       }
@@ -443,10 +450,19 @@ async function handleMediaUploadToken(request: Request) {
   return handleProtectedAdminRequest(
     request,
     async (_identity, requestId) => {
+      const token = getBlobReadWriteToken();
+      if (!token) {
+        throw new CmsRepositoryError(
+          "MEDIA_STORAGE_NOT_CONFIGURED",
+          "Media uploads are not configured. Connect a Vercel Blob store and redeploy.",
+          503,
+        );
+      }
       const body = (await request.json()) as HandleUploadBody;
       const result = await handleUpload({
         body,
         request,
+        token,
         onBeforeGenerateToken: async () => ({
           allowedContentTypes: [...ACCEPTED_IMAGE_TYPES],
           maximumSizeInBytes: MAX_IMAGE_BYTES,

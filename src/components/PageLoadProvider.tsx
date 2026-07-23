@@ -126,14 +126,15 @@ export function PageLoadProvider({ children }: { children: ReactNode }) {
   const routeId = location.pathname === "/preview"
     ? `${location.pathname}${location.search}`
     : location.pathname;
+  const skipLoader = location.pathname.startsWith("/admin");
   const [closedRoute, setClosedRoute] = useState("");
-  const isPageReady = closedRoute === routeId;
+  const isPageReady = skipLoader || closedRoute === routeId;
   const closeLoader = useCallback(() => setClosedRoute(routeId), [routeId]);
 
   return (
     <PageLoadContext.Provider value={{ isPageReady }}>
       {children}
-      {!isPageReady ? (
+      {!skipLoader && !isPageReady ? (
         <PageLoadingScreen
           key={routeId}
           pathname={location.pathname}

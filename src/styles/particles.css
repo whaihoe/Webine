@@ -54,6 +54,35 @@
   will-change: opacity;
 }
 
+.particle-narrative-layer::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 70%;
+  z-index: 0;
+  width: min(52vw, 44rem);
+  aspect-ratio: 1.14;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse,
+    hsl(var(--primitive-cyan-400) / 0.2) 0%,
+    hsl(var(--primitive-blue-500) / 0.17) 32%,
+    hsl(var(--primitive-blue-700) / 0.08) 54%,
+    transparent 74%
+  );
+  filter: blur(1.6rem);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.82);
+  transition:
+    opacity 900ms var(--primitive-ease-standard),
+    transform 1200ms var(--primitive-ease-standard);
+}
+
+.particle-narrative-layer[data-active-scene="hero"]::before {
+  opacity: 0.78;
+  transform: translate(-50%, -50%) scale(1);
+}
+
 .particle-narrative-layer[data-particle-depth="reach"] {
   z-index: var(--layer-reach-particles);
 }
@@ -70,6 +99,7 @@
 .particle-poster {
   position: absolute;
   inset: 0;
+  z-index: 1;
 }
 
 .particle-canvas {
@@ -175,6 +205,27 @@
 }
 
 @media (max-width: 37.4375rem) {
+  .home-page .hero-section::before {
+    content: "";
+    position: absolute;
+    top: 43%;
+    left: 68%;
+    z-index: 1;
+    width: 90vw;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      hsl(var(--primitive-cyan-400) / 0.24),
+      hsl(var(--primitive-blue-500) / 0.18) 34%,
+      hsl(var(--primitive-blue-700) / 0.08) 56%,
+      transparent 74%
+    );
+    filter: blur(1.15rem);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+  }
+
   .mobile-section-particles,
   .mobile-timeline-flow-particles {
     position: absolute;

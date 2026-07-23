@@ -107,6 +107,20 @@ function DashboardPage() {
         <strong>Protected content workspace</strong>
         <p>Collections, media, draft previews and publishing now share one protected workspace. Public work reads only approved published snapshots.</p>
       </div>
+      <section className="workspace-readiness" aria-labelledby="deployment-readiness-heading">
+        <div>
+          <p className="eyebrow">Production services</p>
+          <h2 id="deployment-readiness-heading">Deployment readiness</h2>
+        </div>
+        <ul>
+          {Object.values(resource.data.readiness).map((item) => (
+            <li key={item.requiredVariable} data-configured={item.configured ? "true" : "false"}>
+              <strong>{item.label}</strong>
+              <span>{item.configured ? "Configured" : `Missing ${item.requiredVariable}`}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
     </section>
   );
 }

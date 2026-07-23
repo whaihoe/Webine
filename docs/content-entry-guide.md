@@ -7,12 +7,14 @@ Open `/admin` and sign in with the Clerk account whose user ID matches `ADMIN_US
 ## Add media first
 
 1. Open **Media**.
-2. Choose or drag a JPEG, PNG, WebP or AVIF image.
+2. Choose or drag a JPEG, PNG, WebP, AVIF or GIF image.
 3. Add meaningful alt text, or mark the image decorative only when it conveys no information.
 4. Adjust the focal point so responsive crops preserve the important subject.
 5. Complete the upload. The image can now be reused without uploading another copy.
 
 Editors select images from the media library. They never paste a filesystem path or storage URL into an image field.
+
+Archive is available directly on each asset card. An asset used by published content stays protected. Replace or unpublish that content first, then archive the asset. Archive removes the asset from ordinary selection without destroying its audit history.
 
 ## Create and publish a Project
 

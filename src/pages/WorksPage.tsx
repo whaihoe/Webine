@@ -1,5 +1,4 @@
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { ButtonLink } from "../components/ButtonLink";
 import { DirectionalArrow } from "../components/DirectionalArrow";
 import { GalaxyBackdrop } from "../components/GalaxyBackdrop";
 import { ProjectCard } from "../components/projects/ProjectCard";
@@ -248,14 +247,6 @@ export function WorksPage() {
             {visible.map((project, index) => (
               <ProjectCard key={project.id} project={project} priority={index === 0} revealDelay={(index % 2) * 0.14} />
             ))}
-          </div>
-          <div className="site-container">
-            <div className="works-commission" data-gsap-reveal="card">
-              <p className="eyebrow">No invented client work</p>
-              <h2>Have a real project for this workbench?</h2>
-              <p>Commissioned projects will replace concept positions as approved material becomes available.</p>
-              <ButtonLink href="/contact" variant="outline">Start a project</ButtonLink>
-            </div>
           </div>
         </section>
       </div>

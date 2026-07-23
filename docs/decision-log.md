@@ -632,3 +632,16 @@
 - Gave the Contact accent phrase a wider text column, a responsive single-line scale and a small glyph-safe inline gutter so “unmistakable” remains complete without reducing the surrounding headline unnecessarily.
 - Added lower and inline breathing room to the Services hero accent so “Ready to evolve.” retains its descenders and italic edge at wide viewports.
 - Removed the oversized decorative outline arrow from the Works commissioning panel. The labelled Start a project control remains the only directional action in that panel.
+
+## 2026-07-23, production service readiness and final interface cleanup
+
+- Added one server-owned readiness contract for Vercel Blob and the enquiry hash secret. The protected Admin overview reports missing configuration without exposing values, while production deployment now fails before compilation when a required Clerk, Turso, Blob or enquiry variable is absent.
+- Passed the Clerk session token through the client-direct Blob upload handshake. Missing Blob configuration now returns a specific recovery message instead of the generic workspace failure.
+- Added validated GIF upload support to both Media and inline image fields. GIF content is MIME-checked, frame-capped and retained without flattening animation.
+- Made Archive a direct Media-card action with published-usage protection, confirmation and visible recovery guidance.
+- Removed the branded Webine loader from Admin while keeping its functional local skeleton states. Public routes retain the asset-aware loader and Home breathing sequence.
+- Removed the complete Works commissioning container. Project cards and their existing Contact paths remain the only Works conversion surfaces.
+- Added restrained cyan-to-blue backlights behind the Home Webine particle logo and About head, with a stronger but still text-safe mobile treatment.
+- Added explicit `private, no-store` and `X-Robots-Tag: noindex, nofollow` document headers to `/admin`, nested Admin routes and `/preview`. Client metadata and robots rules remain the second layer rather than the only protection.
+- Rechecked Home, About, Services, Works, Contact and Admin at 1280 by 800 and 390 by 844. Every checked route has zero horizontal overflow, the previously clipped Contact and Services accents remain complete and the removed Works panel does not leave a blank section.
+- Lint, client production build, server type checking, all 55 automated tests, diff whitespace validation and the production dependency audit pass.

@@ -105,6 +105,16 @@ export type AdminDashboard = {
   draftProjects: number;
   publishedProjects: number;
   totalProjects: number;
+  readiness: {
+    mediaUploads: AdminReadinessItem;
+    enquiries: AdminReadinessItem;
+  };
+};
+
+export type AdminReadinessItem = {
+  configured: boolean;
+  label: string;
+  requiredVariable: string;
 };
 
 export type AdminCollectionSummary = {

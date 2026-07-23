@@ -1,6 +1,6 @@
 # Webine verification matrix
 
-Status updated on 17 July 2026. A local browser pass is not a substitute for physical-device, production or cross-browser evidence.
+Status updated on 23 July 2026. A local browser pass is not a substitute for physical-device, production or cross-browser evidence.
 
 ## Viewport and input matrix
 
@@ -42,8 +42,7 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - Production-lifecycle regression: the built preview, not only Vite development, must expose `data-gsap-controller="ready"` on `.site-shell`. The resolved-element correction passes at 1280 × 720 and 390 × 844, assigns the Contact form to parallax motion, preserves the same measured travel and produces no console warnings or errors. A missing ready marker indicates controller initialisation failure even when the minified bundle contains GSAP.
 - The deployed `webine.vercel.app` build now passes the same lifecycle gate. Live Works media moves about 49 px at 1280 × 720 and 25 px at 390 × 844 while Project copy remains at `transform: none`. Live Contact moves about 59 px and 35 px at those viewports. Both routes keep zero horizontal overflow and the final desktop and phone navigation passes report no console warnings or errors.
 - Home hero stacking is explicit and rendered at both 1280 × 800 and 390 × 844: ambient field layer 0, desktop WebGL or phone-owned logo layer 1 and hero content layer 2. The Webine logo therefore always paints above the decorative ambient points.
-- The corrected Works galaxy is rendered at 1280 × 800 and 390 × 844 with a non-empty computed radial gradient, full nebula opacity and zero horizontal overflow. The lower-half cyan or blue horizon remains visible through the restrained translucent commission panel.
-- The commission panel contains an SVG direction mark with no text glyph. A recursive interface-source regression test rejects Unicode arrows, preventing mobile emoji substitution from returning.
+- The corrected Works galaxy is rendered at 1280 × 800 and 390 × 844 with a non-empty computed radial gradient, full nebula opacity and zero horizontal overflow. The former commissioning panel and its complete container have been removed without leaving an empty section.
 - A text-containment audit across Home, Works, Contact and a representative case study at 320, 390, 768 and 1280 CSS-pixel widths found no unintended clipped text. The only viewport-offset results belong to the Home horizontal runway, whose later cards are deliberately outside the viewport, and transformed media wrappers clipped by their image frames.
 - Regular Works cards no longer inherit the Home runway's dark content theme. Mobile headings, service pills and links retain readable light-surface colours. Case-study media respects the available column width at every breakpoint.
 - Public GSAP reveals are coordinated through one controller, while the selected-work runway declares its own managed boundary. The development test renderer now uses an isolated Vite cache so it cannot invalidate the running local preview's ScrollTrigger bundle.
@@ -77,6 +76,7 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - Services now renders five business-plan-supported chapters: web design and development, website redesign, monthly maintenance, SEO foundations and branding support. The built preview exposes all five semantic articles, keeps the sticky rail as a desktop grid, removes it on the 390 px layout and retains zero horizontal overflow.
 - The About and Services refinement passes lint, the production build, server type checks, the isolated test-server build and all 49 automated tests. The built preview reports both the Lenis and GSAP controllers ready. The existing React Three Fiber `THREE.Clock` deprecation is the only About warning; no page error was recorded.
 - The fluid portrait pass renders a cyan-to-blue contour rising from below the image, holds the completed silhouette and hands it to the grayscale portrait at 1280 × 800. The fine-pointer colour layer is now a transient canvas mask made from overlapping blurred lobes with a 1.15-second residual decay, replacing the earlier circle clip. The 390 × 844 pass retains zero horizontal overflow and does not create a touch colour-toggle state.
+- The 23 July production-readiness pass completes lint, the client production build, server type checks, all 55 automated tests, `git diff --check` and a production dependency audit with zero known vulnerabilities. Browser review at 1280 × 800 and 390 × 844 covers Home, About, Services, Works, Contact and Admin with zero horizontal overflow. Admin renders no branded page loader, accepts GIF input, exposes direct Archive actions and reports the missing local Blob and enquiry configuration accurately. Home and About render their new backlights behind the particle objects rather than above their copy. Vercel configuration now assigns private no-store and noindex headers to Admin and preview documents.
 
 ## Measurements still required
 
@@ -204,7 +204,7 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 
 - Fresh Home entry at 1280 by 800 shows the loader while the hero reports `waiting`. After the loader wipe, the hero reports `running`, retains its breathing pause and reaches `complete` without horizontal overflow.
 - Fresh About entry at 390 by 844 starts with scroll locked, completes only after the head visual reports ready, restores scrolling and has zero horizontal overflow. Both word halves remain inside the viewport during the separated state.
-- Services, Contact, Works and Admin each show the loader on direct entry, release within the expected readiness window, leave no pending markers and report zero horizontal overflow at 1280 by 800.
+- Services, Contact and Works show the loader on direct entry, release within the expected readiness window, leave no pending markers and report zero horizontal overflow at 1280 by 800. Admin now deliberately skips the branded loader and uses functional inline skeletons only while workspace data is pending.
 - Browser console checks report no application errors. The existing dependency-owned Three.js Clock deprecation warning remains unchanged.
 - Lint, the production client build, server type checks, isolated test-server build and all 50 automated tests pass. The existing large React Three Fiber chunk warning remains unchanged.
 
@@ -212,5 +212,5 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 
 - Source inspection confirms shared copy reveals finish with `clip-path: none`, while media reveals retain their inset mask. This removes the common clipping cause without weakening image reveal choreography.
 - Contact now gives the Georgia accent a full-width title measure, responsive scale and glyph-safe right padding. Services gives its accent explicit inline and descender clearance.
-- The Works commissioning panel no longer renders or styles the oversized decorative outline arrow. Its semantic Start a project action remains intact.
+- The Works commissioning panel was later removed completely. Project cards and the persistent project CTA provide the remaining conversion paths.
 - Lint, the production client build, server type checks, isolated test-server build and all 50 automated tests pass. `git diff --check` reports no whitespace errors. A fresh browser screenshot pass was unavailable because starting the local preview server was not approved in this session.

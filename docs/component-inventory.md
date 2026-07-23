@@ -56,9 +56,9 @@
 - Home: six-scene dark and light narrative with persistent tablet and desktop GPU particles, phone-owned 2D particle canvases and a separate sparse hero atmosphere beneath the text
 - About: dark editorial studio story with an isolated full-frame simple-head point field, two silhouette-outline portrait reveals, team copy, principles and a direct project CTA
 - Services: business-outcome hero, five scroll-linked real-offer chapters, ownership statement, CMS-backed working path and project CTA
-- Works: cohesive dark editorial introduction, one fixed galaxy across the index and case studies, outlined scroll field, filters, image-led project grid with minimal copy and accessible overlays, dark commission prompt and loading or error states
+- Works: cohesive dark editorial introduction, one fixed galaxy across the index and case studies, outlined scroll field, filters, image-led project grid with minimal copy, accessible hover or keyboard overlays and loading or error states
 - Contact: responsive dark introduction, slow floating light enquiry form, sparse ambient points and linked privacy section
-- Admin: 264 px desktop sidebar, flexible content canvas, clickable ancestor breadcrumbs and protected enquiry inbox
+- Admin: 264 px desktop sidebar, flexible content canvas, clickable ancestor breadcrumbs, reusable JPEG, PNG, WebP, AVIF and GIF media, direct archive controls, deployment-readiness diagnostics and protected enquiry inbox. Admin uses functional inline skeletons without the branded public loader.
 - Preview: protected draft Project composition using current media and story fields
 - Not found: dark action-oriented fallback
 
