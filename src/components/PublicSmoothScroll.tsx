@@ -32,7 +32,6 @@ export function PublicSmoothScroll({ children }: PublicSmoothScrollProps) {
       smoothWheel: config.smoothWheel,
       wheelMultiplier: config.wheelMultiplier,
       syncTouch: config.syncTouch,
-      syncTouchLerp: config.syncTouchLerp,
       touchInertiaExponent: config.touchInertiaExponent,
       touchMultiplier: config.touchMultiplier,
       overscroll: config.overscroll,
