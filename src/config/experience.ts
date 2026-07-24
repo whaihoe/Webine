@@ -174,19 +174,6 @@ export const experienceConfig = {
       measurementSettleMs: 90,
     },
   },
-  smoothScroll: {
-    enabled: true,
-    lerp: 0.065,
-    smoothWheel: true,
-    wheelMultiplier: 0.86,
-    maxWheelDelta: 72,
-    syncTouch: true,
-    syncTouchLerp: 0.05,
-    touchInertiaExponent: 1.35,
-    touchMultiplier: 0.9,
-    maxTouchDelta: 48,
-    overscroll: true,
-  },
   signalGrid: {
     enabled: true,
     sections: ["hero", "closing-cta"],
@@ -203,7 +190,7 @@ export const particleSceneConfig = {
     theme: "dark",
     motion: {
       formation: { enterViewportY: 1, formedViewportY: 0.5 },
-      dispersion: { startViewportY: 0, completeViewportY: -0.34 },
+      dispersion: { startViewportY: 0.4, completeViewportY: -0.34 },
     },
     desktop: { anchorX: 0.70, anchorY: 0.50, scale: 1.4 },
     tablet: { anchorX: 0.76, anchorY: 0.46, scale: 0.52 },
@@ -243,7 +230,7 @@ export const particleSceneConfig = {
     theme: "dark",
     motion: {
       formation: { enterViewportY: 1.2, formedViewportY: 0.62 },
-      mobileFormation: { enterViewportY: 1.2, formedViewportY: 0.3 },
+      mobileFormation: { enterViewportY: 1.5, formedViewportY: -1 },
       dispersion: { startViewportY: 0, completeViewportY: -0.28 },
     },
     desktop: { anchorX: 0.76, anchorY: 0.5, scale: 1.06 },

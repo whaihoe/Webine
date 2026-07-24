@@ -1,8 +1,6 @@
 import Lenis from "lenis";
 import { useEffect, type ReactNode } from "react";
-import { normaliseScrollInput } from "../animation/scroll-input";
 import { gsap, ScrollTrigger } from "../animation/scroll-runtime";
-import { experienceConfig } from "../config/experience";
 
 type PublicSmoothScrollProps = {
   children: ReactNode;
@@ -20,11 +18,6 @@ function getHeaderOffset() {
 
 export function PublicSmoothScroll({ children }: PublicSmoothScrollProps) {
   useEffect(() => {
-    const config = experienceConfig.smoothScroll;
-
-    if (!config.enabled) {
-      return;
-    }
 
     const lenis = new Lenis({
       lerp: 0.1,             // Lower = smoother, Higher = more responsive
