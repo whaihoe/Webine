@@ -12,18 +12,8 @@ export function normaliseWheelDelta(delta: number, maximum: number) {
   return maximum * Math.tanh(delta / maximum);
 }
 
-export function normaliseScrollInput(
-  input: VirtualScrollInput,
-  maximumWheelDelta: number,
-  maximumTouchDelta: number,
-) {
-  const maximum = input.event.type.includes("wheel")
-    ? maximumWheelDelta
-    : input.event.type.includes("touch")
-      ? maximumTouchDelta
-      : 0;
-
-  if (maximum <= 0) {
+export function normaliseWheelInput(input: VirtualScrollInput, maximum: number) {
+  if (!input.event.type.includes("wheel")) {
     return true;
   }
 

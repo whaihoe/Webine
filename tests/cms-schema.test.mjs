@@ -91,7 +91,7 @@ test("creates the complete CMS schema from a clean database", async () => {
       databasePath,
       "SELECT count(*) FROM field_definitions WHERE collection_id = 'collection_projects';",
     ));
-    assert.equal(projectFieldCount, 28);
+    assert.equal(projectFieldCount, 29);
 
     const accentColourField = JSON.parse(runSql(
       databasePath,
@@ -103,36 +103,22 @@ test("creates the complete CMS schema from a clean database", async () => {
       label: "Case study accent colour",
       field_type: "colour",
       required: 0,
-      position: 9,
+      position: 28,
     });
 
-    const projectFields = JSON.parse(runSql(
+    const caseStudyFields = JSON.parse(runSql(
       databasePath,
-      "SELECT key, label FROM field_definitions WHERE collection_id = 'collection_projects' ORDER BY position;",
+      "SELECT key FROM field_definitions WHERE id IN ('project_industry', 'project_location', 'project_duration', 'project_completed_on', 'project_platform', 'project_about_client') ORDER BY position;",
       true,
-    ));
-    assert.deepEqual(projectFields.slice(0, 10).map((field) => field.key), [
-      "title",
-      "slug",
+    )).map((field) => field.key);
+    assert.deepEqual(caseStudyFields, [
       "industry",
       "location",
       "duration",
       "completed_on",
       "platform",
       "about_client",
-      "project_url",
-      "accent_colour",
     ]);
-    assert.equal(projectFields.find((field) => field.key === "project_url").label, "URL");
-    assert.equal(projectFields.some((field) => field.key === "card_theme"), false);
-
-    const seededProject = JSON.parse(runSql(
-      databasePath,
-      "SELECT data_json, published_data_json FROM collection_items WHERE id = 'project_concept_identity';",
-      true,
-    ))[0];
-    assert.equal("card_theme" in JSON.parse(seededProject.data_json), false);
-    assert.equal("card_theme" in JSON.parse(seededProject.published_data_json), false);
 
     const singletonCount = Number(runSql(
       databasePath,

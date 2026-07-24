@@ -64,20 +64,10 @@ export function GsapRevealController({ root }: { root: HTMLElement }) {
         const axis: ImageParallaxAxis = requestedAxis === "horizontal"
           ? "horizontal"
           : "vertical";
-        const configuredDistance = () => {
-          const requestedDistance = compactViewport()
-            ? element.dataset.gsapParallaxDistanceMobile
-            : element.dataset.gsapParallaxDistance;
-          const parsedDistance = Number.parseFloat(requestedDistance ?? "");
-
-          return Number.isFinite(parsedDistance)
-            ? Math.min(Math.max(parsedDistance, 0), 12)
-            : compactViewport() ? 6 : 8;
-        };
         createImageParallax({
           target: element,
           axis,
-          distancePercent: configuredDistance,
+          distancePercent: () => compactViewport() ? 6 : 8,
           scrub: 1.05,
         });
         return;

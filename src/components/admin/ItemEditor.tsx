@@ -246,26 +246,7 @@ function GeneratedControl({
   }
 
   if (field.fieldType === "colour") {
-    const colour = typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value)
-      ? value
-      : "#2563eb";
-    return (
-      <div className="admin-colour-control">
-        <input
-          type="color"
-          aria-label={`Choose ${field.label.toLowerCase()}`}
-          title="Open colour picker"
-          value={colour}
-          onChange={(event) => onChange(event.target.value)}
-        />
-        <input
-          aria-label={`${field.label} hex value`}
-          value={typeof value === "string" ? value : ""}
-          placeholder="Six-digit hex, for example #2563eb"
-          onChange={(event) => onChange(event.target.value || undefined)}
-        />
-      </div>
-    );
+    return <div className="admin-colour-control"><input type="color" value={typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value) ? value : "#2563eb"} onChange={(event) => onChange(event.target.value)} /><input value={typeof value === "string" ? value : ""} placeholder="#2563eb or a design token" onChange={(event) => onChange(event.target.value || undefined)} /></div>;
   }
 
   if (field.fieldType === "field_group") {

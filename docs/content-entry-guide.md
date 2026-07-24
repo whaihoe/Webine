@@ -25,7 +25,7 @@ Prepare Project images around the website's 16:10 media frame:
 - Final bento composition: 2400 × 1500 px recommended
 - Social sharing image: 2400 × 1260 px, which is a 1.91:1 share ratio
 
-Keep important text, logos and faces inside the central 90 percent of the image. Case-study pages use a protected 16:10 editorial frame with `object-fit: contain` and restrained parallax, so mixed-aspect screenshots remain mostly visible rather than being aggressively cropped. A 2400 × 1500 px export is still the preferred source because it fills that frame most cleanly. Narrower, taller or wider images may show a small dark matte around the image instead of losing important content.
+Keep important text, logos and faces inside the central 80 percent of the image. The website fills the frame edge to edge and uses the saved focal point during responsive cropping and parallax. Any deliberate breathing room should be part of the exported image itself.
 
 ## Create and publish a Project
 
@@ -41,8 +41,6 @@ Keep important text, logos and faces inside the central 90 percent of the image.
 After later edits, save the new draft, preview it and choose **Republish**. Use **Unpublish** to remove the public version while keeping an editable draft. Use **Archive** when published work should leave the website but remain in Admin. Archived and draft Projects can be permanently deleted by typing `DELETE`; this purges the Project and its snapshots.
 
 The accent colour belongs only to that Project's `/works/:slug` galaxy nebula. The page keeps the shared Works particles and dark background, while the nebula derives its atmospheric gradient from the selected colour. It does not recolour the Works index, particles or Home runway.
-
-The Project editor places Industry, Location, Project duration, Completed on, Platform and stack, About the client, URL and Case study accent colour directly below Slug. The colour field includes a visible native picker and a linked six-digit hex input. Card theme has been removed because Project cards no longer use it.
 
 For a shorter, image-led case study, keep the optional story copy empty and add an **Image** content block as the final block. Choose **Bento feature** and upload one finished 16:10 bento composition. The block renders edge to edge without a forced heading, while an optional caption can still provide context.
 

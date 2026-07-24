@@ -38,7 +38,7 @@ test("links uploaded media through draft, publish, public query and archive prot
       title: "Workflow project", slug: "workflow-project", client: "Concept study", project_kind: "concept",
       project_type: "category_web", year: 2026, services: ["service_design"],
       short_summary: "A complete media and publishing workflow check.", hero_image: "asset_workflow",
-      accent_colour: "#14b8a6", featured: true, featured_order: 0,
+      card_theme: "dark", accent_colour: "#14b8a6", featured: true, featured_order: 0,
     }, "owner", "request_item", client);
     assert.equal((await getAsset("asset_workflow", client)).usageCount, 1);
 

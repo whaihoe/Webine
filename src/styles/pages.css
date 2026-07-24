@@ -571,10 +571,10 @@
 
 .project-case-study__media-frame img {
   position: absolute;
-  /* inset: -4% -2%; */
-  width: 104%;
-  height: 108%;
-  object-fit: fill;
+  inset: -8% 0;
+  width: 100%;
+  height: 116%;
+  object-fit: cover;
 }
 
 .project-case-study__media-frame {
@@ -588,7 +588,7 @@
   place-items: center;
   overflow: hidden;
   border-radius: var(--project-media-radius);
-  background: hsl(var(--primitive-slate-950));
+  background: hsl(var(--primitive-slate-900));
 }
 
 .project-case-study__media-frame--story {
@@ -2046,31 +2046,11 @@
 
 .admin-colour-control input[type="color"] {
   width: 100%;
-  min-width: 4.5rem;
   height: 3rem;
-  padding: 0.2rem;
-  overflow: hidden;
+  padding: 0.25rem;
   border: var(--primitive-rule) solid hsl(var(--color-rule-strong));
   border-radius: var(--primitive-radius-small);
   background: hsl(var(--color-surface));
-  color-scheme: light;
-  cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-}
-
-.admin-colour-control input[type="color"]::-webkit-color-swatch-wrapper {
-  padding: 0;
-}
-
-.admin-colour-control input[type="color"]::-webkit-color-swatch {
-  border: 0;
-  border-radius: calc(var(--primitive-radius-small) - 0.2rem);
-}
-
-.admin-colour-control input[type="color"]::-moz-color-swatch {
-  border: 0;
-  border-radius: calc(var(--primitive-radius-small) - 0.2rem);
 }
 
 .admin-form-error {

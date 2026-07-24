@@ -14,7 +14,6 @@ Stage 8 establishes the data and validation boundary. Stages 9 and 10 add protec
 8. `migrations/0008_project_case_study_details.sql` extends Project case-study facts.
 9. `migrations/0009_site_settings_defaults.sql` publishes the current website copy into the untouched Site Settings singleton without overwriting an edited record.
 10. `migrations/0010_project_showcase_presentation.sql` adds the per-Project case-study accent colour used by the schema-generated colour picker.
-11. `migrations/0011_project_editor_field_order.sql` groups the case-study facts, URL and colour directly below the Project slug, removes the obsolete Card theme field and clears its stored values.
 
 The SQL is intentionally reviewable and compatible with SQLite or libSQL. Local development uses a file database and Vercel environments can use Turso without changing the content model. The schema also remains close to D1-compatible SQL if a future Cloudflare migration is approved. Foreign keys are enabled, published records must archive before permanent deletion and JSON columns reject invalid documents.
 

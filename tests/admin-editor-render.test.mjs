@@ -111,8 +111,6 @@ test("renders the collection builder and every generated item control", async ()
     assert.match(itemHtml, /Upload image/);
     assert.match(itemHtml, /type="datetime-local"/);
     assert.match(itemHtml, /type="color"/);
-    assert.match(itemHtml, /Open colour picker/);
-    assert.match(itemHtml, /Six-digit hex, for example #2563eb/);
     assert.match(itemHtml, /One content entry per line/);
     assert.match(itemHtml, /Loading referenced items/);
     assert.match(imageBlockHtml, /Image section heading/);
