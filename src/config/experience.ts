@@ -180,7 +180,7 @@ export const experienceConfig = {
     smoothWheel: true,
     wheelMultiplier: 0.92,
     maxWheelDelta: 84,
-    syncTouch: true,
+    syncTouch: false,
     syncTouchLerp: 0.075,
     touchInertiaExponent: 1.7,
     touchMultiplier: 1,
