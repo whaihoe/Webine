@@ -279,7 +279,7 @@
 
 .project-card__media-motion {
   position: absolute;
-  inset: -8% 0;
+  /* inset: -8% 0; */
   display: block;
 }
 
@@ -571,10 +571,10 @@
 
 .project-case-study__media-frame img {
   position: absolute;
-  inset: -4% -2%;
+  /* inset: -4% -2%; */
   width: 104%;
   height: 108%;
-  object-fit: contain;
+  object-fit: fill;
 }
 
 .project-case-study__media-frame {
