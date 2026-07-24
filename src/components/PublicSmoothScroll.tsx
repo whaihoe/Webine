@@ -1,6 +1,8 @@
 import Lenis from "lenis";
 import { useEffect, type ReactNode } from "react";
+import { normaliseScrollInput } from "../animation/scroll-input";
 import { gsap, ScrollTrigger } from "../animation/scroll-runtime";
+import { experienceConfig } from "../config/experience";
 
 type PublicSmoothScrollProps = {
   children: ReactNode;
@@ -18,18 +20,28 @@ function getHeaderOffset() {
 
 export function PublicSmoothScroll({ children }: PublicSmoothScrollProps) {
   useEffect(() => {
+    const config = experienceConfig.smoothScroll;
+
+    if (!config.enabled) {
+      return;
+    }
 
     const lenis = new Lenis({
-      lerp: 0.1,             // Lower = smoother, Higher = more responsive
-      duration: 1.2,         // Scroll duration in seconds
-      wheelMultiplier: 1,    // Scroll speed multiplier
-      smoothWheel: true,     // Smooth out mouse wheel scrolling
-      syncTouch: false,      // Prevent stability issues on older iOS versions
-      touchMultiplier: 1, 
-      infinite: false,
-      orientation: 'vertical',
-      gestureOrientation: 'vertical',
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) // Default ease
+      autoRaf: false,
+      lerp: config.lerp,
+      smoothWheel: config.smoothWheel,
+      wheelMultiplier: config.wheelMultiplier,
+      syncTouch: config.syncTouch,
+      syncTouchLerp: config.syncTouchLerp,
+      touchInertiaExponent: config.touchInertiaExponent,
+      touchMultiplier: config.touchMultiplier,
+      overscroll: config.overscroll,
+      virtualScroll: (input) => normaliseScrollInput(
+        input,
+        config.maxWheelDelta,
+        config.maxTouchDelta,
+      ),
+      stopInertiaOnNavigate: true,
     });
 
     const handleAnchorNavigation = (event: MouseEvent) => {
