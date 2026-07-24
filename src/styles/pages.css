@@ -279,7 +279,7 @@
 
 .project-card__media-motion {
   position: absolute;
-  /* inset: -8% 0; */
+  inset: -8% 0;
   display: block;
 }
 
