@@ -13,7 +13,7 @@
     "dev": "vite --host 127.0.0.1",
     "build": "tsc -b && vite build",
     "build:vercel": "npm run check:production-env && npm run build",
-    "preview": "vite preview --host 127.0.0.1",
+    "preview": "npm run build && wrangler dev",
     "check:production-env": "node scripts/check-production-env.mjs",
     "db:migrate": "node scripts/migrate.mjs",
     "db:backup": "node scripts/backup-local.mjs",
@@ -24,7 +24,8 @@
     "lint": "eslint src server api shared dev scripts tests vite.config.ts --ext .ts,.tsx,.mjs --max-warnings 0",
     "typecheck:server": "tsc -p tsconfig.server.json",
     "build:test-server": "tsc -p tsconfig.server-test.json",
-    "test": "npm run build && npm run typecheck:server && npm run build:test-server && node --test tests/*.test.mjs"
+    "test": "npm run build && npm run typecheck:server && npm run build:test-server && node --test tests/*.test.mjs",
+    "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
     "@clerk/backend": "^3.11.5",
@@ -41,6 +42,7 @@
     "three": "0.185.1"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.47.0",
     "@types/node": "^26.1.1",
     "@types/react": "18.3.18",
     "@types/react-dom": "18.3.5",
@@ -54,6 +56,7 @@
     "postcss": "8.5.18",
     "tailwindcss": "3.4.17",
     "typescript": "^5.9.3",
-    "vite": "^8.1.4"
+    "vite": "^8.1.4",
+    "wrangler": "^4.114.0"
   }
 }
