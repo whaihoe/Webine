@@ -90,6 +90,7 @@ export function PublicSmoothScroll({ children }: PublicSmoothScrollProps) {
     gsap.ticker.lagSmoothing(0);
     document.documentElement.dataset.scrollRuntime = "ready";
     ScrollTrigger.refresh();
+    
 
     return () => {
       lenis.off("scroll", updateScrollTrigger);
