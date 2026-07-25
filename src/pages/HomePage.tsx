@@ -1,5 +1,6 @@
 import { useCallback, useRef } from "react";
 import { ButtonLink } from "../components/ButtonLink";
+import { HeroAmbientBackground } from "../components/home/HeroAmbientBackground";
 import { HeroCoverTransition } from "../components/home/HeroCoverTransition";
 import { HeroEntranceTimeline } from "../components/home/HeroEntranceTimeline";
 import { HomeParticleExperience } from "../components/home/HomeParticleExperience";
@@ -47,6 +48,7 @@ function HomeContent() {
           aria-labelledby="home-heading"
           data-particle-scene="hero"
         >
+          <HeroAmbientBackground />
           <SignalGrid className="signal-grid--hero" />
           <MobileSectionParticles scene="hero" />
           <div className="site-container hero-section__grid">

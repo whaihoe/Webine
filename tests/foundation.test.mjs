@@ -715,8 +715,10 @@ test("keeps the process line behind its timeline nodes", async () => {
 });
 
 test("extends the Home motion language across Works and Contact without assigning GSAP to particles", async () => {
-  const [homeExperience, works, contact, galaxyBackdrop, projectCard, ambientParticles, particleCanvas, mobileParticles, styles, homeStyles, particleStyles] = await Promise.all([
+  const [homeExperience, homePage, heroAmbient, works, contact, galaxyBackdrop, projectCard, ambientParticles, particleCanvas, mobileParticles, styles, homeStyles, particleStyles] = await Promise.all([
     readFile(new URL("src/components/home/HomeParticleExperience.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/pages/HomePage.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/home/HeroAmbientBackground.tsx", projectRoot), "utf8"),
     readFile(new URL("src/pages/WorksPage.tsx", projectRoot), "utf8"),
     readFile(new URL("src/pages/ContactPage.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/GalaxyBackdrop.tsx", projectRoot), "utf8"),
@@ -752,7 +754,12 @@ test("extends the Home motion language across Works and Contact without assignin
   assert.doesNotMatch(works, /works-commission/);
   assert.doesNotMatch(styles, /\.works-commission/);
   assert.match(galaxyBackdrop, /<AmbientParticleField[\s\S]*?variant="works"/);
-  assert.match(homeExperience, /<AmbientParticleField variant="home" className="ambient-particle-field--hero" \/>/);
+  assert.doesNotMatch(homeExperience, /AmbientParticleField/);
+  assert.match(homePage, /data-particle-scene="hero"[\s\S]*?<HeroAmbientBackground \/>[\s\S]*?<SignalGrid/);
+  assert.match(heroAmbient, /<AmbientParticleField[\s\S]*?variant="home"[\s\S]*?ambient-particle-field--hero/);
+  assert.match(heroAmbient, /scenePresence\.reach/);
+  assert.match(heroAmbient, /--hero-ambient-exit/);
+  assert.doesNotMatch(heroAmbient, /gsap|ScrollTrigger/);
   assert.match(contact, /<AmbientParticleField variant="contact"/);
   assert.doesNotMatch(contact, /contact-section__signal/);
   assert.match(contact, /data-gsap-delay="0\.7"/);
@@ -770,8 +777,10 @@ test("extends the Home motion language across Works and Contact without assignin
   assert.doesNotMatch(styles, /@media \(hover: none\)\s*\{\s*\.project-card__overlay/);
   assert.match(styles, /\.galaxy-backdrop\s*{[^}]*position:\s*fixed/s);
   assert.match(styles, /\.works-experience\s*{[^}]*isolation:\s*isolate/s);
-  assert.match(styles, /\.ambient-particle-field--hero\s*{[^}]*z-index:\s*var\(--layer-hero-ambient\)/s);
+  assert.match(styles, /\.ambient-particle-field--hero\s*{[^}]*inset:\s*-8%/s);
   assert.match(particleStyles, /--layer-hero-ambient:\s*0/);
+  assert.match(particleStyles, /\.hero-ambient-background\s*{[^}]*position:\s*absolute[^}]*z-index:\s*var\(--layer-hero-ambient\)[^}]*opacity:\s*calc\(1 - var\(--hero-ambient-exit\)\)[^}]*scale\(calc\(1 \+ var\(--hero-ambient-exit\) \* 1\.85\)\)/s);
+  assert.match(particleStyles, /\.home-page \.hero-section\s*{[^}]*overflow:\s*clip/s);
   assert.match(particleStyles, /--layer-particles-base:\s*1/);
   assert.match(particleStyles, /\.particle-narrative-layer\s*{[^}]*z-index:\s*var\(--layer-particles-base\)/s);
   assert.match(particleStyles, /\.particle-narrative-layer\[data-active-scene="hero"\]::before/);

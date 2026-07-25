@@ -33,7 +33,34 @@
 .home-page .hero-section {
   position: relative;
   z-index: var(--layer-hero);
+  isolation: isolate;
+  overflow: clip;
   background: transparent;
+}
+
+.hero-ambient-background {
+  --hero-ambient-exit: 0;
+  position: absolute;
+  inset: 0;
+  z-index: var(--layer-hero-ambient);
+  overflow: hidden;
+  pointer-events: none;
+  opacity: calc(1 - var(--hero-ambient-exit));
+  filter: blur(calc(var(--hero-ambient-exit) * 0.55rem));
+  transform:
+    translate3d(
+      calc(var(--hero-ambient-exit) * -6vw),
+      calc(var(--hero-ambient-exit) * -2vh),
+      0
+    )
+    scale(calc(1 + var(--hero-ambient-exit) * 1.85));
+  transform-origin: 72% 48%;
+  will-change: transform, opacity, filter;
+}
+
+.hero-ambient-background[data-ambient-state="gone"] {
+  visibility: hidden;
+  will-change: auto;
 }
 
 .home-page .hero-section .signal-grid {
