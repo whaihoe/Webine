@@ -2,12 +2,18 @@ import { gsap } from "./scroll-runtime";
 
 export type ImageParallaxAxis = "horizontal" | "vertical";
 
+export const imageParallaxDistances = {
+  standard: 5.5,
+  compact: 3.5,
+  selectedWork: 5.5,
+} as const;
+
 type ImageParallaxOptions = {
   target: HTMLElement;
   trigger?: HTMLElement;
   axis: ImageParallaxAxis;
   distancePercent: number | (() => number);
-  scrub?: number;
+  scrub?: boolean | number;
 };
 
 function axisValues(axis: ImageParallaxAxis, offset: number | (() => number)) {
@@ -21,7 +27,7 @@ export function createImageParallax({
   trigger = target,
   axis,
   distancePercent,
-  scrub = 1.05,
+  scrub = true,
 }: ImageParallaxOptions) {
   const startDistance = typeof distancePercent === "function"
     ? () => -distancePercent()
@@ -38,11 +44,12 @@ export function createImageParallax({
     {
       ...axisValues(axis, endDistance),
       ease: "none",
-      immediateRender: false,
+      immediateRender: true,
+      overwrite: "auto",
       scrollTrigger: {
         trigger,
-        start: "clamp(top bottom)",
-        end: "clamp(bottom top)",
+        start: "top bottom",
+        end: "bottom top",
         scrub,
         invalidateOnRefresh: true,
         onEnter: () => { target.style.willChange = "transform"; },

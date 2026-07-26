@@ -1,7 +1,9 @@
 import { Link, useParams, useSearchParams } from "react-router-dom";
+import { BackArrow } from "../components/BackArrow";
 import { DirectionalArrow } from "../components/DirectionalArrow";
 import { GalaxyBackdrop } from "../components/GalaxyBackdrop";
 import { ProjectCard } from "../components/projects/ProjectCard";
+import { projectMediaFrameStyle } from "../components/projects/project-media-layout";
 import { SiteShell } from "../components/SiteShell";
 import type { PublicProject } from "../content/public-projects";
 import { useSiteSettings } from "../content/SiteSettingsProvider";
@@ -57,7 +59,10 @@ function ProjectCaseStudy({
   return (
     <section className="project-case-study theme-dark" aria-labelledby="case-study-heading">
       <div className="site-container project-case-study__top" data-gsap-reveal="copy">
-        <Link to="/works">Close project</Link>
+        <Link className="project-case-study__close" to="/works">
+          <BackArrow />
+          <span>Close project</span>
+        </Link>
         <p>{String(index + 1).padStart(2, "0")} / {String(projects.length).padStart(2, "0")}</p>
       </div>
 
@@ -72,7 +77,13 @@ function ProjectCaseStudy({
             </a>
           ) : null}
         </div>
-        <div className="project-case-study__media-frame" data-gsap-reveal="media" data-gsap-delay="0.16">
+        <div
+          className="project-case-study__media-frame"
+          data-gsap-reveal="media"
+          data-gsap-delay="0.16"
+          data-image-parallax-viewport="true"
+          style={projectMediaFrameStyle(project.heroImage, { maxViewportHeight: 75 })}
+        >
           <img
             data-gsap-parallax="media"
             data-gsap-parallax-axis="vertical"
@@ -119,7 +130,11 @@ function ProjectCaseStudy({
               <span>{String(block.heading ?? block.type ?? "Story")}</span>
               {image?.url ? (
                 <figure>
-                  <div className="project-case-study__media-frame project-case-study__media-frame--story">
+                  <div
+                    className="project-case-study__media-frame project-case-study__media-frame--story"
+                    data-image-parallax-viewport="true"
+                    style={projectMediaFrameStyle(image, { maxViewportHeight: 75 })}
+                  >
                     <img
                       data-gsap-parallax="media"
                       data-gsap-parallax-axis="vertical"

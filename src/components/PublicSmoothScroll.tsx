@@ -1,5 +1,6 @@
 import Lenis from "lenis";
 import { useEffect, type ReactNode } from "react";
+import { routeScrollEventName } from "../animation/route-scroll";
 import { normaliseWheelInput } from "../animation/scroll-input";
 import { gsap, ScrollTrigger } from "../animation/scroll-runtime";
 import { experienceConfig } from "../config/experience";
@@ -32,6 +33,7 @@ export function PublicSmoothScroll({ children }: PublicSmoothScrollProps) {
       smoothWheel: config.smoothWheel,
       wheelMultiplier: config.wheelMultiplier,
       syncTouch: config.syncTouch,
+      syncTouchLerp: config.syncTouchLerp,
       touchInertiaExponent: config.touchInertiaExponent,
       touchMultiplier: config.touchMultiplier,
       overscroll: config.overscroll,
@@ -76,6 +78,18 @@ export function PublicSmoothScroll({ children }: PublicSmoothScrollProps) {
     };
 
     document.addEventListener("click", handleAnchorNavigation);
+    const handleRouteScroll = (event: Event) => {
+      const routeEvent = event as CustomEvent<{ top?: unknown }>;
+      const top = typeof routeEvent.detail?.top === "number"
+        ? routeEvent.detail.top
+        : 0;
+      lenis.scrollTo(top, {
+        immediate: true,
+        force: true,
+      });
+      ScrollTrigger.update();
+    };
+    window.addEventListener(routeScrollEventName, handleRouteScroll);
 
     const updateScrollTrigger = () => ScrollTrigger.update();
     const updateLenis = (time: number) => lenis.raf(time * 1000);
@@ -91,6 +105,7 @@ export function PublicSmoothScroll({ children }: PublicSmoothScrollProps) {
       lenis.off("scroll", updateScrollTrigger);
       gsap.ticker.remove(updateLenis);
       document.removeEventListener("click", handleAnchorNavigation);
+      window.removeEventListener(routeScrollEventName, handleRouteScroll);
       delete document.documentElement.dataset.scrollRuntime;
       lenis.destroy();
     };

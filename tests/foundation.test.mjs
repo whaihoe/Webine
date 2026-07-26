@@ -133,10 +133,14 @@ test("keeps global route motion purposeful, asset-aware and restorable", async (
   assert.match(effects, /scrollPositions/);
   assert.match(effects, /navigationType === "POP"/);
   assert.match(effects, /hashTarget\.scrollIntoView/);
+  assert.match(effects, /requestRouteScroll\(0\)/);
   assert.match(effects, /heading\.focus\(\{ preventScroll: true \}\)/);
   assert.match(projectCard, /project-card__media-motion/);
   assert.match(projectCard, /data-gsap-parallax=\{compact \? undefined : "media"\}/);
-  assert.match(projectCard, /compact\s*\? "project-card__content work-card__content"\s*:\s*"project-card__content"/);
+  assert.match(projectCard, /className="project-card__content project-card__content-link"/);
+  assert.match(projectCard, /to=\{projectHref\}/);
+  assert.match(projectCard, /aria-label=\{`View \$\{project\.title\}`\}/);
+  assert.match(projectCard, /className="project-card__title-link"/);
   assert.doesNotMatch(projectCard, /addEventListener\("scroll"/);
   assert.match(revealController, /ScrollTrigger/);
   assert.match(revealController, /MutationObserver/);
@@ -151,12 +155,21 @@ test("keeps global route motion purposeful, asset-aware and restorable", async (
   assert.match(revealController, /compactViewport\(\) \? 36 : 96/);
   assert.match(revealController, /createImageParallax/);
   assert.match(revealController, /requestedAxis === "horizontal"/);
+  assert.match(revealController, /closest<HTMLElement>\("\[data-image-parallax-viewport\]"\)/);
+  assert.match(revealController, /imageParallaxDistances\.compact/);
+  assert.match(revealController, /imageParallaxDistances\.standard/);
+  assert.match(revealController, /scrub:\s*true/);
+  assert.match(revealController, /ResizeObserver/);
+  assert.match(revealController, /image\.addEventListener\("load", listener/);
   assert.equal((revealController.match(/yPercent:\s*isFloatingCard/g) ?? []).length, 2);
   assert.match(revealController, /scrub:\s*isFloatingCard \? 1\.35 : 1\.15/);
   assert.match(imageParallax, /ImageParallaxAxis = "horizontal" \| "vertical"/);
-  assert.match(imageParallax, /immediateRender:\s*false/);
-  assert.match(imageParallax, /start:\s*"clamp\(top bottom\)"/);
-  assert.match(imageParallax, /end:\s*"clamp\(bottom top\)"/);
+  assert.match(imageParallax, /standard:\s*5\.5/);
+  assert.match(imageParallax, /compact:\s*3\.5/);
+  assert.match(imageParallax, /selectedWork:\s*5\.5/);
+  assert.match(imageParallax, /immediateRender:\s*true/);
+  assert.match(imageParallax, /start:\s*"top bottom"/);
+  assert.match(imageParallax, /end:\s*"bottom top"/);
   assert.match(revealController, /invalidateOnRefresh:\s*true/);
   assert.match(revealController, /gsapController = "ready"/);
   assert.match(revealController, /root:\s*HTMLElement/);
@@ -172,8 +185,10 @@ test("keeps global route motion purposeful, asset-aware and restorable", async (
   assert.match(heroEntrance, /fullEntrance \? 0\.4 : 0\.2/);
   assert.match(scrollRuntime, /gsap\.registerPlugin\(ScrollTrigger\)/);
   assert.match(smoothScroll, /from "\.\.\/animation\/scroll-runtime"/);
+  assert.match(smoothScroll, /routeScrollEventName/);
+  assert.match(smoothScroll, /lenis\.scrollTo\(top,[\s\S]*?immediate:\s*true,[\s\S]*?force:\s*true/);
   assert.doesNotMatch(smoothScroll, /import\("gsap\/ScrollTrigger"\)/);
-  assert.match(pageStyles, /\.project-card__media-motion\s*{[^}]*inset:\s*-8% 0/s);
+  assert.match(pageStyles, /\.project-card__media-motion\s*{[^}]*inset:\s*-6% 0/s);
   assert.match(pageStyles, /\.hero-section\s*{[^}]*min-height:\s*100svh/s);
   assert.match(pageStyles, /\.hero-section__grid\s*{[^}]*min-height:\s*100svh/s);
   assert.match(pageStyles, /\.contact-form\s*{[^}]*transition:\s*box-shadow/s);
@@ -235,7 +250,7 @@ test("uses the three-layer token architecture", async () => {
   assert.match(primitives, /--primitive-space-4/);
   assert.match(primitives, /--primitive-radius-small:\s*0\.5rem/);
   assert.match(primitives, /--primitive-radius-default:\s*2rem/);
-  assert.match(primitives, /--primitive-radius-media:\s*1\.25rem/);
+  assert.match(primitives, /--primitive-radius-media:\s*0\.6rem/);
   assert.match(primitives, /--primitive-radius-panel:\s*1\.75rem/);
   assert.match(semantic, /--color-canvas:\s*var\(--primitive-slate-950\)/);
   assert.match(components, /--button-primary-bg:\s*var\(--color-brand\)/);
@@ -278,7 +293,7 @@ test("enables the approved homepage experience layers", async () => {
   assert.match(config, /wheelMultiplier:\s*0\.92/);
   assert.match(config, /maxWheelDelta:\s*84/);
   assert.match(config, /syncTouch:\s*true/);
-  assert.match(config, /syncTouchLerp:\s*0\.075/);
+  assert.match(config, /syncTouchLerp:\s*0\.07/);
   assert.match(config, /touchInertiaExponent:\s*1\.7/);
   assert.match(config, /touchMultiplier:\s*1/);
   assert.match(config, /overscroll:\s*true/);
@@ -304,7 +319,7 @@ test("enables the approved homepage experience layers", async () => {
   assert.match(config, /heroModel:\s*{[^}]*url:\s*"\/models\/webine-logo-particle\.glb"[^}]*targetSize:\s*5\.2[^}]*fit:\s*"largest"[^}]*localScale:\s*\[1, 1, 2\.5\]/s);
   assert.match(config, /reachModel:\s*{[^}]*url:\s*"\/models\/reach-rings-particle\.glb"[^}]*targetSize:\s*5\.18[^}]*rotationDegrees:\s*\[-?\d+(?:\.\d+)?, -?\d+(?:\.\d+)?, -?\d+(?:\.\d+)?\]/s);
   assert.match(config, /hero:\s*{[\s\S]*?desktop:\s*{[^}]*scale:\s*1[^}]*}[\s\S]*?tablet:\s*{[^}]*scale:\s*0\.52[^}]*}[\s\S]*?mobile:\s*{[^}]*scale:\s*0\.38[^}]*}/);
-  assert.match(config, /closing:\s*{[\s\S]*?formation:\s*{\s*enterViewportY:\s*1\.2,\s*formedViewportY:\s*0\.62\s*}[\s\S]*?mobileFormation:\s*{\s*enterViewportY:\s*1\.2,\s*formedViewportY:\s*0\.3\s*}/);
+  assert.match(config, /closing:\s*{[\s\S]*?formation:\s*{\s*enterViewportY:\s*1\.2,\s*formedViewportY:\s*0\.62\s*}[\s\S]*?mobileFormation:\s*{\s*enterViewportY:\s*1\.5,\s*formedViewportY:\s*-1\s*}/);
   assert.match(controller, /layout === "mobile" && "mobileFormation" in motionConfig/);
   assert.match(config, /closingModel:\s*{[^}]*url:\s*"\/models\/colony-planet-particle\.glb"[^}]*targetSize:\s*4\.8[^}]*fit:\s*"largest"[^}]*rotationDegrees:\s*\[58, -22, 0\][^}]*localScale:\s*\[1, 1, 1\][^}]*ambientRotationScale:\s*0\.42/s);
   assert.equal((config.match(/formation:\s*{/g) ?? []).length, 4);
@@ -553,6 +568,8 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.match(cover, /NATIVE_STICKY_QUERY/);
   assert.match(cover, /useNativeSticky/);
   assert.match(cover, /document\.fonts\.ready/);
+  assert.match(cover, /await waitForLayoutFrame\(\)[\s\S]*root = rootRef\.current/);
+  assert.match(cover, /heroPinState = "ready"/);
   assert.match(cover, /ScrollTrigger\.refresh\(true\)/);
   assert.match(cover, /refreshPriority:\s*10/);
   assert.match(smoothScroll, /syncTouchLerp:\s*config\.syncTouchLerp/);
@@ -596,8 +613,9 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.match(selectedWork, /scrub:\s*1\.45/);
   assert.match(selectedWork, /projectCards/);
   assert.match(selectedWork, /projectMedia/);
-  assert.match(selectedWork, /projectImages/);
+  assert.match(selectedWork, /projectParallaxLayers/);
   assert.match(selectedWork, /setImageParallaxOffset/);
+  assert.match(selectedWork, /imageParallaxDistances\.selectedWork/);
   assert.match(selectedWork, /"horizontal"/);
   assert.match(selectedWork, /revealTimeline/);
   assert.match(selectedWork, /projectCards\.forEach\(\(card, index\)/);
@@ -735,16 +753,38 @@ test("extends the Home motion language across Works and Contact without assignin
   assert.match(works, /data-gsap-parallax-axis="vertical"/);
   assert.match(styles, /\.project-case-study__media-frame\s*{[^}]*width:\s*100%[^}]*min-width:\s*0[^}]*min-height:\s*0/s);
   assert.doesNotMatch(styles, /--project-media-safe-inset/);
-  assert.match(styles, /\.project-case-study__media-frame img\s*{[^}]*inset:\s*-8% 0[^}]*object-fit:\s*cover/s);
+  assert.match(styles, /\.project-case-study__media-frame img\s*{[^}]*inset:\s*-6% 0[^}]*object-fit:\s*cover/s);
   assert.match(styles, /\.galaxy-backdrop--project \.galaxy-backdrop__nebula\s*{[^}]*var\(--galaxy-project-accent\)/s);
   assert.doesNotMatch(styles, /--project-accent/);
-  assert.match(styles, /\.project-grid > \.project-card:first-child \.project-card__media/);
+  assert.doesNotMatch(styles, /\.project-grid > \.project-card:first-child \.project-card__media\s*\{[^}]*aspect-ratio/s);
+  assert.match(projectCard, /style=\{compact \? undefined : projectMediaFrameStyle\(project\.heroImage\)\}/);
+  assert.match(works, /projectMediaFrameStyle\(project\.heroImage, \{ maxViewportHeight: 75 \}\)/);
   assert.match(styles, /data-block-layout="bento"/);
   assert.match(homeStyles, /\.work-runway\[data-scroll-mode="pinned"\] \.work-card\s*{[^}]*grid-template-rows:\s*minmax\(0, 1fr\)/s);
   assert.match(homeStyles, /\.work-card__media\s*{[^}]*aspect-ratio:\s*16 \/ 10/s);
   assert.match(works, /<GalaxyBackdrop accentColour=\{active\.accentColour\} \/>/);
   assert.match(projectCard, /data-gsap-parallax=\{compact \? undefined : "media"\}/);
   assert.match(projectCard, /data-image-parallax-axis=\{compact \? "horizontal" : undefined\}/);
+  assert.doesNotMatch(projectCard, /work-card__media-backdrop/);
+  assert.match(styles, /\.project-card--compact \.project-card__media-motion\s*{[^}]*inset:\s*0 -6%/s);
+  assert.match(styles, /\.project-card--compact \.project-card__media img\s*{[^}]*object-fit:\s*cover/s);
+  assert.doesNotMatch(styles, /\.work-card__media-backdrop/);
+  assert.doesNotMatch(styles, /\.project-card__content-link:hover\s*{[^}]*background/s);
+  assert.match(styles, /\.project-card__content-link:focus-visible/);
+  assert.match(projectCard, /gsap\.timeline/);
+  assert.match(projectCard, /\.to\(meta, \{ y: 3 \}/);
+  assert.match(projectCard, /\.to\(metaStart, \{ x: 3 \}/);
+  assert.match(projectCard, /\.to\(metaEnd, \{ x: -3 \}/);
+  assert.match(projectCard, /\.to\(title, \{ y: -3 \}/);
+  assert.equal((projectCard.match(/data-cursor-surface="large"/g) ?? []).length, 2);
+  assert.match(styles, /\.project-card__overlay\s*{[^}]*linear-gradient\(/s);
+  assert.doesNotMatch(styles, /\.project-card__overlay\s*{[^}]*primitive-blue-700/s);
+  assert.match(styles, /\.project-card__overlay-label\s*{[^}]*color:\s*hsl\(var\(--primitive-slate-50\)\)/s);
+  assert.doesNotMatch(styles, /\.project-card__overlay-label\s*{[^}]*background:/s);
+  assert.match(styles, /\.project-card__overlay-arrow\s*{[^}]*color:\s*hsl\(var\(--primitive-slate-50\)\)/s);
+  assert.doesNotMatch(styles, /\.project-card__overlay-arrow\s*{[^}]*background:/s);
+  assert.match(projectCard, /addEventListener\("pointerenter", enter\)/);
+  assert.match(projectCard, /addEventListener\("focus", enter\)/);
   assert.doesNotMatch(projectCard, /addEventListener\("scroll"/);
   assert.doesNotMatch(projectCard, /--project-parallax/);
   assert.match(works, /revealDelay=\{\(index % 2\) \* 0\.14\}/);
@@ -792,7 +832,7 @@ test("extends the Home motion language across Works and Contact without assignin
 });
 
 test("uses vector arrows instead of emoji-prone Unicode arrows", async () => {
-  const [buttonLink, selectedWork, works, arrow, sourceNames] = await Promise.all([
+  const [buttonLink, selectedWork, works, arrow, backArrow, sourceNames] = await Promise.all([
     readFile(new URL("src/components/ButtonLink.tsx", projectRoot), "utf8"),
     readFile(
       new URL("src/components/home/SelectedWorkRunway.tsx", projectRoot),
@@ -803,13 +843,17 @@ test("uses vector arrows instead of emoji-prone Unicode arrows", async () => {
       new URL("src/components/DirectionalArrow.tsx", projectRoot),
       "utf8",
     ),
+    readFile(new URL("src/components/BackArrow.tsx", projectRoot), "utf8"),
     readdir(new URL("src/", projectRoot), { recursive: true }),
   ]);
 
   assert.match(buttonLink, /DirectionalArrow/);
   assert.match(selectedWork, /DirectionalArrow direction="down"/);
   assert.doesNotMatch(works, /works-commission__mark/);
+  assert.match(works, /<BackArrow \/>[\s\S]*Close project/);
   assert.match(arrow, /<svg viewBox="0 0 12 12"/);
+  assert.match(backArrow, /d="M6 12H18M6 12L11 7M6 12L11 17"/);
+  assert.match(backArrow, /stroke="currentColor"/);
   assert.doesNotMatch(buttonLink, /\u2197|\u2193/u);
   assert.doesNotMatch(selectedWork, /\u2197|\u2193/u);
 
@@ -944,8 +988,13 @@ test("uses a fine-pointer dual-layer cursor without affecting touch or Admin", a
   assert.match(cursor, /INTERACTIVE_SELECTOR/);
   assert.match(cursor, /pointerType === "touch"/);
   assert.match(cursor, /requestAnimationFrame/);
+  assert.match(cursor, /cursorSize\.largeSurface/);
+  assert.match(cursor, /element\.dataset\.cursorSurface === "large"/);
+  assert.match(cursor, /root\.dataset\.surface = "large"/);
   assert.match(cursorStyles, /@media \(min-width:\s*48rem\) and \(hover:\s*hover\) and \(pointer:\s*fine\)/);
   assert.match(cursorStyles, /data-interactive="true"/);
+  assert.match(cursorStyles, /data-surface="large"[\s\S]*?border-radius:\s*999px/);
+  assert.match(cursorStyles, /data-surface="large"[\s\S]*?width:\s*10px[\s\S]*?height:\s*10px/);
   assert.match(cursorStyles, /pointer-events:\s*none/);
 });
 
@@ -1014,6 +1063,7 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(portraitParticles, /glow: boolean/);
   assert.match(portrait, /portrait-reveal__image--colour/);
   assert.match(portrait, /portrait-reveal__mono-layer/);
+  assert.match(portrait, /portrait-reveal__distortion-layer/);
   assert.match(portrait, /className="portrait-reveal__media"[\s\S]*<canvas ref=\{particleCanvasRef\}/);
   assert.match(portrait, /mask=\{`url\(#\$\{maskId\}\)`\}/);
   assert.match(portrait, /axis:\s*"vertical"/);
@@ -1025,6 +1075,10 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(portraitColour, /portraitHoverConfig\.rippleRadii/);
   assert.match(portraitColour, /rippleFadeIn/);
   assert.match(portraitColour, /rippleFadeOut/);
+  assert.match(portraitColour, /--portrait-distortion-radius/);
+  assert.match(portraitColour, /--portrait-distortion-opacity/);
+  assert.match(portraitColour, /distortionRadiusPercent/);
+  assert.match(portraitColour, /distortionStrength/);
   assert.match(portrait, /<feTurbulence/);
   assert.match(portrait, /<feDisplacementMap/);
   assert.match(portrait, /<radialGradient/);
@@ -1048,9 +1102,12 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(config, /particleFadeSeconds:\s*0\.85/);
   assert.match(config, /imageRevealSeconds:\s*0\.9/);
   assert.match(config, /imageRevealDelayAfterParticleFadeStartsSeconds:\s*0\.04/);
-  assert.match(portraitStyles, /@media \(any-hover: none\) and \(any-pointer: coarse\)[\s\S]*\.portrait-reveal__mono-layer\s*{[^}]*display:\s*none/s);
+  assert.match(config, /distortionStrength:\s*18/);
+  assert.match(config, /distortionRadiusPercent:\s*18/);
+  assert.match(portraitStyles, /@media \(any-hover: none\) and \(any-pointer: coarse\)[\s\S]*\.portrait-reveal__mono-layer,[\s\S]*\.portrait-reveal__distortion-layer\s*{[^}]*display:\s*none/s);
   assert.doesNotMatch(portrait, /aria-pressed|Reveal colour/);
-  assert.doesNotMatch(portraitStyles, /clip-path:\s*circle/);
+  assert.match(portraitStyles, /\.portrait-reveal__distortion-layer\s*{[^}]*mask-image:\s*radial-gradient/s);
+  assert.doesNotMatch(portraitStyles, /\.portrait-reveal__surface::after/);
   assert.match(portraitStyles, /width:\s*min\(100%, 25rem\)/);
   assert.match(portraitStyles, /\.portrait-reveal__media\s*{[^}]*transform:\s*scale\(1\.08\)/s);
   assert.match(portraitStyles, /font-size:\s*clamp\(4\.25rem, 11vw, 7\.8rem\)/);

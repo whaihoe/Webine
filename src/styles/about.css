@@ -217,6 +217,15 @@
   transform-origin: center;
 }
 
+.portrait-reveal__surface {
+  --portrait-distortion-x: 50%;
+  --portrait-distortion-y: 50%;
+  --portrait-distortion-opacity: 0;
+  --portrait-distortion-radius: 0%;
+  position: absolute;
+  inset: 0;
+}
+
 .portrait-reveal__image,
 .portrait-reveal__mono-layer,
 .portrait-reveal__particles {
@@ -243,12 +252,36 @@
   pointer-events: none;
 }
 
+.portrait-reveal__distortion-layer {
+  z-index: 2;
+  opacity: min(
+    var(--portrait-image-opacity),
+    var(--portrait-distortion-opacity)
+  );
+  mask-image: radial-gradient(
+    ellipse var(--portrait-distortion-radius) var(--portrait-distortion-radius)
+    at var(--portrait-distortion-x) var(--portrait-distortion-y),
+    black 0%,
+    black 46%,
+    transparent 100%
+  );
+  -webkit-mask-image: radial-gradient(
+    ellipse var(--portrait-distortion-radius) var(--portrait-distortion-radius)
+    at var(--portrait-distortion-x) var(--portrait-distortion-y),
+    black 0%,
+    black 46%,
+    transparent 100%
+  );
+  pointer-events: none;
+  will-change: filter, mask-image, opacity;
+}
+
 .portrait-reveal__mono-image {
   filter: grayscale(1) contrast(1.04);
 }
 
 .portrait-reveal__particles {
-  z-index: 2;
+  z-index: 4;
   pointer-events: none;
 }
 
@@ -504,7 +537,8 @@
 }
 
 @media (any-hover: none) and (any-pointer: coarse) {
-  .portrait-reveal__mono-layer {
+  .portrait-reveal__mono-layer,
+  .portrait-reveal__distortion-layer {
     display: none;
   }
 

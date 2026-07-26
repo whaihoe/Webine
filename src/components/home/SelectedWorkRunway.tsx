@@ -1,7 +1,10 @@
 import { DirectionalArrow } from "../DirectionalArrow";
 import { useLayoutEffect, useRef, useState } from "react";
 import { gsap, ScrollTrigger } from "../../animation/scroll-runtime";
-import { setImageParallaxOffset } from "../../animation/image-parallax";
+import {
+  imageParallaxDistances,
+  setImageParallaxOffset,
+} from "../../animation/image-parallax";
 import { ProjectCard } from "../projects/ProjectCard";
 import { usePublicProjects } from "../../hooks/usePublicProjects";
 import { useSiteSettings } from "../../content/SiteSettingsProvider";
@@ -64,8 +67,8 @@ export function SelectedWorkRunway() {
     const projectMedia = projectCards.map((card) =>
       card.querySelector<HTMLElement>(".project-card__media")
     );
-    const projectImages = projectCards.map((card) =>
-      card.querySelector<HTMLImageElement>(".project-card__media img:first-child")
+    const projectParallaxLayers = projectCards.map((card) =>
+      card.querySelector<HTMLElement>(".project-card__media-motion")
     );
     const interludeSection = section.nextElementSibling;
     const interludeRevealItems = interludeSection?.classList.contains("quiet-interlude")
@@ -118,7 +121,9 @@ export function SelectedWorkRunway() {
           chapterCompact,
           ...projectCards,
           ...projectMedia.filter((media): media is HTMLElement => Boolean(media)),
-          ...projectImages.filter((image): image is HTMLImageElement => Boolean(image)),
+          ...projectParallaxLayers.filter(
+            (layer): layer is HTMLElement => Boolean(layer),
+          ),
           ...interludeRevealItems,
         ],
         { clearProps: "all" },
@@ -239,14 +244,15 @@ export function SelectedWorkRunway() {
             const viewportCentre = getViewportWidth() / 2;
             projectCards.forEach((card, index) => {
               card.inert = self.progress >= horizontalEnd;
-              const image = projectImages[index];
-              if (!image) return;
+              const parallaxLayer = projectParallaxLayers[index];
+              if (!parallaxLayer) return;
               const rect = card.getBoundingClientRect();
               const distance = (rect.left + rect.width / 2 - viewportCentre) / Math.max(viewportCentre + rect.width / 2, 1);
               setImageParallaxOffset(
-                image,
+                parallaxLayer,
                 "horizontal",
-                Math.max(-1, Math.min(1, distance)) * -7,
+                Math.max(-1, Math.min(1, distance)) *
+                  -imageParallaxDistances.selectedWork,
               );
             });
             const expandedThreshold = isMobile

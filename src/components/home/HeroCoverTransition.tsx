@@ -40,16 +40,12 @@ export function HeroCoverTransition({
       return;
     }
 
-    const root = rootRef.current;
+    let root: HTMLElement | null = null;
     let cancelled = false;
     let pin: { kill: () => void } | null = null;
     let removeLoadRefresh = () => {};
 
     const initialise = async () => {
-      if (!root) {
-        return;
-      }
-
       try {
         await document.fonts.ready;
       } catch {
@@ -62,16 +58,23 @@ export function HeroCoverTransition({
         return;
       }
 
+      root = rootRef.current;
+      if (!root) {
+        return;
+      }
+      const hero = root;
+
       pin = ScrollTrigger.create({
-        trigger: root,
+        trigger: hero,
         start: "top top",
-        end: () => `+=${root.offsetHeight}`,
+        end: () => `+=${hero.offsetHeight}`,
         pin: true,
         pinSpacing: false,
         anticipatePin: 1,
         invalidateOnRefresh: true,
         refreshPriority: 10,
       });
+      hero.dataset.heroPinState = "ready";
 
       ScrollTrigger.refresh(true);
 
@@ -90,6 +93,7 @@ export function HeroCoverTransition({
       pin?.kill();
 
       if (root) {
+        delete root.dataset.heroPinState;
         gsap.set(root, { clearProps: "transform" });
       }
     };

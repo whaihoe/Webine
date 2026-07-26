@@ -1,6 +1,9 @@
+import { useLayoutEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import { gsap } from "../../animation/scroll-runtime";
 import type { PublicProject } from "../../content/public-projects";
 import { DirectionalArrow } from "../DirectionalArrow";
+import { projectMediaFrameStyle } from "./project-media-layout";
 
 type ProjectCardProps = {
   project: PublicProject;
@@ -19,6 +22,56 @@ export function ProjectCard({
   revealDelay = 0,
   onFocus,
 }: ProjectCardProps) {
+  const projectHref = `/works/${project.slug}`;
+  const contentRef = useRef<HTMLAnchorElement>(null);
+  const metaRef = useRef<HTMLDivElement>(null);
+  const metaStartRef = useRef<HTMLSpanElement>(null);
+  const metaEndRef = useRef<HTMLSpanElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+
+  useLayoutEffect(() => {
+    if (compact) return;
+
+    const content = contentRef.current;
+    const meta = metaRef.current;
+    const metaStart = metaStartRef.current;
+    const metaEnd = metaEndRef.current;
+    const title = titleRef.current;
+    if (!content || !meta || !metaStart || !metaEnd || !title) return;
+
+    let timeline: gsap.core.Timeline | null = null;
+    const context = gsap.context(() => {
+      timeline = gsap.timeline({
+        paused: true,
+        defaults: {
+          duration: 0.42,
+          ease: "power3.out",
+          overwrite: "auto",
+        },
+      });
+      timeline
+        .to(meta, { y: 3 }, 0)
+        .to(metaStart, { x: 3 }, 0)
+        .to(metaEnd, { x: -3 }, 0)
+        .to(title, { y: -3 }, 0);
+    }, content);
+
+    const enter = () => timeline?.play();
+    const leave = () => timeline?.reverse();
+    content.addEventListener("pointerenter", enter);
+    content.addEventListener("pointerleave", leave);
+    content.addEventListener("focus", enter);
+    content.addEventListener("blur", leave);
+
+    return () => {
+      content.removeEventListener("pointerenter", enter);
+      content.removeEventListener("pointerleave", leave);
+      content.removeEventListener("focus", enter);
+      content.removeEventListener("blur", leave);
+      context.revert();
+    };
+  }, [compact]);
+
   return (
     <article
       className={compact
@@ -33,8 +86,11 @@ export function ProjectCard({
         className={compact
           ? "project-card__media work-card__media"
           : "project-card__media"}
-        to={`/works/${project.slug}`}
+        to={projectHref}
         aria-label={`View ${project.title}`}
+        data-cursor-surface="large"
+        data-image-parallax-viewport={compact ? undefined : "true"}
+        style={compact ? undefined : projectMediaFrameStyle(project.heroImage)}
       >
         <span
           className="project-card__media-motion"
@@ -79,23 +135,13 @@ export function ProjectCard({
           </span>
         ) : null}
       </Link>
-      <div className={compact
-        ? "project-card__content work-card__content"
-        : "project-card__content"}
-      >
-        <div className={compact
-          ? "project-card__meta work-card__meta"
-          : "project-card__meta"}
-        >
-          <span>{project.label}</span>
-          <span>{project.year}</span>
-        </div>
-        <h3>
-          {compact
-            ? project.title
-            : <Link className="project-card__title-link" to={`/works/${project.slug}`}>{project.title}</Link>}
-        </h3>
-        {compact ? (
+      {compact ? (
+        <div className="project-card__content work-card__content">
+          <div className="project-card__meta work-card__meta">
+            <span>{project.label}</span>
+            <span>{project.year}</span>
+          </div>
+          <h3>{project.title}</h3>
           <>
             <p>{project.summary}</p>
             <ul aria-label="Services">
@@ -103,13 +149,27 @@ export function ProjectCard({
             </ul>
             <Link
               className="project-card__link work-card__link"
-              to={`/works/${project.slug}`}
+              to={projectHref}
             >
               View project <DirectionalArrow />
             </Link>
           </>
-        ) : null}
-      </div>
+        </div>
+      ) : (
+        <Link
+          ref={contentRef}
+          className="project-card__content project-card__content-link"
+          to={projectHref}
+          aria-label={`View ${project.title}`}
+          data-cursor-surface="large"
+        >
+          <div ref={metaRef} className="project-card__meta">
+            <span ref={metaStartRef}>{project.label}</span>
+            <span ref={metaEndRef}>{project.year}</span>
+          </div>
+          <h3 ref={titleRef} className="project-card__title-link">{project.title}</h3>
+        </Link>
+      )}
     </article>
   );
 }

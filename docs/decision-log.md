@@ -686,3 +686,30 @@
 - Removed the independent case-study section gradient from the preceding presentation pass.
 - Added an optional Project accent to `GalaxyBackdrop`. Valid Project slugs pass their accent to the nebula only, with atmospheric stops derived from the same hue at different transparencies.
 - Preserved the fixed dark background, complete ambient particle canvas and original cyan-to-blue `/works` nebula.
+
+## 2026-07-26 14islands-informed parallax and production pin reliability
+
+- Kept one axis-aware GSAP parallax system. Standard media travels vertically, while only Home Selected Works uses horizontal travel.
+- Set the reference travel to 5.5 percent after tracing the supplied 14islands route's `.11` parallax speed to roughly half that amount on either side of centre.
+- Chose a contained Home thumbnail above a dimmed blurred duplicate instead of stretching the asset. Stretching would distort finished client work, while plain cover cropping caused the missing left-side content reported in the supplied screenshot.
+- Adapted the 14islands ripple as a pointer-local magnified colour lens layered over Webine's existing SVG liquid mask. A second shared WebGL renderer was rejected because the current portrait system already owns its reveal, contour particles and lifecycle efficiently.
+- Made Works card content one semantic link rather than adding an absolute click handler. This preserves keyboard behaviour, expected link semantics and the existing title destination.
+- Made post-layout sibling-ref resolution part of the desktop Hero to Reach pin contract. Development remounting is not accepted as evidence that a first production effect has received its required ref.
+
+## 2026-07-26, Project interaction and portrait distortion correction
+
+- Superseded the contained Home thumbnail and blurred duplicate from the preceding pass. Selected Works now keeps one cover image inside a wrapper that extends six percent beyond both horizontal frame edges, preserving complete frame coverage throughout the 5.5 percent travel and exposing more useful source width without distortion.
+- Removed the Works content background and card lift. Fine-pointer hover and keyboard focus now use one reversible GSAP timeline that moves the metadata and title three pixels towards each other.
+- Added a shared route-scroll request so normal route entry resets native scroll and the active Lenis instance immediately. History POP restoration and hash navigation retain their existing behaviour.
+- Added the supplied left-arrow path as a current-colour SVG component beside `Close project`. No Unicode or emoji arrow is used.
+- Removed the rejected About magnifying lens and expanding ring. The existing residual colour ripple now drives a pointer-local SVG turbulence displacement layer, while touch remains stable grayscale.
+- Rendered Home checks from 320 through 1920 pixels confirm four filled Project frames, complete side-bleed coverage and zero horizontal overflow. Works checks at 320, 768 and 1280 pixels confirm transparent content links and zero overflow. Direct navigation from a scrolled Works index enters the Project at scroll position zero, while browser Back restores the index position.
+- Zero-warning lint, the production build, server type checks, test-server build and all 60 automated tests pass.
+
+## 2026-07-26, Works hover and large-surface cursor refinement
+
+- Extended the existing Works GSAP content timeline instead of adding another hover owner. The metadata row still moves three pixels down and the title three pixels up, while the left metadata moves three pixels right and the right metadata three pixels left.
+- Reduced the image hover treatment to one short dark gradient rising from the lower edge. Removed the blue wash, label background and circular arrow background, leaving the label and arrow white over the image.
+- Kept geometry-matched cursor morphing for ordinary controls. Project media and content links now declare a large interactive surface, which uses a 58-pixel version of the resting circular cursor rather than a clamped rounded rectangle.
+- Touch and coarse-pointer behaviour is unchanged. The card remains a semantic link and keyboard focus retains the same overlay and content feedback.
+- Zero-warning lint, the Node 22 production build, server type checks, test-server build and all 60 automated tests pass.

@@ -21,6 +21,11 @@ type CursorSize = {
   height: number;
 };
 
+const cursorSize = {
+  idle: 44,
+  largeSurface: 58,
+} as const;
+
 function clamp(value: number, minimum: number, maximum: number) {
   return Math.min(maximum, Math.max(minimum, value));
 }
@@ -40,8 +45,14 @@ export function KineticCursor() {
     const target: CursorPoint = { x: 0, y: 0 };
     const tight: CursorPoint = { x: 0, y: 0 };
     const loose: CursorPoint = { x: 0, y: 0 };
-    const targetSize: CursorSize = { width: 44, height: 44 };
-    const size: CursorSize = { width: 44, height: 44 };
+    const targetSize: CursorSize = {
+      width: cursorSize.idle,
+      height: cursorSize.idle,
+    };
+    const size: CursorSize = {
+      width: cursorSize.idle,
+      height: cursorSize.idle,
+    };
     let initialised = false;
     let frame = 0;
     let visible = false;
@@ -82,10 +93,19 @@ export function KineticCursor() {
       const disabled = element?.getAttribute("aria-disabled") === "true";
       const interactive = Boolean(element && !disabled);
       root.dataset.interactive = interactive ? "true" : "false";
+      root.dataset.surface = "control";
 
       if (!interactive || !element) {
-        targetSize.width = 44;
-        targetSize.height = 44;
+        targetSize.width = cursorSize.idle;
+        targetSize.height = cursorSize.idle;
+        return;
+      }
+
+      const largeSurface = element.dataset.cursorSurface === "large";
+      if (largeSurface) {
+        root.dataset.surface = "large";
+        targetSize.width = cursorSize.largeSurface;
+        targetSize.height = cursorSize.largeSurface;
         return;
       }
 
@@ -143,7 +163,7 @@ export function KineticCursor() {
   }, []);
 
   return (
-    <div ref={rootRef} className="kinetic-cursor" data-visible="false" data-interactive="false" data-pressed="false" aria-hidden="true">
+    <div ref={rootRef} className="kinetic-cursor" data-visible="false" data-interactive="false" data-surface="control" data-pressed="false" aria-hidden="true">
       <span ref={outerRef} className="kinetic-cursor__outer" />
       <span ref={innerRef} className="kinetic-cursor__inner" />
     </div>

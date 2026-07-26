@@ -1,11 +1,32 @@
 import { useLayoutEffect } from "react";
 import { gsap, ScrollTrigger } from "../animation/scroll-runtime";
-import { createImageParallax, type ImageParallaxAxis } from "../animation/image-parallax";
+import {
+  createImageParallax,
+  imageParallaxDistances,
+  type ImageParallaxAxis,
+} from "../animation/image-parallax";
 
 export function GsapRevealController({ root }: { root: HTMLElement }) {
   useLayoutEffect(() => {
     let observer: MutationObserver | null = null;
     let refreshFrame = 0;
+    let active = true;
+    const imageReadyListeners: Array<{
+      image: HTMLImageElement;
+      listener: () => void;
+    }> = [];
+    const observedParallaxFrames = new WeakSet<HTMLElement>();
+    const scheduleRefresh = () => {
+      if (!active || refreshFrame !== 0) return;
+
+      refreshFrame = window.requestAnimationFrame(() => {
+        refreshFrame = 0;
+        if (active) ScrollTrigger.refresh();
+      });
+    };
+    const resizeObserver = typeof ResizeObserver === "undefined"
+      ? null
+      : new ResizeObserver(scheduleRefresh);
     const preparedReveals = new WeakSet<Element>();
     const preparedParallax = new WeakSet<Element>();
     const prepareReveal = (element: HTMLElement) => {
@@ -64,11 +85,31 @@ export function GsapRevealController({ root }: { root: HTMLElement }) {
         const axis: ImageParallaxAxis = requestedAxis === "horizontal"
           ? "horizontal"
           : "vertical";
+        const trigger = element.closest<HTMLElement>("[data-image-parallax-viewport]")
+          ?? element.parentElement
+          ?? element;
+
+        if (!observedParallaxFrames.has(trigger)) {
+          observedParallaxFrames.add(trigger);
+          resizeObserver?.observe(trigger);
+
+          trigger.querySelectorAll<HTMLImageElement>("img").forEach((image) => {
+            if (image.complete) return;
+            const listener = () => scheduleRefresh();
+            imageReadyListeners.push({ image, listener });
+            image.addEventListener("load", listener, { once: true });
+            image.addEventListener("error", listener, { once: true });
+          });
+        }
+
         createImageParallax({
           target: element,
+          trigger,
           axis,
-          distancePercent: () => compactViewport() ? 6 : 8,
-          scrub: 1.05,
+          distancePercent: () => compactViewport()
+            ? imageParallaxDistances.compact
+            : imageParallaxDistances.standard,
+          scrub: true,
         });
         return;
       }
@@ -108,19 +149,20 @@ export function GsapRevealController({ root }: { root: HTMLElement }) {
     observer = new MutationObserver(() => {
       context.add(scan);
 
-      if (refreshFrame === 0) {
-        refreshFrame = window.requestAnimationFrame(() => {
-          refreshFrame = 0;
-          ScrollTrigger.refresh();
-        });
-      }
+      scheduleRefresh();
     });
     observer.observe(root, { childList: true, subtree: true });
 
     ScrollTrigger.refresh();
 
     return () => {
+      active = false;
       observer?.disconnect();
+      resizeObserver?.disconnect();
+      imageReadyListeners.forEach(({ image, listener }) => {
+        image.removeEventListener("load", listener);
+        image.removeEventListener("error", listener);
+      });
       window.cancelAnimationFrame(refreshFrame);
       delete root.dataset.gsapController;
       root.querySelectorAll<HTMLElement>("[data-gsap-motion-ready]").forEach((element) => {

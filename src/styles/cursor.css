@@ -64,6 +64,18 @@
     background: hsl(var(--primitive-slate-300) / 0.13);
   }
 
+  .kinetic-cursor[data-surface="large"] .kinetic-cursor__outer {
+    border-radius: 999px;
+    border-color: hsl(var(--primitive-slate-300) / 0.22);
+    background: hsl(var(--primitive-slate-300) / 0.09);
+  }
+
+  .kinetic-cursor[data-surface="large"] .kinetic-cursor__inner {
+    width: 10px;
+    height: 10px;
+    background: hsl(var(--primitive-slate-300) / 0.78);
+  }
+
   .kinetic-cursor[data-pressed="true"] .kinetic-cursor__inner {
     width: 6px;
     height: 6px;

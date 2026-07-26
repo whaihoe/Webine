@@ -229,3 +229,33 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - The Deszio case-study hero fills its 686 × 429 frame edge to edge. The image keeps 8 percent vertical bleed for parallax, computes to `object-fit: cover` and causes no page-level horizontal overflow.
 - A valid slug keeps the fixed galaxy and particle canvas, while `--galaxy-project-accent` changes only the nebula and its secondary haze. The case-study section has no independent background image. The Works index retains the original primitive cyan-to-blue nebula and does not receive the Project modifier or accent variable.
 - The migrated local Admin renders `Case study accent colour` with linked colour and text inputs. Editing the text input to `#e879a8` updates both controls without saving during QA. Every image content block offers Wide, Full width and Bento feature layouts.
+
+## 2026-07-26 production hero cover and Project interaction pass
+
+- Reproduced the desktop discrepancy at 1280 by 720. Local development pinned `.hero` at the viewport top, while the deployed Vercel build left it `position: relative` even though both environments matched the desktop capability query.
+- Traced the difference to `HeroCoverTransition` capturing its sibling ref before the first production layout was complete. The effect now resolves that ref after font readiness and two layout frames, then reports `data-hero-pin-state="ready"`.
+- A clean Node 22 production preview keeps the hero fixed at scroll position 84 and lets Reach rise over it by scroll position 756. The Reach particle layer also reports its intended depth and remains visible.
+- Home Project foregrounds now use `object-fit: contain`, with a subdued blurred duplicate filling unused frame space. Horizontal scroll parallax moves the media wrapper by 5.5 percent, while hover scale remains on the image.
+- The About portrait exposes a fine-pointer 4.5 percent local colour lens and ring at the liquid ripple centre. Touch and coarse-pointer rules remove the unavailable lens while preserving the grayscale fallback.
+- Each Works `.project-card__content` is one semantic link. Clicking its metadata, title or description opens the same Project route, with visible hover and keyboard-focus feedback.
+- The supplied 14islands Cogent route was traced to a React Three Fiber scroll rig with approximately 5.5 percent texture-coordinate parallax and a displacement-texture `Ripples Effect`. Webine adapts those principles through its existing GSAP and SVG or DOM owners instead of adding another global WebGL renderer.
+- Fixed-width frame renders at 320 by 700, 390 by 844, 768 by 1024, 1024 by 768, 1280 by 720 and 1920 by 1080 have zero horizontal overflow. Phones retain native sticky ownership, widths from 768 upward report the production pin ready and all six widths render four contained Home Project thumbnails.
+- Zero-warning lint, the Node 22 production build and all 60 automated tests pass. The existing React Three Fiber chunk-size warning and Three.js Clock deprecation warning remain dependency-owned and unchanged.
+
+## 2026-07-26 Project interaction and portrait distortion correction
+
+- Replaced the rejected contained Home thumbnail and blurred duplicate with one `object-fit: cover` image. Its movement owner extends six percent beyond each horizontal edge, which safely contains the complete 5.5 percent travel without letterbox bands or an exposed edge.
+- At 320, 390, 768, 1024, 1280 and 1920 pixels wide, all four Home cards render one cover image, no backdrop duplicate and enough left and right layer bleed to cover their frame. Every checked width has zero horizontal page overflow.
+- Works content links compute to a transparent background at 320, 768 and 1280 pixels wide. The hover or focus timeline moves metadata down three pixels and the title up three pixels, with a reversible `power3.out` transition and no card lift.
+- From a scrolled Works index, clicking Deszio opens `/works/deszio-studio` at scroll position zero. Browser Back restores the prior Works position, proving the new Lenis reset does not replace POP restoration.
+- The case-study close action contains the exact supplied SVG path `M6 12H18M6 12L11 7M6 12L11 17` in a `0 0 24 24` view box. The existing source-wide check rejects Unicode arrows and pictographic emoji.
+- The About portrait contains no bulge layer, pseudo-element ring or magnification scale. Fine-pointer input updates a soft radial displacement region and the SVG `feDisplacementMap` scale, while touch and coarse-pointer CSS hide the unavailable effect and preserve grayscale.
+- Zero-warning lint, the production build, server type checks, test-server build and all 60 automated tests pass. The existing React Three Fiber chunk-size warning remains unchanged.
+
+## 2026-07-26 Works hover and large-surface cursor refinement
+
+- Source and regression checks confirm the Works content timeline has one owner and compresses inward on both axes: metadata down three pixels, title up three pixels, left metadata right three pixels and right metadata left three pixels.
+- The Project image overlay contains only a lower-edge slate gradient. Its label and directional arrow compute from white tokens and neither element owns a background surface.
+- Both Project media and Works content links opt into the large-surface cursor state. That state is a 58 by 58 pixel circle with the resting 10-pixel core, while ordinary controls retain geometry-aware morphing.
+- Touch, coarse-pointer and Admin cursor exclusions are unchanged. Semantic links and focus-visible feedback remain intact.
+- Zero-warning lint, the Node 22 production build, server type checks, test-server build and all 60 automated tests pass. The existing React Three Fiber chunk-size warning remains unchanged.

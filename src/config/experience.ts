@@ -82,11 +82,11 @@ export const experienceConfig = {
     },
     aboutPortrait: {
       sequence: {
-        outlineDurationSeconds: 2.35,
-        completedOutlineHoldSeconds: 0.55,
-        particleFadeSeconds: 0.85,
+        outlineDurationSeconds: 1.8,
+        completedOutlineHoldSeconds: 0.01,
+        particleFadeSeconds: 0.8,
         imageRevealSeconds: 0.9,
-        imageRevealDelayAfterParticleFadeStartsSeconds: 0.04,
+        imageRevealDelayAfterParticleFadeStartsSeconds: 0.0,
       },
       hoverReveal: {
         trailDecayMs: 1450,
@@ -96,6 +96,8 @@ export const experienceConfig = {
         maxRipples: 4,
         rippleRadii: [42, 30, 18],
         rippleOpacities: [0.88, 0.82, 1],
+        distortionStrength: 18,
+        distortionRadiusPercent: 18,
       },
     },
     servicesOrb: {
@@ -185,7 +187,7 @@ export const experienceConfig = {
     touchInertiaExponent: 1.7,
     touchMultiplier: 1,
     overscroll: true,
-  },  
+  },
   signalGrid: {
     enabled: true,
     sections: ["hero", "closing-cta"],

@@ -3,6 +3,7 @@ import {
   useLocation,
   useNavigationType,
 } from "react-router-dom";
+import { requestRouteScroll } from "../animation/route-scroll";
 import { routeDescriptions, routeTitles } from "../config/navigation";
 
 function setNamedMeta(selector: string, attribute: "name" | "property", key: string, content: string) {
@@ -60,10 +61,10 @@ export function RouteEffects() {
       } else if (navigationType === "POP") {
         const savedPosition = scrollPositions.current.get(location.key);
         if (savedPosition !== undefined) {
-          window.scrollTo({ top: savedPosition, behavior: "auto" });
+          requestRouteScroll(savedPosition);
         }
       } else {
-        window.scrollTo({ top: 0, behavior: "auto" });
+        requestRouteScroll(0);
       }
 
       if (heading && navigationType !== "POP") {

@@ -36,8 +36,10 @@ function seededVariation(value: number) {
 export function useFluidGrayscaleMask(
   interactionRef: RefObject<HTMLDivElement | null>,
   coordinateRef: RefObject<HTMLDivElement | null>,
+  surfaceRef: RefObject<HTMLDivElement | null>,
   trailRef: RefObject<SVGGElement | null>,
   rippleRef: RefObject<SVGGElement | null>,
+  displacementRef: RefObject<SVGFEDisplacementMapElement | null>,
 ) {
   const pointsRef = useRef<TrailPoint[]>([]);
   const ripplesRef = useRef<RippleWave[]>([]);
@@ -53,7 +55,9 @@ export function useFluidGrayscaleMask(
     frameRequestRef.current = 0;
     const trail = trailRef.current;
     const rippleLayer = rippleRef.current;
-    if (!trail || !rippleLayer) return;
+    const surface = surfaceRef.current;
+    const displacement = displacementRef.current;
+    if (!trail || !rippleLayer || !surface || !displacement) return;
 
     const elapsed = previousTimeRef.current ? Math.min(34, time - previousTimeRef.current) : 16;
     previousTimeRef.current = time;
@@ -80,6 +84,44 @@ export function useFluidGrayscaleMask(
       }
       lastRippleTimeRef.current = time;
     }
+
+    const residualRipple = ripplesRef.current[0] ?? null;
+    const distortionAnchor = anchor ?? residualRipple;
+    const distortionLife = clamp(residualRipple?.life ?? 0);
+    const distortionPulse = residualRipple
+      ? Math.sin(Math.PI * (1 - distortionLife)) * residualRipple.strength
+      : 0;
+    const distortionStrength = anchor
+      ? Math.max(0.42, distortionPulse)
+      : distortionPulse * distortionLife;
+    if (distortionAnchor) {
+      surface.style.setProperty(
+        "--portrait-distortion-x",
+        `${(distortionAnchor.x * 100).toFixed(2)}%`,
+      );
+      surface.style.setProperty(
+        "--portrait-distortion-y",
+        `${(distortionAnchor.y * 100).toFixed(2)}%`,
+      );
+    }
+    surface.style.setProperty(
+      "--portrait-distortion-opacity",
+      distortionStrength.toFixed(3),
+    );
+    surface.style.setProperty(
+      "--portrait-distortion-radius",
+      `${(
+        portraitHoverConfig.distortionRadiusPercent *
+        (anchor ? 1 : distortionLife)
+      ).toFixed(2)}%`,
+    );
+    displacement.setAttribute(
+      "scale",
+      (
+        portraitHoverConfig.distortionStrength *
+        distortionStrength
+      ).toFixed(2),
+    );
 
     const rippleCircles = rippleLayer.children;
     for (let index = 0; index < rippleCircles.length; index += 1) {
@@ -135,7 +177,7 @@ export function useFluidGrayscaleMask(
     } else {
       previousTimeRef.current = 0;
     }
-  }, [rippleRef, trailRef]);
+  }, [displacementRef, rippleRef, surfaceRef, trailRef]);
 
   const ensureAnimation = useCallback(() => {
     if (!frameRequestRef.current) frameRequestRef.current = requestAnimationFrame(render);
@@ -226,8 +268,10 @@ export function useFluidGrayscaleMask(
 
   useEffect(() => {
     const frame = interactionRef.current;
+    const surface = surfaceRef.current;
+    const displacement = displacementRef.current;
     const finePointer = window.matchMedia("(any-hover: hover) and (any-pointer: fine)");
-    if (!frame || !finePointer.matches) return;
+    if (!frame || !surface || !displacement || !finePointer.matches) return;
 
     frame.addEventListener("pointerenter", startTrail, { passive: true });
     frame.addEventListener("pointermove", moveTrail, { passive: true });
@@ -241,6 +285,18 @@ export function useFluidGrayscaleMask(
       frameRequestRef.current = 0;
       pointsRef.current = [];
       ripplesRef.current = [];
+      surface.style.removeProperty("--portrait-distortion-x");
+      surface.style.removeProperty("--portrait-distortion-y");
+      surface.style.removeProperty("--portrait-distortion-opacity");
+      surface.style.removeProperty("--portrait-distortion-radius");
+      displacement.setAttribute("scale", "0");
     };
-  }, [endTrail, interactionRef, moveTrail, startTrail]);
+  }, [
+    displacementRef,
+    endTrail,
+    interactionRef,
+    moveTrail,
+    startTrail,
+    surfaceRef,
+  ]);
 }
