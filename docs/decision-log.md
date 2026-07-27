@@ -721,3 +721,11 @@
 - Kept each bento image fully visible and used its natural aspect ratio to shape the layout across phone and desktop widths.
 - Preserved earlier `assetId` Image blocks and the former `layout: "bento"` data contract, while new edits use ordered `assetIds`.
 - Extended validation, asset-usage tracking, public mapping, protected preview and project media summaries across every image assigned to either block type.
+
+## 2026-07-27, Project MP4 content and contained media picker
+
+- Added MP4 to the shared Admin media library while keeping cover, hover, social, Image and Bento fields image-only.
+- Added a dedicated Video content block that accepts one validated MP4. Public and protected preview rendering has no player controls, stays muted and inline, loops continuously and uses viewport visibility plus document visibility to play or pause.
+- Read the MP4 display dimensions from its track header so the Project frame follows the uploaded video's real aspect ratio.
+- Constrained Admin picker cards, labels and preview media to their grid columns so unusually wide source images cannot overlap neighbouring assets.
+- Removed the invalid nested inline-upload form from the Project editor so image and video upload actions do not compete with the outer draft form.

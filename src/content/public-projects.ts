@@ -9,8 +9,8 @@ export type PublicProject = {
   year: number;
   services: string[];
   summary: string;
-  heroImage: { id: string; url: string; altText: string; focalX: number; focalY: number; width: number; height: number };
-  hoverImage?: { id: string; url: string; altText: string; focalX: number; focalY: number; width: number; height: number };
+  heroImage: { id: string; url: string; altText: string; focalX: number; focalY: number; width: number; height: number; mimeType?: string };
+  hoverImage?: { id: string; url: string; altText: string; focalX: number; focalY: number; width: number; height: number; mimeType?: string };
   cardTheme: "light" | "dark";
   accentColour: string;
   featured: boolean;

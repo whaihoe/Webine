@@ -3,7 +3,7 @@ import type { ApiEnvelope } from "../content/api-envelope";
 import type { AdminAsset } from "./api";
 import { AdminApiError } from "./api";
 import type { AdminTokenProvider } from "./AdminAuthContext";
-import { validateImageFile } from "../../shared/media-policy";
+import { validateMediaFile } from "../../shared/media-policy";
 
 export type UploadDetails = {
   altText: string;
@@ -47,18 +47,18 @@ function localUpload(file: File, details: UploadDetails, onProgress: (value: num
   });
 }
 
-export async function uploadAdminImage(
+export async function uploadAdminMedia(
   file: File,
   details: UploadDetails,
   onProgress: (value: number) => void,
   completeUpload: (path: string, method: "POST", body: unknown) => Promise<AdminAsset>,
   getToken?: AdminTokenProvider,
 ) {
-  const validationMessage = validateImageFile(file);
+  const validationMessage = validateMediaFile(file);
   if (validationMessage) {
     throw new AdminApiError(
       422,
-      "IMAGE_INVALID",
+      "MEDIA_INVALID",
       validationMessage,
     );
   }
@@ -83,3 +83,5 @@ export async function uploadAdminImage(
     originalFilename: file.name,
   });
 }
+
+export const uploadAdminImage = uploadAdminMedia;

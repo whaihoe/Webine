@@ -27,10 +27,10 @@ import {
   updateAsset,
 } from "../media-repository.js";
 import {
-  ACCEPTED_IMAGE_TYPES,
+  ACCEPTED_MEDIA_TYPES,
   MAX_IMAGE_BYTES,
-  storeLocalImage,
-  validateImageBuffer,
+  storeLocalMedia,
+  validateMediaBuffer,
 } from "../media-service.js";
 import {
   errorResponse,
@@ -349,16 +349,16 @@ async function handleMediaComplete(request: Request) {
         );
       }
 
-      let image;
+      let media;
       try {
-        image = await validateImageBuffer(
+        media = await validateMediaBuffer(
           await response.arrayBuffer(),
           response.headers.get("content-type")?.split(";")[0] ?? "",
         );
       } catch {
         throw new CmsRepositoryError(
-          "IMAGE_INVALID",
-          "The uploaded image is not an accepted website image.",
+          "MEDIA_INVALID",
+          "The uploaded file is not an accepted website image or MP4 video.",
           422,
         );
       }
@@ -371,10 +371,10 @@ async function handleMediaComplete(request: Request) {
           providerAssetId: stringValue(input.pathname),
           deliveryUrl: url.toString(),
           originalFilename: stringValue(input.originalFilename).slice(0, 240),
-          mimeType: image.mimeType,
-          byteSize: image.byteSize,
-          width: image.width,
-          height: image.height,
+          mimeType: media.mimeType,
+          byteSize: media.byteSize,
+          width: media.width,
+          height: media.height,
           altText: stringValue(input.altText),
           caption: stringValue(input.caption),
           focalX: Number(input.focalX ?? 0.5),
@@ -406,8 +406,8 @@ async function handleLocalMediaUpload(request: Request) {
       const file = form.get("file");
       if (!(file instanceof File)) {
         throw new CmsRepositoryError(
-          "IMAGE_REQUIRED",
-          "Choose an image to upload.",
+          "MEDIA_REQUIRED",
+          "Choose an image or MP4 video to upload.",
           422,
         );
       }
@@ -421,19 +421,19 @@ async function handleLocalMediaUpload(request: Request) {
         );
       }
 
-      let image;
+      let media;
       try {
-        image = await validateImageBuffer(await file.arrayBuffer(), file.type);
+        media = await validateMediaBuffer(await file.arrayBuffer(), file.type);
       } catch {
         throw new CmsRepositoryError(
-          "IMAGE_INVALID",
-          "Use a JPEG, PNG, WebP, AVIF or GIF no larger than 50 MB and 12,000 pixels per side.",
+          "MEDIA_INVALID",
+          "Use a JPEG, PNG, WebP, AVIF, GIF or MP4 no larger than 50 MB.",
           422,
         );
       }
 
       const id = crypto.randomUUID();
-      const providerAssetId = await storeLocalImage(id, image);
+      const providerAssetId = await storeLocalMedia(id, media);
       const asset = await createAsset(
         {
           id,
@@ -441,10 +441,10 @@ async function handleLocalMediaUpload(request: Request) {
           providerAssetId,
           deliveryUrl: `/api/media/${id}`,
           originalFilename: file.name.slice(0, 240),
-          mimeType: image.mimeType,
-          byteSize: image.byteSize,
-          width: image.width,
-          height: image.height,
+          mimeType: media.mimeType,
+          byteSize: media.byteSize,
+          width: media.width,
+          height: media.height,
           altText: formString(form, "altText"),
           caption: formString(form, "caption"),
           focalX: Number(formString(form, "focalX") || 0.5),
@@ -478,7 +478,7 @@ async function handleMediaUploadToken(request: Request) {
         request,
         token,
         onBeforeGenerateToken: async () => ({
-          allowedContentTypes: [...ACCEPTED_IMAGE_TYPES],
+          allowedContentTypes: [...ACCEPTED_MEDIA_TYPES],
           maximumSizeInBytes: MAX_IMAGE_BYTES,
           addRandomSuffix: true,
         }),

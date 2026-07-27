@@ -40,10 +40,10 @@
 | `SelectedWorkRunway` | Responsive portfolio chapter ending in an expanding chapter 04 card | Vertical-driven horizontal movement on every breakpoint, 5.5 percent media-wrapper parallax, centred stop, card expansion, progress, keyboard focus and reversible interlude handoff |
 | `ProjectCard` | Shared published Project presentation for Works and Home | Filled 16:10 Home media with six-percent horizontal source bleed, priority or lazy loading, restrained GSAP media parallax outside Home, inward four-direction text hover, lower-edge image gradient with unboxed white label and arrow, large-surface cursor state, clean touch media, one full-content Works link and full runway copy inside Home |
 | `MediaLibrary` | Admin upload and reusable asset workspace | Drag or button upload, 50 MB client and server validation, animated GIF preservation, progress, preview, metadata, focal point, usage and archive protection |
-| `AssetFieldControl` | Project-aware image and gallery selector joined to the shared library | Inline upload, existing asset choice, cover or supporting role, replacement, removal, ordered gallery and pending-save states |
+| `AssetFieldControl` | Project-aware image, gallery and MP4 selector joined to the shared library | Media-type filtering, inline upload, existing asset choice, cover or supporting role, replacement, removal, ordered gallery and pending-save states |
 | `ProjectMediaOverview` | Project editor summary of cover, hover, story and social media | Assigned thumbnails, empty roles, saved and unsaved |
-| `ItemEditor` | Schema-generated draft and Project workflow | Repeated top and bottom Project actions, save, preview, publish, republish, unpublish, archive, confirmed purge, per-Project case-study colour, one-to-three-image blocks and responsive multi-image bento blocks |
-| `ProjectStoryBlock` | Public and protected-preview Project storytelling | Shared statement, image-group and aspect-aware bento rendering with backward compatibility for earlier single-image data |
+| `ItemEditor` | Schema-generated draft and Project workflow | Repeated top and bottom Project actions, save, preview, publish, republish, unpublish, archive, confirmed purge, per-Project case-study colour, one-to-three-image blocks, responsive multi-image bento blocks and looping MP4 blocks |
+| `ProjectStoryBlock` | Public and protected-preview Project storytelling | Shared statement, image-group, aspect-aware bento and viewport-controlled muted MP4 rendering with backward compatibility for earlier single-image data |
 | `QuietInterlude` | Full long-term-value chapter aligned directly beneath the expanded runway card | Seamless takeover, section-owned point formation, top-point dispersion and reverse |
 | `ProcessTimeline` | Semantic four-stage process with line fill, early point-contact intake and centred outlet geometry | Waiting, absorbing, active, complete, emitting and reverse |
 | `ClosingCallToAction` | Final momentum scene and primary contact route | Resting grid and early-forming opaque section-anchored particle colony planet |
@@ -58,7 +58,7 @@
 - Services: business-outcome hero, five scroll-linked real-offer chapters, ownership statement, CMS-backed working path and project CTA
 - Works: cohesive dark editorial introduction, one fixed galaxy across the index and case studies, outlined scroll field, filters, image-led project grid with minimal copy, accessible hover or keyboard overlays and loading or error states
 - Contact: responsive dark introduction, slow floating light enquiry form, sparse ambient points and linked privacy section
-- Admin: 264 px desktop sidebar, flexible content canvas, clickable ancestor breadcrumbs, stretched-link Project cards with isolated quick actions, visible draft, published and archived states, current Site Settings defaults, reusable JPEG, PNG, WebP, AVIF and GIF media, deployment-readiness diagnostics and protected enquiry inbox. Admin uses functional inline skeletons without the branded public loader.
+- Admin: 264 px desktop sidebar, flexible content canvas, clickable ancestor breadcrumbs, stretched-link Project cards with isolated quick actions, visible draft, published and archived states, current Site Settings defaults, reusable JPEG, PNG, WebP, AVIF, GIF and MP4 media, deployment-readiness diagnostics and protected enquiry inbox. Admin uses functional inline skeletons without the branded public loader.
 - Preview: protected draft Project composition using current media and story fields
 - Not found: dark action-oriented fallback
 

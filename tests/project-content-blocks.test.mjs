@@ -24,6 +24,10 @@ test("normalises legacy and multi-image Project content blocks", () => {
     contentBlockAssetIds({ type: "statement", assetIds: ["asset_ignored"] }),
     [],
   );
+  assert.deepEqual(
+    contentBlockAssetIds({ type: "video", assetId: "asset_video" }),
+    ["asset_video"],
+  );
   assert.equal(PROJECT_IMAGE_BLOCK_MAX_ASSETS, 3);
   assert.equal(PROJECT_BENTO_BLOCK_MIN_ASSETS, 2);
 });

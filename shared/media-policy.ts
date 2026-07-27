@@ -1,5 +1,7 @@
 export const MAX_IMAGE_BYTES = 50 * 1024 * 1024;
 export const MAX_IMAGE_SIZE_LABEL = "50 MB";
+export const MAX_VIDEO_BYTES = 50 * 1024 * 1024;
+export const MAX_VIDEO_SIZE_LABEL = "50 MB";
 export const MAX_IMAGE_DIMENSION = 12_000;
 export const MAX_GIF_FRAMES = 500;
 
@@ -9,6 +11,12 @@ export const ACCEPTED_IMAGE_TYPES = [
   "image/webp",
   "image/avif",
   "image/gif",
+] as const;
+
+export const ACCEPTED_VIDEO_TYPES = ["video/mp4"] as const;
+export const ACCEPTED_MEDIA_TYPES = [
+  ...ACCEPTED_IMAGE_TYPES,
+  ...ACCEPTED_VIDEO_TYPES,
 ] as const;
 
 export function validateImageFile(file: Pick<File, "size" | "type">) {
@@ -23,4 +31,24 @@ export function validateImageFile(file: Pick<File, "size" | "type">) {
   }
 
   return "";
+}
+
+export function validateVideoFile(file: Pick<File, "size" | "type">) {
+  if (file.size < 1 || file.size > MAX_VIDEO_BYTES) {
+    return `Choose an MP4 no larger than ${MAX_VIDEO_SIZE_LABEL}.`;
+  }
+
+  if (!ACCEPTED_VIDEO_TYPES.includes(
+    file.type as (typeof ACCEPTED_VIDEO_TYPES)[number],
+  )) {
+    return "Choose an MP4 video.";
+  }
+
+  return "";
+}
+
+export function validateMediaFile(file: Pick<File, "size" | "type">) {
+  return file.type.startsWith("video/")
+    ? validateVideoFile(file)
+    : validateImageFile(file);
 }

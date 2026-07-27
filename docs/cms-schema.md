@@ -26,7 +26,7 @@ The SQL is intentionally reviewable and compatible with SQLite or libSQL. Local 
 - required select options and reference targets
 - every launch field value category
 - secure URLs, email, slugs, numeric limits and structured-content size
-- ready image assets and required alt text
+- ready image or MP4 assets, correct field media types and required descriptions
 - active references from the configured target collection
 - unknown item fields
 - system collection and system field protection
@@ -47,7 +47,7 @@ Stage 10 adds collection creation and compatible schema editing, generated contr
 
 Stage 11 adds validated JPEG, PNG, WebP, AVIF and frame-capped GIF upload, a 50 MB and 12,000 pixel limit, alt or decorative metadata, focal points, reuse, usage records and published-usage archive protection. Production uses direct Vercel Blob upload so large files do not pass through the Vercel Function request body. Local development uses the same asset records with ignored local file storage.
 
-Stage 12 adds flexible Project blocks plus preview, publish, republish, unpublish and archive actions. Image blocks accept one to three ordered assets and render two images side by side or three as a responsive group. Bento is a separate block type that accepts multiple assets, reads their stored dimensions and arranges wide, landscape, square, portrait and tall images responsively without replacing them with one precomposed image. Existing single-image blocks and the earlier one-image bento data remain compatible. Publishing reruns required-field and media-readiness validation and copies the draft to `published_data_json`; public queries never read the working draft. Project lists keep every lifecycle state visible. Draft or archived records can be purged only after reference checks, with snapshots removed transactionally and an audit event retained.
+Stage 12 adds flexible Project blocks plus preview, publish, republish, unpublish and archive actions. Image blocks accept one to three ordered assets and render two images side by side or three as a responsive group. Bento is a separate block type that accepts multiple assets, reads their stored dimensions and arranges wide, landscape, square, portrait and tall images responsively without replacing them with one precomposed image. Video blocks accept one validated MP4 and render it without player controls, muted and looping only while it is in the viewport. Existing single-image blocks and the earlier one-image bento data remain compatible. Publishing reruns required-field, media-readiness and media-type validation and copies the draft to `published_data_json`; public queries never read the working draft. Project lists keep every lifecycle state visible. Draft or archived records can be purged only after reference checks, with snapshots removed transactionally and an audit event retained.
 
 Stage 19 activates the enquiry records introduced in migration 2. The public boundary validates and limits input, stores only accepted enquiries, keeps client addresses as keyed hashes and records notification outcomes without logging submitted content. Resend provides direct owner email with visitor reply-to, while the existing HTTPS webhook remains an alternative. The Clerk-protected Admin inbox is the only application view of private enquiry data.
 

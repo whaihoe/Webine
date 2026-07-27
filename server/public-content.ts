@@ -32,6 +32,7 @@ function mapPublicAsset(row: Row): PublicAsset {
     focalY: Number(row.focal_y),
     width: Number(row.width),
     height: Number(row.height),
+    mimeType: String(row.mime_type),
   };
 }
 
@@ -42,7 +43,7 @@ export async function listPublicProjects(
   const [itemsResult, assetsResult, referencesResult] = await Promise.all([
     client.execute(`SELECT id, slug, published_data_json FROM collection_items
       WHERE collection_id = 'collection_projects' AND status = 'published' AND published_data_json IS NOT NULL`),
-    client.execute("SELECT id, delivery_url, alt_text, focal_x, focal_y, width, height FROM assets WHERE status = 'ready'"),
+    client.execute("SELECT id, delivery_url, alt_text, focal_x, focal_y, width, height, mime_type FROM assets WHERE status = 'ready'"),
     client.execute(`SELECT item_references.source_item_id, item_references.field_definition_id,
       collection_items.published_data_json FROM item_references
       JOIN collection_items ON collection_items.id = item_references.target_item_id

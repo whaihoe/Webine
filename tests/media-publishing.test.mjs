@@ -52,10 +52,16 @@ test("links uploaded media through draft, publish, public query and archive prot
       originalFilename: "square.png", mimeType: "image/png", byteSize: 1024, width: 1000, height: 1000,
       altText: "Square interface composition", caption: "", focalX: 0.5, focalY: 0.5, decorative: false,
     }, "owner", "request_square_asset", client);
+    const videoAsset = await createAsset({
+      id: "asset_video", provider: "external", providerAssetId: "motion.mp4", deliveryUrl: "/motion.mp4",
+      originalFilename: "motion.mp4", mimeType: "video/mp4", byteSize: 2048, width: 1920, height: 1080,
+      altText: "Interface interaction sequence", caption: "", focalX: 0.5, focalY: 0.5, decorative: false,
+    }, "owner", "request_video_asset", client);
     assert.equal(asset.status, "ready");
     assert.equal(portraitAsset.status, "ready");
     assert.equal(wideAsset.status, "ready");
     assert.equal(squareAsset.status, "ready");
+    assert.equal(videoAsset.status, "ready");
 
     await assert.rejects(
       () => createItem("projects", {
@@ -69,6 +75,26 @@ test("links uploaded media through draft, publish, public query and archive prot
       }, "owner", "request_too_many", client),
       (error) => error.code === "VALIDATION_FAILED"
         && error.issues.some((issue) => issue.code === "TOO_MANY_IMAGES"),
+    );
+    await assert.rejects(
+      () => createItem("projects", {
+        title: "Wrong video media", slug: "wrong-video-media", client: "Concept study", project_kind: "concept",
+        project_type: "category_web", year: 2026, services: ["service_design"],
+        short_summary: "Video block validation.", hero_image: "asset_workflow",
+        content_blocks: [{ type: "video", assetId: "asset_workflow" }],
+      }, "owner", "request_wrong_video", client),
+      (error) => error.code === "VALIDATION_FAILED"
+        && error.issues.some((issue) => issue.code === "VIDEO_REQUIRED"),
+    );
+    await assert.rejects(
+      () => createItem("projects", {
+        title: "Wrong image media", slug: "wrong-image-media", client: "Concept study", project_kind: "concept",
+        project_type: "category_web", year: 2026, services: ["service_design"],
+        short_summary: "Image block validation.", hero_image: "asset_workflow",
+        content_blocks: [{ type: "image", assetIds: ["asset_video"] }],
+      }, "owner", "request_wrong_image", client),
+      (error) => error.code === "VALIDATION_FAILED"
+        && error.issues.some((issue) => issue.code === "IMAGE_REQUIRED"),
     );
     await assert.rejects(
       () => createItem("projects", {
@@ -89,11 +115,13 @@ test("links uploaded media through draft, publish, public query and archive prot
       content_blocks: [
         { type: "image", assetIds: ["asset_workflow", "asset_portrait"], layout: "wide" },
         { type: "bento", assetIds: ["asset_portrait", "asset_wide"] },
+        { type: "video", assetId: "asset_video" },
       ],
     }, "owner", "request_item", client);
     assert.equal((await getAsset("asset_workflow", client)).usageCount, 2);
     assert.equal((await getAsset("asset_portrait", client)).usageCount, 2);
     assert.equal((await getAsset("asset_wide", client)).usageCount, 1);
+    assert.equal((await getAsset("asset_video", client)).usageCount, 1);
 
     const published = await changeItemStatus("projects", draft.id, { action: "publish", version: draft.version }, "owner", "request_publish", client);
     assert.equal(published.status, "published");
@@ -102,6 +130,7 @@ test("links uploaded media through draft, publish, public query and archive prot
     assert.equal(publicProjects[0].accentColour, "#14b8a6");
     assert.equal(publicProjects[0].contentBlocks[0].images.length, 2);
     assert.equal(publicProjects[0].contentBlocks[1].images.length, 2);
+    assert.equal(publicProjects[0].contentBlocks[2].images[0].mimeType, "video/mp4");
     await assert.rejects(() => archiveAsset("asset_workflow", "owner", "request_archive", client), (error) => error.code === "ASSET_IN_USE");
 
     const unpublished = await changeItemStatus("projects", draft.id, { action: "unpublish", version: published.version }, "owner", "request_unpublish", client);

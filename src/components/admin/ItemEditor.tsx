@@ -188,13 +188,18 @@ function ContentBlocksControl({ field, value, onChange }: { field: FieldDefiniti
     const block = blocks[index];
     const heading = typeof block.heading === "string" ? block.heading : "";
     const text = typeof block.text === "string" ? block.text : "";
-    if (type === "image" || type === "bento") {
-      const assetIds = contentBlockAssetIds(block);
+    if (type === "image" || type === "bento" || type === "video") {
+      const previousType = contentBlockType(block);
+      const assetIds = previousType === "video" || type === "video"
+        ? []
+        : contentBlockAssetIds(block);
       onChange(blocks.map((candidate, blockIndex) => blockIndex === index ? {
         type,
         heading,
         text,
-        ...(type === "image" ? {
+        ...(type === "video" ? {
+          assetId: assetIds[0],
+        } : type === "image" ? {
           layout: block.layout === "full" ? "full" : "wide",
           assetIds: assetIds.slice(0, PROJECT_IMAGE_BLOCK_MAX_ASSETS),
         } : { assetIds }),
@@ -208,24 +213,27 @@ function ContentBlocksControl({ field, value, onChange }: { field: FieldDefiniti
       const type = contentBlockType(block);
       const assetIds = contentBlockAssetIds(block);
       return <article key={index} className="admin-content-block">
-      <div className="admin-content-block__top"><strong>Block {index + 1}</strong><select value={type} onChange={(event) => changeType(index, event.target.value)}><option value="statement">Statement</option><option value="text">Text</option><option value="image">Image</option><option value="bento">Bento</option></select><button type="button" onClick={() => onChange(blocks.filter((_, blockIndex) => blockIndex !== index))}>Remove</button></div>
-      {type === "image" || type === "bento" ? (
+      <div className="admin-content-block__top"><strong>Block {index + 1}</strong><select value={type} onChange={(event) => changeType(index, event.target.value)}><option value="statement">Statement</option><option value="text">Text</option><option value="image">Image</option><option value="bento">Bento</option><option value="video">Video</option></select><button type="button" onClick={() => onChange(blocks.filter((_, blockIndex) => blockIndex !== index))}>Remove</button></div>
+      {type === "image" || type === "bento" || type === "video" ? (
         <>
           <AssetFieldControl
-            field={{ ...field, key: `${field.key}_${index}`, fieldType: "gallery" }}
-            value={assetIds}
+            field={{ ...field, key: `${field.key}_${index}`, fieldType: type === "video" ? "image" : "gallery" }}
+            value={type === "video" ? assetIds[0] : assetIds}
             maxItems={type === "image" ? PROJECT_IMAGE_BLOCK_MAX_ASSETS : undefined}
-            onChange={(nextAssetIds) => update(index, { type, assetIds: nextAssetIds, assetId: undefined, layout: type === "bento" ? undefined : block.layout })}
+            mediaKind={type === "video" ? "video" : "image"}
+            onChange={(nextAssetIds) => update(index, type === "video"
+              ? { type, assetId: nextAssetIds, assetIds: undefined, layout: undefined }
+              : { type, assetIds: nextAssetIds, assetId: undefined, layout: type === "bento" ? undefined : block.layout })}
           />
-          <input value={typeof block.heading === "string" ? block.heading : ""} placeholder={type === "bento" ? "Optional bento heading" : "Image section heading"} onChange={(event) => update(index, { heading: event.target.value })} />
-          <textarea rows={3} value={typeof block.text === "string" ? block.text : ""} placeholder={type === "bento" ? "Optional bento caption" : "Optional image caption"} onChange={(event) => update(index, { text: event.target.value })} />
+          <input value={typeof block.heading === "string" ? block.heading : ""} placeholder={type === "bento" ? "Optional bento heading" : type === "video" ? "Optional video heading" : "Image section heading"} onChange={(event) => update(index, { heading: event.target.value })} />
+          <textarea rows={3} value={typeof block.text === "string" ? block.text : ""} placeholder={type === "bento" ? "Optional bento caption" : type === "video" ? "Optional video caption" : "Optional image caption"} onChange={(event) => update(index, { text: event.target.value })} />
           {type === "image" ? <label>
             <span>Image layout</span>
             <select value={typeof block.layout === "string" ? block.layout : "wide"} onChange={(event) => update(index, { layout: event.target.value })}>
               <option value="wide">Wide</option>
               <option value="full">Full width</option>
             </select>
-          </label> : <p className="admin-field-note">Add at least {PROJECT_BENTO_BLOCK_MIN_ASSETS} images. Their landscape, square or portrait proportions shape the responsive bento layout.</p>}
+          </label> : type === "bento" ? <p className="admin-field-note">Add at least {PROJECT_BENTO_BLOCK_MIN_ASSETS} images. Their landscape, square or portrait proportions shape the responsive bento layout.</p> : <p className="admin-field-note">The MP4 plays silently while it is visible, loops continuously and pauses when it leaves the viewport.</p>}
         </>
       ) : <><input value={typeof block.heading === "string" ? block.heading : ""} placeholder="Optional heading" onChange={(event) => update(index, { heading: event.target.value })} /><textarea rows={type === "statement" ? 3 : 6} value={typeof block.text === "string" ? block.text : ""} placeholder="Block copy" onChange={(event) => update(index, { text: event.target.value })} /></>}
       <div className="admin-field-card__actions"><button type="button" disabled={index === 0} onClick={() => { const next = [...blocks]; [next[index - 1], next[index]] = [next[index], next[index - 1]]; onChange(next); }}>Move up</button><button type="button" disabled={index === blocks.length - 1} onClick={() => { const next = [...blocks]; [next[index], next[index + 1]] = [next[index + 1], next[index]]; onChange(next); }}>Move down</button></div>

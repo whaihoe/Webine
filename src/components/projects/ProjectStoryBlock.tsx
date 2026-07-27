@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import {
   contentBlockType,
   type ProjectContentBlock,
@@ -11,6 +12,7 @@ export type ProjectStoryAsset = {
   focalY?: unknown;
   height?: unknown;
   id?: unknown;
+  mimeType?: unknown;
   url?: unknown;
   width?: unknown;
 };
@@ -67,6 +69,54 @@ function StoryImage({
   );
 }
 
+function ViewportVideo({ video }: { video: ProjectStoryAsset }) {
+  const ref = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return undefined;
+    let visible = false;
+
+    const updatePlayback = () => {
+      if (visible && document.visibilityState === "visible") {
+        void element.play().catch(() => undefined);
+      } else {
+        element.pause();
+      }
+    };
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        visible = entry.isIntersecting && entry.intersectionRatio >= 0.2;
+        updatePlayback();
+      },
+      { threshold: [0, 0.2, 0.5] },
+    );
+    observer.observe(element);
+    document.addEventListener("visibilitychange", updatePlayback);
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", updatePlayback);
+      element.pause();
+    };
+  }, []);
+
+  const decorative = video.decorative === true;
+  return (
+    <video
+      ref={ref}
+      src={String(video.url)}
+      width={Number(video.width ?? 1)}
+      height={Number(video.height ?? 1)}
+      muted
+      loop
+      playsInline
+      preload="metadata"
+      aria-hidden={decorative ? "true" : undefined}
+      aria-label={decorative ? undefined : String(video.altText ?? "")}
+    />
+  );
+}
+
 export function ProjectStoryBlock({
   block,
   blockIndex,
@@ -76,6 +126,7 @@ export function ProjectStoryBlock({
   const type = contentBlockType(block);
   const isImage = type === "image";
   const isBento = type === "bento";
+  const isVideo = type === "video";
   const heading = typeof block.heading === "string" ? block.heading.trim() : "";
   const caption = typeof block.text === "string" ? block.text : "";
   const layout = isBento ? "bento" : String(block.layout ?? "wide");
@@ -88,7 +139,18 @@ export function ProjectStoryBlock({
       data-has-heading={heading ? "true" : "false"}
       data-gsap-reveal={reveal ? "card" : undefined}
     >
-      {heading || (!isBento && !isImage) ? <span>{heading || type || "Story"}</span> : null}
+      {heading || (!isBento && !isImage && !isVideo) ? <span>{heading || type || "Story"}</span> : null}
+      {isVideo && images[0]?.url ? (
+        <figure className="project-story-video">
+          <div
+            className="project-case-study__media-frame project-case-study__media-frame--video"
+            style={projectMediaFrameStyle(images[0])}
+          >
+            <ViewportVideo video={images[0]} />
+          </div>
+          {caption ? <figcaption>{caption}</figcaption> : null}
+        </figure>
+      ) : null}
       {images.length && (isImage || isBento) ? (
         <figure>
           <div className={isBento ? "project-bento-grid" : "project-story-image-grid"}>
@@ -104,7 +166,7 @@ export function ProjectStoryBlock({
           </div>
           {caption ? <figcaption>{caption}</figcaption> : null}
         </figure>
-      ) : <p>{caption}</p>}
+      ) : !isVideo ? <p>{caption}</p> : null}
     </article>
   );
 }

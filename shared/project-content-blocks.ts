@@ -10,7 +10,7 @@ export function contentBlockType(block: ProjectContentBlock) {
 
 export function isMediaContentBlock(block: ProjectContentBlock) {
   const type = contentBlockType(block);
-  return type === "image" || type === "bento";
+  return type === "image" || type === "bento" || type === "video";
 }
 
 export function contentBlockAssetIds(block: ProjectContentBlock) {

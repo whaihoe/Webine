@@ -356,13 +356,13 @@ async function validateItem(
   const collection = await getCollectionDefinition(collectionKey, client);
   if (!collection) throw new CmsRepositoryError("NOT_FOUND", "That collection does not exist.", 404);
   const [assetResult, referenceResult] = await Promise.all([
-    client.execute("SELECT id, status, alt_text, decorative FROM assets"),
+    client.execute("SELECT id, status, alt_text, decorative, mime_type FROM assets"),
     client.execute(`SELECT collection_items.id, collection_items.status, collections.key AS collection_key
       FROM collection_items JOIN collections ON collections.id = collection_items.collection_id`),
   ]);
   const assets = Object.fromEntries(assetResult.rows.map((row) => [
     String(row.id),
-    { status: String(row.status), altText: String(row.alt_text ?? ""), decorative: numberValue(row.decorative) === 1 },
+    { status: String(row.status), altText: String(row.alt_text ?? ""), decorative: numberValue(row.decorative) === 1, mimeType: String(row.mime_type) },
   ]));
   const references = Object.fromEntries(referenceResult.rows.map((row) => [
     String(row.id),
@@ -398,8 +398,30 @@ async function validateItem(
           message: `Image blocks can contain up to ${PROJECT_IMAGE_BLOCK_MAX_ASSETS} images.`,
         });
       }
+      if (type === "video" && assetIds.length > 1) {
+        issues.push({
+          path: `content_blocks.${index}.assetId`,
+          code: "TOO_MANY_VIDEOS",
+          message: "Video blocks can contain one MP4.",
+        });
+      }
       assetIds.forEach((assetId, assetIndex) => {
-        if (assets[assetId]?.status === "ready") return;
+        const asset = assets[assetId];
+        if (asset?.status === "ready") {
+          const accepted = type === "video"
+            ? asset.mimeType === "video/mp4"
+            : asset.mimeType.startsWith("image/");
+          if (!accepted) {
+            issues.push({
+              path: `content_blocks.${index}.${type === "video" ? "assetId" : `assetIds.${assetIndex}`}`,
+              code: type === "video" ? "VIDEO_REQUIRED" : "IMAGE_REQUIRED",
+              message: type === "video"
+                ? "Select an uploaded MP4 video."
+                : "Select an uploaded image.",
+            });
+          }
+          return;
+        }
         issues.push({
           path: `content_blocks.${index}.assetIds.${assetIndex}`,
           code: "ASSET_NOT_READY",

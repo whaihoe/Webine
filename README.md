@@ -25,7 +25,7 @@ Open the local address shown in the terminal, normally `http://127.0.0.1:5173`. 
 
 Admin data APIs use Clerk authentication with a single approved owner ID. The ignored local bypass is development-only. Production always requires the approved Clerk login.
 
-Stages 8 to 20 now provide the schema engine, protected Admin, collection builder, generated forms, media library, complete Project workflow, published public API, Works experience, CMS-backed homepage runway, process timeline, working enquiry pipeline and completed closing action. Project lists retain draft, published and archived records, with quick publishing, safe archiving and audited permanent deletion. Local data uses SQLite through libSQL, while Vercel Preview and Production use Turso. Local media uses ignored application data. Production media uses direct Vercel Blob upload and requires `BLOB_READ_WRITE_TOKEN`.
+Stages 8 to 20 now provide the schema engine, protected Admin, collection builder, generated forms, shared image and MP4 media library, complete Project workflow, published public API, Works experience, CMS-backed homepage runway, process timeline, working enquiry pipeline and completed closing action. Project lists retain draft, published and archived records, with quick publishing, safe archiving and audited permanent deletion. Local data uses SQLite through libSQL, while Vercel Preview and Production use Turso. Local media uses ignored application data. Production media uses direct Vercel Blob upload and requires `BLOB_READ_WRITE_TOKEN`.
 
 ## Vercel-first environment
 

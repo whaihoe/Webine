@@ -80,7 +80,7 @@ export type ValidationIssue = {
 export type ValidationContext = {
   allowLocalHttp?: boolean;
   requireRequiredFields?: boolean;
-  assets?: Record<string, { status: string; altText: string; decorative?: boolean }>;
+  assets?: Record<string, { status: string; altText: string; decorative?: boolean; mimeType?: string }>;
   references?: Record<string, { collectionKey: string; status: string }>;
 };
 
@@ -325,6 +325,10 @@ function validateAsset(
 
   if (!asset || asset.status !== "ready") {
     return [issue(path, "ASSET_NOT_READY", "Select an image that has finished processing.")];
+  }
+
+  if (asset.mimeType && !asset.mimeType.startsWith("image/")) {
+    return [issue(path, "IMAGE_REQUIRED", "Select an uploaded image.")];
   }
 
   if (field.validation.requireAltText && !asset.decorative && !asset.altText.trim()) {

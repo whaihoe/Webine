@@ -1,22 +1,24 @@
-import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import type { AdminAsset } from "../../admin/api";
-import { initialUploadDetails, uploadAdminImage } from "../../admin/upload-image";
+import { initialUploadDetails, uploadAdminMedia } from "../../admin/upload-image";
 import { useAdminMutation } from "../../admin/useAdminMutation";
 import { useAdminResource } from "../../admin/useAdminResource";
 import { useAdminAuth } from "../../admin/AdminAuthContext";
 import type { FieldDefinition } from "../../cms/schema";
-import { validateImageFile } from "../../../shared/media-policy";
+import { validateImageFile, validateVideoFile } from "../../../shared/media-policy";
+
+type MediaKind = "image" | "video";
 
 function fieldRole(field: FieldDefinition) {
   if (field.key === "hero_image") return "Project cover";
   if (field.key === "hover_image") return "Card hover image";
   if (field.key === "social_image") return "Social sharing image";
-  if (field.key.startsWith("content_blocks_")) return "Project story image";
+  if (field.key.startsWith("content_blocks_")) return "Project story media";
   if (field.fieldType === "gallery") return "Project gallery";
   return field.label;
 }
 
-function InlineAssetUpload({ field, onUploaded }: { field: FieldDefinition; onUploaded: (asset: AdminAsset) => void }) {
+function InlineAssetUpload({ field, mediaKind, onUploaded }: { field: FieldDefinition; mediaKind: MediaKind; onUploaded: (asset: AdminAsset) => void }) {
   const mutateAdminResource = useAdminMutation();
   const { getToken } = useAdminAuth();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -37,15 +39,14 @@ function InlineAssetUpload({ field, onUploaded }: { field: FieldDefinition; onUp
     return () => URL.revokeObjectURL(url);
   }, [file]);
 
-  async function submit(event: FormEvent) {
-    event.preventDefault();
-    if (!file) return setError("Choose an image first.");
-    if (!details.decorative && !details.altText.trim()) return setError("Add alt text or mark this image as decorative.");
+  async function submit() {
+    if (!file) return setError(`Choose ${mediaKind === "video" ? "an MP4" : "an image"} first.`);
+    if (!details.decorative && !details.altText.trim()) return setError(`Add a description or mark this ${mediaKind} as decorative.`);
     setBusy(true);
     setProgress(0);
     setError("");
     try {
-      const asset = await uploadAdminImage(
+      const asset = await uploadAdminMedia(
         file,
         details,
         setProgress,
@@ -57,7 +58,7 @@ function InlineAssetUpload({ field, onUploaded }: { field: FieldDefinition; onUp
       setDetails(initialUploadDetails);
       if (inputRef.current) inputRef.current.value = "";
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "The image could not be uploaded.");
+      setError(caught instanceof Error ? caught.message : `The ${mediaKind} could not be uploaded.`);
     } finally {
       setBusy(false);
     }
@@ -68,7 +69,9 @@ function InlineAssetUpload({ field, onUploaded }: { field: FieldDefinition; onUp
       setFile(null);
       return;
     }
-    const validationMessage = validateImageFile(candidate);
+    const validationMessage = mediaKind === "video"
+      ? validateVideoFile(candidate)
+      : validateImageFile(candidate);
     if (validationMessage) {
       setFile(null);
       setError(validationMessage);
@@ -80,25 +83,27 @@ function InlineAssetUpload({ field, onUploaded }: { field: FieldDefinition; onUp
   }
 
   return (
-    <form className="admin-inline-upload" onSubmit={submit}>
+    <div className="admin-inline-upload">
       <div className="admin-inline-upload__intro">
         <strong>Upload for {fieldRole(field)}</strong>
         <span>The file is added to the shared library and selected here. Save the draft to assign it to this project.</span>
       </div>
-      <input ref={inputRef} id={`upload-${field.key}`} type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/gif" onChange={(event: ChangeEvent<HTMLInputElement>) => choose(event.target.files?.[0] ?? null)} />
-      <label className="admin-secondary-action" htmlFor={`upload-${field.key}`}>{file ? "Choose a different image" : "Choose image"}</label>
+      <input ref={inputRef} id={`upload-${field.key}`} type="file" accept={mediaKind === "video" ? "video/mp4" : "image/jpeg,image/png,image/webp,image/avif,image/gif"} onChange={(event: ChangeEvent<HTMLInputElement>) => choose(event.target.files?.[0] ?? null)} />
+      <label className="admin-secondary-action" htmlFor={`upload-${field.key}`}>{file ? `Choose a different ${mediaKind}` : `Choose ${mediaKind}`}</label>
       {file ? (
         <div className="admin-inline-upload__details">
-          <img src={previewUrl} alt="New project upload preview" />
-          <label className="admin-field"><span>Alt text</span><input value={details.altText} disabled={details.decorative} onChange={(event) => setDetails({ ...details, altText: event.target.value })} /></label>
+          {mediaKind === "video"
+            ? <video src={previewUrl} muted loop autoPlay playsInline aria-label="New project video preview" />
+            : <img src={previewUrl} alt="New project upload preview" />}
+          <label className="admin-field"><span>{mediaKind === "video" ? "Description" : "Alt text"}</span><input value={details.altText} disabled={details.decorative} onChange={(event) => setDetails({ ...details, altText: event.target.value })} /></label>
           <label className="admin-field"><span>Caption</span><input value={details.caption} onChange={(event) => setDetails({ ...details, caption: event.target.value })} /></label>
-          <label className="admin-inline-check"><input type="checkbox" checked={details.decorative} onChange={(event) => setDetails({ ...details, decorative: event.target.checked, altText: event.target.checked ? "" : details.altText })} /><span>Decorative image</span></label>
+          <label className="admin-inline-check"><input type="checkbox" checked={details.decorative} onChange={(event) => setDetails({ ...details, decorative: event.target.checked, altText: event.target.checked ? "" : details.altText })} /><span>Decorative {mediaKind}</span></label>
           {busy ? <progress max="100" value={progress}>{progress}%</progress> : null}
-          <button className="admin-primary-action" type="submit" disabled={busy}>{busy ? `Uploading ${progress}%` : "Upload and select"}</button>
+          <button className="admin-primary-action" type="button" disabled={busy} onClick={() => void submit()}>{busy ? `Uploading ${progress}%` : "Upload and select"}</button>
         </div>
       ) : null}
       {error ? <p className="admin-form-error" role="alert">{error}</p> : null}
-    </form>
+    </div>
   );
 }
 
@@ -107,11 +112,13 @@ export function AssetFieldControl({
   value,
   onChange,
   maxItems,
+  mediaKind = "image",
 }: {
   field: FieldDefinition;
   value: unknown;
   onChange: (value: unknown) => void;
   maxItems?: number;
+  mediaKind?: MediaKind;
 }) {
   const resource = useAdminResource<AdminAsset[]>("/api/admin/media");
   const [libraryOpen, setLibraryOpen] = useState(false);
@@ -153,20 +160,27 @@ export function AssetFieldControl({
 
   const byId = new Map(resource.data.map((asset) => [asset.id, asset]));
   const selectedAssets = selectedIds.map((id) => byId.get(id)).filter((asset): asset is AdminAsset => Boolean(asset));
-  const availableAssets = resource.data.filter((asset) => !selected.has(asset.id));
+  const matchingAssets = resource.data.filter((asset) =>
+    mediaKind === "video"
+      ? asset.mimeType === "video/mp4"
+      : asset.mimeType.startsWith("image/"),
+  );
+  const availableAssets = matchingAssets.filter((asset) => !selected.has(asset.id));
 
   return (
     <div className="admin-project-media-field" data-role={fieldRole(field)}>
       <div className="admin-project-media-field__status">
         <strong>{fieldRole(field)}</strong>
-        <span>{selectedAssets.length ? `${selectedAssets.length}${maxItems ? ` of ${maxItems}` : ""} selected, pending draft save after changes` : "No image selected"}</span>
+        <span>{selectedAssets.length ? `${selectedAssets.length}${maxItems ? ` of ${maxItems}` : ""} selected, pending draft save after changes` : `No ${mediaKind} selected`}</span>
       </div>
 
       {selectedAssets.length ? (
         <div className="admin-project-media-selection">
           {selectedAssets.map((asset, index) => (
             <article key={asset.id}>
-              <img src={asset.url} alt={asset.decorative ? "" : asset.altText} />
+              {asset.mimeType === "video/mp4"
+                ? <video src={asset.url} muted playsInline preload="metadata" aria-label={asset.decorative ? undefined : asset.altText} />
+                : <img src={asset.url} alt={asset.decorative ? "" : asset.altText} />}
               <div>
                 <span>{multiple ? `Gallery ${index + 1}` : fieldRole(field)}</span>
                 <strong>{asset.originalFilename}</strong>
@@ -183,12 +197,12 @@ export function AssetFieldControl({
       ) : null}
 
       <div className="admin-project-media-field__actions">
-        <button className="admin-secondary-action" type="button" disabled={maximumReached} aria-expanded={uploadOpen} onClick={() => { setUploadOpen((current) => !current); setLibraryOpen(false); }}>{uploadOpen ? "Close upload" : selectedAssets.length && !multiple ? "Upload replacement" : "Upload new image"}</button>
+        <button className="admin-secondary-action" type="button" disabled={maximumReached} aria-expanded={uploadOpen} onClick={() => { setUploadOpen((current) => !current); setLibraryOpen(false); }}>{uploadOpen ? "Close upload" : selectedAssets.length && !multiple ? "Upload replacement" : `Upload new ${mediaKind}`}</button>
         <button className="admin-secondary-action" type="button" disabled={maximumReached} aria-expanded={libraryOpen} onClick={() => { setLibraryOpen((current) => !current); setUploadOpen(false); }}>{libraryOpen ? "Close media library" : selectedAssets.length && !multiple ? "Choose replacement" : "Choose existing asset"}</button>
       </div>
       {maximumReached ? <p className="admin-field-note">This block has reached its maximum of {maxItems} images.</p> : null}
 
-      {uploadOpen ? <InlineAssetUpload field={field} onUploaded={selectUploaded} /> : null}
+      {uploadOpen ? <InlineAssetUpload field={field} mediaKind={mediaKind} onUploaded={selectUploaded} /> : null}
 
       {libraryOpen ? (
         <section className="admin-project-media-library" aria-label={`Existing assets for ${fieldRole(field)}`}>
@@ -197,7 +211,9 @@ export function AssetFieldControl({
             <div className="admin-asset-picker">
               {availableAssets.map((asset) => (
                 <button key={asset.id} type="button" onClick={() => selectExisting(asset.id)}>
-                  <img src={asset.url} alt="" />
+                  {asset.mimeType === "video/mp4"
+                    ? <video src={asset.url} muted playsInline preload="metadata" aria-hidden="true" />
+                    : <img src={asset.url} alt="" />}
                   <span>{asset.originalFilename}</span>
                   <small>{asset.usageCount} existing use{asset.usageCount === 1 ? "" : "s"}</small>
                 </button>
