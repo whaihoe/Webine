@@ -88,16 +88,6 @@ test("links uploaded media through draft, publish, public query and archive prot
     );
     await assert.rejects(
       () => createItem("projects", {
-        title: "Wrong image media", slug: "wrong-image-media", client: "Concept study", project_kind: "concept",
-        project_type: "category_web", year: 2026, services: ["service_design"],
-        short_summary: "Image block validation.", hero_image: "asset_workflow",
-        content_blocks: [{ type: "image", assetIds: ["asset_video"] }],
-      }, "owner", "request_wrong_image", client),
-      (error) => error.code === "VALIDATION_FAILED"
-        && error.issues.some((issue) => issue.code === "IMAGE_REQUIRED"),
-    );
-    await assert.rejects(
-      () => createItem("projects", {
         title: "Incomplete bento", slug: "incomplete-bento", client: "Concept study", project_kind: "concept",
         project_type: "category_web", year: 2026, services: ["service_design"],
         short_summary: "Bento block validation.", hero_image: "asset_workflow",
@@ -111,9 +101,10 @@ test("links uploaded media through draft, publish, public query and archive prot
       title: "Workflow project", slug: "workflow-project", client: "Concept study", project_kind: "concept",
       project_type: "category_web", year: 2026, services: ["service_design"],
       short_summary: "A complete media and publishing workflow check.", hero_image: "asset_workflow",
+      hover_image: "asset_video",
       card_theme: "dark", accent_colour: "#14b8a6", featured: true, featured_order: 0,
       content_blocks: [
-        { type: "image", assetIds: ["asset_workflow", "asset_portrait"], layout: "wide" },
+        { type: "image", assetIds: ["asset_workflow", "asset_portrait", "asset_video"], layout: "wide" },
         { type: "bento", assetIds: ["asset_portrait", "asset_wide"] },
         { type: "video", assetId: "asset_video" },
       ],
@@ -121,16 +112,18 @@ test("links uploaded media through draft, publish, public query and archive prot
     assert.equal((await getAsset("asset_workflow", client)).usageCount, 2);
     assert.equal((await getAsset("asset_portrait", client)).usageCount, 2);
     assert.equal((await getAsset("asset_wide", client)).usageCount, 1);
-    assert.equal((await getAsset("asset_video", client)).usageCount, 1);
+    assert.equal((await getAsset("asset_video", client)).usageCount, 3);
 
     const published = await changeItemStatus("projects", draft.id, { action: "publish", version: draft.version }, "owner", "request_publish", client);
     assert.equal(published.status, "published");
     const publicProjects = await listPublicProjects({ featuredOnly: true }, client);
     assert.equal(publicProjects[0].slug, "workflow-project");
     assert.equal(publicProjects[0].accentColour, "#14b8a6");
-    assert.equal(publicProjects[0].contentBlocks[0].images.length, 2);
+    assert.equal(publicProjects[0].contentBlocks[0].images.length, 3);
+    assert.equal(publicProjects[0].contentBlocks[0].images[2].mimeType, "video/mp4");
     assert.equal(publicProjects[0].contentBlocks[1].images.length, 2);
     assert.equal(publicProjects[0].contentBlocks[2].images[0].mimeType, "video/mp4");
+    assert.equal(publicProjects[0].hoverImage.mimeType, "video/mp4");
     await assert.rejects(() => archiveAsset("asset_workflow", "owner", "request_archive", client), (error) => error.code === "ASSET_IN_USE");
 
     const unpublished = await changeItemStatus("projects", draft.id, { action: "unpublish", version: published.version }, "owner", "request_unpublish", client);

@@ -24,10 +24,10 @@ export function ProjectMediaOverview({ data, dirty }: { data: Record<string, unk
   return (
     <section className="admin-project-media-overview" aria-labelledby="project-media-heading">
       <div className="admin-project-media-overview__heading">
-        <div><span>Project media</span><h2 id="project-media-heading">Images assigned to this project</h2></div>
+        <div><span>Project media</span><h2 id="project-media-heading">Media assigned to this project</h2></div>
         <strong data-dirty={dirty}>{dirty ? "Changes not saved" : "All changes saved"}</strong>
       </div>
-      <p>Upload inside each image field or choose from the shared library. Assignments become part of this project when the draft is saved.</p>
+      <p>Upload inside each media field or choose from the shared library. Assignments become part of this project when the draft is saved.</p>
       <div className="admin-project-media-overview__roles">
         {roles.map((role) => (
           <a key={role.key} href={`#field-${role.key}`}>
@@ -36,7 +36,11 @@ export function ProjectMediaOverview({ data, dirty }: { data: Record<string, unk
               <div className="admin-project-media-overview__thumbs">
                 {role.ids.slice(0, 3).map((id) => {
                   const asset = byId.get(id);
-                  return asset ? <img key={id} src={asset.url} alt="" /> : <i key={id} />;
+                  return asset
+                    ? asset.mimeType === "video/mp4"
+                      ? <video key={id} src={asset.url} muted playsInline preload="metadata" aria-hidden="true" />
+                      : <img key={id} src={asset.url} alt="" />
+                    : <i key={id} />;
                 })}
                 {role.ids.length > 3 ? <small>+{role.ids.length - 3}</small> : null}
               </div>

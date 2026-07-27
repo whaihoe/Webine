@@ -8,6 +8,7 @@ import {
   ProjectStoryBlock,
   type ProjectStoryAsset,
 } from "../components/projects/ProjectStoryBlock";
+import { ProjectMedia } from "../components/projects/ProjectMedia";
 import { SiteShell } from "../components/SiteShell";
 import type { PublicProject } from "../content/public-projects";
 import { useSiteSettings } from "../content/SiteSettingsProvider";
@@ -79,15 +80,10 @@ function ProjectCaseStudy({
           data-image-parallax-viewport="true"
           style={projectMediaFrameStyle(project.heroImage, { maxViewportHeight: 75 })}
         >
-          <img
-            data-gsap-parallax="media"
-            data-gsap-parallax-axis="vertical"
-            src={project.heroImage.url}
-            alt={project.heroImage.altText}
-            width={project.heroImage.width}
-            height={project.heroImage.height}
+          <ProjectMedia
+            asset={project.heroImage}
             loading="eager"
-            decoding="async"
+            parallax="vertical"
             style={{ objectPosition: `${project.heroImage.focalX * 100}% ${project.heroImage.focalY * 100}%` }}
           />
         </div>

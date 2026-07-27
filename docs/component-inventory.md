@@ -43,7 +43,8 @@
 | `AssetFieldControl` | Project-aware image, gallery and MP4 selector joined to the shared library | Media-type filtering, inline upload, existing asset choice, cover or supporting role, replacement, removal, ordered gallery and pending-save states |
 | `ProjectMediaOverview` | Project editor summary of cover, hover, story and social media | Assigned thumbnails, empty roles, saved and unsaved |
 | `ItemEditor` | Schema-generated draft and Project workflow | Repeated top and bottom Project actions, save, preview, publish, republish, unpublish, archive, confirmed purge, per-Project case-study colour, one-to-three-image blocks, responsive multi-image bento blocks and looping MP4 blocks |
-| `ProjectStoryBlock` | Public and protected-preview Project storytelling | Shared statement, image-group, aspect-aware bento and viewport-controlled muted MP4 rendering with backward compatibility for earlier single-image data |
+| `ProjectMedia` | Shared Project image or MP4 renderer | Native image loading or control-free muted MP4 playback that starts in the viewport, loops and pauses offscreen |
+| `ProjectStoryBlock` | Public and protected-preview Project storytelling | Shared statement, mixed-media group, aspect-aware bento and dedicated video rendering with backward compatibility for earlier single-image data |
 | `QuietInterlude` | Full long-term-value chapter aligned directly beneath the expanded runway card | Seamless takeover, section-owned point formation, top-point dispersion and reverse |
 | `ProcessTimeline` | Semantic four-stage process with line fill, early point-contact intake and centred outlet geometry | Waiting, absorbing, active, complete, emitting and reverse |
 | `ClosingCallToAction` | Final momentum scene and primary contact route | Resting grid and early-forming opaque section-anchored particle colony planet |

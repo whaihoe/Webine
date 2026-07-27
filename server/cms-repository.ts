@@ -410,14 +410,14 @@ async function validateItem(
         if (asset?.status === "ready") {
           const accepted = type === "video"
             ? asset.mimeType === "video/mp4"
-            : asset.mimeType.startsWith("image/");
+            : asset.mimeType.startsWith("image/") || asset.mimeType === "video/mp4";
           if (!accepted) {
             issues.push({
               path: `content_blocks.${index}.${type === "video" ? "assetId" : `assetIds.${assetIndex}`}`,
-              code: type === "video" ? "VIDEO_REQUIRED" : "IMAGE_REQUIRED",
+              code: type === "video" ? "VIDEO_REQUIRED" : "MEDIA_REQUIRED",
               message: type === "video"
                 ? "Select an uploaded MP4 video."
-                : "Select an uploaded image.",
+                : "Select an uploaded image or MP4 video.",
             });
           }
           return;

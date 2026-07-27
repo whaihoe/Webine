@@ -729,3 +729,10 @@
 - Read the MP4 display dimensions from its track header so the Project frame follows the uploaded video's real aspect ratio.
 - Constrained Admin picker cards, labels and preview media to their grid columns so unusually wide source images cannot overlap neighbouring assets.
 - Removed the invalid nested inline-upload form from the Project editor so image and video upload actions do not compete with the outer draft form.
+
+## 2026-07-27, MP4 availability across Project media slots
+
+- Corrected the first MP4 implementation after the shared library accepted videos but existing Project image selectors filtered them out.
+- Changed Project cover, card hover, Image and Bento selectors to show both images and MP4 assets. Social sharing fields remain image-only because Open Graph media requires an image.
+- Added one shared `ProjectMedia` renderer across Project cards, hover layers, case-study covers, story grids, bento layouts and protected previews.
+- Preserved the same control-free, muted, looping and viewport-aware playback behaviour wherever an MP4 is assigned.

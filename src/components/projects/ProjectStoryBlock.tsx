@@ -1,21 +1,14 @@
-import { useEffect, useRef } from "react";
 import {
   contentBlockType,
   type ProjectContentBlock,
 } from "../../../shared/project-content-blocks";
 import { projectMediaFrameStyle } from "./project-media-layout";
+import {
+  ProjectMedia,
+  type ProjectMediaAsset,
+} from "./ProjectMedia";
 
-export type ProjectStoryAsset = {
-  altText?: unknown;
-  decorative?: unknown;
-  focalX?: unknown;
-  focalY?: unknown;
-  height?: unknown;
-  id?: unknown;
-  mimeType?: unknown;
-  url?: unknown;
-  width?: unknown;
-};
+export type ProjectStoryAsset = ProjectMediaAsset;
 
 type ProjectStoryBlockProps = {
   block: ProjectContentBlock;
@@ -54,66 +47,13 @@ function StoryImage({
       data-image-parallax-viewport={parallax ? "true" : undefined}
       style={projectMediaFrameStyle(image, parallax ? { maxViewportHeight: 75 } : {})}
     >
-      <img
-        data-gsap-parallax={parallax ? "media" : undefined}
-        data-gsap-parallax-axis={parallax ? "vertical" : undefined}
-        src={String(image.url)}
+      <ProjectMedia
+        asset={image}
         alt={imageAlt(image)}
-        width={Number(image.width ?? 1)}
-        height={Number(image.height ?? 1)}
-        loading="lazy"
-        decoding="async"
+        parallax={parallax ? "vertical" : undefined}
         style={{ objectPosition: `${focalX * 100}% ${focalY * 100}%` }}
       />
     </div>
-  );
-}
-
-function ViewportVideo({ video }: { video: ProjectStoryAsset }) {
-  const ref = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) return undefined;
-    let visible = false;
-
-    const updatePlayback = () => {
-      if (visible && document.visibilityState === "visible") {
-        void element.play().catch(() => undefined);
-      } else {
-        element.pause();
-      }
-    };
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        visible = entry.isIntersecting && entry.intersectionRatio >= 0.2;
-        updatePlayback();
-      },
-      { threshold: [0, 0.2, 0.5] },
-    );
-    observer.observe(element);
-    document.addEventListener("visibilitychange", updatePlayback);
-    return () => {
-      observer.disconnect();
-      document.removeEventListener("visibilitychange", updatePlayback);
-      element.pause();
-    };
-  }, []);
-
-  const decorative = video.decorative === true;
-  return (
-    <video
-      ref={ref}
-      src={String(video.url)}
-      width={Number(video.width ?? 1)}
-      height={Number(video.height ?? 1)}
-      muted
-      loop
-      playsInline
-      preload="metadata"
-      aria-hidden={decorative ? "true" : undefined}
-      aria-label={decorative ? undefined : String(video.altText ?? "")}
-    />
   );
 }
 
@@ -146,7 +86,7 @@ export function ProjectStoryBlock({
             className="project-case-study__media-frame project-case-study__media-frame--video"
             style={projectMediaFrameStyle(images[0])}
           >
-            <ViewportVideo video={images[0]} />
+            <ProjectMedia asset={images[0]} />
           </div>
           {caption ? <figcaption>{caption}</figcaption> : null}
         </figure>

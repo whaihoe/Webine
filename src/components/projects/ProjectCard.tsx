@@ -4,6 +4,7 @@ import { gsap } from "../../animation/scroll-runtime";
 import type { PublicProject } from "../../content/public-projects";
 import { DirectionalArrow } from "../DirectionalArrow";
 import { projectMediaFrameStyle } from "./project-media-layout";
+import { ProjectMedia } from "./ProjectMedia";
 
 type ProjectCardProps = {
   project: PublicProject;
@@ -97,28 +98,21 @@ export function ProjectCard({
           data-gsap-parallax={compact ? undefined : "media"}
           data-gsap-parallax-axis={compact ? undefined : "vertical"}
         >
-          <img
-            data-image-parallax-axis={compact ? "horizontal" : undefined}
-            src={project.heroImage.url}
-            alt={project.heroImage.altText}
-            width={project.heroImage.width}
-            height={project.heroImage.height}
+          <ProjectMedia
+            asset={project.heroImage}
+            imageParallaxAxis={compact ? "horizontal" : undefined}
             loading={priority ? "eager" : "lazy"}
-            decoding="async"
             style={{
               objectPosition:
                 `${project.heroImage.focalX * 100}% ${project.heroImage.focalY * 100}%`,
             }}
           />
           {project.hoverImage ? (
-            <img
+            <ProjectMedia
+              asset={project.hoverImage}
               className="project-card__hover-image"
-              src={project.hoverImage.url}
               alt=""
-              width={project.hoverImage.width}
-              height={project.hoverImage.height}
               loading="lazy"
-              decoding="async"
               style={{
                 objectPosition:
                   `${project.hoverImage.focalX * 100}% ${project.hoverImage.focalY * 100}%`,

@@ -327,8 +327,17 @@ function validateAsset(
     return [issue(path, "ASSET_NOT_READY", "Select an image that has finished processing.")];
   }
 
-  if (asset.mimeType && !asset.mimeType.startsWith("image/")) {
-    return [issue(path, "IMAGE_REQUIRED", "Select an uploaded image.")];
+  const isImage = asset.mimeType?.startsWith("image/") ?? true;
+  const isVideo = asset.mimeType === "video/mp4";
+  const requiresImage = field.key.includes("social_image");
+  if (!isImage && !(isVideo && !requiresImage)) {
+    return [issue(
+      path,
+      requiresImage ? "IMAGE_REQUIRED" : "MEDIA_REQUIRED",
+      requiresImage
+        ? "Select an uploaded image."
+        : "Select an uploaded image or MP4 video.",
+    )];
   }
 
   if (field.validation.requireAltText && !asset.decorative && !asset.altText.trim()) {

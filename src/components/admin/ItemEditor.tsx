@@ -220,7 +220,7 @@ function ContentBlocksControl({ field, value, onChange }: { field: FieldDefiniti
             field={{ ...field, key: `${field.key}_${index}`, fieldType: type === "video" ? "image" : "gallery" }}
             value={type === "video" ? assetIds[0] : assetIds}
             maxItems={type === "image" ? PROJECT_IMAGE_BLOCK_MAX_ASSETS : undefined}
-            mediaKind={type === "video" ? "video" : "image"}
+            mediaKind={type === "video" ? "video" : "media"}
             onChange={(nextAssetIds) => update(index, type === "video"
               ? { type, assetId: nextAssetIds, assetIds: undefined, layout: undefined }
               : { type, assetIds: nextAssetIds, assetId: undefined, layout: type === "bento" ? undefined : block.layout })}
