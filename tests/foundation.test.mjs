@@ -733,7 +733,7 @@ test("keeps the process line behind its timeline nodes", async () => {
 });
 
 test("extends the Home motion language across Works and Contact without assigning GSAP to particles", async () => {
-  const [homeExperience, homePage, heroAmbient, works, contact, galaxyBackdrop, projectCard, ambientParticles, particleCanvas, mobileParticles, styles, homeStyles, particleStyles] = await Promise.all([
+  const [homeExperience, homePage, heroAmbient, works, contact, galaxyBackdrop, projectCard, projectMedia, ambientParticles, particleCanvas, mobileParticles, styles, homeStyles, particleStyles] = await Promise.all([
     readFile(new URL("src/components/home/HomeParticleExperience.tsx", projectRoot), "utf8"),
     readFile(new URL("src/pages/HomePage.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/home/HeroAmbientBackground.tsx", projectRoot), "utf8"),
@@ -741,6 +741,7 @@ test("extends the Home motion language across Works and Contact without assignin
     readFile(new URL("src/pages/ContactPage.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/GalaxyBackdrop.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/projects/ProjectCard.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/projects/ProjectMedia.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/AmbientParticleField.tsx", projectRoot), "utf8"),
     readFile(new URL("src/three/ParticleNarrativeCanvas.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/home/MobileSectionParticles.tsx", projectRoot), "utf8"),
@@ -749,11 +750,10 @@ test("extends the Home motion language across Works and Contact without assignin
     readFile(new URL("src/styles/particles.css", projectRoot), "utf8"),
   ]);
 
-  assert.match(works, /data-gsap-parallax="media"/);
-  assert.match(works, /data-gsap-parallax-axis="vertical"/);
+  assert.match(works, /parallax="vertical"/);
   assert.match(styles, /\.project-case-study__media-frame\s*{[^}]*width:\s*100%[^}]*min-width:\s*0[^}]*min-height:\s*0/s);
   assert.doesNotMatch(styles, /--project-media-safe-inset/);
-  assert.match(styles, /\.project-case-study__media-frame img\s*{[^}]*inset:\s*-6% 0[^}]*object-fit:\s*cover/s);
+  assert.match(styles, /\.project-case-study__media-frame :is\(img, video\)\s*{[^}]*inset:\s*-6% 0[^}]*object-fit:\s*cover/s);
   assert.match(styles, /\.galaxy-backdrop--project \.galaxy-backdrop__nebula\s*{[^}]*var\(--galaxy-project-accent\)/s);
   assert.doesNotMatch(styles, /--project-accent/);
   assert.doesNotMatch(styles, /\.project-grid > \.project-card:first-child \.project-card__media\s*\{[^}]*aspect-ratio/s);
@@ -762,14 +762,18 @@ test("extends the Home motion language across Works and Contact without assignin
   assert.match(styles, /data-block-type="bento"/);
   assert.match(styles, /\.project-bento-grid/);
   assert.match(styles, /data-image-shape="portrait"/);
+  assert.match(styles, /data-image-count="2"[^}]*\.project-story-image-grid\s*{[^}]*grid-template-columns:\s*minmax\(0, 1fr\)/s);
+  assert.match(styles, /@media \(min-width:\s*48rem\)[\s\S]*data-image-count="2"[^}]*\.project-story-image-grid\s*{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/s);
   assert.match(homeStyles, /\.work-runway\[data-scroll-mode="pinned"\] \.work-card\s*{[^}]*grid-template-rows:\s*minmax\(0, 1fr\)/s);
   assert.match(homeStyles, /\.work-card__media\s*{[^}]*aspect-ratio:\s*16 \/ 10/s);
   assert.match(works, /<GalaxyBackdrop accentColour=\{active\.accentColour\} \/>/);
   assert.match(projectCard, /data-gsap-parallax=\{compact \? undefined : "media"\}/);
-  assert.match(projectCard, /data-image-parallax-axis=\{compact \? "horizontal" : undefined\}/);
+  assert.match(projectCard, /imageParallaxAxis=\{compact \? "horizontal" : undefined\}/);
+  assert.match(projectMedia, /IntersectionObserver/);
+  assert.match(projectMedia, /muted\s+loop\s+playsInline/);
   assert.doesNotMatch(projectCard, /work-card__media-backdrop/);
   assert.match(styles, /\.project-card--compact \.project-card__media-motion\s*{[^}]*inset:\s*0 -6%/s);
-  assert.match(styles, /\.project-card--compact \.project-card__media img\s*{[^}]*object-fit:\s*cover/s);
+  assert.match(styles, /\.project-card--compact \.project-card__media :is\(img, video\)\s*{[^}]*object-fit:\s*cover/s);
   assert.doesNotMatch(styles, /\.work-card__media-backdrop/);
   assert.doesNotMatch(styles, /\.project-card__content-link:hover\s*{[^}]*background/s);
   assert.match(styles, /\.project-card__content-link:focus-visible/);

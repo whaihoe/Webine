@@ -736,3 +736,8 @@
 - Changed Project cover, card hover, Image and Bento selectors to show both images and MP4 assets. Social sharing fields remain image-only because Open Graph media requires an image.
 - Added one shared `ProjectMedia` renderer across Project cards, hover layers, case-study covers, story grids, bento layouts and protected previews.
 - Preserved the same control-free, muted, looping and viewport-aware playback behaviour wherever an MP4 is assigned.
+
+## 2026-07-27, Two-media mobile stacking
+
+- Changed two-asset Image blocks to one column below 48 rem so phone layouts place the second image or video below the first instead of shrinking both side by side.
+- Kept the two-column composition from tablet widths upwards.
