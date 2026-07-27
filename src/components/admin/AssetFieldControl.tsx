@@ -11,8 +11,8 @@ function fieldRole(field: FieldDefinition) {
   if (field.key === "hero_image") return "Project cover";
   if (field.key === "hover_image") return "Card hover image";
   if (field.key === "social_image") return "Social sharing image";
-  if (field.fieldType === "gallery") return "Project gallery";
   if (field.key.startsWith("content_blocks_")) return "Project story image";
+  if (field.fieldType === "gallery") return "Project gallery";
   return field.label;
 }
 
@@ -102,21 +102,34 @@ function InlineAssetUpload({ field, onUploaded }: { field: FieldDefinition; onUp
   );
 }
 
-export function AssetFieldControl({ field, value, onChange }: { field: FieldDefinition; value: unknown; onChange: (value: unknown) => void }) {
+export function AssetFieldControl({
+  field,
+  value,
+  onChange,
+  maxItems,
+}: {
+  field: FieldDefinition;
+  value: unknown;
+  onChange: (value: unknown) => void;
+  maxItems?: number;
+}) {
   const resource = useAdminResource<AdminAsset[]>("/api/admin/media");
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
   const multiple = field.fieldType === "gallery";
   const selectedIds = Array.isArray(value) ? value.map(String) : typeof value === "string" ? [value] : [];
   const selected = new Set(selectedIds);
+  const maximumReached = Boolean(multiple && maxItems && selectedIds.length >= maxItems);
 
   function selectUploaded(asset: AdminAsset) {
+    if (maximumReached) return;
     onChange(multiple ? [...selectedIds, asset.id] : asset.id);
     setUploadOpen(false);
     resource.retry();
   }
 
   function selectExisting(assetId: string) {
+    if (maximumReached) return;
     onChange(multiple ? [...selectedIds, assetId] : assetId);
     setLibraryOpen(false);
   }
@@ -146,7 +159,7 @@ export function AssetFieldControl({ field, value, onChange }: { field: FieldDefi
     <div className="admin-project-media-field" data-role={fieldRole(field)}>
       <div className="admin-project-media-field__status">
         <strong>{fieldRole(field)}</strong>
-        <span>{selectedAssets.length ? `${selectedAssets.length} selected, pending draft save after changes` : "No image selected"}</span>
+        <span>{selectedAssets.length ? `${selectedAssets.length}${maxItems ? ` of ${maxItems}` : ""} selected, pending draft save after changes` : "No image selected"}</span>
       </div>
 
       {selectedAssets.length ? (
@@ -170,9 +183,10 @@ export function AssetFieldControl({ field, value, onChange }: { field: FieldDefi
       ) : null}
 
       <div className="admin-project-media-field__actions">
-        <button className="admin-secondary-action" type="button" aria-expanded={uploadOpen} onClick={() => { setUploadOpen((current) => !current); setLibraryOpen(false); }}>{uploadOpen ? "Close upload" : selectedAssets.length && !multiple ? "Upload replacement" : "Upload new image"}</button>
-        <button className="admin-secondary-action" type="button" aria-expanded={libraryOpen} onClick={() => { setLibraryOpen((current) => !current); setUploadOpen(false); }}>{libraryOpen ? "Close media library" : selectedAssets.length && !multiple ? "Choose replacement" : "Choose existing asset"}</button>
+        <button className="admin-secondary-action" type="button" disabled={maximumReached} aria-expanded={uploadOpen} onClick={() => { setUploadOpen((current) => !current); setLibraryOpen(false); }}>{uploadOpen ? "Close upload" : selectedAssets.length && !multiple ? "Upload replacement" : "Upload new image"}</button>
+        <button className="admin-secondary-action" type="button" disabled={maximumReached} aria-expanded={libraryOpen} onClick={() => { setLibraryOpen((current) => !current); setUploadOpen(false); }}>{libraryOpen ? "Close media library" : selectedAssets.length && !multiple ? "Choose replacement" : "Choose existing asset"}</button>
       </div>
+      {maximumReached ? <p className="admin-field-note">This block has reached its maximum of {maxItems} images.</p> : null}
 
       {uploadOpen ? <InlineAssetUpload field={field} onUploaded={selectUploaded} /> : null}
 

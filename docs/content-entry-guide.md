@@ -21,8 +21,8 @@ Archive is available directly on each asset card. An asset used by published con
 Prepare Project images around the website's 16:10 media frame:
 
 - Cover and hover images: 2400 × 1500 px recommended, 1600 × 1000 px minimum
-- Story images: 2400 × 1500 px recommended
-- Final bento composition: 2400 × 1500 px recommended
+- Story images: use one to three images in an Image block. Two appear side by side and three form a responsive group.
+- Bento images: mix landscape, square and portrait images at a consistent export quality. The layout uses each image's real aspect ratio, so a precomposed bento image is no longer needed.
 - Social sharing image: 2400 × 1260 px, which is a 1.91:1 share ratio
 
 Keep important text, logos and faces inside the central 80 percent of the image. The website fills the frame edge to edge and uses the saved focal point during responsive cropping and parallax. Any deliberate breathing room should be part of the exported image itself.
@@ -42,7 +42,7 @@ After later edits, save the new draft, preview it and choose **Republish**. Use 
 
 The accent colour belongs only to that Project's `/works/:slug` galaxy nebula. The page keeps the shared Works particles and dark background, while the nebula derives its atmospheric gradient from the selected colour. It does not recolour the Works index, particles or Home runway.
 
-For a shorter, image-led case study, keep the optional story copy empty and add an **Image** content block as the final block. Choose **Bento feature** and upload one finished 16:10 bento composition. The block renders edge to edge without a forced heading, while an optional caption can still provide context.
+For a shorter, image-led case study, keep the optional story copy empty and add an **Image** or **Bento** content block. Image blocks accept up to three ordered images. Use Bento when several images have different proportions, such as a vertical mobile screen beside a horizontal desktop screen. Add at least two images, order them in the editor and let their stored dimensions shape the responsive layout. The complete image remains visible rather than being forced into one shared crop. An optional heading and caption can still provide context.
 
 ## Featured homepage order
 

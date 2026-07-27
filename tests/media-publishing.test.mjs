@@ -21,7 +21,12 @@ async function withDatabase(run) {
     await run(client);
   } finally {
     await client.close();
-    await rm(directory, { recursive: true, force: true });
+    await rm(directory, {
+      recursive: true,
+      force: true,
+      maxRetries: 10,
+      retryDelay: 100,
+    });
   }
 }
 
@@ -32,21 +37,71 @@ test("links uploaded media through draft, publish, public query and archive prot
       originalFilename: "workflow.png", mimeType: "image/png", byteSize: 1024, width: 1200, height: 800,
       altText: "Blue interface composition", caption: "", focalX: 0.5, focalY: 0.4, decorative: false,
     }, "owner", "request_asset", client);
+    const portraitAsset = await createAsset({
+      id: "asset_portrait", provider: "external", providerAssetId: "portrait.png", deliveryUrl: "/portrait.png",
+      originalFilename: "portrait.png", mimeType: "image/png", byteSize: 1024, width: 800, height: 1200,
+      altText: "Portrait interface composition", caption: "", focalX: 0.5, focalY: 0.5, decorative: false,
+    }, "owner", "request_portrait_asset", client);
+    const wideAsset = await createAsset({
+      id: "asset_wide", provider: "external", providerAssetId: "wide.png", deliveryUrl: "/wide.png",
+      originalFilename: "wide.png", mimeType: "image/png", byteSize: 1024, width: 1600, height: 800,
+      altText: "Wide interface composition", caption: "", focalX: 0.5, focalY: 0.5, decorative: false,
+    }, "owner", "request_wide_asset", client);
+    const squareAsset = await createAsset({
+      id: "asset_square", provider: "external", providerAssetId: "square.png", deliveryUrl: "/square.png",
+      originalFilename: "square.png", mimeType: "image/png", byteSize: 1024, width: 1000, height: 1000,
+      altText: "Square interface composition", caption: "", focalX: 0.5, focalY: 0.5, decorative: false,
+    }, "owner", "request_square_asset", client);
     assert.equal(asset.status, "ready");
+    assert.equal(portraitAsset.status, "ready");
+    assert.equal(wideAsset.status, "ready");
+    assert.equal(squareAsset.status, "ready");
+
+    await assert.rejects(
+      () => createItem("projects", {
+        title: "Too many images", slug: "too-many-images", client: "Concept study", project_kind: "concept",
+        project_type: "category_web", year: 2026, services: ["service_design"],
+        short_summary: "Image block validation.", hero_image: "asset_workflow",
+        content_blocks: [{
+          type: "image",
+          assetIds: ["asset_workflow", "asset_portrait", "asset_wide", "asset_square"],
+        }],
+      }, "owner", "request_too_many", client),
+      (error) => error.code === "VALIDATION_FAILED"
+        && error.issues.some((issue) => issue.code === "TOO_MANY_IMAGES"),
+    );
+    await assert.rejects(
+      () => createItem("projects", {
+        title: "Incomplete bento", slug: "incomplete-bento", client: "Concept study", project_kind: "concept",
+        project_type: "category_web", year: 2026, services: ["service_design"],
+        short_summary: "Bento block validation.", hero_image: "asset_workflow",
+        content_blocks: [{ type: "bento", assetIds: ["asset_portrait"] }],
+      }, "owner", "request_incomplete_bento", client),
+      (error) => error.code === "VALIDATION_FAILED"
+        && error.issues.some((issue) => issue.code === "MEDIA_REQUIRED"),
+    );
 
     const draft = await createItem("projects", {
       title: "Workflow project", slug: "workflow-project", client: "Concept study", project_kind: "concept",
       project_type: "category_web", year: 2026, services: ["service_design"],
       short_summary: "A complete media and publishing workflow check.", hero_image: "asset_workflow",
       card_theme: "dark", accent_colour: "#14b8a6", featured: true, featured_order: 0,
+      content_blocks: [
+        { type: "image", assetIds: ["asset_workflow", "asset_portrait"], layout: "wide" },
+        { type: "bento", assetIds: ["asset_portrait", "asset_wide"] },
+      ],
     }, "owner", "request_item", client);
-    assert.equal((await getAsset("asset_workflow", client)).usageCount, 1);
+    assert.equal((await getAsset("asset_workflow", client)).usageCount, 2);
+    assert.equal((await getAsset("asset_portrait", client)).usageCount, 2);
+    assert.equal((await getAsset("asset_wide", client)).usageCount, 1);
 
     const published = await changeItemStatus("projects", draft.id, { action: "publish", version: draft.version }, "owner", "request_publish", client);
     assert.equal(published.status, "published");
     const publicProjects = await listPublicProjects({ featuredOnly: true }, client);
     assert.equal(publicProjects[0].slug, "workflow-project");
     assert.equal(publicProjects[0].accentColour, "#14b8a6");
+    assert.equal(publicProjects[0].contentBlocks[0].images.length, 2);
+    assert.equal(publicProjects[0].contentBlocks[1].images.length, 2);
     await assert.rejects(() => archiveAsset("asset_workflow", "owner", "request_archive", client), (error) => error.code === "ASSET_IN_USE");
 
     const unpublished = await changeItemStatus("projects", draft.id, { action: "unpublish", version: published.version }, "owner", "request_unpublish", client);

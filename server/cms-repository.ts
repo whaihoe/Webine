@@ -9,6 +9,13 @@ import {
   type FieldValidation,
   type ValidationIssue,
 } from "../src/cms/schema.js";
+import {
+  contentBlockAssetIds,
+  contentBlockType,
+  isMediaContentBlock,
+  PROJECT_BENTO_BLOCK_MIN_ASSETS,
+  PROJECT_IMAGE_BLOCK_MAX_ASSETS,
+} from "../shared/project-content-blocks.js";
 import { getDatabase } from "./database.js";
 
 export class CmsRepositoryError extends Error {
@@ -369,11 +376,36 @@ async function validateItem(
   if (collectionKey === "projects" && data && typeof data === "object" && !Array.isArray(data)) {
     const blocks = (data as Record<string, unknown>).content_blocks;
     if (Array.isArray(blocks)) blocks.forEach((block, index) => {
-      if (!block || typeof block !== "object" || (block as Record<string, unknown>).type !== "image") return;
-      const assetId = (block as Record<string, unknown>).assetId;
-      if (typeof assetId !== "string" || assets[assetId]?.status !== "ready") {
-        issues.push({ path: `content_blocks.${index}.assetId`, code: "ASSET_NOT_READY", message: "Select an uploaded image for this block." });
+      if (!block || typeof block !== "object") return;
+      const candidate = block as Record<string, unknown>;
+      if (!isMediaContentBlock(candidate)) return;
+      const type = contentBlockType(candidate);
+      const assetIds = contentBlockAssetIds(candidate);
+      const minimum = type === "bento" ? PROJECT_BENTO_BLOCK_MIN_ASSETS : 1;
+      if (assetIds.length < minimum) {
+        issues.push({
+          path: `content_blocks.${index}.assetIds`,
+          code: "MEDIA_REQUIRED",
+          message: type === "bento"
+            ? `Select at least ${PROJECT_BENTO_BLOCK_MIN_ASSETS} uploaded images for this bento block.`
+            : "Select at least one uploaded image for this block.",
+        });
       }
+      if (type === "image" && assetIds.length > PROJECT_IMAGE_BLOCK_MAX_ASSETS) {
+        issues.push({
+          path: `content_blocks.${index}.assetIds`,
+          code: "TOO_MANY_IMAGES",
+          message: `Image blocks can contain up to ${PROJECT_IMAGE_BLOCK_MAX_ASSETS} images.`,
+        });
+      }
+      assetIds.forEach((assetId, assetIndex) => {
+        if (assets[assetId]?.status === "ready") return;
+        issues.push({
+          path: `content_blocks.${index}.assetIds.${assetIndex}`,
+          code: "ASSET_NOT_READY",
+          message: "Select an uploaded image that is ready to use.",
+        });
+      });
     });
   }
   if (issues.length > 0) {
@@ -426,12 +458,11 @@ async function itemRelationshipStatements(
     });
     if (field.fieldType === "content_blocks" && Array.isArray(raw)) {
       raw.forEach((block, index) => {
-        if (!block || typeof block !== "object" || (block as Record<string, unknown>).type !== "image") return;
-        const assetId = (block as Record<string, unknown>).assetId;
-        if (typeof assetId === "string") statements.push({
+        if (!block || typeof block !== "object") return;
+        contentBlockAssetIds(block as Record<string, unknown>).forEach((assetId, assetIndex) => statements.push({
           sql: "INSERT INTO asset_usages (asset_id, item_id, field_definition_id, usage_path) VALUES (?, ?, ?, ?)",
-          args: [assetId, itemId, fieldId, `content_blocks.${index}.assetId`],
-        });
+          args: [assetId, itemId, fieldId, `content_blocks.${index}.assetIds.${assetIndex}`],
+        }));
       });
     }
   });

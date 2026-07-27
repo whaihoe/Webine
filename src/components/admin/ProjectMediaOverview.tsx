@@ -1,12 +1,13 @@
 import type { AdminAsset } from "../../admin/api";
 import { useAdminResource } from "../../admin/useAdminResource";
+import { contentBlockAssetIds } from "../../../shared/project-content-blocks";
 
 function storyAssetIds(data: Record<string, unknown>) {
   const blocks = Array.isArray(data.content_blocks) ? data.content_blocks : [];
   return blocks.flatMap((block) => {
     if (!block || typeof block !== "object") return [];
     const candidate = block as Record<string, unknown>;
-    return candidate.type === "image" && typeof candidate.assetId === "string" ? [candidate.assetId] : [];
+    return contentBlockAssetIds(candidate);
   });
 }
 

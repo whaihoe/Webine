@@ -713,3 +713,11 @@
 - Kept geometry-matched cursor morphing for ordinary controls. Project media and content links now declare a large interactive surface, which uses a 58-pixel version of the resting circular cursor rather than a clamped rounded rectangle.
 - Touch and coarse-pointer behaviour is unchanged. The card remains a semantic link and keyboard focus retains the same overlay and content feedback.
 - Zero-warning lint, the Node 22 production build, server type checks, test-server build and all 60 automated tests pass.
+
+## 2026-07-27, Project multi-image and responsive bento content
+
+- Extended Project Image blocks from one asset to an ordered maximum of three. Two images render side by side, while three form a responsive group.
+- Replaced the Admin layout option for a single precomposed bento image with a separate Bento block type. It accepts multiple assets and uses stored width and height to classify wide, landscape, square, portrait and tall images.
+- Kept each bento image fully visible and used its natural aspect ratio to shape the layout across phone and desktop widths.
+- Preserved earlier `assetId` Image blocks and the former `layout: "bento"` data contract, while new edits use ordered `assetIds`.
+- Extended validation, asset-usage tracking, public mapping, protected preview and project media summaries across every image assigned to either block type.

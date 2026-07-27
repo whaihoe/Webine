@@ -8,6 +8,7 @@ import react from "@vitejs/plugin-react";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const projectRoot = new URL("../", import.meta.url);
 
@@ -27,7 +28,7 @@ function field(key, fieldType, extras = {}) {
 test("renders the collection builder and every generated item control", async () => {
   const cacheDirectory = await mkdtemp(join(tmpdir(), "webine-vite-test-"));
   const server = await createServer({
-    root: new URL(".", projectRoot).pathname,
+    root: fileURLToPath(new URL(".", projectRoot)),
     cacheDir: cacheDirectory,
     configFile: false,
     plugins: [react()],
@@ -36,10 +37,11 @@ test("renders the collection builder and every generated item control", async ()
   });
 
   try {
-    const [{ CollectionEditor }, { ItemEditor }, { WorkspaceShell }] = await Promise.all([
+    const [{ CollectionEditor }, { ItemEditor }, { WorkspaceShell }, { ProjectStoryBlock }] = await Promise.all([
       server.ssrLoadModule("/src/components/admin/CollectionEditor.tsx"),
       server.ssrLoadModule("/src/components/admin/ItemEditor.tsx"),
       server.ssrLoadModule("/src/components/WorkspaceShell.tsx"),
+      server.ssrLoadModule("/src/components/projects/ProjectStoryBlock.tsx"),
     ]);
     const fields = [
       field("title", "short_text", { required: true }),
@@ -60,7 +62,7 @@ test("renders the collection builder and every generated item control", async ()
       field("related_many", "multi_reference", { validation: { targetCollection: "projects" } }),
       field("metadata", "field_group"),
       field("credits", "repeatable_group"),
-      field("blocks", "content_blocks"),
+      field("content_blocks", "content_blocks"),
     ].map((entry, position) => ({ ...entry, position }));
     const collection = {
       key: "render_test",
@@ -90,7 +92,7 @@ test("renders the collection builder and every generated item control", async ()
           status: "draft",
           version: 1,
           updatedAt: "2026-07-19T00:00:00.000Z",
-          data: { blocks: [{ type: "image", assetId: "asset_case", heading: "Project goal", text: "Caption", layout: "full" }] },
+          data: { content_blocks: [{ type: "image", assetId: "asset_case", heading: "Project goal", text: "Caption", layout: "full" }] },
         },
       })),
     );
@@ -105,6 +107,17 @@ test("renders the collection builder and every generated item control", async ()
         ),
       ),
     );
+    const bentoHtml = renderToStaticMarkup(
+      React.createElement(ProjectStoryBlock, {
+        block: { type: "bento", heading: "Responsive compositions", text: "Mixed project views." },
+        blockIndex: 0,
+        images: [
+          { id: "wide", url: "/wide.png", altText: "Wide view", width: 1800, height: 900 },
+          { id: "portrait", url: "/portrait.png", altText: "Portrait view", width: 800, height: 1200 },
+          { id: "square", url: "/square.png", altText: "Square view", width: 1000, height: 1000 },
+        ],
+      }),
+    );
 
     assert.match(collectionHtml, /Collection details/);
     assert.match(collectionHtml, /Add field/);
@@ -115,9 +128,14 @@ test("renders the collection builder and every generated item control", async ()
     assert.match(itemHtml, /Loading referenced items/);
     assert.match(imageBlockHtml, /Image section heading/);
     assert.match(imageBlockHtml, /Optional image caption/);
-    assert.match(imageBlockHtml, /Bento feature/);
+    assert.match(imageBlockHtml, /option value="bento">Bento/);
     assert.match(imageBlockHtml, /Image layout/);
     assert.match(imageBlockHtml, /option value="full" selected="">Full width/);
+    assert.match(bentoHtml, /data-block-type="bento"/);
+    assert.match(bentoHtml, /data-image-count="3"/);
+    assert.match(bentoHtml, /data-image-shape="wide"/);
+    assert.match(bentoHtml, /data-image-shape="portrait"/);
+    assert.match(bentoHtml, /data-image-shape="square"/);
     assert.equal((itemHtml.match(/<fieldset/g) ?? []).length, fields.length);
     assert.match(workspaceHtml, /aria-label="Webine Admin breadcrumb"/);
     assert.match(workspaceHtml, /href="\/admin">Admin<\/a>/);

@@ -1,5 +1,6 @@
 import type { Client, Row } from "@libsql/client";
 import type { PublicProject } from "../src/content/public-projects.js";
+import { contentBlockAssetIds } from "../shared/project-content-blocks.js";
 import { getDatabase } from "./database.js";
 
 type PublicAsset = PublicProject["heroImage"];
@@ -107,10 +108,10 @@ export async function listPublicProjects(
       aboutClient: textFromStructured(data.about_client),
       contentBlocks: Array.isArray(data.content_blocks)
         ? (data.content_blocks as Array<Record<string, unknown>>).map((block) => {
-            const image = block.type === "image"
-              ? assets.get(String(block.assetId ?? ""))
-              : undefined;
-            return image ? { ...block, image } : block;
+            const images = contentBlockAssetIds(block)
+              .map((assetId) => assets.get(assetId))
+              .filter((image): image is PublicAsset => Boolean(image));
+            return images.length ? { ...block, image: images[0], images } : block;
           })
         : [],
       credits: Array.isArray(data.credits)

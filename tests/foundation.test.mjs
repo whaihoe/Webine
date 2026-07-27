@@ -759,7 +759,9 @@ test("extends the Home motion language across Works and Contact without assignin
   assert.doesNotMatch(styles, /\.project-grid > \.project-card:first-child \.project-card__media\s*\{[^}]*aspect-ratio/s);
   assert.match(projectCard, /style=\{compact \? undefined : projectMediaFrameStyle\(project\.heroImage\)\}/);
   assert.match(works, /projectMediaFrameStyle\(project\.heroImage, \{ maxViewportHeight: 75 \}\)/);
-  assert.match(styles, /data-block-layout="bento"/);
+  assert.match(styles, /data-block-type="bento"/);
+  assert.match(styles, /\.project-bento-grid/);
+  assert.match(styles, /data-image-shape="portrait"/);
   assert.match(homeStyles, /\.work-runway\[data-scroll-mode="pinned"\] \.work-card\s*{[^}]*grid-template-rows:\s*minmax\(0, 1fr\)/s);
   assert.match(homeStyles, /\.work-card__media\s*{[^}]*aspect-ratio:\s*16 \/ 10/s);
   assert.match(works, /<GalaxyBackdrop accentColour=\{active\.accentColour\} \/>/);
@@ -907,6 +909,8 @@ test("keeps the generated CMS editor protected and out of the public bundle", as
   assert.match(itemEditor, /Upload image/);
   assert.match(itemEditor, /AssetFieldControl/);
   assert.match(itemEditor, /Add content block/);
+  assert.match(itemEditor, /PROJECT_IMAGE_BLOCK_MAX_ASSETS/);
+  assert.match(itemEditor, /option value="bento">Bento/);
   assert.match(itemEditor, /Changes not saved/);
   assert.match(itemEditor, /ProjectMediaOverview/);
   assert.match(itemEditor, /beforeunload/);

@@ -4,20 +4,15 @@ import { DirectionalArrow } from "../components/DirectionalArrow";
 import { GalaxyBackdrop } from "../components/GalaxyBackdrop";
 import { ProjectCard } from "../components/projects/ProjectCard";
 import { projectMediaFrameStyle } from "../components/projects/project-media-layout";
+import {
+  ProjectStoryBlock,
+  type ProjectStoryAsset,
+} from "../components/projects/ProjectStoryBlock";
 import { SiteShell } from "../components/SiteShell";
 import type { PublicProject } from "../content/public-projects";
 import { useSiteSettings } from "../content/SiteSettingsProvider";
 import { usePageMetadata } from "../hooks/usePageMetadata";
 import { usePublicProjects } from "../hooks/usePublicProjects";
-
-type ProjectBlockImage = {
-  altText?: unknown;
-  focalX?: unknown;
-  focalY?: unknown;
-  height?: unknown;
-  url?: unknown;
-  width?: unknown;
-};
 
 function formatCompletionDate(value?: string) {
   if (!value) return "";
@@ -116,42 +111,12 @@ function ProjectCaseStudy({
           </article>
         ) : null)}
         {project.contentBlocks.map((block, blockIndex) => {
-          const image = block.image && typeof block.image === "object"
-            ? block.image as ProjectBlockImage
-            : null;
-
-          return (
-            <article
-              key={`${String(block.type ?? "story")}-${blockIndex}`}
-              data-block-type={String(block.type ?? "story")}
-              data-block-layout={String(block.layout ?? "wide")}
-              data-gsap-reveal="card"
-            >
-              <span>{String(block.heading ?? block.type ?? "Story")}</span>
-              {image?.url ? (
-                <figure>
-                  <div
-                    className="project-case-study__media-frame project-case-study__media-frame--story"
-                    data-image-parallax-viewport="true"
-                    style={projectMediaFrameStyle(image, { maxViewportHeight: 75 })}
-                  >
-                    <img
-                      data-gsap-parallax="media"
-                      data-gsap-parallax-axis="vertical"
-                      src={String(image.url)}
-                      alt={String(image.altText ?? "")}
-                      width={Number(image.width ?? 1)}
-                      height={Number(image.height ?? 1)}
-                      loading="lazy"
-                      decoding="async"
-                      style={{ objectPosition: `${Number(image.focalX ?? 0.5) * 100}% ${Number(image.focalY ?? 0.5) * 100}%` }}
-                    />
-                  </div>
-                  {block.text ? <figcaption>{String(block.text)}</figcaption> : null}
-                </figure>
-              ) : <p>{String(block.text ?? "")}</p>}
-            </article>
-          );
+          const images = Array.isArray(block.images)
+            ? block.images.filter((image): image is ProjectStoryAsset => Boolean(image) && typeof image === "object")
+            : block.image && typeof block.image === "object"
+              ? [block.image as ProjectStoryAsset]
+              : [];
+          return <ProjectStoryBlock key={`${String(block.type ?? "story")}-${blockIndex}`} block={block} blockIndex={blockIndex} images={images} reveal />;
         })}
       </div>
 
