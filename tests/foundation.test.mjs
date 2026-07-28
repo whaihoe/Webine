@@ -278,7 +278,10 @@ test("enables the approved homepage experience layers", async () => {
   assert.match(config, /smoothScroll:\s*{\s*enabled:\s*true/);
   assert.match(config, /signalGrid:\s*{\s*enabled:\s*true/);
   assert.match(config, /interludeObject:\s*{[\s\S]*?type:\s*"elliptical-torus-bands"[\s\S]*?rotationDegrees:\s*\[0, 0, 0\]/);
-  assert.match(config, /count:\s*6000/);
+  assert.match(
+    config,
+    /desktop:\s*{[\s\S]*?count:\s*5000[\s\S]*?pixelRatioCap:\s*1\.25[\s\S]*?maxFrameRate:\s*45/,
+  );
   assert.match(config, /count:\s*1800/);
   assert.match(config, /pixelRatioCap:\s*1\.25/);
   assert.match(config, /pointSize:\s*4\.2/);
@@ -766,6 +769,9 @@ test("extends the Home motion language across Works and Contact without assignin
   assert.match(styles, /@media \(min-width:\s*48rem\)[\s\S]*data-image-count="2"[^}]*\.project-story-image-grid\s*{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/s);
   assert.match(homeStyles, /\.work-runway\[data-scroll-mode="pinned"\] \.work-card\s*{[^}]*grid-template-rows:\s*minmax\(0, 1fr\)/s);
   assert.match(homeStyles, /\.work-card__media\s*{[^}]*aspect-ratio:\s*16 \/ 10/s);
+  assert.match(particleCanvas, /frameloop="demand"/);
+  assert.match(particleCanvas, /1000 \/ maxFrameRate/);
+  assert.match(particleCanvas, /requestAnimationFrame\(renderFrame\)/);
   assert.match(works, /<GalaxyBackdrop accentColour=\{active\.accentColour\} \/>/);
   assert.match(projectCard, /data-gsap-parallax=\{compact \? undefined : "media"\}/);
   assert.match(projectCard, /imageParallaxAxis=\{compact \? "horizontal" : undefined\}/);

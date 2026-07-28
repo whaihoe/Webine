@@ -149,12 +149,12 @@ export const experienceConfig = {
     },
     desktop: {
       minWidth: 1024,
-      count: 6000,
+      count: 5000,
       ambientRatio: 0.045,
       pointSize: 3.2,
-      pixelRatioCap: 1.5,
+      pixelRatioCap: 1.25,
       objectScale: 1,
-      maxFrameRate: 60,
+      maxFrameRate: 45,
       measurementSettleMs: 1200,
     },
     tablet: {

@@ -53,6 +53,44 @@ function CanvasLifecycle({
   return null;
 }
 
+function CanvasFrameScheduler({
+  active,
+  maxFrameRate,
+}: {
+  active: boolean;
+  maxFrameRate: number;
+}) {
+  const invalidate = useThree((state) => state.invalidate);
+
+  useEffect(() => {
+    if (!active) {
+      return;
+    }
+
+    let animationFrame = 0;
+    let previousFrame = 0;
+    const frameInterval = 1000 / maxFrameRate;
+
+    const renderFrame = (time: number) => {
+      if (time - previousFrame >= frameInterval) {
+        previousFrame = time - ((time - previousFrame) % frameInterval);
+        invalidate();
+      }
+
+      animationFrame = window.requestAnimationFrame(renderFrame);
+    };
+
+    invalidate();
+    animationFrame = window.requestAnimationFrame(renderFrame);
+
+    return () => {
+      window.cancelAnimationFrame(animationFrame);
+    };
+  }, [active, invalidate, maxFrameRate]);
+
+  return null;
+}
+
 export default function ParticleNarrativeCanvas({
   active,
   progressStore,
@@ -147,7 +185,7 @@ export default function ParticleNarrativeCanvas({
       aria-hidden="true"
       camera={{ position: [0, 0, 7.4], fov: 48, near: 0.1, far: 30 }}
       dpr={profile.pixelRatioCap}
-      frameloop={active ? "always" : "never"}
+      frameloop="demand"
       gl={{
         alpha: true,
         antialias: false,
@@ -156,6 +194,10 @@ export default function ParticleNarrativeCanvas({
       }}
     >
       <CanvasLifecycle onFailure={onFailure} />
+      <CanvasFrameScheduler
+        active={active}
+        maxFrameRate={profile.maxFrameRate}
+      />
       <ParticlePoints
         profile={profile}
         progressStore={progressStore}
