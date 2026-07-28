@@ -1026,7 +1026,9 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
     head,
     portrait,
     portraitParticles,
-    portraitColour,
+    waterRippleImage,
+    waterRipplePlane,
+    waterRippleShaders,
     portraitStyles,
     config,
     sitemap,
@@ -1037,7 +1039,9 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
     readFile(new URL("src/three/AboutHeadCanvas.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/about/PortraitReveal.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/about/portrait-particle-engine.ts", projectRoot), "utf8"),
-    readFile(new URL("src/components/about/useFluidGrayscaleMask.ts", projectRoot), "utf8"),
+    readFile(new URL("src/components/about/WaterRippleImage.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/about/water-ripple/WaterRipplePlane.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/about/water-ripple/shaders.ts", projectRoot), "utf8"),
     readFile(new URL("src/styles/about.css", projectRoot), "utf8"),
     readFile(new URL("src/config/experience.ts", projectRoot), "utf8"),
     readFile(new URL("server/api-routes/sitemap.ts", projectRoot), "utf8"),
@@ -1069,32 +1073,26 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(portrait, /particlesRef\.current = \[\]/);
   assert.match(portraitParticles, /const breathing = 0\.94/);
   assert.match(portraitParticles, /glow: boolean/);
-  assert.match(portrait, /portrait-reveal__image--colour/);
-  assert.match(portrait, /portrait-reveal__mono-layer/);
-  assert.match(portrait, /portrait-reveal__distortion-layer/);
+  assert.match(portrait, /<WaterRippleImage/);
+  assert.match(portrait, /className="portrait-reveal__ripple"/);
+  assert.match(portrait, /greyScale/);
   assert.match(portrait, /className="portrait-reveal__media"[\s\S]*<canvas ref=\{particleCanvasRef\}/);
-  assert.match(portrait, /mask=\{`url\(#\$\{maskId\}\)`\}/);
   assert.match(portrait, /axis:\s*"vertical"/);
   assert.match(portrait, /createImageParallax/);
   assert.match(portrait, /scrub:\s*1\.1/);
-  assert.match(portraitColour, /portraitHoverConfig\.trailDecayMs/);
-  assert.match(portraitColour, /RIPPLE_CIRCLES_PER_WAVE = 3/);
-  assert.match(portraitColour, /portraitHoverConfig\.rippleDurationMs/);
-  assert.match(portraitColour, /portraitHoverConfig\.rippleRadii/);
-  assert.match(portraitColour, /rippleFadeIn/);
-  assert.match(portraitColour, /rippleFadeOut/);
-  assert.match(portraitColour, /--portrait-distortion-radius/);
-  assert.match(portraitColour, /--portrait-distortion-opacity/);
-  assert.match(portraitColour, /distortionRadiusPercent/);
-  assert.match(portraitColour, /distortionStrength/);
-  assert.match(portrait, /<feTurbulence/);
-  assert.match(portrait, /<feDisplacementMap/);
-  assert.match(portrait, /<radialGradient/);
-  assert.match(portrait, /ref=\{fluidRippleRef\}/);
-  assert.match(portraitColour, /event\.pointerType === "touch"/);
-  assert.match(portraitColour, /\(any-hover: hover\) and \(any-pointer: fine\)/);
-  assert.match(portraitColour, /addEventListener\("pointerenter", startTrail/);
-  assert.match(portraitColour, /removeEventListener\("pointerenter", startTrail/);
+  assert.match(waterRippleImage, /<Canvas/);
+  assert.match(waterRippleImage, /water-ripple-image__fallback/);
+  assert.match(waterRippleImage, /frameloop=\{interactive \? \(visible \? "always" : "never"\) : "demand"\}/);
+  assert.match(waterRippleImage, /\(any-hover: hover\) and \(any-pointer: fine\)/);
+  assert.match(waterRippleImage, /IntersectionObserver/);
+  assert.match(waterRippleImage, /disabled=\{!interactive\}/);
+  assert.match(waterRipplePlane, /rippleSimulationFragmentShader/);
+  assert.match(waterRipplePlane, /revealSimulationFragmentShader/);
+  assert.match(waterRipplePlane, /smoothstep\(speedThreshold, fullStrengthSpeed, speed\)/);
+  assert.match(waterRipplePlane, /useFrame/);
+  assert.match(waterRippleShaders, /distanceToSegment/);
+  assert.match(waterRippleShaders, /coverUv/);
+  assert.match(waterRippleShaders, /mix\(monochrome, sampledColor\.rgb, revealAmount\)/);
   assert.match(head, /aboutHeadConfig\.mobilePointLimit/);
   assert.doesNotMatch(portraitStyles, /\.about-head__visual\s*{[^}]*transform:/s);
   assert.match(head, /vSurfaceColour/);
@@ -1105,16 +1103,18 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(head, /dpr=\{mobile \? \[0\.75, 1\.05\]/);
   assert.match(portrait, /start: "top 76%"/);
   assert.match(portrait, /once: true/);
-  assert.match(config, /aboutPortrait:\s*{[\s\S]*outlineDurationSeconds:\s*2\.35/);
-  assert.match(config, /completedOutlineHoldSeconds:\s*0\.55/);
-  assert.match(config, /particleFadeSeconds:\s*0\.85/);
+  assert.match(config, /aboutPortrait:\s*{[\s\S]*outlineDurationSeconds:\s*1\.8/);
+  assert.match(config, /completedOutlineHoldSeconds:\s*0\.01/);
+  assert.match(config, /particleFadeSeconds:\s*0\.8/);
   assert.match(config, /imageRevealSeconds:\s*0\.9/);
-  assert.match(config, /imageRevealDelayAfterParticleFadeStartsSeconds:\s*0\.04/);
-  assert.match(config, /distortionStrength:\s*18/);
-  assert.match(config, /distortionRadiusPercent:\s*18/);
-  assert.match(portraitStyles, /@media \(any-hover: none\) and \(any-pointer: coarse\)[\s\S]*\.portrait-reveal__mono-layer,[\s\S]*\.portrait-reveal__distortion-layer\s*{[^}]*display:\s*none/s);
+  assert.match(config, /imageRevealDelayAfterParticleFadeStartsSeconds:\s*0\.0/);
+  assert.match(config, /waterRipple:\s*{[\s\S]*strength:\s*0\.5/);
+  assert.match(config, /colorRevealRadius:\s*0\.16/);
+  assert.match(config, /colorRevealDecay:\s*3\.2/);
+  assert.match(portraitStyles, /@media \(any-hover: none\) and \(any-pointer: coarse\)[\s\S]*\.water-ripple-image\s*{[^}]*cursor:\s*default/s);
   assert.doesNotMatch(portrait, /aria-pressed|Reveal colour/);
-  assert.match(portraitStyles, /\.portrait-reveal__distortion-layer\s*{[^}]*mask-image:\s*radial-gradient/s);
+  assert.match(portraitStyles, /\.water-ripple-image__canvas\s*{[^}]*width:\s*110%\s*!important/s);
+  assert.doesNotMatch(portrait, /feTurbulence|feDisplacementMap|radialGradient/);
   assert.doesNotMatch(portraitStyles, /\.portrait-reveal__surface::after/);
   assert.match(portraitStyles, /width:\s*min\(100%, 25rem\)/);
   assert.match(portraitStyles, /\.portrait-reveal__media\s*{[^}]*transform:\s*scale\(1\.08\)/s);

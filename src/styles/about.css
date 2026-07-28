@@ -218,16 +218,11 @@
 }
 
 .portrait-reveal__surface {
-  --portrait-distortion-x: 50%;
-  --portrait-distortion-y: 50%;
-  --portrait-distortion-opacity: 0;
-  --portrait-distortion-radius: 0%;
   position: absolute;
   inset: 0;
 }
 
-.portrait-reveal__image,
-.portrait-reveal__mono-layer,
+.portrait-reveal__ripple,
 .portrait-reveal__particles {
   position: absolute;
   inset: 0;
@@ -235,49 +230,48 @@
   height: 100%;
 }
 
-.portrait-reveal__image {
+.portrait-reveal__ripple {
+  opacity: var(--portrait-image-opacity);
+}
+
+.water-ripple-image {
+  position: relative;
+  isolation: isolate;
+  background: transparent;
+  cursor: pointer;
+}
+
+.water-ripple-image__fallback-frame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.water-ripple-image__fallback-frame--hidden {
+  visibility: hidden;
+}
+
+.water-ripple-image__fallback {
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  object-position: center;
   user-select: none;
 }
 
-.portrait-reveal__image--colour {
-  z-index: 0;
-  opacity: var(--portrait-image-opacity);
-}
-
-.portrait-reveal__mono-layer {
-  z-index: 1;
-  opacity: var(--portrait-image-opacity);
-  pointer-events: none;
-}
-
-.portrait-reveal__distortion-layer {
-  z-index: 2;
-  opacity: min(
-    var(--portrait-image-opacity),
-    var(--portrait-distortion-opacity)
-  );
-  mask-image: radial-gradient(
-    ellipse var(--portrait-distortion-radius) var(--portrait-distortion-radius)
-    at var(--portrait-distortion-x) var(--portrait-distortion-y),
-    black 0%,
-    black 46%,
-    transparent 100%
-  );
-  -webkit-mask-image: radial-gradient(
-    ellipse var(--portrait-distortion-radius) var(--portrait-distortion-radius)
-    at var(--portrait-distortion-x) var(--portrait-distortion-y),
-    black 0%,
-    black 46%,
-    transparent 100%
-  );
-  pointer-events: none;
-  will-change: filter, mask-image, opacity;
-}
-
-.portrait-reveal__mono-image {
+.water-ripple-image__fallback--greyscale {
   filter: grayscale(1) contrast(1.04);
+}
+
+.water-ripple-image__canvas {
+  position: absolute !important;
+  z-index: 1;
+  top: -5% !important;
+  left: -5% !important;
+  width: 110% !important;
+  height: 110% !important;
+  overflow: visible !important;
 }
 
 .portrait-reveal__particles {
@@ -537,12 +531,7 @@
 }
 
 @media (any-hover: none) and (any-pointer: coarse) {
-  .portrait-reveal__mono-layer,
-  .portrait-reveal__distortion-layer {
-    display: none;
-  }
-
-  .portrait-reveal__image--colour {
-    filter: grayscale(1) contrast(1.04);
+  .water-ripple-image {
+    cursor: default;
   }
 }
