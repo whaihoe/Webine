@@ -77,3 +77,5 @@ yarn-error.log*
 __MACOSX/
 ._*
 .vercel
+
+!.dev.vars.example
