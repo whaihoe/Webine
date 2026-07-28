@@ -31,15 +31,14 @@ const resendVariables = [
 const configuredResendVariables = resendVariables.filter((key) =>
   process.env[key]?.trim()
 );
+const warnings = [];
 if (
   configuredResendVariables.length > 0 &&
   configuredResendVariables.length !== resendVariables.length
 ) {
-  for (const key of resendVariables) {
-    if (!process.env[key]?.trim()) {
-      issues.push(`${key} is required when Resend enquiry notifications are enabled`);
-    }
-  }
+  warnings.push(
+    "Resend enquiry notifications are incomplete and will remain pending in Admin until all three Resend variables are configured",
+  );
 }
 
 const authorisedParties = (process.env.CLERK_AUTHORIZED_PARTIES ?? "")
@@ -68,4 +67,8 @@ if (issues.length > 0) {
   process.exitCode = 1;
 } else {
   console.log("Webine production environment is configured.");
+}
+
+for (const warning of warnings) {
+  console.warn(`Webine production warning: ${warning}.`);
 }

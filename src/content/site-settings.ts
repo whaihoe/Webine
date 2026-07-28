@@ -55,8 +55,8 @@ export const defaultSiteSettings: PublicSiteSettings = {
     timelineOptions: ["As soon as practical", "Within 1 to 2 months", "Within 3 to 4 months", "Flexible"],
     email: "",
     availability: "Enquiries are open",
-    privacy: "Webine collects the details you submit only to review and respond to your project enquiry. They are stored in the protected Webine Admin workspace and are not sold. Please avoid including passwords, payment details or other sensitive information.",
-    privacyVersion: "2026-07-15",
+    privacy: "Webine collects the details you submit only to review and respond to your project enquiry. They are stored in the protected Webine Admin workspace, are not sold and are retained for up to 12 months after the last correspondence unless they are needed for an active project, a legal obligation or a dispute. Please avoid including passwords, payment details or other sensitive information.",
+    privacyVersion: "2026-07-28",
   },
   footer: { text: "Distinctive websites shaped around real business potential.", location: "Singapore", copyrightLabel: "Webine" },
 };

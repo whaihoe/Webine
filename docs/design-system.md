@@ -18,12 +18,11 @@ Components should use semantic or component variables. Raw HSL values belong onl
 
 ## Typography
 
-- Primary intention: Railway
-- Development fallback: Arial
+- Primary: Arial
 - Accent: Georgia italic
 - Synthetic bold and italic: disabled through `font-synthesis: none`
 
-The fallback warning remains visible on the Home page until licensed Railway webfont files are supplied. Raleway must not be substituted.
+Arial is the approved launch typeface and is supplied by the operating system, so the public site does not make a font request.
 
 Secondary-page openings share the `page-header-copy` contract. It centralises heading scale, readable wrapping, summary measure, reveal order and a deliberate brand-blue treatment for Georgia accent phrases. About, Services, Works, Contact, case studies, protected previews and the not-found page retain their own grid, atmosphere and visual object rather than becoming identical templates. `--page-header-clearance` keeps opening content below the floating header.
 

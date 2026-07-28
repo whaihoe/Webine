@@ -28,7 +28,7 @@
   --color-brand-hover: var(--primitive-blue-700);
   --color-brand-active: var(--primitive-blue-700);
   --color-highlight: var(--primitive-cyan-400);
-  --color-error: var(--primitive-red-500);
+  --color-error: var(--primitive-red-700);
 }
 
 :root {

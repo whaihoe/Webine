@@ -11,5 +11,7 @@ export function usePageMetadata(title: string, description: string) {
     setContent('meta[name="description"]', description);
     setContent('meta[property="og:title"]', title);
     setContent('meta[property="og:description"]', description);
+    setContent('meta[name="twitter:title"]', title);
+    setContent('meta[name="twitter:description"]', description);
   }, [description, title]);
 }

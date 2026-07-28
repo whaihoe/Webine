@@ -16,6 +16,27 @@ function setNamedMeta(selector: string, attribute: "name" | "property", key: str
   element.content = content;
 }
 
+function setCanonicalUrl(url: string) {
+  let element = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+  if (!element) {
+    element = document.createElement("link");
+    element.rel = "canonical";
+    document.head.append(element);
+  }
+  element.href = url;
+}
+
+function getPublicOrigin() {
+  const configuredOrigin = import.meta.env.VITE_SITE_URL?.trim();
+  if (!configuredOrigin) return window.location.origin;
+
+  try {
+    return new URL(configuredOrigin).origin;
+  } catch {
+    return window.location.origin;
+  }
+}
+
 export function RouteEffects() {
   const location = useLocation();
   const navigationType = useNavigationType();
@@ -45,10 +66,19 @@ export function RouteEffects() {
         : location.pathname;
     const description = routeDescriptions[routeKey] ?? "Webine creates distinctive websites for growing businesses.";
     const privateRoute = routeKey === "/admin" || routeKey === "/preview";
+    const publicOrigin = getPublicOrigin();
+    const canonicalUrl = new URL(location.pathname, publicOrigin).href;
+    const socialImageUrl = new URL("/webine-social-card.png", publicOrigin).href;
     setNamedMeta('meta[name="description"]', "name", "description", description);
     setNamedMeta('meta[name="robots"]', "name", "robots", privateRoute ? "noindex, nofollow" : "index, follow");
     setNamedMeta('meta[property="og:title"]', "property", "og:title", title);
     setNamedMeta('meta[property="og:description"]', "property", "og:description", description);
+    setNamedMeta('meta[property="og:url"]', "property", "og:url", canonicalUrl);
+    setNamedMeta('meta[property="og:image"]', "property", "og:image", socialImageUrl);
+    setNamedMeta('meta[name="twitter:title"]', "name", "twitter:title", title);
+    setNamedMeta('meta[name="twitter:description"]', "name", "twitter:description", description);
+    setNamedMeta('meta[name="twitter:image"]', "name", "twitter:image", socialImageUrl);
+    setCanonicalUrl(canonicalUrl);
 
     const frame = window.requestAnimationFrame(() => {
       const hashTarget = location.hash

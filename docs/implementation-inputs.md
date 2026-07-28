@@ -14,16 +14,13 @@ This document records the Stage 0 inputs without turning placeholders into final
 
 ## Missing but replaceable during development
 
-- Licensed Railway webfont files
 - Final contact email and social links
 - Approved response-time wording beyond the current “Enquiries are open” status
-- Final privacy wording and retention period
 - Three real projects with approved copy, results, credits and media
-- Final logo variants and wordmark
-- Final Vercel project configuration and purchased domain
+- Purchased domain and completed Resend sender verification
 
-Arial remains the development fallback behind the primary-font token. No substitute Railway file will be downloaded or committed. Missing contact and project details will remain visibly marked development data until approved material is supplied.
+Arial is the approved primary typeface. Missing contact and project details will remain visibly marked development data until approved material is supplied.
 
 ## Current gate
 
-The input inventory, logo, desktop and mobile hero, project cards and complete development experience now exist. Production launch remains open only for the missing licensed font, final legal or contact material, commissioned project content, production services and real-device acceptance evidence listed above.
+The input inventory, logo, desktop and mobile hero, project cards, legal wording and deployment configuration now exist. Production launch remains open for the purchased domain, Resend sender verification, commissioned project content and real-device acceptance evidence listed above.

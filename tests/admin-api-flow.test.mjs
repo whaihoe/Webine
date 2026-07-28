@@ -1,9 +1,10 @@
 import { createClient } from "@libsql/client";
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
+import { mkdtemp, readFile, readdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
+import { removeTemporaryDirectory } from "./test-utils.mjs";
 
 const projectRoot = new URL("../", import.meta.url);
 const migrationRoot = new URL("migrations/", projectRoot);
@@ -17,6 +18,7 @@ test("runs the protected collection and draft flow through Admin API handlers", 
   const directory = await mkdtemp(join(tmpdir(), "webine-admin-api-"));
   const databasePath = join(directory, "cms.sqlite");
   const client = createClient({ url: `file:${databasePath}` });
+  let closeDatabase = async () => {};
 
   try {
     const migrationNames = (await readdir(migrationRoot))
@@ -34,6 +36,7 @@ test("runs the protected collection and draft flow through Admin API handlers", 
     delete process.env.VERCEL;
 
     const adminApi = (await import("../.test-build/api/admin.js")).default;
+    ({ closeDatabase } = await import("../.test-build/server/database.js"));
 
     const collection = {
       key: "journal",
@@ -100,6 +103,7 @@ test("runs the protected collection and draft flow through Admin API handlers", 
     assert.equal(updated.envelope.data.version, 2);
     assert.equal(updated.envelope.data.data.title, "Updated field notes");
   } finally {
-    await rm(directory, { recursive: true, force: true });
+    await closeDatabase();
+    await removeTemporaryDirectory(directory);
   }
 });

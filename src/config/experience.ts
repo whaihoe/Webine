@@ -1,11 +1,11 @@
 export const experienceConfig = {
   pageLoader: {
     enabled: true,
-    minimumVisibleMs: 1100,
-    completionHoldMs: 360,
-    exitDurationMs: 720,
-    maximumWaitMs: 12000,
-    assetSettleMs: 180,
+    minimumVisibleMs: 280,
+    completionHoldMs: 80,
+    exitDurationMs: 260,
+    maximumWaitMs: 7000,
+    assetSettleMs: 80,
   },
   motion: {
     enabled: false,
@@ -17,6 +17,19 @@ export const experienceConfig = {
     enabled: true,
     initialScene: "scattered-field",
     lazyLoadDelayMs: 120,
+    glow: {
+      haloScale: 2.45,
+      haloAlpha: 0.16,
+      lightHaloScale: 0.72,
+      lightHaloAlpha: 0.065,
+      coreScale: 0.78,
+      shaderSpriteScale: 3.2,
+      shaderCoreStart: 0.065,
+      shaderCoreEnd: 0.13,
+      shaderHaloStart: 0.36,
+      objectPointSize: { desktop: 3.2, mobile: 1.69 },
+      perspectiveScale: { desktop: 7, mobile: 5 },
+    },
     ambientMotion: {
       drift: 0.24,
       rotationX: 0.055,
@@ -58,7 +71,6 @@ export const experienceConfig = {
     },
     aboutHead: {
       mobilePointLimit: 5600,
-      pointSize: 9.2,
       scale: 0.88,
       densityFloor: 0.52,
       sequence: {
@@ -149,18 +161,18 @@ export const experienceConfig = {
     },
     desktop: {
       minWidth: 1024,
-      count: 5000,
+      count: 2800,
       ambientRatio: 0.045,
       pointSize: 3.2,
-      pixelRatioCap: 1.25,
+      pixelRatioCap: 1,
       objectScale: 1,
-      maxFrameRate: 45,
-      measurementSettleMs: 1200,
+      maxFrameRate: 36,
+      measurementSettleMs: 420,
     },
     tablet: {
       count: 1800,
       ambientRatio: 0.035,
-      pointSize: 4.2,
+      pointSize: 3.2,
       pixelRatioCap: 1.25,
       objectScale: 1.22,
       maxFrameRate: 60,

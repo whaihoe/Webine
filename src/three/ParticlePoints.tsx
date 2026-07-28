@@ -118,6 +118,7 @@ export function ParticlePoints({
       uSurfaceResidualMix: { value: surfaceField.residualMix },
       uDensityScale: { value: surfaceField.densityScale },
       uDensityContrast: { value: surfaceField.densityContrast },
+      uLightThemeStrength: { value: 0 },
       uPointer: { value: pointerUniformRef.current },
       uPointerStrength: { value: 0 },
       uCyanColour: { value: getTokenColour("--primitive-cyan-400") },
@@ -392,6 +393,16 @@ export function ParticlePoints({
     dampUniform(material, "uClosingFormationProgress", closingMotion.formation, delta);
     dampUniform(material, "uClosingExitProgress", closingMotion.dispersion, delta);
     dampUniform(material, "uStoryVisibility", effectiveStoryVisibility, delta);
+    const lightThemeStrength = Math.max(
+      reachMotion.formation * (1 - reachMotion.dispersion),
+      interludeFormation * (1 - interludeMotion.dispersion),
+    );
+    material.uniforms.uLightThemeStrength.value = MathUtils.damp(
+      material.uniforms.uLightThemeStrength.value,
+      lightThemeStrength,
+      7,
+      delta,
+    );
     const ambientStrength =
       intakeProgress > 0
       ? 0

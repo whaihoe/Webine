@@ -67,4 +67,4 @@ Home stays in the initial readable application entry. About, Services, Works, Co
 
 ## Later components
 
-The following inputs remain outside the current implementation: approved final poster art, commissioned project media, licensed Railway files, final domain and measured production performance evidence. The asset-aware loading transition, coordinated public reveals, CMS database, authenticated Admin, collection builder, generated editors, media library, publishing controls, public Works, CMS-backed homepage runway, enquiry pipeline, robots and sitemap now exist.
+The following inputs remain outside the current implementation: approved final poster art, commissioned project media, the purchased domain, completed Resend sender verification and measured production performance evidence. The asset-aware loading transition, coordinated public reveals, CMS database, authenticated Admin, collection builder, generated editors, media library, publishing controls, public Works, CMS-backed homepage runway, enquiry pipeline, robots and sitemap now exist.

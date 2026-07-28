@@ -6,11 +6,13 @@ import {
 } from "../utils/particle-surface-field";
 
 const ambientConfig = experienceConfig.particles.ambientField;
+const particleGlow = experienceConfig.particles.glow;
 type AmbientFieldVariant = keyof typeof ambientConfig.counts;
 
 type AmbientParticleFieldProps = {
   variant?: AmbientFieldVariant;
   className?: string;
+  active?: boolean;
 };
 
 type AmbientParticle = {
@@ -50,6 +52,7 @@ function createParticles(count: number): AmbientParticle[] {
 export function AmbientParticleField({
   variant = "home",
   className = "",
+  active = true,
 }: AmbientParticleFieldProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -58,10 +61,17 @@ export function AmbientParticleField({
     const root = rootRef.current;
     const canvas = canvasRef.current;
     if (!root || !canvas) return;
+    if (!active) {
+      canvas.width = 1;
+      canvas.height = 1;
+      canvas.dataset.particleState = "suspended";
+      return;
+    }
     const context = canvas.getContext("2d", { alpha: true });
     if (!context) return;
 
     const particles = createParticles(ambientConfig.counts[variant]);
+    canvas.dataset.particleState = "live";
     const palette = getParticleSurfacePalette();
     const pointerTarget = { x: 0, y: 0 };
     const pointer = { x: 0, y: 0 };
@@ -114,8 +124,12 @@ export function AmbientParticleField({
               + Math.sin(wave * 0.37 + particle.phase * 0.61) * particle.travelY * 0.28
               + pointer.y * particle.depth * 10;
             const pulse = 0.68 + Math.sin(wave * 2.4) * 0.24;
-            const radius = particle.size * (pass === 0 ? 2.45 : 0.78);
-            context.globalAlpha = particle.alpha * pulse * (pass === 0 ? 0.16 : 0.92);
+            const radius = particle.size * (
+              pass === 0 ? particleGlow.haloScale : particleGlow.coreScale
+            );
+            context.globalAlpha = particle.alpha * pulse * (
+              pass === 0 ? particleGlow.haloAlpha : 0.92
+            );
             context.beginPath();
             context.arc(x, y, radius, 0, Math.PI * 2);
             context.fill();
@@ -183,7 +197,7 @@ export function AmbientParticleField({
       document.documentElement.removeEventListener("pointerleave", handlePointerLeave);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
-  }, [variant]);
+  }, [active, variant]);
 
   return (
     <div ref={rootRef} className={`ambient-particle-field ${className}`.trim()} aria-hidden="true">

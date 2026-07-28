@@ -1075,7 +1075,7 @@ article[data-block-type="image"][data-image-count="3"] .project-story-image-grid
 }
 
 .contact-form__status--success { color: hsl(var(--primitive-blue-700)); }
-.contact-form__status--error { color: hsl(var(--primitive-red-500, 0 72% 51%)); }
+.contact-form__status--error { color: hsl(var(--color-error)); }
 
 .privacy-notice {
   scroll-margin-top: var(--header-height);

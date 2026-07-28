@@ -1,5 +1,12 @@
 # Webine decision log
 
+## 2026-07-28, launch typography and deployment readiness
+
+- Approved Arial as the final primary typeface, superseding the earlier Railway intention.
+- Kept portfolio content visibly in progress rather than inventing client claims.
+- Configured Vercel as the production target, with Resend notifications deferred until the purchased domain can be verified.
+- Optimised the desktop particle narrative by lowering render density, pixel ratio, frame rate and scroll measurement work while preserving the visual scale of the Reach formation.
+
 ## 2026-07-13, initial hosted application foundation, superseded
 
 - Created the initial Webine project from a hosted site foundation.

@@ -19,7 +19,13 @@ function getExitProgress(reachPresence: number) {
   return smoothstep((reachPresence - REACH_COVER_START) / travel);
 }
 
-export function HeroAmbientBackground() {
+type HeroAmbientBackgroundProps = {
+  active: boolean;
+};
+
+export function HeroAmbientBackground({
+  active,
+}: HeroAmbientBackgroundProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const { store } = useParticleController();
 
@@ -42,7 +48,7 @@ export function HeroAmbientBackground() {
 
       previousProgress = progress;
       root.style.setProperty("--hero-ambient-exit", progress.toFixed(4));
-      root.dataset.ambientState = progress >= 0.985
+      root.dataset.ambientState = !active || progress >= 0.985
         ? "gone"
         : progress > 0.01
           ? "exiting"
@@ -53,7 +59,7 @@ export function HeroAmbientBackground() {
     update();
 
     return unsubscribe;
-  }, [store]);
+  }, [active, store]);
 
   return (
     <div
@@ -66,6 +72,7 @@ export function HeroAmbientBackground() {
       <AmbientParticleField
         variant="home"
         className="ambient-particle-field--hero"
+        active={active}
       />
     </div>
   );

@@ -16,6 +16,62 @@ import { useParticleController } from "./ParticleSceneController";
 const MOBILE_QUERY = `(max-width: ${experienceConfig.particles.mobile.maxWidth}px)`;
 const MOBILE_PARTICLE_DPR = 1;
 const MOBILE_AMBIENT_FRAME_RATE = 24;
+const particleGlow = experienceConfig.particles.glow;
+
+function createParticleSprite(colour: string, light = false) {
+  const sprite = document.createElement("canvas");
+  const spriteSize = 32;
+  const centre = spriteSize * 0.5;
+  const darkHaloRadius = spriteSize * 0.47;
+  const haloRadius = darkHaloRadius * (
+    light ? particleGlow.lightHaloScale : 1
+  );
+  const coreRadius = darkHaloRadius * (
+    particleGlow.coreScale / particleGlow.haloScale
+  );
+  const context = sprite.getContext("2d");
+  sprite.width = spriteSize;
+  sprite.height = spriteSize;
+
+  if (!context) {
+    return sprite;
+  }
+
+  context.fillStyle = colour;
+  context.globalAlpha = light
+    ? particleGlow.lightHaloAlpha
+    : particleGlow.haloAlpha;
+  context.beginPath();
+  context.arc(centre, centre, haloRadius, 0, Math.PI * 2);
+  context.fill();
+  context.globalAlpha = 1;
+  context.beginPath();
+  context.arc(centre, centre, coreRadius, 0, Math.PI * 2);
+  context.fill();
+  return sprite;
+}
+
+function drawGlowingPoint(
+  context: CanvasRenderingContext2D,
+  sprite: HTMLCanvasElement,
+  x: number,
+  y: number,
+  size: number,
+  alpha: number,
+) {
+  const spriteSize = size * (
+    particleGlow.haloScale / particleGlow.coreScale
+  );
+  const offset = (spriteSize - size) * 0.5;
+  context.globalAlpha = alpha;
+  context.drawImage(
+    sprite,
+    x - offset,
+    y - offset,
+    spriteSize,
+    spriteSize,
+  );
+}
 
 type PreparedParticleTarget = {
   targetX: Float32Array;
@@ -28,6 +84,7 @@ type PreparedParticleTarget = {
 
 type MobileSectionParticlesProps = {
   scene: MobileParticleSceneId;
+  active?: boolean;
 };
 
 function smoothstep(value: number) {
@@ -226,6 +283,9 @@ export function MobileTimelineFlowParticles() {
     let lastProgress = Number.NaN;
     let buffers: MobileSectionParticleTargets | null = null;
     const colours = getParticleSurfacePalette();
+    const particleSprites = colours.map((colour) =>
+      createParticleSprite(colour)
+    );
 
     function draw() {
       drawFrame = 0;
@@ -256,6 +316,7 @@ export function MobileTimelineFlowParticles() {
         0,
       );
       drawingContext.clearRect(0, 0, width, height);
+      drawingContext.globalCompositeOperation = "lighter";
 
       for (let bucket = 0; bucket < colours.length; bucket += 1) {
         drawingContext.fillStyle = colours[bucket];
@@ -300,12 +361,19 @@ export function MobileTimelineFlowParticles() {
             continue;
           }
 
-          drawingContext.globalAlpha = alpha;
-          drawingContext.fillRect(x, y, size, size);
+          drawGlowingPoint(
+            drawingContext,
+            particleSprites[bucket],
+            x,
+            y,
+            size,
+            alpha,
+          );
         }
       }
 
       drawingContext.globalAlpha = 1;
+      drawingContext.globalCompositeOperation = "source-over";
       activeCanvas.dataset.mobileParticleState = "live";
     }
 
@@ -388,6 +456,7 @@ export function MobileTimelineFlowParticles() {
 
 export function MobileSectionParticles({
   scene,
+  active = true,
 }: MobileSectionParticlesProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const { store } = useParticleController();
@@ -414,6 +483,13 @@ export function MobileSectionParticles({
       return;
     }
 
+    if (!active) {
+      canvas.width = 1;
+      canvas.height = 1;
+      canvas.dataset.mobileParticleState = "suspended";
+      return;
+    }
+
     const activeCanvas = canvas;
     const context = activeCanvas.getContext("2d", { alpha: true });
 
@@ -433,6 +509,9 @@ export function MobileSectionParticles({
     let lastScrollY = window.scrollY;
     const lightScene = scene === "reach" || scene === "interlude";
     const colours = getParticleSurfacePalette(lightScene ? "light" : "dark");
+    const particleSprites = colours.map((colour) =>
+      createParticleSprite(colour, lightScene)
+    );
     const densityFloor = lightScene
       ? experienceConfig.particles.surfaceField.mobileDensityFloor.light
       : experienceConfig.particles.surfaceField.mobileDensityFloor.dark;
@@ -523,6 +602,7 @@ export function MobileSectionParticles({
         0,
       );
       drawingContext.clearRect(0, 0, width, height);
+      drawingContext.globalCompositeOperation = "lighter";
 
       for (let bucket = 0; bucket < colours.length; bucket += 1) {
         drawingContext.fillStyle = colours[bucket];
@@ -577,12 +657,19 @@ export function MobileSectionParticles({
             (targetY - projection.scatterY[index]) * targetBlend + spreadY + electronY;
           const size = pointSize *
             (0.72 + buffers.randomness[index] * 0.36);
-          drawingContext.globalAlpha = baseAlpha * Math.max(surface.density, densityFloor);
-          drawingContext.fillRect(x, y, size, size);
+          drawGlowingPoint(
+            drawingContext,
+            particleSprites[bucket],
+            x,
+            y,
+            size,
+            baseAlpha * Math.max(surface.density, densityFloor),
+          );
         }
       }
 
       drawingContext.globalAlpha = 1;
+      drawingContext.globalCompositeOperation = "source-over";
       activeCanvas.dataset.mobileParticleState = "live";
 
       if (
@@ -663,7 +750,7 @@ export function MobileSectionParticles({
         ambientTimer = 0;
       }
     };
-  }, [isMobile, scene, store]);
+  }, [active, isMobile, scene, store]);
 
   if (!isMobile) {
     return null;

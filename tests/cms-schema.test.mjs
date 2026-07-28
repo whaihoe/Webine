@@ -1,26 +1,30 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
+import { createClient } from "@libsql/client";
+import { mkdtemp, readFile, readdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { spawnSync } from "node:child_process";
 import test from "node:test";
 import ts from "typescript";
+import { removeTemporaryDirectory } from "./test-utils.mjs";
 
 const projectRoot = new URL("../", import.meta.url);
 const migrationRoot = new URL("migrations/", projectRoot);
 
-function runSql(databasePath, sql, json = false) {
-  const result = spawnSync(
-    "sqlite3",
-    [...(json ? ["-json"] : []), databasePath],
-    { input: sql, encoding: "utf8" },
-  );
-
-  if (result.status !== 0) {
-    throw new Error(result.stderr.trim() || "SQLite command failed.");
+async function runSql(client, sql, json = false) {
+  const result = await client.execute(sql);
+  if (json) {
+    return JSON.stringify(result.rows.map((row) =>
+      Object.fromEntries(
+        Object.entries(row).map(([key, value]) => [
+          key,
+          typeof value === "bigint" ? Number(value) : value,
+        ]),
+      ),
+    ));
   }
-
-  return result.stdout.trim();
+  const firstRow = result.rows[0];
+  const firstValue = firstRow ? Object.values(firstRow)[0] : "";
+  return String(firstValue ?? "");
 }
 
 async function getMigrations() {
@@ -37,22 +41,26 @@ async function getMigrations() {
 async function withTemporaryDatabase(run) {
   const directory = await mkdtemp(join(tmpdir(), "webine-cms-"));
   const databasePath = join(directory, "cms.sqlite");
+  const client = createClient({ url: `file:${databasePath}` });
 
   try {
-    await run(databasePath);
+    await run(client);
   } finally {
-    await rm(directory, { recursive: true, force: true });
+    await client.close();
+    await removeTemporaryDirectory(directory);
   }
 }
 
 test("creates the complete CMS schema from a clean database", async () => {
   const migrations = await getMigrations();
 
-  await withTemporaryDatabase(async (databasePath) => {
-    migrations.forEach((migration) => runSql(databasePath, migration.sql));
+  await withTemporaryDatabase(async (client) => {
+    for (const migration of migrations) {
+      await client.executeMultiple(migration.sql);
+    }
 
-    const tables = JSON.parse(runSql(
-      databasePath,
+    const tables = JSON.parse(await runSql(
+      client,
       "SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name;",
       true,
     ));
@@ -75,8 +83,8 @@ test("creates the complete CMS schema from a clean database", async () => {
       assert.ok(tableNames.includes(table), `${table} should exist`);
     }
 
-    const systemCollections = JSON.parse(runSql(
-      databasePath,
+    const systemCollections = JSON.parse(await runSql(
+      client,
       "SELECT key FROM collections WHERE is_system = 1 ORDER BY key;",
       true,
     )).map((collection) => collection.key);
@@ -87,14 +95,14 @@ test("creates the complete CMS schema from a clean database", async () => {
       "site_settings",
     ]);
 
-    const projectFieldCount = Number(runSql(
-      databasePath,
+    const projectFieldCount = Number(await runSql(
+      client,
       "SELECT count(*) FROM field_definitions WHERE collection_id = 'collection_projects';",
     ));
     assert.equal(projectFieldCount, 29);
 
-    const accentColourField = JSON.parse(runSql(
-      databasePath,
+    const accentColourField = JSON.parse(await runSql(
+      client,
       "SELECT key, label, field_type, required, position FROM field_definitions WHERE id = 'project_accent_colour';",
       true,
     ))[0];
@@ -106,8 +114,8 @@ test("creates the complete CMS schema from a clean database", async () => {
       position: 28,
     });
 
-    const caseStudyFields = JSON.parse(runSql(
-      databasePath,
+    const caseStudyFields = JSON.parse(await runSql(
+      client,
       "SELECT key FROM field_definitions WHERE id IN ('project_industry', 'project_location', 'project_duration', 'project_completed_on', 'project_platform', 'project_about_client') ORDER BY position;",
       true,
     )).map((field) => field.key);
@@ -120,14 +128,14 @@ test("creates the complete CMS schema from a clean database", async () => {
       "about_client",
     ]);
 
-    const singletonCount = Number(runSql(
-      databasePath,
+    const singletonCount = Number(await runSql(
+      client,
       "SELECT count(*) FROM collection_items WHERE id = 'item_site_settings';",
     ));
     assert.equal(singletonCount, 1);
 
-    const siteSettings = JSON.parse(runSql(
-      databasePath,
+    const siteSettings = JSON.parse(await runSql(
+      client,
       "SELECT status, data_json, published_data_json FROM collection_items WHERE id = 'item_site_settings';",
       true,
     ))[0];
@@ -140,13 +148,13 @@ test("creates the complete CMS schema from a clean database", async () => {
       JSON.parse(siteSettings.published_data_json).contact_heading,
       "Have something worth making unmistakable?",
     );
-    assert.equal(Number(runSql(
-      databasePath,
+    assert.equal(Number(await runSql(
+      client,
       "SELECT required FROM field_definitions WHERE id = 'settings_contact_email';",
     )), 0);
 
-    assert.throws(() => runSql(
-      databasePath,
+    await assert.rejects(() => runSql(
+      client,
       "INSERT INTO collection_items (id, collection_id, data_json, created_by, updated_by) VALUES ('bad', 'collection_projects', 'not-json', 'test', 'test');",
     ), /CHECK constraint failed/);
   });
@@ -155,19 +163,19 @@ test("creates the complete CMS schema from a clean database", async () => {
 test("upgrades an existing core database without losing content", async () => {
   const migrations = await getMigrations();
 
-  await withTemporaryDatabase(async (databasePath) => {
-    runSql(databasePath, migrations[0].sql);
-    runSql(
-      databasePath,
+  await withTemporaryDatabase(async (client) => {
+    await client.executeMultiple(migrations[0].sql);
+    await runSql(
+      client,
       "INSERT INTO collections (id, key, name_singular, name_plural, display_field_key) VALUES ('custom_notes', 'notes', 'Note', 'Notes', 'title');",
     );
 
-    migrations.slice(1).forEach((migration) =>
-      runSql(databasePath, migration.sql),
-    );
+    for (const migration of migrations.slice(1)) {
+      await client.executeMultiple(migration.sql);
+    }
 
-    const customCollection = JSON.parse(runSql(
-      databasePath,
+    const customCollection = JSON.parse(await runSql(
+      client,
       "SELECT key, is_system FROM collections WHERE id = 'custom_notes';",
       true,
     ));
@@ -182,20 +190,20 @@ test("does not replace Site Settings that were edited before the defaults migrat
   );
   assert.notEqual(defaultsIndex, -1);
 
-  await withTemporaryDatabase(async (databasePath) => {
-    migrations.slice(0, defaultsIndex).forEach((migration) =>
-      runSql(databasePath, migration.sql),
-    );
-    runSql(
-      databasePath,
+  await withTemporaryDatabase(async (client) => {
+    for (const migration of migrations.slice(0, defaultsIndex)) {
+      await client.executeMultiple(migration.sql);
+    }
+    await runSql(
+      client,
       `UPDATE collection_items
        SET data_json = '{"home_hero_heading_before":"Owner wording"}'
        WHERE id = 'item_site_settings';`,
     );
-    runSql(databasePath, migrations[defaultsIndex].sql);
+    await client.executeMultiple(migrations[defaultsIndex].sql);
 
-    const settings = JSON.parse(runSql(
-      databasePath,
+    const settings = JSON.parse(await runSql(
+      client,
       "SELECT status, data_json FROM collection_items WHERE id = 'item_site_settings';",
       true,
     ))[0];

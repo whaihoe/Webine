@@ -1,6 +1,6 @@
 import { createClient } from "@libsql/client";
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
+import { mkdtemp, readFile, readdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -10,6 +10,7 @@ import {
   retryEnquiryNotification,
 } from "../.test-build/server/enquiry-service.js";
 import { CmsRepositoryError } from "../.test-build/server/cms-repository.js";
+import { removeTemporaryDirectory } from "./test-utils.mjs";
 
 const projectRoot = new URL("../", import.meta.url);
 const migrationRoot = new URL("migrations/", projectRoot);
@@ -23,7 +24,7 @@ async function withDatabase(run) {
     await run(client);
   } finally {
     await client.close();
-    await rm(directory, { recursive: true, force: true });
+    await removeTemporaryDirectory(directory);
   }
 }
 
@@ -42,7 +43,7 @@ function validInput(index = 0) {
     timeline: "Flexible",
     details: `A considered project outline with enough useful detail number ${index}.`,
     consent: true,
-    consentVersion: "2026-07-15",
+    consentVersion: "2026-07-28",
     sourcePage: "/contact",
     websiteConfirm: "",
   };

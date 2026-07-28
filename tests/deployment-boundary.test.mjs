@@ -56,6 +56,7 @@ test("documents every application-owned Vercel variable", async () => {
   ]);
   const variables = [
     "VITE_CLERK_PUBLISHABLE_KEY",
+    "VITE_SITE_URL",
     "CLERK_PUBLISHABLE_KEY",
     "CLERK_SECRET_KEY",
     "ADMIN_USER_ID",
@@ -114,6 +115,18 @@ test("blocks production builds when required services are not configured", () =>
   );
   assert.equal(blocked.status, 1);
   assert.match(blocked.stderr, /BLOB_READ_WRITE_TOKEN is missing/);
+
+  const deferredNotifications = {
+    ...configured,
+    RESEND_API_KEY: "re_waiting_for_domain",
+  };
+  const warned = spawnSync(
+    process.execPath,
+    ["scripts/check-production-env.mjs"],
+    { cwd: projectRoot, encoding: "utf8", env: deferredNotifications },
+  );
+  assert.equal(warned.status, 0, warned.stderr);
+  assert.match(warned.stderr, /Resend enquiry notifications are incomplete/);
 });
 
 test("keeps private route documents out of caches and search indexes", async () => {
@@ -133,4 +146,11 @@ test("keeps private route documents out of caches and search indexes", async () 
     assert.equal(values.get("Cache-Control"), "private, no-store");
     assert.equal(values.get("X-Robots-Tag"), "noindex, nofollow");
   }
+
+  const publicHeaders = privateSources.get("/(.*)");
+  const publicValues = new Map(
+    publicHeaders.map((header) => [header.key, header.value]),
+  );
+  assert.match(publicValues.get("Content-Security-Policy"), /default-src 'self'/);
+  assert.match(publicValues.get("Content-Security-Policy"), /frame-ancestors 'none'/);
 });

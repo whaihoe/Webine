@@ -16,7 +16,7 @@ export const aboutContent = {
     {
       name: "Kidson",
       role: "Co-founder",
-      portrait: "/about/kidson-portrait.png",
+      portrait: "/about/kidson-portrait.webp",
       mask: "/about/kidson-mask.png",
       description:
         "A second perspective within Webine, helping each project move beyond one person’s assumptions and towards a more considered result.",
@@ -24,7 +24,7 @@ export const aboutContent = {
     {
       name: "Whai Hoe",
       role: "Co-founder",
-      portrait: "/about/whai-hoe-portrait.png",
+      portrait: "/about/whai-hoe-portrait.webp",
       mask: "/about/whai-hoe-mask.png",
       description:
         "Leading Webine’s direction across strategy, design and development, with a focus on making ambitious interaction practical and purposeful.",

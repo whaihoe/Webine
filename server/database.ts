@@ -20,6 +20,12 @@ export function getDatabase() {
   return database;
 }
 
+export async function closeDatabase() {
+  const client = database;
+  database = undefined;
+  await client?.close();
+}
+
 export async function listCollections(client = getDatabase()) {
   const result = await client.execute(`
     SELECT

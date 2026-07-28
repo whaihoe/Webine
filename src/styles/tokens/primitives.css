@@ -17,6 +17,7 @@
   --primitive-blue-700: 224 76% 48%;
   --primitive-cyan-400: 188 86% 53%;
   --primitive-red-500: 0 84% 60%;
+  --primitive-red-700: 0 72% 38%;
 
   /* Four-pixel spacing foundation. */
   --primitive-space-1: 0.25rem;
@@ -33,7 +34,7 @@
   --primitive-space-24: 6rem;
 
   /* Typography primitives. */
-  --primitive-font-primary: "Railway", Arial, sans-serif;
+  --primitive-font-primary: Arial, sans-serif;
   --primitive-font-accent: Georgia, "Times New Roman", serif;
   --primitive-display-xl: clamp(3rem, 9vw, 10rem);
   --primitive-display-l: clamp(2.5rem, 7vw, 7rem);

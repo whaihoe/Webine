@@ -1,15 +1,27 @@
 import { useEffect, useRef } from "react";
 import { experienceConfig } from "../../config/experience";
 
-type SignalGridProps = { className?: string };
+type SignalGridProps = {
+  className?: string;
+  active?: boolean;
+};
 
-export function SignalGrid({ className = "" }: SignalGridProps) {
+export function SignalGrid({
+  className = "",
+  active = true,
+}: SignalGridProps) {
   const gridRef = useRef<HTMLDivElement | null>(null);
   const enabled = experienceConfig.signalGrid.enabled;
 
   useEffect(() => {
     const grid = gridRef.current;
     if (!enabled || !grid) return;
+    if (!active) {
+      grid.dataset.active = "false";
+      grid.dataset.suspended = "true";
+      return;
+    }
+    delete grid.dataset.suspended;
 
     const finePointer = window.matchMedia("(pointer: fine)");
     let frame = 0;
@@ -41,7 +53,7 @@ export function SignalGrid({ className = "" }: SignalGridProps) {
       observer.disconnect();
       window.removeEventListener("pointermove", move);
     };
-  }, [enabled]);
+  }, [active, enabled]);
 
   if (!enabled) return null;
 

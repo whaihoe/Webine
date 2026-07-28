@@ -6,5 +6,10 @@ export async function handleSiteSettingsRequest(request: Request) {
     return new Response("Method not allowed", { status: 405 });
   }
 
-  return jsonResponse(await getPublishedSiteSettings(), getRequestId(request));
+  return jsonResponse(
+    await getPublishedSiteSettings(),
+    getRequestId(request),
+    200,
+    "public, s-maxage=300, stale-while-revalidate=3600",
+  );
 }

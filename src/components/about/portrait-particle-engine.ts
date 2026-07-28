@@ -31,6 +31,7 @@ type CreateSilhouetteOptions = {
 
 const SILHOUETTE_LUMINANCE_THRESHOLD = 128;
 const SILHOUETTE_VERTICAL_OFFSET = 0.018;
+const particleGlow = experienceConfig.particles.glow;
 
 function clamp(value: number, minimum = 0, maximum = 1) {
   return Math.min(maximum, Math.max(minimum, value));
@@ -170,9 +171,15 @@ export function drawSilhouetteParticles({ canvas, particles, progress, time, wid
         const alpha = smoothstep(0.02, 0.18, localProgress) * (0.72 + particle.random * 0.26) * breathing;
         const radius = (0.68 + particle.random * 0.92) * (0.96 + breathing * 0.04) * dpr;
 
-        context.globalAlpha = pass === 0 ? alpha * 0.18 : alpha;
+        context.globalAlpha = pass === 0 ? alpha * particleGlow.haloAlpha : alpha;
         context.beginPath();
-        context.arc(x, y, pass === 0 ? radius * 2.35 : radius, 0, Math.PI * 2);
+        context.arc(
+          x,
+          y,
+          pass === 0 ? radius * particleGlow.haloScale : radius,
+          0,
+          Math.PI * 2,
+        );
         context.fill();
       }
     }
@@ -180,3 +187,4 @@ export function drawSilhouetteParticles({ canvas, particles, progress, time, wid
   context.globalAlpha = 1;
   context.globalCompositeOperation = "source-over";
 }
+import { experienceConfig } from "../../config/experience";

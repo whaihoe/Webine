@@ -1,6 +1,6 @@
 import { createClient } from "@libsql/client";
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
+import { mkdtemp, readFile, readdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -16,6 +16,7 @@ import {
   updateItem,
 } from "../.test-build/server/cms-repository.js";
 import { listCollectionItems } from "../.test-build/server/database.js";
+import { removeTemporaryDirectory } from "./test-utils.mjs";
 
 const projectRoot = new URL("../", import.meta.url);
 const migrationRoot = new URL("migrations/", projectRoot);
@@ -34,7 +35,7 @@ async function withDatabase(run) {
     await run(client, join(directory, "cms.sqlite"));
   } finally {
     await client.close();
-    await rm(directory, { recursive: true, force: true });
+    await removeTemporaryDirectory(directory);
   }
 }
 

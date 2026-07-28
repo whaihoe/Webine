@@ -1,3 +1,7 @@
+import { experienceConfig } from "../config/experience";
+
+const particleGlow = experienceConfig.particles.glow;
+
 export const particleVertexShader = `
   attribute vec3 targetHero;
   attribute vec3 targetScatter;
@@ -274,7 +278,7 @@ export const particleVertexShader = `
       1.0,
       smoothstep(0.0, 0.34, uTimelineReleaseProgress)
     );
-    gl_PointSize = uPointSize *
+    gl_PointSize = uPointSize * ${particleGlow.shaderSpriteScale} *
       mix(1.0, 0.72, particleAmbient) *
       (1.0 + pointerInfluence * 0.72) *
       mix(
@@ -323,6 +327,7 @@ export const particleFragmentShader = `
   uniform vec3 uLightBlueColour;
   uniform float uTime;
   uniform float uDensityContrast;
+  uniform float uLightThemeStrength;
 
   varying float vRandom;
   varying float vPointerInfluence;
@@ -333,7 +338,31 @@ export const particleFragmentShader = `
 
   void main() {
     float distanceToCentre = distance(gl_PointCoord, vec2(0.5));
-    float alpha = 1.0 - smoothstep(0.24, 0.5, distanceToCentre);
+    float core = 1.0 - smoothstep(
+      ${particleGlow.shaderCoreStart},
+      ${particleGlow.shaderCoreEnd},
+      distanceToCentre
+    );
+    float haloStart = mix(
+      ${particleGlow.shaderHaloStart},
+      ${particleGlow.shaderHaloStart * particleGlow.lightHaloScale},
+      uLightThemeStrength
+    );
+    float haloEnd = mix(
+      0.5,
+      ${0.5 * particleGlow.lightHaloScale},
+      uLightThemeStrength
+    );
+    float haloOpacity = mix(
+      ${particleGlow.haloAlpha},
+      ${particleGlow.lightHaloAlpha},
+      uLightThemeStrength
+    );
+    float haloDisc = (
+      1.0 - smoothstep(haloStart, haloEnd, distanceToCentre)
+    );
+    float halo = haloDisc * haloOpacity;
+    float alpha = core + halo * (1.0 - core);
 
     if (alpha < 0.02) {
       discard;
@@ -356,7 +385,9 @@ export const particleFragmentShader = `
     );
 
     gl_FragColor = vec4(
-      colour * particleVariation,
+      mix(uDeepBlueColour, colour, core) *
+        particleVariation *
+        (0.78 + core * 0.22),
       alpha * densityPocket * ambientPulse * vNarrativeVisibility
     );
   }

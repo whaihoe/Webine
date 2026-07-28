@@ -1,9 +1,10 @@
 import { createClient } from "@libsql/client";
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
+import { mkdtemp, readFile, readdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
+import { removeTemporaryDirectory } from "./test-utils.mjs";
 
 const projectRoot = new URL("../", import.meta.url);
 const migrationRoot = new URL("migrations/", projectRoot);
@@ -12,6 +13,7 @@ test("serves origin-correct robots and published-project sitemap files", async (
   const directory = await mkdtemp(join(tmpdir(), "webine-site-files-"));
   const databasePath = join(directory, "cms.sqlite");
   const client = createClient({ url: `file:${databasePath}` });
+  let closeDatabase = async () => {};
   try {
     const migrations = (await readdir(migrationRoot)).filter((name) => name.endsWith(".sql")).sort();
     for (const name of migrations) await client.executeMultiple(await readFile(new URL(name, migrationRoot), "utf8"));
@@ -19,6 +21,7 @@ test("serves origin-correct robots and published-project sitemap files", async (
     process.env.TURSO_DATABASE_URL = `file:${databasePath}`;
     const robotsApi = (await import("../.test-build/api/robots.js")).default;
     const sitemapApi = (await import("../.test-build/api/sitemap.js")).default;
+    ({ closeDatabase } = await import("../.test-build/server/database.js"));
     const robots = await robotsApi.fetch(new Request("https://webine.example/robots.txt"));
     assert.equal(robots.status, 200);
     assert.match(await robots.text(), /Sitemap: https:\/\/webine\.example\/sitemap\.xml/);
@@ -28,11 +31,12 @@ test("serves origin-correct robots and published-project sitemap files", async (
     assert.match(xml, /https:\/\/webine\.example\/works\/webine-identity-system/);
     assert.doesNotMatch(xml, /\/admin|\/preview/);
   } finally {
+    await closeDatabase();
     try {
       await client.close();
     } catch {
       // The client may already be closed after preparing the database fixture.
     }
-    await rm(directory, { recursive: true, force: true });
+    await removeTemporaryDirectory(directory);
   }
 });

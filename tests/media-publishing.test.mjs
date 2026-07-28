@@ -1,12 +1,13 @@
 import { createClient } from "@libsql/client";
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
+import { mkdtemp, readFile, readdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { changeItemStatus, createItem } from "../.test-build/server/cms-repository.js";
 import { archiveAsset, createAsset, getAsset } from "../.test-build/server/media-repository.js";
 import { listPublicProjects } from "../.test-build/server/public-content.js";
+import { removeTemporaryDirectory } from "./test-utils.mjs";
 
 const projectRoot = new URL("../", import.meta.url);
 const migrationRoot = new URL("migrations/", projectRoot);
@@ -21,12 +22,7 @@ async function withDatabase(run) {
     await run(client);
   } finally {
     await client.close();
-    await rm(directory, {
-      recursive: true,
-      force: true,
-      maxRetries: 10,
-      retryDelay: 100,
-    });
+    await removeTemporaryDirectory(directory);
   }
 }
 

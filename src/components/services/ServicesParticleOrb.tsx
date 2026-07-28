@@ -6,6 +6,7 @@ import {
 } from "../../utils/particle-surface-field";
 
 const orbConfig = experienceConfig.particles.servicesOrb;
+const particleGlow = experienceConfig.particles.glow;
 
 export type ServicesParticleMotion = {
   rotation: number;
@@ -41,6 +42,9 @@ function seededRandom(seed: number) {
 function createOrbParticles(count: number) {
   const random = seededRandom(20260717);
   const particles: OrbParticle[] = [];
+  const pointSize = window.innerWidth < 768
+    ? particleGlow.objectPointSize.mobile
+    : particleGlow.objectPointSize.desktop;
   for (let index = 0; index < count; index += 1) {
     const band = index % 3;
     const angle = random() * Math.PI * 2;
@@ -50,7 +54,7 @@ function createOrbParticles(count: number) {
       x: Math.cos(angle) * radius,
       y: Math.sin(angle) * radius * (0.8 + band * 0.055),
       z: Math.sin(depthAngle) * (0.14 + band * 0.052),
-      size: 0.65 + random() * 1.15,
+      size: pointSize * (0.34 + random() * 0.18),
       phase: random() * Math.PI * 2,
       speed: 0.25 + random() * 0.84,
       amplitude: orbConfig.electronAmplitude.min + random() * orbConfig.electronAmplitude.range,
@@ -154,8 +158,10 @@ export function ServicesParticleOrb({ motion }: ServicesParticleOrbProps) {
             const y = baseY + deltaY * inverseDistance * outward;
             const alpha = (0.35 + perspective * 0.38 + influence * 0.18)
               * Math.max(surface.density, orbConfig.densityFloor)
-              * (pass === 0 ? 0.12 : 0.84);
-            const radius = particle.size * perspective * (1 + influence * 0.9) * (pass === 0 ? 2.5 : 0.78);
+              * (pass === 0 ? particleGlow.haloAlpha : 0.84);
+            const radius = particle.size * perspective * (1 + influence * 0.9) * (
+              pass === 0 ? particleGlow.haloScale : particleGlow.coreScale
+            );
             context.globalAlpha = alpha;
             context.beginPath();
             context.arc(x, y, radius, 0, Math.PI * 2);

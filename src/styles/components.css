@@ -356,11 +356,11 @@
 
 .form-field [aria-invalid="true"],
 .form-select [aria-invalid="true"] {
-  border-color: hsl(var(--primitive-red-500, 0 72% 51%));
+  border-color: hsl(var(--color-error));
 }
 
 .form-field__error {
-  color: hsl(var(--primitive-red-500, 0 72% 51%));
+  color: hsl(var(--color-error));
 }
 
 .form-field input:disabled,

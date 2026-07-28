@@ -33,9 +33,7 @@ function routeAssets(pathname: string) {
     return [
       "/about/simple-head-points.bin",
       "/about/kidson-mask.png",
-      "/about/kidson-portrait.png",
       "/about/whai-hoe-mask.png",
-      "/about/whai-hoe-portrait.png",
     ];
   }
 
@@ -75,9 +73,11 @@ function preloadImage(url: string, signal: AbortSignal) {
 
 function currentPageMedia() {
   const sources = new Set<string>();
-  document.querySelectorAll<HTMLImageElement>("#root img[src]").forEach((image) => {
-    if (image.currentSrc || image.src) sources.add(image.currentSrc || image.src);
-  });
+  document
+    .querySelectorAll<HTMLImageElement>('#root img[src][loading="eager"]')
+    .forEach((image) => {
+      if (image.currentSrc || image.src) sources.add(image.currentSrc || image.src);
+    });
   document.querySelectorAll<SVGImageElement>("#root svg image[href]").forEach((image) => {
     const source = image.getAttribute("href");
     if (source) sources.add(new URL(source, window.location.href).href);

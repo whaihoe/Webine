@@ -3,13 +3,15 @@
 }
 
 html {
-  min-width: 320px;
+  min-width: 0;
+  overflow-x: clip;
   background: hsl(var(--primitive-slate-950));
   scroll-padding-top: var(--header-height);
 }
 
 body {
-  min-width: 320px;
+  min-width: 0;
+  overflow-x: clip;
   margin: 0;
   background: hsl(var(--primitive-slate-950));
   color: hsl(var(--primitive-slate-50));

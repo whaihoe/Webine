@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ButtonLink } from "../components/ButtonLink";
 import { HeroAmbientBackground } from "../components/home/HeroAmbientBackground";
 import { HeroCoverTransition } from "../components/home/HeroCoverTransition";
@@ -29,6 +29,8 @@ function HomeContent() {
   const settings = useSiteSettings();
   const heroSceneRef = useParticleSceneAnchor("hero");
   const heroRef = useRef<HTMLElement | null>(null);
+  const reachRef = useRef<HTMLElement | null>(null);
+  const [heroEffectsActive, setHeroEffectsActive] = useState(true);
   const connectHero = useCallback(
     (element: HTMLElement | null) => {
       heroRef.current = element;
@@ -36,6 +38,43 @@ function HomeContent() {
     },
     [heroSceneRef],
   );
+  const connectReach = useCallback((element: HTMLElement | null) => {
+    reachRef.current = element;
+  }, []);
+
+  useEffect(() => {
+    let frame = 0;
+    let currentActive = true;
+
+    const measure = () => {
+      frame = 0;
+      const reach = reachRef.current;
+      const nextActive = !reach ||
+        reach.getBoundingClientRect().top > window.innerHeight * 0.5;
+
+      if (nextActive !== currentActive) {
+        currentActive = nextActive;
+        setHeroEffectsActive(nextActive);
+      }
+    };
+    const schedule = () => {
+      if (!frame) {
+        frame = window.requestAnimationFrame(measure);
+      }
+    };
+
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    schedule();
+
+    return () => {
+      if (frame) {
+        window.cancelAnimationFrame(frame);
+      }
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+    };
+  }, []);
 
   return (
     <>
@@ -47,10 +86,17 @@ function HomeContent() {
           className="hero-section theme-dark"
           aria-labelledby="home-heading"
           data-particle-scene="hero"
+          data-hero-effects-active={heroEffectsActive}
         >
-          <HeroAmbientBackground />
-          <SignalGrid className="signal-grid--hero" />
-          <MobileSectionParticles scene="hero" />
+          <HeroAmbientBackground active={heroEffectsActive} />
+          <SignalGrid
+            className="signal-grid--hero"
+            active={heroEffectsActive}
+          />
+          <MobileSectionParticles
+            scene="hero"
+            active={heroEffectsActive}
+          />
           <div className="site-container hero-section__grid">
             <div className="hero-section__copy">
               <p className="eyebrow" data-hero-intro="eyebrow">
@@ -87,7 +133,7 @@ function HomeContent() {
           </div>
         </section>
 
-        <ReachSection />
+        <ReachSection onElementChange={connectReach} />
       </div>
       <SelectedWorkRunway />
       <QuietInterlude />

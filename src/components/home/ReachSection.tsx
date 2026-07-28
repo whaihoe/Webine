@@ -12,7 +12,13 @@ import {
 import { MobileSectionParticles } from "./MobileSectionParticles";
 import { useSiteSettings } from "../../content/SiteSettingsProvider";
 
-export function ReachSection() {
+type ReachSectionProps = {
+  onElementChange?: (element: HTMLElement | null) => void;
+};
+
+export function ReachSection({
+  onElementChange,
+}: ReachSectionProps) {
   const settings = useSiteSettings();
   const sectionRef = useRef<HTMLElement | null>(null);
   const registerScene = useParticleSceneAnchor("reach");
@@ -22,8 +28,9 @@ export function ReachSection() {
     (element: HTMLElement | null) => {
       sectionRef.current = element;
       registerScene(element);
+      onElementChange?.(element);
     },
-    [registerScene],
+    [onElementChange, registerScene],
   );
 
   useEffect(() => {

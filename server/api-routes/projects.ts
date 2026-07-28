@@ -25,6 +25,8 @@ export async function routeProjectRequest(request: Request) {
     return jsonResponse(
       await listPublicProjects({ featuredOnly }),
       crypto.randomUUID(),
+      200,
+      "public, s-maxage=300, stale-while-revalidate=3600",
     );
   }
 
@@ -33,7 +35,12 @@ export async function routeProjectRequest(request: Request) {
     const requestId = crypto.randomUUID();
     const project = await getPublicProject(projectMatch[1]);
     return project
-      ? jsonResponse(project, requestId)
+      ? jsonResponse(
+          project,
+          requestId,
+          200,
+          "public, s-maxage=300, stale-while-revalidate=3600",
+        )
       : errorResponse(
           {
             code: "NOT_FOUND",

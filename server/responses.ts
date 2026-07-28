@@ -9,13 +9,18 @@ export function getRequestId(request: Request) {
   return request.headers.get("x-vercel-id") ?? crypto.randomUUID();
 }
 
-export function jsonResponse(data: unknown, requestId: string, status = 200) {
+export function jsonResponse(
+  data: unknown,
+  requestId: string,
+  status = 200,
+  cacheControl = "private, no-store",
+) {
   return Response.json(
     { data, error: null, meta: { requestId } },
     {
       status,
       headers: {
-        "Cache-Control": "private, no-store",
+        "Cache-Control": cacheControl,
         "X-Content-Type-Options": "nosniff",
       },
     },

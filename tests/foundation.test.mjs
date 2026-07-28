@@ -275,16 +275,20 @@ test("enables the approved homepage experience layers", async () => {
   assert.equal((config.match(/enabled:\s*false/g) ?? []).length, 1);
   assert.match(config, /pageLoader:\s*{\s*enabled:\s*true/);
   assert.match(config, /particles:\s*{\s*enabled:\s*true/);
+  assert.match(
+    config,
+    /glow:\s*{[\s\S]*?haloScale:\s*2\.45[\s\S]*?haloAlpha:\s*0\.16[\s\S]*?lightHaloScale:\s*0\.72[\s\S]*?lightHaloAlpha:\s*0\.065[\s\S]*?shaderSpriteScale:\s*3\.2[\s\S]*?objectPointSize:\s*{\s*desktop:\s*3\.2,\s*mobile:\s*1\.69\s*}/,
+  );
   assert.match(config, /smoothScroll:\s*{\s*enabled:\s*true/);
   assert.match(config, /signalGrid:\s*{\s*enabled:\s*true/);
   assert.match(config, /interludeObject:\s*{[\s\S]*?type:\s*"elliptical-torus-bands"[\s\S]*?rotationDegrees:\s*\[0, 0, 0\]/);
   assert.match(
     config,
-    /desktop:\s*{[\s\S]*?count:\s*5000[\s\S]*?pixelRatioCap:\s*1\.25[\s\S]*?maxFrameRate:\s*45/,
+    /desktop:\s*{[\s\S]*?count:\s*2800[\s\S]*?pointSize:\s*3\.2[\s\S]*?pixelRatioCap:\s*1[\s\S]*?maxFrameRate:\s*36/,
   );
   assert.match(config, /count:\s*1800/);
   assert.match(config, /pixelRatioCap:\s*1\.25/);
-  assert.match(config, /pointSize:\s*4\.2/);
+  assert.equal((config.match(/pointSize:\s*3\.2/g) ?? []).length, 2);
   assert.match(config, /pointSize:\s*1\.69/);
   assert.match(
     config,
@@ -389,6 +393,10 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
 
   assert.match(home, /HomeParticleExperience/);
   assert.match(home, /data-particle-scene="hero"/);
+  assert.match(home, /getBoundingClientRect\(\)\.top > window\.innerHeight \* 0\.5/);
+  assert.match(home, /data-hero-effects-active=\{heroEffectsActive\}/);
+  assert.match(home, /<HeroAmbientBackground active=\{heroEffectsActive\}/);
+  assert.match(home, /scene="hero"[\s\S]*?active=\{heroEffectsActive\}/);
   for (const scene of ["reach", "work", "interlude", "process", "closing"]) {
     const componentSource = await readFile(
       new URL(`src/components/home/${{
@@ -425,7 +433,12 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.match(mobileParticles, /sampleParticleSurfaceField/);
   assert.match(mobileParticles, /surface\.colourBucket/);
   assert.match(mobileParticles, /data-mobile-particle-state|mobileParticleState/);
-  assert.match(mobileParticles, /fillRect/);
+  assert.match(mobileParticles, /mobileParticleState = "suspended"/);
+  assert.match(mobileParticles, /drawGlowingPoint/);
+  assert.match(mobileParticles, /createParticleSprite/);
+  assert.match(mobileParticles, /drawImage/);
+  assert.match(mobileParticles, /particleGlow\.haloScale/);
+  assert.match(mobileParticles, /globalCompositeOperation = "lighter"/);
   assert.doesNotMatch(mobileParticles, /displayCopies|copyIndex|jitterStrength/);
   assert.match(shaders, /uSurfacePrimaryScale/);
   assert.match(shaders, /uDensityCycleSpeed/);
@@ -500,6 +513,11 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.match(shaders, /varying float vSurfaceColour/);
   assert.match(shaders, /varying float vSurfaceDensity/);
   assert.match(shaders, /float blueToCyan = smoothstep/);
+  assert.match(shaders, /float core = 1\.0 - smoothstep/);
+  assert.match(shaders, /float haloDisc = \(/);
+  assert.match(shaders, /uLightThemeStrength/);
+  assert.match(shaders, /float haloOpacity = mix/);
+  assert.match(shaders, /core \+ halo \* \(1\.0 - core\)/);
   assert.match(shaders, /mix\(uDeepBlueColour, uCyanColour, blueToCyan\)/);
   assert.match(shaders, /uLightBlueColour/);
   assert.match(targets, /sampleEllipticalTorus/);
@@ -807,7 +825,10 @@ test("extends the Home motion language across Works and Contact without assignin
   assert.doesNotMatch(styles, /\.works-commission/);
   assert.match(galaxyBackdrop, /<AmbientParticleField[\s\S]*?variant="works"/);
   assert.doesNotMatch(homeExperience, /AmbientParticleField/);
-  assert.match(homePage, /data-particle-scene="hero"[\s\S]*?<HeroAmbientBackground \/>[\s\S]*?<SignalGrid/);
+  assert.match(
+    homePage,
+    /data-particle-scene="hero"[\s\S]*?<HeroAmbientBackground active=\{heroEffectsActive\} \/>[\s\S]*?<SignalGrid/,
+  );
   assert.match(heroAmbient, /<AmbientParticleField[\s\S]*?variant="home"[\s\S]*?ambient-particle-field--hero/);
   assert.match(heroAmbient, /scenePresence\.reach/);
   assert.match(heroAmbient, /--hero-ambient-exit/);
@@ -928,7 +949,7 @@ test("keeps the generated CMS editor protected and out of the public bundle", as
   assert.match(assetField, /Choose existing asset/);
   assert.match(assetField, /Move earlier/);
   assert.match(assetField, /Remove/);
-  assert.match(mediaOverview, /Images assigned to this project/);
+  assert.match(mediaOverview, /Media assigned to this project/);
   assert.match(mediaOverview, /Cover/);
   assert.match(mediaOverview, /Story/);
   assert.match(uploadImage, /uploadAdminImage/);
@@ -1068,7 +1089,7 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(head, /\/about\/simple-head-points\.bin/);
   assert.match(portrait, /<canvas/);
   assert.match(portraitParticles, /isEdge/);
-  assert.match(portraitParticles, /luminance \* alpha > 52/);
+  assert.match(portraitParticles, /luminance \* alpha > SILHOUETTE_LUMINANCE_THRESHOLD/);
   assert.match(portraitParticles, /originY:\s*1\.04/);
   assert.match(portraitParticles, /const limit = mobile \? 595 : 900/);
   assert.match(portraitParticles, /floatSpeed:\s*0\.54 \+ random\(\) \* 1\.78/);
@@ -1080,6 +1101,8 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(portrait, /particlesRef\.current = \[\]/);
   assert.match(portraitParticles, /const breathing = 0\.94/);
   assert.match(portraitParticles, /glow: boolean/);
+  assert.match(portrait, /glow:\s*true/);
+  assert.match(portraitParticles, /particleGlow\.haloScale/);
   assert.match(portrait, /<WaterRippleImage/);
   assert.match(portrait, /className="portrait-reveal__ripple"/);
   assert.match(portrait, /greyScale/);
@@ -1104,6 +1127,9 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.doesNotMatch(portraitStyles, /\.about-head__visual\s*{[^}]*transform:/s);
   assert.match(head, /vSurfaceColour/);
   assert.match(head, /vSurfaceDensity/);
+  assert.match(head, /uPerspectiveScale/);
+  assert.match(head, /float haloDisc = \(/);
+  assert.match(head, /core \+ halo \* \(1\.0 - core\)/);
   assert.match(head, /centredPositions/);
   assert.match(head, /motion\.current\.rotation/);
   assert.match(head, /motion\.current\.dispersion/);
@@ -1132,9 +1158,9 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(sitemap, /"\/about"/);
   await Promise.all([
     access(new URL("public/about/simple-head-points.bin", projectRoot)),
-    access(new URL("public/about/kidson-portrait.png", projectRoot)),
+    access(new URL("public/about/kidson-portrait.webp", projectRoot)),
     access(new URL("public/about/kidson-mask.png", projectRoot)),
-    access(new URL("public/about/whai-hoe-portrait.png", projectRoot)),
+    access(new URL("public/about/whai-hoe-portrait.webp", projectRoot)),
     access(new URL("public/about/whai-hoe-mask.png", projectRoot)),
   ]);
 });
@@ -1158,6 +1184,8 @@ test("builds the Services page from Webine's real offer and shared process", asy
   assert.match(particleOrb, /surface\.colourBucket/);
   assert.match(particleOrb, /electronTime/);
   assert.match(particleOrb, /orbitBias/);
+  assert.match(particleOrb, /particleGlow\.haloScale/);
+  assert.match(particleOrb, /particleGlow\.haloAlpha/);
   assert.match(particleOrb, /IntersectionObserver/);
   for (const service of ["Web design and development", "Website redesign", "Website maintenance", "SEO foundations", "Branding support"]) {
     assert.match(content, new RegExp(service));

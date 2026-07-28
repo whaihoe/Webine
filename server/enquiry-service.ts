@@ -7,7 +7,7 @@ import { getEnquiryHashSecret } from "./runtime-readiness.js";
 const RATE_LIMIT_MAX = 5;
 const RATE_LIMIT_WINDOW_SECONDS = 15 * 60;
 const DEDUPLICATION_SECONDS = 24 * 60 * 60;
-const CONSENT_VERSION = "2026-07-15";
+const CONSENT_VERSION = "2026-07-28";
 
 export type EnquiryInput = {
   name: string;

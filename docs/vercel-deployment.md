@@ -7,6 +7,7 @@ Add these under **Vercel project → Settings → Environment Variables**. Set t
 | Variable | Required | Scope | Purpose |
 |---|---:|---|---|
 | `VITE_CLERK_PUBLISHABLE_KEY` | Yes | Preview and Production | Public Clerk browser key used by React |
+| `VITE_SITE_URL` | No | Preview and Production | Stable public origin used for canonical and social metadata, such as `https://webine.vercel.app` |
 | `CLERK_PUBLISHABLE_KEY` | Yes | Preview and Production | The same public Clerk key, used by the server verifier |
 | `CLERK_SECRET_KEY` | Yes | Preview and Production | Private Clerk server key |
 | `ADMIN_USER_ID` | Yes | Preview and Production | Exact Clerk user allowed into Admin |
@@ -64,7 +65,7 @@ To restore Contact submissions:
 3. Confirm every database migration has been applied in filename order through `0009_site_settings_defaults.sql`. Contact specifically depends on `0007_enquiry_pipeline.sql`.
 4. Redeploy, submit a real test enquiry through `/contact` and confirm it appears in `/admin/enquiries`.
 
-The enquiry is committed to Turso before notification is attempted. When all three Resend variables are present, Webine sends a private email and sets reply-to to the visitor. `ENQUIRY_NOTIFICATION_WEBHOOK_URL` remains an optional alternative. Without either provider, the enquiry stays safely stored in Admin with a pending notification state.
+The enquiry is committed to Turso before notification is attempted. When all three Resend variables are present, Webine sends a private email and sets reply-to to the visitor. `ENQUIRY_NOTIFICATION_WEBHOOK_URL` remains an optional alternative. Without either provider, the enquiry stays safely stored in Admin with a pending notification state. Partial Resend configuration produces a deployment warning but does not block the build because storage and protected Admin review remain available.
 
 To configure Resend:
 
@@ -75,7 +76,7 @@ To configure Resend:
 5. Set `ENQUIRY_NOTIFICATION_FROM_EMAIL` to a verified sender such as `Webine <enquiries@webine.sg>`.
 6. Redeploy, submit one real test enquiry and confirm both the email and protected Admin record.
 
-If any Resend value is present, all three are required. The build check rejects a partial Resend configuration.
+Resend activates only when all three values are present. Until the sending domain is verified, the build reports incomplete Resend configuration as a warning and leaves stored enquiries pending in Admin.
 
 Production builds run `npm run build:vercel`, which checks the complete required environment contract before compiling. A deployment with missing Clerk, Turso, Blob or enquiry configuration now fails early instead of publishing a partly broken Admin or Contact experience.
 

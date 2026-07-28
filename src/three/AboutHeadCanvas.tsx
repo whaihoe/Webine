@@ -25,6 +25,7 @@ type AboutHeadCanvasProps = {
 
 const aboutHeadConfig = experienceConfig.particles.aboutHead;
 const surfaceField = experienceConfig.particles.surfaceField;
+const particleGlow = experienceConfig.particles.glow;
 
 function selectRuntimePositions(buffer: ArrayBuffer) {
   const source = new Float32Array(buffer);
@@ -45,6 +46,7 @@ const vertexShader = `
   attribute float aRandom;
   uniform float uDispersion;
   uniform float uPointSize;
+  uniform float uPerspectiveScale;
   uniform float uTime;
   uniform vec2 uPointer;
   uniform float uPointerStrength;
@@ -88,7 +90,10 @@ const vertexShader = `
     viewPosition.xy += pointerDirection * pointerInfluence * 0.16;
     viewPosition.z += pointerInfluence * 0.38;
     gl_Position = projectionMatrix * viewPosition;
-    gl_PointSize = uPointSize * (1.0 + pointerInfluence * 0.75) * (1.0 / max(0.4, -viewPosition.z));
+    gl_PointSize = uPointSize * ${particleGlow.shaderSpriteScale} *
+      uPerspectiveScale *
+      (1.0 + pointerInfluence * 0.75) *
+      (1.0 / max(0.4, -viewPosition.z));
     vRandom = aRandom;
     vPointerInfluence = pointerInfluence;
     float colourTime = uTime * ${(Math.PI * 2) / surfaceField.colourCycleSeconds};
@@ -132,7 +137,16 @@ const fragmentShader = `
     vec2 point = gl_PointCoord - 0.5;
     float distanceFromCentre = length(point);
     if (distanceFromCentre > 0.5) discard;
-    float edge = 1.0 - smoothstep(0.28, 0.5, distanceFromCentre);
+    float core = 1.0 - smoothstep(
+      ${particleGlow.shaderCoreStart},
+      ${particleGlow.shaderCoreEnd},
+      distanceFromCentre
+    );
+    float haloDisc = (
+      1.0 - smoothstep(${particleGlow.shaderHaloStart}, 0.5, distanceFromCentre)
+    );
+    float halo = haloDisc * ${particleGlow.haloAlpha};
+    float edge = core + halo * (1.0 - core);
     float blueToCyan = smoothstep(0.18, 0.68, vSurfaceColour);
     float cyanToLight = smoothstep(0.7, 0.96, vSurfaceColour);
     vec3 colour = mix(uDeepBlue, uCyan, blueToCyan);
@@ -143,7 +157,7 @@ const fragmentShader = `
     );
     density = max(density, ${aboutHeadConfig.densityFloor});
     gl_FragColor = vec4(
-      colour,
+      mix(uDeepBlue, colour, core) * (0.78 + core * 0.22),
       edge * density * (0.72 + vRandom * 0.24 + vPointerInfluence * 0.2)
     );
   }
@@ -162,6 +176,7 @@ function HeadPoints({ motion, positions, onReady }: AboutHeadCanvasProps & { pos
   const materialRef = useRef<ShaderMaterial>(null);
   const pointerRef = useRef({ x: 0, y: 0, active: false });
   const random = useMemo(() => seededRandom(2717), []);
+  const mobile = window.innerWidth < 768;
   const geometry = useMemo(() => {
     const count = positions.length / 3;
     const centredPositions = new Float32Array(positions.length);
@@ -204,7 +219,16 @@ function HeadPoints({ motion, positions, onReady }: AboutHeadCanvasProps & { pos
     blending: AdditiveBlending,
     uniforms: {
       uDispersion: { value: 0 },
-      uPointSize: { value: aboutHeadConfig.pointSize },
+      uPointSize: {
+        value: mobile
+          ? particleGlow.objectPointSize.mobile
+          : particleGlow.objectPointSize.desktop,
+      },
+      uPerspectiveScale: {
+        value: mobile
+          ? particleGlow.perspectiveScale.mobile
+          : particleGlow.perspectiveScale.desktop,
+      },
       uTime: { value: 0 },
       uPointer: { value: new Vector2(20, 20) },
       uPointerStrength: { value: 0 },
@@ -212,7 +236,7 @@ function HeadPoints({ motion, positions, onReady }: AboutHeadCanvasProps & { pos
       uBlue: { value: new Color("#60a5fa") },
       uCyan: { value: new Color("#22d3ee") },
     },
-  }), []);
+  }), [mobile]);
 
   useEffect(() => {
     onReady?.();
