@@ -42,6 +42,9 @@ export function KineticCursor() {
     const finePointer = window.matchMedia("(min-width: 48rem) and (hover: hover) and (pointer: fine)");
     if (!root || !inner || !outer || !finePointer.matches) return;
 
+    const documentRoot = document.documentElement;
+    documentRoot.dataset.kineticCursor = "active";
+
     const target: CursorPoint = { x: 0, y: 0 };
     const tight: CursorPoint = { x: 0, y: 0 };
     const loose: CursorPoint = { x: 0, y: 0 };
@@ -159,6 +162,7 @@ export function KineticCursor() {
       window.removeEventListener("pointerup", handlePointerUp);
       document.documentElement.removeEventListener("pointerleave", handlePointerLeave);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
+      delete documentRoot.dataset.kineticCursor;
     };
   }, []);
 

@@ -147,7 +147,7 @@ export const experienceConfig = {
       radiusX: { base: 1.32, step: 0.48 },
       radiusY: { base: 0.92, step: 0.32 },
       tubeRadius: 0.2,
-      rotationDegrees: [0, 0, 0],
+      rotationDegrees: [0, 150, 0],
     },
     closingModel: {
       url: "/models/colony-planet-particle.glb",

@@ -3,8 +3,11 @@
 }
 
 @media (min-width: 48rem) and (hover: hover) and (pointer: fine) {
-  .site-shell,
-  .site-shell * {
+  html[data-kinetic-cursor="active"],
+  html[data-kinetic-cursor="active"] body,
+  html[data-kinetic-cursor="active"] body *,
+  html[data-kinetic-cursor="active"] body *::before,
+  html[data-kinetic-cursor="active"] body *::after {
     cursor: none !important;
   }
 

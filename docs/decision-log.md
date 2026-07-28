@@ -748,3 +748,8 @@
 
 - Changed two-asset Image blocks to one column below 48 rem so phone layouts place the second image or video below the first instead of shrinking both side by side.
 - Kept the two-column composition from tablet widths upwards.
+
+## 2026-07-28, public cursor padding boundary
+
+- Moved native-cursor suppression from the `.site-shell` box to an explicit `data-kinetic-cursor="active"` state on the document root. Empty padding, pseudo-element backgrounds and pointer-transparent visual layers can now resolve to `html` or `body` without exposing the system cursor.
+- Kept the boundary route-safe. `KineticCursor` adds the document state only for desktop fine pointers and removes it during cleanup, so Admin, touch and coarse-pointer routes retain their normal cursor behavior.

@@ -1026,7 +1026,13 @@ test("uses a fine-pointer dual-layer cursor without affecting touch or Admin", a
   assert.match(cursor, /cursorSize\.largeSurface/);
   assert.match(cursor, /element\.dataset\.cursorSurface === "large"/);
   assert.match(cursor, /root\.dataset\.surface = "large"/);
+  assert.match(cursor, /documentRoot\.dataset\.kineticCursor = "active"/);
+  assert.match(cursor, /delete documentRoot\.dataset\.kineticCursor/);
   assert.match(cursorStyles, /@media \(min-width:\s*48rem\) and \(hover:\s*hover\) and \(pointer:\s*fine\)/);
+  assert.match(cursorStyles, /html\[data-kinetic-cursor="active"\] body/);
+  assert.match(cursorStyles, /body \*::before/);
+  assert.match(cursorStyles, /body \*::after/);
+  assert.doesNotMatch(cursorStyles, /\.site-shell,\s*\n\s*\.site-shell \*/);
   assert.match(cursorStyles, /data-interactive="true"/);
   assert.match(cursorStyles, /data-surface="large"[\s\S]*?border-radius:\s*999px/);
   assert.match(cursorStyles, /data-surface="large"[\s\S]*?width:\s*10px[\s\S]*?height:\s*10px/);
