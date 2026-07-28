@@ -232,6 +232,8 @@
 
 .portrait-reveal__ripple {
   opacity: var(--portrait-image-opacity);
+  transform: scale(0.968);
+  transform-origin: center;
 }
 
 .water-ripple-image {

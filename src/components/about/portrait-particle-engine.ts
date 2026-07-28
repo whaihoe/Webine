@@ -29,6 +29,9 @@ type CreateSilhouetteOptions = {
   mobile: boolean;
 };
 
+const SILHOUETTE_LUMINANCE_THRESHOLD = 128;
+const SILHOUETTE_VERTICAL_OFFSET = 0.018;
+
 function clamp(value: number, minimum = 0, maximum = 1) {
   return Math.min(maximum, Math.max(minimum, value));
 }
@@ -70,7 +73,7 @@ export function createSilhouetteParticles(mask: HTMLImageElement, { mobile }: Cr
       + pixels[offset + 2] * 0.0722
     );
     const alpha = pixels[offset + 3] / 255;
-    return luminance * alpha > 52;
+    return luminance * alpha > SILHOUETTE_LUMINANCE_THRESHOLD;
   };
 
   for (let y = edgeDistance; y < height - edgeDistance; y += step) {
@@ -87,7 +90,7 @@ export function createSilhouetteParticles(mask: HTMLImageElement, { mobile }: Cr
 
       if (!isEdge || random() <= 0.08) continue;
       const targetX = x / width;
-      const targetY = y / height;
+      const targetY = clamp(y / height + SILHOUETTE_VERTICAL_OFFSET);
       const identity = random();
       const gradient = clamp(0.5 + targetX * 0.12 - targetY * 0.055, 0.04, 0.96);
       particles.push({
