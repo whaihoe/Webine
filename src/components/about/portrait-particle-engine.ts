@@ -63,7 +63,14 @@ export function createSilhouetteParticles(mask: HTMLImageElement, { mobile }: Cr
   const random = createSeededRandom(9173 + width + height);
   const isInside = (x: number, y: number) => {
     if (x < 0 || x >= width || y < 0 || y >= height) return false;
-    return pixels[(Math.floor(y) * width + Math.floor(x)) * 4] > 52;
+    const offset = (Math.floor(y) * width + Math.floor(x)) * 4;
+    const luminance = (
+      pixels[offset] * 0.2126
+      + pixels[offset + 1] * 0.7152
+      + pixels[offset + 2] * 0.0722
+    );
+    const alpha = pixels[offset + 3] / 255;
+    return luminance * alpha > 52;
   };
 
   for (let y = edgeDistance; y < height - edgeDistance; y += step) {

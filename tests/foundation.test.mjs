@@ -1062,6 +1062,7 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(head, /\/about\/simple-head-points\.bin/);
   assert.match(portrait, /<canvas/);
   assert.match(portraitParticles, /isEdge/);
+  assert.match(portraitParticles, /luminance \* alpha > 52/);
   assert.match(portraitParticles, /originY:\s*1\.04/);
   assert.match(portraitParticles, /const limit = mobile \? 595 : 900/);
   assert.match(portraitParticles, /floatSpeed:\s*0\.54 \+ random\(\) \* 1\.78/);
