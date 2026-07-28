@@ -3,7 +3,6 @@ import type { ThreeEvent } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import {
-  CANVAS_OVERSCAN,
   REVEAL_TEXTURE_SIZE,
   RIPPLE_TEXTURE_SIZE,
 } from "./constants";
@@ -220,8 +219,8 @@ export function WaterRipplePlane({
     const pixelRatio = gl.getPixelRatio();
 
     imageUniforms.uResolution.value.set(
-      (size.width * pixelRatio) / CANVAS_OVERSCAN,
-      (size.height * pixelRatio) / CANVAS_OVERSCAN,
+      size.width * pixelRatio,
+      size.height * pixelRatio,
     );
     imageUniforms.uTextureResolution.value.set(
       textureSize.width,
@@ -382,11 +381,9 @@ export function WaterRipplePlane({
     previousPointerTime.current = eventTime;
   };
 
-  const planeScale = 1 / CANVAS_OVERSCAN;
-
   return (
     <mesh
-      scale={[viewport.width * planeScale, viewport.height * planeScale, 1]}
+      scale={[viewport.width, viewport.height, 1]}
       onPointerEnter={(event) => {
         pointerInside.current = true;
         setPointerBaseline(event);

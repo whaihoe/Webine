@@ -267,11 +267,9 @@
 .water-ripple-image__canvas {
   position: absolute !important;
   z-index: 1;
-  top: -5% !important;
-  left: -5% !important;
-  width: 110% !important;
-  height: 110% !important;
-  overflow: visible !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .portrait-reveal__particles {

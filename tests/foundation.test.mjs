@@ -1114,7 +1114,7 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(config, /colorRevealDecay:\s*3\.2/);
   assert.match(portraitStyles, /@media \(any-hover: none\) and \(any-pointer: coarse\)[\s\S]*\.water-ripple-image\s*{[^}]*cursor:\s*default/s);
   assert.doesNotMatch(portrait, /aria-pressed|Reveal colour/);
-  assert.match(portraitStyles, /\.water-ripple-image__canvas\s*{[^}]*width:\s*110%\s*!important/s);
+  assert.match(portraitStyles, /\.water-ripple-image__canvas\s*{[^}]*width:\s*100%\s*!important/s);
   assert.doesNotMatch(portrait, /feTurbulence|feDisplacementMap|radialGradient/);
   assert.doesNotMatch(portraitStyles, /\.portrait-reveal__surface::after/);
   assert.match(portraitStyles, /width:\s*min\(100%, 25rem\)/);
