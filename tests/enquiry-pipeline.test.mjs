@@ -10,6 +10,7 @@ import {
   retryEnquiryNotification,
 } from "../.test-build/server/enquiry-service.js";
 import { CmsRepositoryError } from "../.test-build/server/cms-repository.js";
+import { isValidOptionalWebsite, WEBSITE_FORMAT_MESSAGE } from "../.test-build/shared/enquiry-validation.js";
 import { removeTemporaryDirectory } from "./test-utils.mjs";
 
 const projectRoot = new URL("../", import.meta.url);
@@ -82,6 +83,31 @@ test("rejects invalid submissions and limits repeated clients", async () => {
     await assert.rejects(
       () => createEnquiry(validInput(20), request("10.0.1.2"), "request-limited", client),
       (error) => error instanceof CmsRepositoryError && error.code === "RATE_LIMITED" && error.status === 429,
+    );
+  });
+});
+
+test("requires a complete public website address while accepting normal domain endings", async () => {
+  assert.equal(isValidOptionalWebsite(""), true);
+  assert.equal(isValidOptionalWebsite("https://example"), false);
+  assert.equal(isValidOptionalWebsite("example.com"), false);
+  assert.equal(isValidOptionalWebsite("https://example.sg"), true);
+
+  process.env.ENQUIRY_HASH_SECRET = "test-enquiry-secret";
+  delete process.env.ENQUIRY_NOTIFICATION_WEBHOOK_URL;
+  delete process.env.RESEND_API_KEY;
+  delete process.env.ENQUIRY_NOTIFICATION_EMAIL;
+  delete process.env.ENQUIRY_NOTIFICATION_FROM_EMAIL;
+  await withDatabase(async (client) => {
+    await assert.rejects(
+      () => createEnquiry({ ...validInput(), website: "https://example" }, request("10.0.1.3"), "invalid-website", client),
+      (error) => error instanceof CmsRepositoryError
+        && error.code === "WEBSITE_INVALID"
+        && error.message === WEBSITE_FORMAT_MESSAGE,
+    );
+    assert.deepEqual(
+      await createEnquiry({ ...validInput(21), website: "https://example.sg" }, request("10.0.1.4"), "valid-website", client),
+      { accepted: true, duplicate: false },
     );
   });
 });

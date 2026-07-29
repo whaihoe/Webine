@@ -1107,7 +1107,9 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(portrait, /particlesRef\.current = \[\]/);
   assert.match(portraitParticles, /const breathing = 0\.94/);
   assert.match(portraitParticles, /glow: boolean/);
-  assert.match(portrait, /glow:\s*true/);
+  assert.match(portrait, /glow:\s*!metrics\.mobile/);
+  assert.match(portraitParticles, /settledFlow = mobile \? portraitMotion\.settledFlow\.mobile : portraitMotion\.settledFlow\.desktop/);
+  assert.match(portraitParticles, /settled \* settledFlow \+ unsettled \* 1\.9/);
   assert.match(portraitParticles, /particleGlow\.haloScale/);
   assert.match(portrait, /<WaterRippleImage/);
   assert.match(portrait, /className="portrait-reveal__ripple"/);
@@ -1143,7 +1145,8 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(portrait, /start: "top 76%"/);
   assert.match(portrait, /once: true/);
   assert.match(config, /aboutPortrait:\s*{[\s\S]*outlineDurationSeconds:\s*1\.8/);
-  assert.match(config, /completedOutlineHoldSeconds:\s*0\.01/);
+  assert.match(config, /completedOutlineHoldSeconds:\s*0\.4/);
+  assert.match(config, /settledFlow:\s*\{\s*desktop:\s*0\.18,\s*mobile:\s*0\.58\s*\}/);
   assert.match(config, /particleFadeSeconds:\s*0\.8/);
   assert.match(config, /imageRevealSeconds:\s*0\.9/);
   assert.match(config, /imageRevealDelayAfterParticleFadeStartsSeconds:\s*0\.0/);

@@ -969,6 +969,10 @@ article[data-block-type="image"][data-image-count="3"] .project-story-image-grid
   font-size: 0.875rem;
 }
 
+.contact-form__heading .contact-form__status--error {
+  color: hsl(var(--color-error));
+}
+
 .contact-form__grid {
   display: grid;
   gap: var(--primitive-space-5);

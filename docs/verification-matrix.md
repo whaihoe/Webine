@@ -269,3 +269,16 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - The clean restarted browser run reports no application console errors. A reproduced rapid-width ResizeObserver loop was removed by deferring the Selected Works refresh and footer geometry sync to animation frames. The dependency-owned Three.js Clock deprecation warning remains unchanged.
 - Node 22 zero-warning lint, client production build, server type checking, isolated test-server build, all 72 automated tests and `git diff --check` pass.
 - `npm audit` clears the earlier brace-expansion and React Router 6 advisories. It still reports the upstream React Router RSC action advisory, which is not reachable in Webine because the application uses client-side `BrowserRouter` and no RSC or server-action mode.
+
+## 2026-07-30 contact website validation pass
+
+- The browser and server use the same complete-address rule. Empty website values and full addresses such as `https://example.sg` pass, while `https://example` and scheme-less values fail with the same guidance.
+- Clicking the consent checkbox with an incomplete website keeps the form rendered and the checkbox checked. A red alert appears at the top of the form and the website field receives the matching inline error.
+- At 390 by 844, the alert computes to the error red `rgb(239, 67, 67)`, the page retains zero horizontal overflow and a blocked submission focuses the website field without sending the enquiry.
+
+## 2026-07-30 mobile About portrait motion pass
+
+- The portrait contour keeps its 595-point phone cap, 30 FPS ceiling and single drawing pass. Independently seeded x and y paths now use a visible bounded settled-flow value instead of the former near-static multiplier.
+- The complete outline holds for 0.4 seconds before fading, preserving the existing grayscale photograph handoff while making individual particle movement readable at phone size.
+- At 390 by 844, the portrait canvas measures 363 by 454 pixels. Two settled-state captures 160 milliseconds apart produced different image hashes while canvas opacity remained 1 and scroll position remained 3254, confirming visible local particle movement rather than page movement or fading.
+- Node 22 zero-warning lint, the production build, server type checking, isolated test-server build, all 73 automated tests and the rendered mobile checks pass.

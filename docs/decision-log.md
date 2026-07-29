@@ -762,3 +762,13 @@
 - Debounced shared ScrollTrigger refreshes, ignored unrelated DOM mutations and deferred the Selected Works resize refresh to the next animation frame. Responsive changes no longer run layout-changing ScrollTrigger work inside a ResizeObserver delivery.
 - Migrated the client router from 6.30.4 to 7.18.2 and removed the version 6 future flags. Static Admin rendering now imports `StaticRouter` from the supported package export.
 - Pinned `brace-expansion` 5.0.8 to remove the high-severity lint-toolchain advisory. The current npm audit still reports React Router's RSC action advisory, but Webine is a client BrowserRouter application and does not enable RSC or server actions. No stable React Router release currently resolves that advisory without reopening earlier Router advisories.
+
+## 2026-07-30, contact website validation
+
+- Added one shared website-address rule at the browser and server boundaries. A complete HTTP or HTTPS address with a public domain ending is accepted, including non-`.com` domains, while incomplete values such as `https://example` are rejected.
+- The consent checkbox remains usable when the website value is incomplete. The form now shows the same clear red message at its top and below the website field, then focuses the website field if submission is attempted.
+
+## 2026-07-30, mobile About portrait particle motion
+
+- Restored visible per-particle movement after formation by replacing the near-static settled multiplier with centrally configured desktop and phone values. Phone movement is stronger but remains bounded closely around the portrait contour.
+- Extended the completed-outline hold from 0.01 to 0.4 seconds so the independently moving silhouette can be read before the existing fade and photograph handoff. Phones retain 595 particles, a 30 FPS ceiling, 1× DPR and one drawing pass.

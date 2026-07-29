@@ -95,10 +95,13 @@ export const experienceConfig = {
     aboutPortrait: {
       sequence: {
         outlineDurationSeconds: 1.8,
-        completedOutlineHoldSeconds: 0.01,
+        completedOutlineHoldSeconds: 0.4,
         particleFadeSeconds: 0.8,
         imageRevealSeconds: 0.9,
         imageRevealDelayAfterParticleFadeStartsSeconds: 0.0,
+      },
+      motion: {
+        settledFlow: { desktop: 0.18, mobile: 0.58 },
       },
       waterRipple: {
         strength: 0.5,

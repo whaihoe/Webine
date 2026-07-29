@@ -3,6 +3,7 @@ import type { Client, Row } from "@libsql/client";
 import { CmsRepositoryError } from "./cms-repository.js";
 import { getDatabase } from "./database.js";
 import { getEnquiryHashSecret } from "./runtime-readiness.js";
+import { isValidOptionalWebsite, WEBSITE_FORMAT_MESSAGE } from "../shared/enquiry-validation.js";
 
 const RATE_LIMIT_MAX = 5;
 const RATE_LIMIT_WINDOW_SECONDS = 15 * 60;
@@ -39,13 +40,10 @@ function parseInput(value: unknown, consentVersion: string): EnquiryInput {
   };
   if (enquiry.name.length < 2) throw new CmsRepositoryError("NAME_REQUIRED", "Enter your name.", 422);
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(enquiry.email)) throw new CmsRepositoryError("EMAIL_INVALID", "Enter a valid email address.", 422);
+  if (!isValidOptionalWebsite(enquiry.website)) throw new CmsRepositoryError("WEBSITE_INVALID", WEBSITE_FORMAT_MESSAGE, 422);
   if (enquiry.details.length < 20) throw new CmsRepositoryError("DETAILS_REQUIRED", "Tell us a little more about the project.", 422);
   if (!enquiry.serviceInterest || !enquiry.timeline) throw new CmsRepositoryError("SELECTION_REQUIRED", "Choose a service and timeline.", 422);
   if (!enquiry.consent || enquiry.consentVersion !== consentVersion) throw new CmsRepositoryError("CONSENT_REQUIRED", "Confirm the current privacy notice before submitting.", 422);
-  if (enquiry.website) {
-    try { const url = new URL(enquiry.website); if (!(["https:", "http:"].includes(url.protocol))) throw new Error(); }
-    catch { throw new CmsRepositoryError("WEBSITE_INVALID", "Enter a complete website address or leave it blank.", 422); }
-  }
   return enquiry;
 }
 

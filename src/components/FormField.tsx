@@ -11,6 +11,7 @@ type FormFieldProps = {
   multiline?: boolean;
   required?: boolean;
   autoComplete?: string;
+  inputMode?: "none" | "text" | "tel" | "url" | "email" | "numeric" | "decimal" | "search";
   minLength?: number;
   error?: string;
   revealDelay?: number;
@@ -27,6 +28,7 @@ export function FormField({
   multiline = false,
   required = false,
   autoComplete,
+  inputMode,
   minLength,
   error,
   revealDelay = 0,
@@ -39,7 +41,7 @@ export function FormField({
       {multiline ? (
         <textarea id={id} name={name} placeholder={placeholder} rows={6} value={value} onChange={onChange} required={required} minLength={minLength} aria-invalid={Boolean(error)} aria-describedby={describedBy} />
       ) : (
-        <input id={id} name={name} type={type} placeholder={placeholder} value={value} onChange={onChange} required={required} autoComplete={autoComplete} aria-invalid={Boolean(error)} aria-describedby={describedBy} />
+        <input id={id} name={name} type={type} placeholder={placeholder} value={value} onChange={onChange} required={required} autoComplete={autoComplete} inputMode={inputMode} aria-invalid={Boolean(error)} aria-describedby={describedBy} />
       )}
       {error ? <small id={describedBy} className="form-field__error">{error}</small> : null}
     </div>

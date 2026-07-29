@@ -4,6 +4,8 @@ import { DirectionalArrow } from "../components/DirectionalArrow";
 import { FormField } from "../components/FormField";
 import { SiteShell } from "../components/SiteShell";
 import { useSiteSettings } from "../content/SiteSettingsProvider";
+import { isValidOptionalWebsite, WEBSITE_FORMAT_MESSAGE } from "../../shared/enquiry-validation";
+
 const initialForm = {
   name: "",
   email: "",
@@ -44,10 +46,29 @@ export function ContactPage() {
     const { name, value } = event.currentTarget;
     setForm((current) => ({ ...current, [name]: value }));
     setFieldErrors((current) => ({ ...current, [name]: undefined }));
+    setSubmission((current) => current.status === "error" ? { status: "idle", message: "" } : current);
+  }
+
+  function showWebsiteError(focusField = false) {
+    setFieldErrors((current) => ({ ...current, website: WEBSITE_FORMAT_MESSAGE }));
+    setSubmission({ status: "error", message: WEBSITE_FORMAT_MESSAGE });
+    if (focusField) window.requestAnimationFrame(() => document.getElementById("website")?.focus());
+  }
+
+  function updateConsent(event: ChangeEvent<HTMLInputElement>) {
+    const checked = event.currentTarget.checked;
+    setForm((current) => ({ ...current, consent: checked }));
+    setFieldErrors((current) => ({ ...current, consent: undefined }));
+    setSubmission((current) => current.status === "error" ? { status: "idle", message: "" } : current);
+    if (checked && !isValidOptionalWebsite(form.website)) showWebsiteError();
   }
 
   async function submitEnquiry(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!isValidOptionalWebsite(form.website)) {
+      showWebsiteError(true);
+      return;
+    }
     setSubmission({ status: "submitting", message: "" });
     setFieldErrors({});
 
@@ -94,25 +115,26 @@ export function ContactPage() {
             </dl>
           </div>
 
-          <form className="contact-form" onSubmit={submitEnquiry} aria-describedby="contact-form-note" data-gsap-parallax="float-card">
+          <form className="contact-form" onSubmit={submitEnquiry} aria-describedby={`contact-form-note${submission.status === "error" ? " contact-form-error" : ""}`} data-gsap-parallax="float-card">
             <div className="contact-form__heading" data-gsap-reveal="copy" data-gsap-delay="0.12">
               <span className="eyebrow">Project enquiry</span>
               <p id="contact-form-note">{settings.contact.responseNote}</p>
+              {submission.status === "error" ? <p id="contact-form-error" className="contact-form__status contact-form__status--error" role="alert">{submission.message}</p> : null}
             </div>
             <div className="contact-form__grid">
               <FormField id="name" name="name" label="Name" placeholder="Your name" value={form.name} onChange={updateField} required autoComplete="name" error={fieldErrors.name} revealDelay={0.16} />
               <FormField id="email" name="email" label="Email" placeholder="you@company.com" type="email" value={form.email} onChange={updateField} required autoComplete="email" error={fieldErrors.email} revealDelay={0.22} />
               <FormField id="company" name="company" label="Company" placeholder="Business name" value={form.company} onChange={updateField} autoComplete="organization" revealDelay={0.28} />
-              <FormField id="website" name="website" label="Current website" placeholder="https://example.com" type="url" value={form.website} onChange={updateField} autoComplete="url" error={fieldErrors.website} revealDelay={0.34} />
+              <FormField id="website" name="website" label="Current website" placeholder="https://example.com" value={form.website} onChange={updateField} autoComplete="url" inputMode="url" error={fieldErrors.website} revealDelay={0.34} />
               <label className="form-select" htmlFor="service-interest" data-gsap-reveal="copy" data-gsap-delay="0.4"><span>What do you need? *</span><select id="service-interest" name="serviceInterest" value={form.serviceInterest} onChange={updateField} required aria-invalid={Boolean(fieldErrors.serviceInterest)} aria-describedby={fieldErrors.serviceInterest ? "service-interest-error" : undefined}><option value="">Choose one</option>{settings.contact.serviceOptions.map((option) => <option key={option}>{option}</option>)}</select>{fieldErrors.serviceInterest ? <small id="service-interest-error" className="form-field__error">{fieldErrors.serviceInterest}</small> : null}</label>
               <label className="form-select" htmlFor="budget-range" data-gsap-reveal="copy" data-gsap-delay="0.46"><span>Working budget</span><select id="budget-range" name="budgetRange" value={form.budgetRange} onChange={updateField}><option value="">Still defining</option>{settings.contact.budgetOptions.map((option) => <option key={option}>{option}</option>)}</select></label>
               <label className="form-select" htmlFor="timeline" data-gsap-reveal="copy" data-gsap-delay="0.52"><span>Preferred timeline *</span><select id="timeline" name="timeline" value={form.timeline} onChange={updateField} required aria-invalid={Boolean(fieldErrors.timeline)} aria-describedby={fieldErrors.timeline ? "timeline-error" : undefined}><option value="">Choose one</option>{settings.contact.timelineOptions.map((option) => <option key={option}>{option}</option>)}</select>{fieldErrors.timeline ? <small id="timeline-error" className="form-field__error">{fieldErrors.timeline}</small> : null}</label>
             </div>
             <FormField id="details" name="details" label="Project outline" placeholder="What should the website help the business achieve?" value={form.details} onChange={updateField} multiline required minLength={20} error={fieldErrors.details} revealDelay={0.58} />
             <label className="contact-form__honeypot" aria-hidden="true">Leave this field empty<input name="websiteConfirm" value={form.websiteConfirm} onChange={updateField} tabIndex={-1} autoComplete="off" /></label>
-            <label className="contact-form__consent" data-gsap-reveal="copy" data-gsap-delay="0.64"><input id="consent" type="checkbox" checked={form.consent} onChange={(event) => { setForm((current) => ({ ...current, consent: event.currentTarget.checked })); setFieldErrors((current) => ({ ...current, consent: undefined })); }} required aria-invalid={Boolean(fieldErrors.consent)} aria-describedby={fieldErrors.consent ? "consent-error" : undefined} /><span>I have read the <a href="#privacy">privacy notice</a> and agree to Webine using these details to respond to my enquiry.{fieldErrors.consent ? <small id="consent-error" className="form-field__error">{fieldErrors.consent}</small> : null}</span></label>
+            <label className="contact-form__consent" data-gsap-reveal="copy" data-gsap-delay="0.64"><input id="consent" type="checkbox" checked={form.consent} onChange={updateConsent} required aria-invalid={Boolean(fieldErrors.consent)} aria-describedby={fieldErrors.consent ? "consent-error" : undefined} /><span>I have read the <a href="#privacy">privacy notice</a> and agree to Webine using these details to respond to my enquiry.{fieldErrors.consent ? <small id="consent-error" className="form-field__error">{fieldErrors.consent}</small> : null}</span></label>
             <button className="form-submit" type="submit" disabled={submission.status === "submitting"} data-gsap-reveal="copy" data-gsap-delay="0.7">{submission.status === "submitting" ? "Sending enquiry..." : "Submit enquiry"}<DirectionalArrow /></button>
-            {submission.status === "success" || submission.status === "error" ? <p className={`contact-form__status contact-form__status--${submission.status}`} role={submission.status === "error" ? "alert" : "status"}>{submission.message}</p> : null}
+            {submission.status === "success" ? <p className="contact-form__status contact-form__status--success" role="status">{submission.message}</p> : null}
           </form>
         </div>
       </section>

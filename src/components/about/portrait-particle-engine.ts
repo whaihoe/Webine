@@ -26,6 +26,7 @@ type DrawSilhouetteOptions = {
   dpr: number;
   sourceWidth: number;
   sourceHeight: number;
+  mobile: boolean;
   glow: boolean;
 };
 
@@ -42,6 +43,7 @@ type CoverRectangle = {
 
 const SILHOUETTE_LUMINANCE_THRESHOLD = 128;
 const particleGlow = experienceConfig.particles.glow;
+const portraitMotion = experienceConfig.particles.aboutPortrait.motion;
 
 function clamp(value: number, minimum = 0, maximum = 1) {
   return Math.min(maximum, Math.max(minimum, value));
@@ -167,6 +169,7 @@ export function drawSilhouetteParticles({
   dpr,
   sourceWidth,
   sourceHeight,
+  mobile,
   glow,
 }: DrawSilhouetteOptions) {
   const context = canvas.getContext("2d");
@@ -178,6 +181,7 @@ export function drawSilhouetteParticles({
 
   const cover = getCoverRectangle(width, height, sourceWidth, sourceHeight);
   const firstPass = glow ? 0 : 1;
+  const settledFlow = mobile ? portraitMotion.settledFlow.mobile : portraitMotion.settledFlow.desktop;
 
   for (let pass = firstPass; pass < 2; pass += 1) {
     for (let colourIndex = 0; colourIndex < 2; colourIndex += 1) {
@@ -194,7 +198,7 @@ export function drawSilhouetteParticles({
         const unsettled = 1 - eased;
         const settled = smoothstep(0.72, 1, localProgress);
         const motionTime = time * 0.001 * particle.floatSpeed;
-        const travellingFlow = settled * 0.035 + unsettled * 1.9;
+        const travellingFlow = settled * settledFlow + unsettled * 1.9;
         const contourWave = Math.sin(
           particle.flowOffset
           + localProgress * Math.PI * (3.2 + particle.random * 2.8)

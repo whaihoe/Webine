@@ -99,7 +99,7 @@ export function PortraitReveal({ name, role, portrait, mask, description, index,
         progress: reveal.value,
         time,
         ...metrics,
-        glow: true,
+        glow: !metrics.mobile,
       });
     };
 
