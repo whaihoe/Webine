@@ -7,7 +7,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { createPortal } from "react-dom";
 import { experienceConfig } from "../../config/experience";
 import { getParticleCapability } from "../../three/capability";
 import {
@@ -154,7 +153,7 @@ export function ParticleNarrativeLayer() {
     return null;
   }
 
-  return createPortal(
+  return (
     <div
       className="particle-narrative-layer"
       data-particle-state={renderState}
@@ -177,7 +176,6 @@ export function ParticleNarrativeLayer() {
           </ParticleCanvasErrorBoundary>
         </div>
       ) : null}
-    </div>,
-    document.body,
+    </div>
   );
 }

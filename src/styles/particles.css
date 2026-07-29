@@ -25,10 +25,6 @@
   z-index: 2;
 }
 
-.site-footer {
-  position: relative;
-  z-index: 2;
-}
 
 .home-page .hero-section {
   position: relative;
@@ -327,4 +323,14 @@
   .hero-reach-cover > .reach-section {
     z-index: var(--layer-reach-background);
   }
+}
+
+/* The fixed Three.js narrative is visual-only. React Three Fiber adds an
+   inline pointer-events value to its wrapper, so suppress the entire subtree
+   to keep the revealed footer interactive on the landing page. */
+.particle-narrative-layer,
+.particle-narrative-layer *,
+.particle-canvas,
+.particle-canvas * {
+  pointer-events: none !important;
 }

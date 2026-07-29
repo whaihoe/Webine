@@ -12,6 +12,7 @@ export function WaterRippleImage({
   alt,
   className = "",
   aspectRatio = "1122 / 1402",
+  overlay,
   strength = DEFAULT_WATER_RIPPLE_SETTINGS.strength,
   radius = DEFAULT_WATER_RIPPLE_SETTINGS.radius,
   damping = DEFAULT_WATER_RIPPLE_SETTINGS.damping,
@@ -121,6 +122,7 @@ export function WaterRippleImage({
           />
         </Suspense>
       </Canvas>
+      {overlay}
     </div>
   );
 }

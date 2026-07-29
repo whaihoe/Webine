@@ -1,3 +1,5 @@
+import { experienceConfig } from "../../config/experience";
+
 export type SilhouetteParticle = {
   targetX: number;
   targetY: number;
@@ -22,6 +24,8 @@ type DrawSilhouetteOptions = {
   width: number;
   height: number;
   dpr: number;
+  sourceWidth: number;
+  sourceHeight: number;
   glow: boolean;
 };
 
@@ -29,8 +33,14 @@ type CreateSilhouetteOptions = {
   mobile: boolean;
 };
 
+type CoverRectangle = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
 const SILHOUETTE_LUMINANCE_THRESHOLD = 128;
-const SILHOUETTE_VERTICAL_OFFSET = 0.018;
 const particleGlow = experienceConfig.particles.glow;
 
 function clamp(value: number, minimum = 0, maximum = 1) {
@@ -47,6 +57,36 @@ function createSeededRandom(seed: number) {
   return () => {
     value = (value * 1664525 + 1013904223) >>> 0;
     return value / 4294967296;
+  };
+}
+
+/**
+ * Mirrors CSS `object-fit: cover` and the water-ripple shader's `coverUv()`.
+ * The threshold image, ripple texture and particle targets therefore share
+ * exactly the same fitted source rectangle inside the portrait surface.
+ */
+function getCoverRectangle(
+  containerWidth: number,
+  containerHeight: number,
+  sourceWidth: number,
+  sourceHeight: number,
+): CoverRectangle {
+  const safeContainerWidth = Math.max(containerWidth, 1);
+  const safeContainerHeight = Math.max(containerHeight, 1);
+  const safeSourceWidth = Math.max(sourceWidth, 1);
+  const safeSourceHeight = Math.max(sourceHeight, 1);
+  const scale = Math.max(
+    safeContainerWidth / safeSourceWidth,
+    safeContainerHeight / safeSourceHeight,
+  );
+  const width = safeSourceWidth * scale;
+  const height = safeSourceHeight * scale;
+
+  return {
+    x: (safeContainerWidth - width) * 0.5,
+    y: (safeContainerHeight - height) * 0.5,
+    width,
+    height,
   };
 }
 
@@ -91,7 +131,7 @@ export function createSilhouetteParticles(mask: HTMLImageElement, { mobile }: Cr
 
       if (!isEdge || random() <= 0.08) continue;
       const targetX = x / width;
-      const targetY = clamp(y / height + SILHOUETTE_VERTICAL_OFFSET);
+      const targetY = clamp(y / height);
       const identity = random();
       const gradient = clamp(0.5 + targetX * 0.12 - targetY * 0.055, 0.04, 0.96);
       particles.push({
@@ -117,17 +157,33 @@ export function createSilhouetteParticles(mask: HTMLImageElement, { mobile }: Cr
   return Array.from({ length: limit }, (_, index) => particles[Math.floor(index * particles.length / limit)]);
 }
 
-export function drawSilhouetteParticles({ canvas, particles, progress, time, width, height, dpr, glow }: DrawSilhouetteOptions) {
+export function drawSilhouetteParticles({
+  canvas,
+  particles,
+  progress,
+  time,
+  width,
+  height,
+  dpr,
+  sourceWidth,
+  sourceHeight,
+  glow,
+}: DrawSilhouetteOptions) {
   const context = canvas.getContext("2d");
   if (!context) return;
+
+  context.setTransform(dpr, 0, 0, dpr, 0, 0);
   context.clearRect(0, 0, width, height);
   context.globalCompositeOperation = "lighter";
 
+  const cover = getCoverRectangle(width, height, sourceWidth, sourceHeight);
   const firstPass = glow ? 0 : 1;
+
   for (let pass = firstPass; pass < 2; pass += 1) {
     for (let colourIndex = 0; colourIndex < 2; colourIndex += 1) {
       const blue = colourIndex === 1;
       context.fillStyle = blue ? "rgb(59, 130, 246)" : "rgb(34, 211, 238)";
+
       for (const particle of particles) {
         if (particle.blue !== blue) continue;
         const formationStart = (1 - particle.targetY) * 0.7 + particle.random * 0.075;
@@ -138,7 +194,7 @@ export function drawSilhouetteParticles({ canvas, particles, progress, time, wid
         const unsettled = 1 - eased;
         const settled = smoothstep(0.72, 1, localProgress);
         const motionTime = time * 0.001 * particle.floatSpeed;
-        const travellingFlow = 0.38 + unsettled * 1.52;
+        const travellingFlow = settled * 0.035 + unsettled * 1.9;
         const contourWave = Math.sin(
           particle.flowOffset
           + localProgress * Math.PI * (3.2 + particle.random * 2.8)
@@ -154,22 +210,24 @@ export function drawSilhouetteParticles({ canvas, particles, progress, time, wid
         const riseSway = Math.sin(
           motionTime * 0.66 + particle.phase * 0.7 + particle.targetY * 4,
         ) * (0.012 + particle.random * 0.012) * unsettled;
-        const x = (
+        const normalisedX = (
           particle.originX
           + (particle.targetX - particle.originX) * eased
           + curl
           + currentX
           + riseSway
-        ) * width;
-        const y = (
+        );
+        const normalisedY = (
           particle.originY
           + (particle.targetY - particle.originY) * eased
           + currentY
           - Math.abs(currentX) * 0.18 * settled
-        ) * height;
+        );
+        const x = cover.x + normalisedX * cover.width;
+        const y = cover.y + normalisedY * cover.height;
         const breathing = 0.94 + Math.sin(motionTime * 0.72 + particle.flowOffset) * 0.06 * settled;
         const alpha = smoothstep(0.02, 0.18, localProgress) * (0.72 + particle.random * 0.26) * breathing;
-        const radius = (0.68 + particle.random * 0.92) * (0.96 + breathing * 0.04) * dpr;
+        const radius = (0.68 + particle.random * 0.92) * (0.96 + breathing * 0.04);
 
         context.globalAlpha = pass === 0 ? alpha * particleGlow.haloAlpha : alpha;
         context.beginPath();
@@ -184,7 +242,8 @@ export function drawSilhouetteParticles({ canvas, particles, progress, time, wid
       }
     }
   }
+
   context.globalAlpha = 1;
   context.globalCompositeOperation = "source-over";
+  context.setTransform(1, 0, 0, 1, 0, 0);
 }
-import { experienceConfig } from "../../config/experience";

@@ -1044,7 +1044,6 @@
   background: hsl(var(--primitive-slate-950));
 }
 
-.signal-grid--closing { mask-image: linear-gradient(to top, black, transparent 92%); }
 
 .closing-cta__layout {
   position: relative;

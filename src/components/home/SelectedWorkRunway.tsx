@@ -83,12 +83,15 @@ export function SelectedWorkRunway() {
     let mobileInterludeTween: gsap.core.Tween | null = null;
     let mobileInterludeVisible = false;
     let resizeObserver: ResizeObserver | null = null;
+    let resizeRefreshFrame = 0;
     const horizontalEnd = 0.7;
     const isMobile = window.innerWidth <= 599;
     const mobileInterludeRevealStart = 0.94;
     const interludeRevealStart = 0.9;
 
     const stop = () => {
+      window.cancelAnimationFrame(resizeRefreshFrame);
+      resizeRefreshFrame = 0;
       resizeObserver?.disconnect();
       resizeObserver = null;
       tween?.scrollTrigger?.kill(true);
@@ -387,7 +390,14 @@ export function SelectedWorkRunway() {
       tween = timeline as ScrollBoundTween;
       scrollTweenRef.current = timeline as ScrollBoundTween;
 
-      resizeObserver = new ResizeObserver(() => ScrollTrigger.refresh());
+      resizeObserver = new ResizeObserver(() => {
+        if (resizeRefreshFrame) return;
+
+        resizeRefreshFrame = window.requestAnimationFrame(() => {
+          resizeRefreshFrame = 0;
+          ScrollTrigger.refresh();
+        });
+      });
       resizeObserver.observe(section);
       ScrollTrigger.refresh();
     };

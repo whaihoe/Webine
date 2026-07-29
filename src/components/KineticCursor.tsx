@@ -104,6 +104,14 @@ export function KineticCursor() {
         return;
       }
 
+      const staticCursor = element.dataset.cursorStatic === "true";
+      if (staticCursor) {
+        root.dataset.interactive = "false";
+        targetSize.width = cursorSize.idle;
+        targetSize.height = cursorSize.idle;
+        return;
+      }
+
       const largeSurface = element.dataset.cursorSurface === "large";
       if (largeSurface) {
         root.dataset.surface = "large";

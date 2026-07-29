@@ -10,23 +10,63 @@ export function GsapRevealController({ root }: { root: HTMLElement }) {
   useLayoutEffect(() => {
     let observer: MutationObserver | null = null;
     let refreshFrame = 0;
+    let refreshTimer = 0;
+    let refreshRequested = false;
     let active = true;
     const imageReadyListeners: Array<{
       image: HTMLImageElement;
       listener: () => void;
     }> = [];
     const observedParallaxFrames = new WeakSet<HTMLElement>();
-    const scheduleRefresh = () => {
-      if (!active || refreshFrame !== 0) return;
+    const observedFrameSizes = new WeakMap<Element, { width: number; height: number }>();
+    const motionSelector = "[data-gsap-reveal], [data-gsap-parallax]";
+    const refreshDebounceMs = 140;
 
-      refreshFrame = window.requestAnimationFrame(() => {
-        refreshFrame = 0;
-        if (active) ScrollTrigger.refresh();
-      });
+    const scheduleRefresh = () => {
+      if (!active) return;
+
+      refreshRequested = true;
+      window.clearTimeout(refreshTimer);
+      refreshTimer = window.setTimeout(() => {
+        refreshTimer = 0;
+        if (!active || !refreshRequested) return;
+
+        refreshRequested = false;
+        window.cancelAnimationFrame(refreshFrame);
+        refreshFrame = window.requestAnimationFrame(() => {
+          refreshFrame = 0;
+          if (active) ScrollTrigger.refresh();
+        });
+      }, refreshDebounceMs);
     };
+
     const resizeObserver = typeof ResizeObserver === "undefined"
       ? null
-      : new ResizeObserver(scheduleRefresh);
+      : new ResizeObserver((entries) => {
+          let geometryChanged = false;
+
+          entries.forEach((entry) => {
+            const previousSize = observedFrameSizes.get(entry.target);
+            const nextSize = {
+              width: entry.contentRect.width,
+              height: entry.contentRect.height,
+            };
+
+            observedFrameSizes.set(entry.target, nextSize);
+
+            if (
+              previousSize
+              && (
+                Math.abs(previousSize.width - nextSize.width) > 0.5
+                || Math.abs(previousSize.height - nextSize.height) > 0.5
+              )
+            ) {
+              geometryChanged = true;
+            }
+          });
+
+          if (geometryChanged) scheduleRefresh();
+        });
     const preparedReveals = new WeakSet<Element>();
     const preparedParallax = new WeakSet<Element>();
     const prepareReveal = (element: HTMLElement) => {
@@ -146,14 +186,30 @@ export function GsapRevealController({ root }: { root: HTMLElement }) {
 
     root.dataset.gsapController = "ready";
     const context = gsap.context(scan, root);
-    observer = new MutationObserver(() => {
-      context.add(scan);
+    const mutationAffectsMotion = (mutation: MutationRecord) => {
+      const mutationTarget = mutation.target instanceof Element
+        ? mutation.target
+        : mutation.target.parentElement;
 
+      if (mutationTarget?.closest(motionSelector)) return true;
+
+      return Array.from(mutation.addedNodes).some((node) => {
+        if (!(node instanceof Element)) return false;
+
+        return node.matches(motionSelector)
+          || Boolean(node.querySelector(motionSelector));
+      });
+    };
+
+    observer = new MutationObserver((mutations) => {
+      if (!mutations.some(mutationAffectsMotion)) return;
+
+      context.add(scan);
       scheduleRefresh();
     });
     observer.observe(root, { childList: true, subtree: true });
 
-    ScrollTrigger.refresh();
+    scheduleRefresh();
 
     return () => {
       active = false;
@@ -163,6 +219,7 @@ export function GsapRevealController({ root }: { root: HTMLElement }) {
         image.removeEventListener("load", listener);
         image.removeEventListener("error", listener);
       });
+      window.clearTimeout(refreshTimer);
       window.cancelAnimationFrame(refreshFrame);
       delete root.dataset.gsapController;
       root.querySelectorAll<HTMLElement>("[data-gsap-motion-ready]").forEach((element) => {

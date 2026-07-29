@@ -1,5 +1,4 @@
 import { ButtonLink } from "../ButtonLink";
-import { SignalGrid } from "./SignalGrid";
 import { MobileSectionParticles } from "./MobileSectionParticles";
 import { useParticleSceneAnchor } from "./ParticleSceneController";
 import { useSiteSettings } from "../../content/SiteSettingsProvider";
@@ -18,7 +17,6 @@ export function ClosingCallToAction() {
       aria-labelledby="closing-heading"
       data-particle-scene="closing"
     >
-      <SignalGrid className="signal-grid--closing" />
       <MobileSectionParticles scene="closing" />
       <div className="site-container closing-cta__layout">
         <p className="eyebrow" data-gsap-reveal="copy">{settings.closing.eyebrow}</p>

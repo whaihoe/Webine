@@ -23,8 +23,8 @@ test("keeps every current route", async () => {
     assert.match(app, new RegExp(`path=["']${path.replace("/", "\\/")}["']`));
   }
   assert.match(app, /path=["']\/admin\/\*["']/);
-  assert.match(main, /v7_relativeSplatPath:\s*true/);
-  assert.match(main, /v7_startTransition:\s*true/);
+  assert.match(main, /<BrowserRouter>/);
+  assert.doesNotMatch(main, /future=/);
   assert.equal((app.match(/lazy\(\(\) =>/g) ?? []).length, 7);
   assert.match(app, /data-page-load-pending="true"/);
   assert.match(app, /<Suspense[\s\S]*?fallback=\{\([\s\S]*?data-page-load-pending="true"/);
@@ -281,7 +281,7 @@ test("enables the approved homepage experience layers", async () => {
   );
   assert.match(config, /smoothScroll:\s*{\s*enabled:\s*true/);
   assert.match(config, /signalGrid:\s*{\s*enabled:\s*true/);
-  assert.match(config, /interludeObject:\s*{[\s\S]*?type:\s*"elliptical-torus-bands"[\s\S]*?rotationDegrees:\s*\[0, 0, 0\]/);
+  assert.match(config, /interludeObject:\s*{[\s\S]*?type:\s*"elliptical-torus-bands"[\s\S]*?rotationDegrees:\s*\[0, 150, 0\]/);
   assert.match(
     config,
     /desktop:\s*{[\s\S]*?count:\s*2800[\s\S]*?pointSize:\s*3\.2[\s\S]*?pixelRatioCap:\s*1[\s\S]*?maxFrameRate:\s*36/,
@@ -1112,7 +1112,7 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(portrait, /<WaterRippleImage/);
   assert.match(portrait, /className="portrait-reveal__ripple"/);
   assert.match(portrait, /greyScale/);
-  assert.match(portrait, /className="portrait-reveal__media"[\s\S]*<canvas ref=\{particleCanvasRef\}/);
+  assert.match(portrait, /className="portrait-reveal__media"[\s\S]*overlay=\{\([\s\S]*className="portrait-reveal__threshold"[\s\S]*<canvas ref=\{particleCanvasRef\}/);
   assert.match(portrait, /axis:\s*"vertical"/);
   assert.match(portrait, /createImageParallax/);
   assert.match(portrait, /scrub:\s*1\.1/);
@@ -1156,7 +1156,10 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.doesNotMatch(portrait, /feTurbulence|feDisplacementMap|radialGradient/);
   assert.doesNotMatch(portraitStyles, /\.portrait-reveal__surface::after/);
   assert.match(portraitStyles, /width:\s*min\(100%, 25rem\)/);
-  assert.match(portraitStyles, /\.portrait-reveal__media\s*{[^}]*transform:\s*scale\(1\.08\)/s);
+  assert.match(portraitStyles, /\.portrait-reveal__media\s*{[^}]*transform:\s*scale\(1\.02\)/s);
+  assert.match(portraitStyles, /\.portrait-reveal__threshold\s*{[^}]*object-fit:\s*cover/s);
+  assert.match(portraitParticles, /function getCoverRectangle/);
+  assert.match(portraitParticles, /const cover = getCoverRectangle\(width, height, sourceWidth, sourceHeight\)/);
   assert.match(portraitStyles, /font-size:\s*clamp\(4\.25rem, 11vw, 7\.8rem\)/);
   assert.match(portraitStyles, /\.about-hero__frame\s*\{[^}]*will-change:\s*transform, border-radius/s);
   assert.match(portraitStyles, /\.about-head__canvas\s+canvas\s*\{[^}]*width:\s*100%\s*!important/s);

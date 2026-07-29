@@ -143,10 +143,15 @@ export function ParticleSceneController({
               pointViewportY,
               formationRange,
             ),
-            dispersion: getPointDispersionProgress(
-              pointViewportY,
-              particleSceneConfig[anchorId].motion.dispersion,
-            ),
+            // The colony planet is the final particle form in the landing-page
+            // narrative. Keep it intact after its section passes instead of
+            // transitioning it back into the scattered field.
+            dispersion: anchorId === "closing"
+              ? 0
+              : getPointDispersionProgress(
+                  pointViewportY,
+                  particleSceneConfig[anchorId].motion.dispersion,
+                ),
           };
           sceneMotionProgress[anchorId] = motionProgress;
           element.dataset.particleFormation =

@@ -203,7 +203,7 @@ export const experienceConfig = {
   },
   signalGrid: {
     enabled: true,
-    sections: ["hero", "closing-cta"],
+    sections: ["hero"],
     desktopCellSize: 48,
     mobileCellSize: 32,
   },

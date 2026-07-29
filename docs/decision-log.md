@@ -753,3 +753,12 @@
 
 - Moved native-cursor suppression from the `.site-shell` box to an explicit `data-kinetic-cursor="active"` state on the document root. Empty padding, pseudo-element backgrounds and pointer-transparent visual layers can now resolve to `html` or `body` without exposing the system cursor.
 - Kept the boundary route-safe. `KineticCursor` adds the document state only for desktop fine pointers and removes it during cleanup, so Admin, touch and coarse-pointer routes retain their normal cursor behavior.
+
+## 2026-07-30, footer reveal, portrait alignment and audit correction
+
+- Rebuilt the shared footer as one measured reveal surface. Desktop clips a fixed footer against the final section while phones use a normal absolute footer, preserving the same content and interaction contract without a second implementation.
+- Added one lazy footer particle brush that preloads near the final section, mounts only when needed and remains pointer-transparent. Home's fixed narrative canvas is also explicitly visual-only, so it cannot block footer links.
+- Moved the About threshold image and contour canvas into the water-ripple surface. The photograph, threshold and particles now share the same cover-fit rectangle, responsive dimensions and vertical parallax owner.
+- Debounced shared ScrollTrigger refreshes, ignored unrelated DOM mutations and deferred the Selected Works resize refresh to the next animation frame. Responsive changes no longer run layout-changing ScrollTrigger work inside a ResizeObserver delivery.
+- Migrated the client router from 6.30.4 to 7.18.2 and removed the version 6 future flags. Static Admin rendering now imports `StaticRouter` from the supported package export.
+- Pinned `brace-expansion` 5.0.8 to remove the high-severity lint-toolchain advisory. The current npm audit still reports React Router's RSC action advisory, but Webine is a client BrowserRouter application and does not enable RSC or server actions. No stable React Router release currently resolves that advisory without reopening earlier Router advisories.

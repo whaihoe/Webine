@@ -259,3 +259,13 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - Both Project media and Works content links opt into the large-surface cursor state. That state is a 58 by 58 pixel circle with the resting 10-pixel core, while ordinary controls retain geometry-aware morphing.
 - Touch, coarse-pointer and Admin cursor exclusions are unchanged. Semantic links and focus-visible feedback remain intact.
 - Zero-warning lint, the Node 22 production build, server type checks, test-server build and all 60 automated tests pass. The existing React Three Fiber chunk-size warning remains unchanged.
+
+## 2026-07-30 pre-launch audit and corrected-state verification
+
+- Checked Home, Works, Services, About, Contact and the Deszio case study at 320, 375, 430, 768, 1024, 1280, 1440 and 1920 pixels, producing 48 route and viewport checks. Every check has one H1, route-specific metadata, zero page-level horizontal overflow, no missing image alternatives, no broken loaded images and no application alert state.
+- Desktop and 390 by 844 checks confirm the shared footer reaches the full measured height, remains interactive and keeps its content inside the viewport. The final section background continues behind the reveal and fixed Works backdrops remain rendered.
+- At 390 by 844, the About portrait photograph, threshold image and particle canvas share the same 363.12 by 454.24 rendered surface and 363 by 454 canvas backing size. The visible contour stays aligned with the portrait frame throughout the reveal.
+- The mobile menu opens as a labelled dialog, moves focus to Close and returns focus to Menu after closing. Empty Contact submission focuses the first required field and native validation identifies every required control.
+- The clean restarted browser run reports no application console errors. A reproduced rapid-width ResizeObserver loop was removed by deferring the Selected Works refresh and footer geometry sync to animation frames. The dependency-owned Three.js Clock deprecation warning remains unchanged.
+- Node 22 zero-warning lint, client production build, server type checking, isolated test-server build, all 72 automated tests and `git diff --check` pass.
+- `npm audit` clears the earlier brace-expansion and React Router 6 advisories. It still reports the upstream React Router RSC action advisory, which is not reachable in Webine because the application uses client-side `BrowserRouter` and no RSC or server-action mode.

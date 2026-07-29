@@ -1,10 +1,11 @@
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 export type WaterRippleImageProps = {
   src: string;
   alt: string;
   className?: string;
   aspectRatio?: CSSProperties["aspectRatio"];
+  overlay?: ReactNode;
   strength?: number;
   radius?: number;
   damping?: number;

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { StaticRouter } from "react-router-dom/server.js";
+import { StaticRouter } from "react-router-dom";
 import { createServer } from "vite";
 import react from "@vitejs/plugin-react";
 import { mkdtemp, rm } from "node:fs/promises";
@@ -138,11 +138,11 @@ test("renders the collection builder and every generated item control", async ()
     assert.match(bentoHtml, /data-image-shape="square"/);
     assert.equal((itemHtml.match(/<fieldset/g) ?? []).length, fields.length);
     assert.match(workspaceHtml, /aria-label="Webine Admin breadcrumb"/);
-    assert.match(workspaceHtml, /href="\/admin">Admin<\/a>/);
-    assert.match(workspaceHtml, /href="\/admin\/collections">Collections<\/a>/);
-    assert.match(workspaceHtml, /href="\/admin\/collections\/projects\/items">Projects<\/a>/);
+    assert.match(workspaceHtml, /href="\/admin"[^>]*>Admin<\/a>/);
+    assert.match(workspaceHtml, /href="\/admin\/collections"[^>]*>Collections<\/a>/);
+    assert.match(workspaceHtml, /href="\/admin\/collections\/projects\/items"[^>]*>Projects<\/a>/);
     assert.match(workspaceHtml, /aria-current="page">New item<\/span>/);
-    assert.match(workspaceHtml, /href="\/">Return to website<\/a>/);
+    assert.match(workspaceHtml, /href="\/"[^>]*>Return to website<\/a>/);
   } finally {
     await server.close();
     await rm(cacheDirectory, {

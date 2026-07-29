@@ -213,27 +213,25 @@
 .portrait-reveal__media {
   position: absolute;
   inset: 0;
-  transform: scale(1.08);
+  /* Shared overscan for the photo and silhouette particles. Keeping this close
+     to 1 preserves the original portrait width while still covering the small
+     vertical parallax movement. */
+  transform: scale(1.02);
   transform-origin: center;
 }
 
-.portrait-reveal__surface {
-  position: absolute;
-  inset: 0;
-}
-
-.portrait-reveal__ripple,
-.portrait-reveal__particles {
+.portrait-reveal__ripple {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
 }
 
-.portrait-reveal__ripple {
+.portrait-reveal__ripple :is(
+  .water-ripple-image__fallback-frame,
+  .water-ripple-image__canvas
+) {
   opacity: var(--portrait-image-opacity);
-  transform: translateX(-3%) scale(0.968);
-  transform-origin: center;
 }
 
 .water-ripple-image {
@@ -274,9 +272,26 @@
   height: 100% !important;
 }
 
+.portrait-reveal__threshold,
+.portrait-reveal__particles {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.portrait-reveal__threshold {
+  z-index: 3;
+  display: block;
+  object-fit: cover;
+  opacity: 0;
+  user-select: none;
+}
+
 .portrait-reveal__particles {
   z-index: 4;
-  pointer-events: none;
+  display: block;
 }
 
 .portrait-reveal__hint {

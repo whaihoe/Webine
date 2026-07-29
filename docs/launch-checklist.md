@@ -44,8 +44,8 @@ This checklist keeps code readiness separate from production approval. Do not ma
 
 | Gate | Status | Evidence or next action |
 |---|---|---|
-| Automated build, types and tests | Pass | Lint, strict client and server types, production Vercel build and all 63 tests pass on the exact release source |
-| Dependency audit | Pass | Repeat on the exact release commit |
+| Automated build, types and tests | Pass | Lint, strict client and server types, production build and all 72 tests pass on the exact release source |
+| Dependency audit | Partial | The lint-toolchain and Router 6 advisories are resolved. npm still reports the upstream React Router RSC action advisory, but Webine does not enable RSC or server actions and no stable fully clear release is currently available |
 | Responsive visual matrix | Local browser pass | Complete the physical-device and cross-browser rows in `docs/verification-matrix.md` |
 | Physical iPhone sticky and particle story | Open | User confirmation on Safari and Chrome |
 | Android touch experience | Open | Representative device confirmation |
