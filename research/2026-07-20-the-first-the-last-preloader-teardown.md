@@ -12,7 +12,7 @@ The visible percentage is a five-second GSAP proxy from 0 to 100. It is presenta
 
 Confirmed production sources:
 
-- Supplied HTML: `/Users/whaihoe/.codex/attachments/b08fe3e4-57a8-41c3-a3b3-e6a4ab677ed0/pasted-text.txt`
+- Supplied HTML: Codex attachment used during the original analysis. The machine-local path is intentionally omitted.
 - CSS: `https://thefirstthelast.agency/_nuxt/entry.C0WACAU4.css`
 - Preloader component bundle: `https://thefirstthelast.agency/_nuxt/CbHGLtOX.js`
 

@@ -6,7 +6,7 @@ This teardown focuses on the opening scroll scene supplied for the Webine About 
 
 ## Evidence
 
-- Supplied page source: `/Users/whaihoe/.codex/attachments/bf93ca41-61f3-489f-b72a-fb88987c0b19/pasted-text.txt`
+- Supplied page source: Codex attachment used during the original analysis. The machine-local path is intentionally omitted.
 - Canonical page in the source: `https://analogueagency.com/case/vitra`
 - Framer page module: `Pf7xiTZTACpgt9sXvXBDfuOvC1mbnUND0Ev-0PU168g.c9s_Qiui.mjs`
 - Framer runtime bundle: `script_main.BszebTAm.mjs`
