@@ -66,17 +66,17 @@ Its entry timeline reveals the header first, then each published Project card at
 
 Runway entry also uses opacity without hiding visibility. Focusing a Project card reveals it immediately. Cards become `inert` only after chapter 04 begins expanding and reverse scrolling removes `inert` when the horizontal sequence returns.
 
-The HTML process line and node states use their centre-based progress. Particle motion uses two additional geometry-derived values, an earlier intake approach and the centred outlet release. All three are recalculated from the same live line rectangle, so reverse scrolling reverses the illusion without callback-owned state.
+The HTML process line and node states use progress based on the navbar-aware reading line. Particle motion uses two additional geometry-derived values, an earlier intake approach and the matching outlet release. All three are recalculated from the same live line rectangle, so reverse scrolling reverses the illusion without callback-owned state.
 
-Each process card surface starts 104 pixels below its resting point at zero opacity. When the real timeline node reaches viewport centre, the surface moves to zero offset and full opacity through one reversible GSAP tween. The article and node stay fixed, keeping the node aligned to the line throughout the reveal. Definition-list label and value margins are reset so both columns share the same starting edge. The line fill, incoming particle geometry and outlet release remain unchanged.
+Each process card surface starts 104 pixels below its resting point at zero opacity. When the real timeline node reaches the centre of the usable viewport below the live fixed header, the surface moves to zero offset and full opacity through one reversible GSAP tween. The same navbar-aware reading line drives the timeline fill and outlet release, keeping the colour, node state and card entrance together. The article and node stay fixed, keeping the node aligned to the line throughout the reveal. Definition-list label and value margins are reset so both columns share the same starting edge.
 
-The timeline line remains below its cards and circular nodes at every breakpoint. Each node is outside the card-content reveal, so all four circles remain present on the bar even before their copy animates in. Active-state measurement reads the circle itself, not the card top. Desktop odd and even offsets are calibrated independently so both left and right cards centre on the one-pixel line. This also prevents the fill from painting over a mobile node and activates each stage when its actual circle reaches viewport centre.
+The timeline line remains below its cards and circular nodes at every breakpoint. Each node is outside the card-content reveal, so all four circles remain present on the bar even before their copy animates in. Active-state measurement reads the circle itself, not the card top. Desktop odd and even offsets are calibrated independently so both left and right cards centre on the one-pixel line. This also prevents the fill from painting over a mobile node and activates each stage when its actual circle reaches the reading line.
 
-The refined particle timing uses two geometric measurements from the same timeline line:
+The refined particle timing uses measurements from the same timeline line. The reading line is the centre of the space between the live header bottom and viewport bottom, so compact layouts reveal content slightly before the old geometric midpoint:
 
-- CSS `--timeline-progress` begins when the line top reaches viewport centre and controls fill and nodes.
+- CSS `--timeline-progress` begins when the line top reaches the navbar-aware reading line and controls fill and nodes.
 - `timelineIntakeProgress` begins earlier and controls release from the interlude, dispersed travel, point gathering and staggered contact fade.
-- `timelineReleaseProgress` begins when the line bottom reaches viewport centre and controls only point-origin emission and dispersion. Closing formation belongs to the closing section point.
+- `timelineReleaseProgress` begins when the line bottom reaches the same reading line and controls only point-origin emission and dispersion. Closing formation belongs to the closing section point.
 
 Hero, reach, interlude and closing use independent motion ranges stored beside their own responsive anchor configuration. When a point enters the viewport, that section's particles begin forming around it. Formation reaches one when the point reaches viewport centre. The object then stays attached to the moving point until it crosses the top edge, where that section's dispersion begins. Reverse scrolling derives the same states from the same point geometry.
 

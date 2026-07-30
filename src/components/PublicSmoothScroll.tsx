@@ -3,21 +3,12 @@ import { useEffect, type ReactNode } from "react";
 import { routeScrollEventName } from "../animation/route-scroll";
 import { normaliseWheelInput } from "../animation/scroll-input";
 import { gsap, ScrollTrigger } from "../animation/scroll-runtime";
+import { getHeaderScrollOffset } from "../animation/viewport-geometry";
 import { experienceConfig } from "../config/experience";
 
 type PublicSmoothScrollProps = {
   children: ReactNode;
 };
-
-function getHeaderOffset() {
-  const header = document.querySelector<HTMLElement>("[data-site-header]");
-
-  if (!header) {
-    return 0;
-  }
-
-  return -Math.ceil(header.getBoundingClientRect().bottom + 16);
-}
 
 export function PublicSmoothScroll({ children }: PublicSmoothScrollProps) {
   useEffect(() => {
@@ -67,7 +58,7 @@ export function PublicSmoothScroll({ children }: PublicSmoothScrollProps) {
 
       event.preventDefault();
       lenis.scrollTo(target, {
-        offset: getHeaderOffset(),
+        offset: getHeaderScrollOffset(),
         onComplete: () => {
           if (window.location.hash !== href) {
             window.history.pushState(null, "", href);

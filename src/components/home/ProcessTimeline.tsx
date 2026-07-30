@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { gsap } from "../../animation/scroll-runtime";
+import { getViewportReadingLine } from "../../animation/viewport-geometry";
 import {
   useParticleController,
   useParticleSceneAnchor,
@@ -51,17 +52,21 @@ export function ProcessTimeline() {
 
     const measure = () => {
       frame = 0;
-      const centre = window.innerHeight / 2;
-      const lineRect = line.getBoundingClientRect();
       const viewportHeight = Math.max(window.innerHeight, 1);
       const viewportWidth = Math.max(window.innerWidth, 1);
+      const readingLine = getViewportReadingLine(viewportHeight);
+      const lineRect = line.getBoundingClientRect();
       const progress = Math.min(
-        Math.max((centre - lineRect.top) / Math.max(lineRect.height, 1), 0),
+        Math.max(
+          (readingLine - lineRect.top) / Math.max(lineRect.height, 1),
+          0,
+        ),
         1,
       );
       const releaseProgress = Math.min(
         Math.max(
-          (centre - lineRect.bottom) / Math.max(window.innerHeight * 0.42, 1),
+          (readingLine - lineRect.bottom) /
+            Math.max(viewportHeight * 0.42, 1),
           0,
         ),
         1,
@@ -78,7 +83,12 @@ export function ProcessTimeline() {
       let nextActive = -1;
 
       nodeRefs.current.forEach((node, index) => {
-        if (node && node.getBoundingClientRect().top <= centre) nextActive = index;
+        if (
+          node &&
+          node.getBoundingClientRect().top <= readingLine
+        ) {
+          nextActive = index;
+        }
       });
 
       section.style.setProperty("--timeline-progress", String(progress));

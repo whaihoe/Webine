@@ -361,3 +361,11 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - At 320 by 568 and 390 by 844, the Works index footer is visible at the bottom of the route, remains above the fixed galaxy and keeps zero horizontal overflow. The same 390-pixel check passes on `/works/deszio-studio`.
 - At 1280 by 800, Home retains its travelling desktop surface field and one persistent particle canvas. The Works fixed footer reveal remains visible and correctly clipped.
 - Browser logs contain no application errors. The existing dependency-owned Three.js Clock deprecation warning remains unchanged.
+
+## 2026-07-30 navbar-aware process timing
+
+- At 320 by 568, the fixed header bottom measures 74 pixels. The usable reading line is therefore 321 pixels rather than the geometric 284-pixel midpoint. The first timeline card was fully revealed with its node at 291 pixels, before it reached the former threshold.
+- At 390 by 844, the same 74-pixel header moves the reading line from 422 to 459 pixels. Crossing that line activates the node and reveals the card, while reversing above it restores the waiting state, zero opacity and 104-pixel offset.
+- At 1280 by 800, the live 78-pixel header produces a 439-pixel reading line. The desktop card, line and node remain aligned with zero horizontal overflow.
+- The global reveal controller already starts at 92 percent, portrait entry starts at 76 percent and the Selected Work entry starts at 88 percent. Particle anchors, full-range parallax and pinned-scene centres remain deliberately tied to composition geometry rather than content visibility.
+- Browser logs contain no application errors. The existing dependency-owned Three.js Clock deprecation warning remains unchanged.

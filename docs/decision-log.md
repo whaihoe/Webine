@@ -827,3 +827,9 @@
 - Kept compact Home, About Head and Services particle positions moving while locking each particle's colour and density to its identity. This removes the mobile twinkle without turning the objects into static images or reducing their particle counts.
 - Preserved the slower travelling colour and density fields on desktop. One central `surfaceField.compactFlowScale` value owns the compact behaviour across the CPU and GPU renderers.
 - Restored the mobile Works footer by keeping its reveal zone above the main Works stacking context. The fixed galaxy remains visible throughout the Works content but no longer paints over the normal mobile footer.
+
+## 2026-07-30, navbar-aware timeline reading line
+
+- Replaced the process timeline's geometric viewport midpoint with the centre of the usable viewport below the live fixed header. The line fill, node activation, card reveal and outlet release stay synchronised while appearing slightly earlier, with the largest proportional improvement on short mobile screens.
+- Moved fixed-header measurement into one shared viewport-geometry helper and reused it for Lenis anchor offsets. Particle anchors, parallax centres, pinned-scene geometry and already-early global reveals retain their existing intentional thresholds.
+- Confirmed forward and reverse timeline motion at 320 by 568, 390 by 844 and 1280 by 800 with zero horizontal overflow.

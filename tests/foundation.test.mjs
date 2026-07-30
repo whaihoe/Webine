@@ -626,9 +626,25 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.match(smoothScroll, /touchInertiaExponent:\s*config\.touchInertiaExponent/);
   assert.match(smoothScroll, /touchMultiplier:\s*config\.touchMultiplier/);
 
-  const [processTimeline, controller, selectedWork, interlude, homeSceneStyles] = await Promise.all([
+  const [
+    processTimeline,
+    viewportGeometry,
+    smoothScrollRuntime,
+    controller,
+    selectedWork,
+    interlude,
+    homeSceneStyles,
+  ] = await Promise.all([
     readFile(
       new URL("src/components/home/ProcessTimeline.tsx", projectRoot),
+      "utf8",
+    ),
+    readFile(
+      new URL("src/animation/viewport-geometry.ts", projectRoot),
+      "utf8",
+    ),
+    readFile(
+      new URL("src/components/PublicSmoothScroll.tsx", projectRoot),
       "utf8",
     ),
     readFile(
@@ -648,6 +664,21 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.match(processTimeline, /viewportHeight \* 0\.88/);
   assert.match(processTimeline, /MobileTimelineFlowParticles/);
   assert.match(processTimeline, /setTimelineGeometry/);
+  assert.match(processTimeline, /getViewportReadingLine\(viewportHeight\)/);
+  assert.doesNotMatch(processTimeline, /window\.innerHeight \/ 2/);
+  assert.match(
+    viewportGeometry,
+    /headerBottom \+ \(viewportHeight - headerBottom\) \/ 2/,
+  );
+  assert.match(
+    viewportGeometry,
+    /document\.querySelector<HTMLElement>\("\[data-site-header\]"\)/,
+  );
+  assert.match(smoothScrollRuntime, /getHeaderScrollOffset\(\)/);
+  assert.doesNotMatch(
+    smoothScrollRuntime,
+    /document\.querySelector<HTMLElement>\("\[data-site-header\]"\)/,
+  );
   assert.match(controller, /particleAnchorSceneIds\.has/);
   assert.match(controller, /sceneAnchorPositions\[anchorId\]/);
   assert.match(controller, /rect\.top \+ rect\.height \* sceneConfig\.anchorY/);
@@ -1029,9 +1060,10 @@ test("keeps the generated CMS editor protected and out of the public bundle", as
 });
 
 test("cleans up the public smooth-scroll layer", async () => {
-  const [smoothScroll, scrollInput] = await Promise.all([
+  const [smoothScroll, scrollInput, viewportGeometry] = await Promise.all([
     readFile(new URL("src/components/PublicSmoothScroll.tsx", projectRoot), "utf8"),
     readFile(new URL("src/animation/scroll-input.ts", projectRoot), "utf8"),
+    readFile(new URL("src/animation/viewport-geometry.ts", projectRoot), "utf8"),
   ]);
 
   assert.match(smoothScroll, /new Lenis\(/);
@@ -1046,7 +1078,9 @@ test("cleans up the public smooth-scroll layer", async () => {
   assert.match(smoothScroll, /lenis\.scrollTo\(target/);
   assert.match(smoothScroll, /window\.history\.pushState\(null, "", href\)/);
   assert.match(smoothScroll, /target\.focus\(\{ preventScroll: true \}\)/);
-  assert.match(smoothScroll, /getBoundingClientRect\(\)\.bottom \+ 16/);
+  assert.match(smoothScroll, /getHeaderScrollOffset\(\)/);
+  assert.match(viewportGeometry, /getBoundingClientRect\(\)\.bottom/);
+  assert.match(viewportGeometry, /getFixedHeaderBottom\(\) \+ spacing/);
   assert.doesNotMatch(smoothScroll, /anchors:\s*\{/);
   assert.match(scrollInput, /Math\.tanh\(delta \/ maximum\)/);
   assert.match(scrollInput, /!input\.event\.type\.includes\("wheel"\)/);
