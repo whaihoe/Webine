@@ -349,7 +349,6 @@
   }
 
   .site-footer-reveal-zone {
-    z-index: 1;
     min-height: var(--site-footer-height, auto);
   }
 }

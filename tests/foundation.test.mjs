@@ -707,6 +707,26 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.doesNotMatch(interlude, /ResizeObserver/);
 });
 
+test("keeps compact particle motion without time-driven twinkling", async () => {
+  const [config, mobileParticles, points, shaders, head, services, serviceShaders] = await Promise.all([
+    readFile(new URL("src/config/experience.ts", projectRoot), "utf8"),
+    readFile(new URL("src/components/home/MobileSectionParticles.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/three/ParticlePoints.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/three/shaders.ts", projectRoot), "utf8"),
+    readFile(new URL("src/three/AboutHeadCanvas.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/services/ServicesParticleExperience.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/three/services/service-particle-shaders.ts", projectRoot), "utf8"),
+  ]);
+
+  assert.match(config, /compactFlowScale:\s*0/);
+  assert.match(mobileParticles, /sampleParticleSurfaceField\(\s*sourceX,\s*sourceY,\s*sourceZ,\s*elapsed \* surfaceField\.compactFlowScale/s);
+  assert.match(points, /uSurfacePositionLock:\s*\{\s*value:\s*layout === "tablet" \? 1 : 0/s);
+  assert.match(shaders, /uTime \* uColourCycleSpeed \* uSurfaceFlowScale/);
+  assert.match(head, /uSurfacePositionLock:\s*\{\s*value:\s*mobile \? 1 : 0/s);
+  assert.match(services, /uColourFlowScale:[\s\S]*?surfaceField\.compactFlowScale/);
+  assert.match(serviceShaders, /uTime \* 0\.34 \* uColourFlowScale/);
+});
+
 test("keeps reach particles between the section background and content", async () => {
   const [layer, particleStyles, sceneStyles] = await Promise.all([
     readFile(

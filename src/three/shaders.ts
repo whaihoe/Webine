@@ -43,6 +43,8 @@ export const particleVertexShader = `
   uniform float uColourCycleSpeed;
   uniform float uDensityScale;
   uniform float uDensityCycleSpeed;
+  uniform float uSurfaceFlowScale;
+  uniform float uSurfacePositionLock;
   ${particlePointerVertexShaderChunk}
 
   varying float vRandom;
@@ -285,16 +287,22 @@ export const particleVertexShader = `
     vPointerInfluence = pointerInfluence;
     vAmbient = particleAmbient;
     vNarrativeVisibility = narrativeVisibility * uStoryVisibility;
+    vec3 surfacePosition = mix(
+      particlePosition,
+      narrativeTarget,
+      uSurfacePositionLock
+    );
     float surfacePrimary = sin(
-      dot(particlePosition, vec3(1.13, 0.71, 0.89)) * uSurfacePrimaryScale
-        + uTime * uColourCycleSpeed
+      dot(surfacePosition, vec3(1.13, 0.71, 0.89)) * uSurfacePrimaryScale
+        + uTime * uColourCycleSpeed * uSurfaceFlowScale
     );
     float surfaceSecondary = sin(
-      dot(particlePosition, vec3(-0.62, 1.37, -0.48)) * uSurfaceSecondaryScale
-        - uTime * uColourCycleSpeed * 0.68 + 1.7
+      dot(surfacePosition, vec3(-0.62, 1.37, -0.48)) * uSurfaceSecondaryScale
+        - uTime * uColourCycleSpeed * uSurfaceFlowScale * 0.68 + 1.7
     );
     float residualIsland = sin(
-      particleRandom * 43.7 + uTime * uColourCycleSpeed * 0.17
+      particleRandom * 43.7
+        + uTime * uColourCycleSpeed * uSurfaceFlowScale * 0.17
     ) * uSurfaceResidualMix;
     vSurfaceColour = clamp(
       0.5 + surfacePrimary * 0.27 + surfaceSecondary * 0.18 + residualIsland,
@@ -302,12 +310,12 @@ export const particleVertexShader = `
       1.0
     );
     float densityPrimary = sin(
-      dot(particlePosition, vec3(0.74, -1.08, 0.63)) * uDensityScale
-        + uTime * uDensityCycleSpeed
+      dot(surfacePosition, vec3(0.74, -1.08, 0.63)) * uDensityScale
+        + uTime * uDensityCycleSpeed * uSurfaceFlowScale
     );
     float densitySecondary = sin(
-      dot(particlePosition, vec3(-0.39, 0.58, 1.17)) * uDensityScale * 1.7
-        - uTime * uDensityCycleSpeed * 0.61 + 2.1
+      dot(surfacePosition, vec3(-0.39, 0.58, 1.17)) * uDensityScale * 1.7
+        - uTime * uDensityCycleSpeed * uSurfaceFlowScale * 0.61 + 2.1
     );
     vSurfaceDensity = 0.5 + densityPrimary * 0.31 + densitySecondary * 0.19;
   }

@@ -206,6 +206,11 @@ function MorphingServiceObject({
       uPointer: { value: new Vector2(20, 20) },
       uPointerAspect: { value: 1 },
       uPointerStrength: { value: 0 },
+      uColourFlowScale: {
+        value: mobile
+          ? experienceConfig.particles.surfaceField.compactFlowScale
+          : 1,
+      },
       uCyanColour: { value: getTokenColour("--primitive-cyan-400") },
       uBlueColour: { value: getTokenColour("--primitive-blue-500") },
       uDeepBlueColour: { value: getTokenColour("--primitive-blue-700") },

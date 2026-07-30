@@ -516,6 +516,7 @@ export function MobileSectionParticles({
       ? experienceConfig.particles.surfaceField.mobileDensityFloor.light
       : experienceConfig.particles.surfaceField.mobileDensityFloor.dark;
     const ambientMotion = experienceConfig.particles.ambientMotion;
+    const surfaceField = experienceConfig.particles.surfaceField;
     const ambientFrameInterval = 1000 / MOBILE_AMBIENT_FRAME_RATE;
 
     function isNearViewport() {
@@ -620,10 +621,10 @@ export function MobileSectionParticles({
           const finalX = rotatedX * cosZ - rotatedY * sinZ;
           const finalY = rotatedX * sinZ + rotatedY * cosZ;
           const surface = sampleParticleSurfaceField(
-            finalX,
-            finalY,
-            rotatedZ,
-            elapsed,
+            sourceX,
+            sourceY,
+            sourceZ,
+            elapsed * surfaceField.compactFlowScale,
             identity,
           );
           if (surface.colourBucket !== bucket) continue;

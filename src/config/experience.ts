@@ -88,6 +88,7 @@ export const experienceConfig = {
       densityScale: 0.82,
       densityContrast: 0.62,
       densityCycleSeconds: 24,
+      compactFlowScale: 0,
       mobileDensityFloor: { dark: 0.5, light: 0.62 },
     },
     ambientField: {

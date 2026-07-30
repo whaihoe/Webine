@@ -17,7 +17,8 @@ test("reveals the footer beneath the final page section", async () => {
   ]);
 
   assert.match(layout, /\.site-main\s*\{[\s\S]*?z-index:\s*2/);
-  assert.match(layout, /\.site-footer-reveal-zone\s*\{[\s\S]*?z-index:\s*1[\s\S]*?min-height:\s*var\(--site-footer-height/);
+  assert.match(layout, /\.site-footer-reveal-zone\s*\{[\s\S]*?z-index:\s*3[\s\S]*?min-height:\s*var\(--site-footer-height/);
+  assert.doesNotMatch(layout, /\.site-footer-reveal-zone\s*\{\s*z-index:\s*1/);
   assert.match(layout, /\.site-footer\s*\{[\s\S]*?position:\s*fixed[\s\S]*?bottom:\s*0[\s\S]*?z-index:\s*1/);
   assert.match(footer, /ResizeObserver/);
   assert.match(footer, /scheduleFooterGeometrySync/);

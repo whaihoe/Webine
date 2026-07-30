@@ -57,6 +57,8 @@ const vertexShader = `
   uniform float uPointSize;
   uniform float uPerspectiveScale;
   uniform float uTime;
+  uniform float uSurfaceFlowScale;
+  uniform float uSurfacePositionLock;
   ${particlePointerVertexShaderChunk}
   varying float vRandom;
   varying float vPointerInfluence;
@@ -100,13 +102,16 @@ const vertexShader = `
       (1.0 / max(0.4, -viewPosition.z));
     vRandom = aRandom;
     vPointerInfluence = pointerInfluence;
-    float colourTime = uTime * ${(Math.PI * 2) / surfaceField.colourCycleSeconds};
+    vec3 surfacePosition = mix(positionNow, position, uSurfacePositionLock);
+    float colourTime = uTime
+      * ${(Math.PI * 2) / surfaceField.colourCycleSeconds}
+      * uSurfaceFlowScale;
     float colourPrimary = sin(
-      dot(positionNow, vec3(1.13, 0.71, 0.89)) * ${surfaceField.primaryScale}
+      dot(surfacePosition, vec3(1.13, 0.71, 0.89)) * ${surfaceField.primaryScale}
         + colourTime
     );
     float colourSecondary = sin(
-      dot(positionNow, vec3(-0.62, 1.37, -0.48)) * ${surfaceField.secondaryScale}
+      dot(surfacePosition, vec3(-0.62, 1.37, -0.48)) * ${surfaceField.secondaryScale}
         - colourTime * 0.68 + 1.7
     );
     float residualIsland = sin(aRandom * 43.7 + colourTime * 0.17) * ${surfaceField.residualMix};
@@ -115,13 +120,15 @@ const vertexShader = `
       0.0,
       1.0
     );
-    float densityTime = uTime * ${(Math.PI * 2) / surfaceField.densityCycleSeconds};
+    float densityTime = uTime
+      * ${(Math.PI * 2) / surfaceField.densityCycleSeconds}
+      * uSurfaceFlowScale;
     float densityPrimary = sin(
-      dot(positionNow, vec3(0.74, -1.08, 0.63)) * ${surfaceField.densityScale}
+      dot(surfacePosition, vec3(0.74, -1.08, 0.63)) * ${surfaceField.densityScale}
         + densityTime
     );
     float densitySecondary = sin(
-      dot(positionNow, vec3(-0.39, 0.58, 1.17)) * ${surfaceField.densityScale * 1.7}
+      dot(surfacePosition, vec3(-0.39, 0.58, 1.17)) * ${surfaceField.densityScale * 1.7}
         - densityTime * 0.61 + 2.1
     );
     vSurfaceDensity = 0.5 + densityPrimary * 0.31 + densitySecondary * 0.19;
@@ -235,6 +242,10 @@ function HeadPoints({ motion, positions, onReady }: AboutHeadCanvasProps & { pos
           : particleGlow.perspectiveScale.desktop,
       },
       uTime: { value: 0 },
+      uSurfaceFlowScale: {
+        value: mobile ? surfaceField.compactFlowScale : 1,
+      },
+      uSurfacePositionLock: { value: mobile ? 1 : 0 },
       uPointer: { value: new Vector2(20, 20) },
       uPointerAspect: { value: 1 },
       uPointerStrength: { value: 0 },

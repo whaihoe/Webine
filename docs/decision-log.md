@@ -821,3 +821,9 @@
 
 - Marked every Services card trigger with the shared large-surface cursor contract. The pointer now keeps the existing 58-pixel circular treatment across each clickable card surface instead of stretching to the card geometry.
 - Reused `KineticCursor` without adding route-owned pointer listeners or a Services-only cursor variant. Touch, coarse pointers and keyboard behaviour remain unchanged.
+
+## 2026-07-30, stable compact particles and Works mobile footer
+
+- Kept compact Home, About Head and Services particle positions moving while locking each particle's colour and density to its identity. This removes the mobile twinkle without turning the objects into static images or reducing their particle counts.
+- Preserved the slower travelling colour and density fields on desktop. One central `surfaceField.compactFlowScale` value owns the compact behaviour across the CPU and GPU renderers.
+- Restored the mobile Works footer by keeping its reveal zone above the main Works stacking context. The fixed galaxy remains visible throughout the Works content but no longer paints over the normal mobile footer.

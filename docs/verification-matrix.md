@@ -353,3 +353,11 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - Footer particles now use one uniform random sample across the complete brush radius. The former centre-only particle class, triangular centre weighting and brighter slow-moving core render path have been removed.
 - At 1280 by 800, a real pointer stroke across the revealed footer filled the complete brush width without a brighter centre line. The canvas remained active at its 2,000-particle ceiling and the page retained zero horizontal overflow.
 - Regression coverage requires uniform `-brushRadius` to `brushRadius` sampling and rejects both the former triangular sampler and any remaining core-particle path.
+
+## 2026-07-30 compact particle stability and Works footer correction
+
+- Compact Home, About Head and Services renderers keep their individual particle paths, formation and object motion. Their colour and density fields are now identity-locked with zero compact time flow, removing the visible mobile twinkle without lowering density.
+- Paired 390 by 844 captures confirm that the Home, About Head and Services particles move between frames while retaining stable brightness and colour. All three routes keep zero horizontal overflow.
+- At 320 by 568 and 390 by 844, the Works index footer is visible at the bottom of the route, remains above the fixed galaxy and keeps zero horizontal overflow. The same 390-pixel check passes on `/works/deszio-studio`.
+- At 1280 by 800, Home retains its travelling desktop surface field and one persistent particle canvas. The Works fixed footer reveal remains visible and correctly clipped.
+- Browser logs contain no application errors. The existing dependency-owned Three.js Clock deprecation warning remains unchanged.

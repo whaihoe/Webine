@@ -56,6 +56,7 @@ export const serviceParticleVertexShader = `
 
 export const serviceParticleFragmentShader = `
   uniform float uTime;
+  uniform float uColourFlowScale;
   uniform vec3 uCyanColour;
   uniform vec3 uBlueColour;
   uniform vec3 uDeepBlueColour;
@@ -69,7 +70,9 @@ export const serviceParticleFragmentShader = `
     float distanceFromCentre = length(centred);
     if (distanceFromCentre > 0.5) discard;
     float core = 1.0 - smoothstep(0.08, 0.5, distanceFromCentre);
-    float colourFlow = 0.5 + 0.5 * sin(uTime * 0.34 + vRandom * 18.0);
+    float colourFlow = 0.5 + 0.5 * sin(
+      uTime * 0.34 * uColourFlowScale + vRandom * 18.0
+    );
     vec3 nearColour = mix(uCyanColour, uBlueColour, colourFlow);
     vec3 colour = mix(nearColour, uDeepBlueColour, vDepth * 0.58);
     colour = mix(colour, uCyanColour, vPointerInfluence * 0.42);
