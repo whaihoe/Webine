@@ -1,0 +1,102 @@
+{
+  "generatedBy": "scripts/optimise-service-models.mjs",
+  "results": [
+    {
+      "service": "website-design",
+      "source": "world_earth_planet.glb",
+      "sourceBytes": 9845240,
+      "output": "service-globe-points.glb",
+      "outputBytes": 58408,
+      "pointCount": 4800,
+      "distribution": {
+        "land": 3744,
+        "ocean": 1056
+      },
+      "sourceBounds": [
+        53.85016632080078,
+        54.22267532348633,
+        53.66086959838867
+      ]
+    },
+    {
+      "service": "website-redesign",
+      "source": "crt_tv.glb",
+      "sourceBytes": 1878628,
+      "output": "service-redesign-points.glb",
+      "outputBytes": 58360,
+      "pointCount": 4800,
+      "distribution": {
+        "surface": 4800
+      },
+      "sourceBounds": [
+        0.4680000841617584,
+        0.4523610789795258,
+        0.38705087173730135
+      ]
+    },
+    {
+      "service": "landing-pages",
+      "source": "a380.glb",
+      "sourceBytes": 972048,
+      "output": "service-landing-page-points.glb",
+      "outputBytes": 58384,
+      "pointCount": 4800,
+      "distribution": {
+        "surface": 4800
+      },
+      "sourceBounds": [
+        80.27415466308594,
+        23.26821267604828,
+        75.27985572814941
+      ]
+    },
+    {
+      "service": "branding-support",
+      "source": "diamond_simple.glb",
+      "sourceBytes": 28232,
+      "output": "service-branding-points.glb",
+      "outputBytes": 58400,
+      "pointCount": 4800,
+      "distribution": {
+        "surface": 4800
+      },
+      "sourceBounds": [
+        1997.611328125,
+        1307.3720703125,
+        1997.6124877929688
+      ]
+    },
+    {
+      "service": "seo-foundations",
+      "source": "magnifying_glass_3d_apple_emoji.glb",
+      "sourceBytes": 192020,
+      "output": "service-seo-points.glb",
+      "outputBytes": 58416,
+      "pointCount": 4800,
+      "distribution": {
+        "surface": 4800
+      },
+      "sourceBounds": [
+        4.953675985336304,
+        4.942301034927368,
+        1.2332710027694702
+      ]
+    },
+    {
+      "service": "website-care",
+      "source": "fita_de_moebius.glb",
+      "sourceBytes": 179536,
+      "output": "service-care-points.glb",
+      "outputBytes": 58388,
+      "pointCount": 4800,
+      "distribution": {
+        "surface": 4800
+      },
+      "sourceBounds": [
+        2.350089192390442,
+        0.6400001645088196,
+        2.4682432413101196
+      ]
+    }
+  ]
+}

@@ -1,3 +1,24 @@
+export const particleObjectScaleConfig = {
+  home: {
+    renderer: { desktop: 1, tablet: 1.22 },
+    hero: { desktop: 1.4, tablet: 0.52, mobile: 0.38 },
+    reach: { desktop: 0.86, tablet: 0.62, mobile: 0.3 },
+    interlude: { desktop: 0.78, tablet: 0.58, mobile: 0.3 },
+    process: { desktop: 0.82, tablet: 0.68, mobile: 0.54 },
+    closing: { desktop: 1.06, tablet: 0.72, mobile: 0.34 },
+  },
+  aboutHead: { desktop: 0.88, mobile: 0.88 },
+  services: {
+    mobileMultiplier: 0.52,
+    "website-design": 1.65,
+    "website-redesign": 1.3,
+    "landing-pages": 2.7,
+    "branding-support": 1.62,
+    "seo-foundations": 1.72,
+    "website-care": 1.72,
+  },
+} as const;
+
 export const experienceConfig = {
   pageLoader: {
     enabled: true,
@@ -40,6 +61,18 @@ export const experienceConfig = {
       fullRotationSeconds: 42,
       pointerTravel: 0.16,
       pointerTilt: 0.1,
+      pointerBulge: {
+        // Screen-space area affected by the cursor. Larger values widen the bulge.
+        screenRadius: 0.5,
+        // Distance the selected particles move towards the camera.
+        depth: 0.35,
+        // Extra point-size growth at the centre of the bulge.
+        pointScale: 0.22,
+        // Higher values keep the effect tighter around the cursor.
+        falloffPower: 1.45,
+        // Overall multiplier for the complete bulge response.
+        strength: 1,
+      },
       scrollRotationLimit: 0.26,
       scrollRotationReturn: 1.1,
       objectLooseness: 0.075,
@@ -62,6 +95,7 @@ export const experienceConfig = {
         home: 84,
         contact: 76,
         services: 84,
+        timeline: 96,
         works: 138,
       },
       frameRate: { desktop: 45, mobile: 30 },
@@ -71,7 +105,6 @@ export const experienceConfig = {
     },
     aboutHead: {
       mobilePointLimit: 5600,
-      scale: 0.88,
       densityFloor: 0.52,
       sequence: {
         scrollScreens: { desktop: 2.4, mobile: 2.1 },
@@ -84,7 +117,6 @@ export const experienceConfig = {
       rotation: {
         resting: { x: 0.03, y: -0.2 },
         scroll: { x: -0.14, y: 0.84 },
-        pointer: { x: 0.11, y: 0.14 },
         idle: { x: 0.018, y: 0.055 },
       },
       electron: {
@@ -116,15 +148,72 @@ export const experienceConfig = {
         colorRevealShrink: 0.18,
       },
     },
-    servicesOrb: {
-      count: 780,
-      densityFloor: 0.56,
-      rotation: { start: -0.3, end: -1.1, idleRange: 0.14 },
-      scale: { start: 0.82, end: 1.08 },
-      pointerTilt: { x: 0.16, y: 0.18 },
-      electronAmplitude: { min: 0.016, range: 0.038 },
-      maxFrameRate: 45,
+    servicesMorph: {
+      count: { desktop: 3600, mobile: 2200 },
+      transitionSeconds: 1.05,
+      transitionSpread: 1.15,
+      mobileScale: particleObjectScaleConfig.services.mobileMultiplier,
+      anchor: {
+        // Moves the complete Services particle stage. Negative Y places it lower.
+        desktop: { x: -1.32, y: -0.22, z: 0 },
+        mobile: { x: 0, y: -0.06, z: 0 },
+      },
+      maxFrameRate: { desktop: 42, mobile: 30 },
       pixelRatioCap: 1.25,
+      electronAmplitude: 0.032,
+      mobiusRunner: {
+        pointCount: 96,
+        sphereRadius: 0.055,
+        pathCentreX: 0.117,
+        pathRadius: 0.81,
+        speed: 0.62,
+      },
+      // Per-model visual-centre correction. Positive X moves right, Y moves up and Z moves closer.
+      models: [
+        {
+          key: "website-design",
+          url: "/models/services/service-globe-points.glb",
+          scale: particleObjectScaleConfig.services["website-design"],
+          rotation: { x: 0.02, restingY: -0.2 },
+          centreOffset: { x: 0, y: 0, z: 0 },
+        },
+        {
+          key: "website-redesign",
+          url: "/models/services/service-redesign-points.glb",
+          scale: particleObjectScaleConfig.services["website-redesign"],
+          rotation: { x: -0.18, restingY: 3.8416 },
+          centreOffset: { x: 0, y: 0, z: 0 },
+        },
+        {
+          key: "landing-pages",
+          url: "/models/services/service-landing-page-points.glb",
+          scale: particleObjectScaleConfig.services["landing-pages"],
+          rotation: { x: 0.24, restingY: 3.0 },
+          // The aircraft's visual mass sits low, so this brings its composition point up.
+          centreOffset: { x: 0, y: 0.14, z: 0 },
+        },
+        {
+          key: "branding-support",
+          url: "/models/services/service-branding-points.glb",
+          scale: particleObjectScaleConfig.services["branding-support"],
+          rotation: { x: 0.16, restingY: -0.18 },
+          centreOffset: { x: 0, y: 0, z: 0 },
+        },
+        {
+          key: "seo-foundations",
+          url: "/models/services/service-seo-points.glb",
+          scale: particleObjectScaleConfig.services["seo-foundations"],
+          rotation: { x: -0.05, restingY: -0.12 },
+          centreOffset: { x: 0, y: 0, z: 0 },
+        },
+        {
+          key: "website-care",
+          url: "/models/services/service-care-points.glb",
+          scale: particleObjectScaleConfig.services["website-care"],
+          rotation: { x: -0.38, restingY: -0.16 },
+          centreOffset: { x: 0, y: 0, z: 0 },
+        },
+      ],
     },
     heroModel: {
       url: "/models/webine-logo-particle.glb",
@@ -168,7 +257,7 @@ export const experienceConfig = {
       ambientRatio: 0.045,
       pointSize: 3.2,
       pixelRatioCap: 1,
-      objectScale: 1,
+      objectScale: particleObjectScaleConfig.home.renderer.desktop,
       maxFrameRate: 36,
       measurementSettleMs: 420,
     },
@@ -177,7 +266,7 @@ export const experienceConfig = {
       ambientRatio: 0.035,
       pointSize: 3.2,
       pixelRatioCap: 1.25,
-      objectScale: 1.22,
+      objectScale: particleObjectScaleConfig.home.renderer.tablet,
       maxFrameRate: 60,
       measurementSettleMs: 1200,
     },
@@ -222,9 +311,9 @@ export const particleSceneConfig = {
       formation: { enterViewportY: 1, formedViewportY: 0.5 },
       dispersion: { startViewportY: 0.4, completeViewportY: -0.34 },
     },
-    desktop: { anchorX: 0.70, anchorY: 0.50, scale: 1.4 },
-    tablet: { anchorX: 0.76, anchorY: 0.46, scale: 0.52 },
-    mobile: { anchorX: 0.68, anchorY: 0.42, scale: 0.38 },
+    desktop: { anchorX: 0.70, anchorY: 0.50, scale: particleObjectScaleConfig.home.hero.desktop },
+    tablet: { anchorX: 0.76, anchorY: 0.46, scale: particleObjectScaleConfig.home.hero.tablet },
+    mobile: { anchorX: 0.68, anchorY: 0.42, scale: particleObjectScaleConfig.home.hero.mobile },
   },
   reach: {
     id: "reach",
@@ -233,9 +322,9 @@ export const particleSceneConfig = {
       formation: { enterViewportY: 0.96, formedViewportY: 0.5 },
       dispersion: { startViewportY: 0, completeViewportY: -0.3 },
     },
-    desktop: { anchorX: 0.8, anchorY: 0.2, scale: 0.86 },
-    tablet: { anchorX: 0.86, anchorY: 0.2, scale: 0.62 },
-    mobile: { anchorX: 0.68, anchorY: 0.22, scale: 0.3 },
+    desktop: { anchorX: 0.8, anchorY: 0.2, scale: particleObjectScaleConfig.home.reach.desktop },
+    tablet: { anchorX: 0.86, anchorY: 0.2, scale: particleObjectScaleConfig.home.reach.tablet },
+    mobile: { anchorX: 0.68, anchorY: 0.22, scale: particleObjectScaleConfig.home.reach.mobile },
   },
   interlude: {
     id: "interlude",
@@ -244,16 +333,16 @@ export const particleSceneConfig = {
       formation: { enterViewportY: 0.96, formedViewportY: 0.67 },
       dispersion: { startViewportY: 0, completeViewportY: -0.28 },
     },
-    desktop: { anchorX: 0.8, anchorY: 0.9, scale: 0.78 },
-    tablet: { anchorX: 0.84, anchorY: 0.9, scale: 0.58 },
-    mobile: { anchorX: 0.66, anchorY: 0.8, scale: 0.3 },
+    desktop: { anchorX: 0.8, anchorY: 0.9, scale: particleObjectScaleConfig.home.interlude.desktop },
+    tablet: { anchorX: 0.84, anchorY: 0.9, scale: particleObjectScaleConfig.home.interlude.tablet },
+    mobile: { anchorX: 0.66, anchorY: 0.8, scale: particleObjectScaleConfig.home.interlude.mobile },
   },
   process: {
     id: "process",
     theme: "dark",
-    desktop: { scale: 0.82 },
-    tablet: { scale: 0.68 },
-    mobile: { scale: 0.54 },
+    desktop: { scale: particleObjectScaleConfig.home.process.desktop },
+    tablet: { scale: particleObjectScaleConfig.home.process.tablet },
+    mobile: { scale: particleObjectScaleConfig.home.process.mobile },
   },
   closing: {
     id: "closing",
@@ -263,9 +352,9 @@ export const particleSceneConfig = {
       mobileFormation: { enterViewportY: 1.5, formedViewportY: -1 },
       dispersion: { startViewportY: 0, completeViewportY: -0.28 },
     },
-    desktop: { anchorX: 0.76, anchorY: 0.5, scale: 1.06 },
-    tablet: { anchorX: 0.76, anchorY: 0.5, scale: 0.72 },
-    mobile: { anchorX: 0.68, anchorY: 0.76, scale: 0.34 },
+    desktop: { anchorX: 0.76, anchorY: 0.5, scale: particleObjectScaleConfig.home.closing.desktop },
+    tablet: { anchorX: 0.76, anchorY: 0.5, scale: particleObjectScaleConfig.home.closing.tablet },
+    mobile: { anchorX: 0.68, anchorY: 0.76, scale: particleObjectScaleConfig.home.closing.mobile },
   },
 } as const;
 

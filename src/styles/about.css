@@ -203,8 +203,6 @@
   width: min(100%, 25rem);
   aspect-ratio: 1122 / 1402;
   overflow: hidden;
-  border: 1px solid hsl(var(--color-rule-strong));
-  border-radius: var(--primitive-radius-media);
   background: hsl(var(--primitive-slate-900));
   contain: layout paint;
   isolation: isolate;

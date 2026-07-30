@@ -1,11 +1,8 @@
 import {
-  createContext,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useRef,
-  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import {
@@ -20,9 +17,8 @@ import {
   type ParticleSceneAnchorId,
   type ParticleSceneAnchorPositions,
   type ParticleSceneMotionProgressMap,
-  type StoryActivitySnapshot,
-  type StoryProgressStore,
 } from "../../three/story-progress";
+import { ParticleControllerContext } from "./ParticleSceneContext";
 
 type ParticleLayout = "mobile" | "tablet" | "desktop";
 
@@ -48,15 +44,6 @@ function getParticleLayout(viewportWidth: number): ParticleLayout {
 type ParticleSceneControllerProps = {
   children: ReactNode;
 };
-
-type ParticleControllerContextValue = {
-  store: StoryProgressStore;
-  registerScene: (id: string, element: HTMLElement | null) => void;
-};
-
-const ParticleControllerContext = createContext<ParticleControllerContextValue | null>(
-  null,
-);
 
 export function ParticleSceneController({
   children,
@@ -249,34 +236,5 @@ export function ParticleSceneController({
     <ParticleControllerContext.Provider value={value}>
       {children}
     </ParticleControllerContext.Provider>
-  );
-}
-
-export function useParticleSceneAnchor(id: string) {
-  const controller = useParticleController();
-
-  return useCallback(
-    (element: HTMLElement | null) => controller.registerScene(id, element),
-    [controller, id],
-  );
-}
-
-export function useParticleController() {
-  const value = useContext(ParticleControllerContext);
-
-  if (!value) {
-    throw new Error("Particle scene hooks require ParticleSceneController.");
-  }
-
-  return value;
-}
-
-export function useStoryActivitySnapshot(): StoryActivitySnapshot {
-  const { store } = useParticleController();
-
-  return useSyncExternalStore(
-    store.subscribeActivity,
-    store.getActivitySnapshot,
-    store.getActivitySnapshot,
   );
 }

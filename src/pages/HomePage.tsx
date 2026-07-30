@@ -6,7 +6,7 @@ import { HeroEntranceTimeline } from "../components/home/HeroEntranceTimeline";
 import { HomeParticleExperience } from "../components/home/HomeParticleExperience";
 import { MobileSectionParticles } from "../components/home/MobileSectionParticles";
 import { ClosingCallToAction } from "../components/home/ClosingCallToAction";
-import { useParticleSceneAnchor } from "../components/home/ParticleSceneController";
+import { useParticleSceneAnchor } from "../components/home/ParticleSceneContext";
 import { ProcessTimeline } from "../components/home/ProcessTimeline";
 import { QuietInterlude } from "../components/home/QuietInterlude";
 import { ReachSection } from "../components/home/ReachSection";

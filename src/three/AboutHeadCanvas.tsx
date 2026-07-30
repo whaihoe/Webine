@@ -10,7 +10,16 @@ import {
   Vector2,
   type Group,
 } from "three";
-import { experienceConfig } from "../config/experience";
+import {
+  experienceConfig,
+  particleObjectScaleConfig,
+} from "../config/experience";
+import { useParticlePointer } from "../hooks/useParticlePointer";
+import {
+  createParticleInteractionState,
+  particlePointerVertexShaderChunk,
+  updateParticleInteraction,
+} from "./particle-pointer";
 
 type HeadMotion = {
   rotation: number;
@@ -48,8 +57,7 @@ const vertexShader = `
   uniform float uPointSize;
   uniform float uPerspectiveScale;
   uniform float uTime;
-  uniform vec2 uPointer;
-  uniform float uPointerStrength;
+  ${particlePointerVertexShaderChunk}
   varying float vRandom;
   varying float vPointerInfluence;
   varying float vSurfaceColour;
@@ -82,17 +90,13 @@ const vertexShader = `
       + cos(uTime * electronRate * 0.21 + electronPhase * 1.23) * 0.4
     ) * electronAmplitude * 1.18;
     vec4 viewPosition = modelViewMatrix * vec4(positionNow, 1.0);
-    vec4 clipPosition = projectionMatrix * viewPosition;
-    vec2 screenPosition = clipPosition.xy / max(clipPosition.w, 0.001);
-    float pointerDistance = distance(screenPosition, uPointer);
-    float pointerInfluence = (1.0 - smoothstep(0.0, 0.38, pointerDistance)) * uPointerStrength;
-    vec2 pointerDirection = normalize(screenPosition - uPointer + vec2(0.0001));
-    viewPosition.xy += pointerDirection * pointerInfluence * 0.16;
-    viewPosition.z += pointerInfluence * 0.38;
+    float pointerInfluence = applyParticlePointer(viewPosition);
     gl_Position = projectionMatrix * viewPosition;
-    gl_PointSize = uPointSize * ${particleGlow.shaderSpriteScale} *
+    gl_PointSize = applyParticlePointerPointScale(
+      uPointSize * ${particleGlow.shaderSpriteScale},
+      pointerInfluence
+    ) *
       uPerspectiveScale *
-      (1.0 + pointerInfluence * 0.75) *
       (1.0 / max(0.4, -viewPosition.z));
     vRandom = aRandom;
     vPointerInfluence = pointerInfluence;
@@ -174,7 +178,8 @@ function seededRandom(seed: number) {
 function HeadPoints({ motion, positions, onReady }: AboutHeadCanvasProps & { positions: Float32Array }) {
   const groupRef = useRef<Group>(null);
   const materialRef = useRef<ShaderMaterial>(null);
-  const pointerRef = useRef({ x: 0, y: 0, active: false });
+  const pointerRef = useParticlePointer();
+  const pointerInteractionRef = useRef(createParticleInteractionState());
   const random = useMemo(() => seededRandom(2717), []);
   const mobile = window.innerWidth < 768;
   const geometry = useMemo(() => {
@@ -231,6 +236,7 @@ function HeadPoints({ motion, positions, onReady }: AboutHeadCanvasProps & { pos
       },
       uTime: { value: 0 },
       uPointer: { value: new Vector2(20, 20) },
+      uPointerAspect: { value: 1 },
       uPointerStrength: { value: 0 },
       uDeepBlue: { value: new Color("#2563eb") },
       uBlue: { value: new Color("#60a5fa") },
@@ -246,34 +252,20 @@ function HeadPoints({ motion, positions, onReady }: AboutHeadCanvasProps & { pos
     };
   }, [geometry, material, onReady]);
 
-  useEffect(() => {
-    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
-    const handlePointerMove = (event: PointerEvent) => {
-      if (!finePointer.matches) return;
-      pointerRef.current.x = event.clientX / window.innerWidth * 2 - 1;
-      pointerRef.current.y = event.clientY / window.innerHeight * 2 - 1;
-      pointerRef.current.active = true;
-    };
-    const handlePointerLeave = () => {
-      pointerRef.current.active = false;
-    };
-    window.addEventListener("pointermove", handlePointerMove, { passive: true });
-    document.documentElement.addEventListener("pointerleave", handlePointerLeave);
-    return () => {
-      window.removeEventListener("pointermove", handlePointerMove);
-      document.documentElement.removeEventListener("pointerleave", handlePointerLeave);
-    };
-  }, []);
-
-  useFrame(({ clock }, delta) => {
+  useFrame(({ clock, viewport }, delta) => {
     const group = groupRef.current;
     const shader = materialRef.current;
     if (!group || !shader) return;
     const rotationProgress = motion.current.rotation;
     const dispersionProgress = motion.current.dispersion;
     const pointer = pointerRef.current;
-    const pointerX = pointer.active ? pointer.x * aboutHeadConfig.rotation.pointer.y : 0;
-    const pointerY = pointer.active ? -pointer.y * aboutHeadConfig.rotation.pointer.x : 0;
+    const formedStrength = 1 - dispersionProgress;
+    const pointerInteraction = pointerInteractionRef.current;
+    updateParticleInteraction(pointerInteraction, pointer, {
+      viewportWidth: viewport.width,
+      viewportHeight: viewport.height,
+      formedStrength,
+    });
     const idleY = Math.sin(clock.elapsedTime * 0.22) * aboutHeadConfig.rotation.idle.y;
     const idleX = Math.cos(clock.elapsedTime * 0.18) * aboutHeadConfig.rotation.idle.x;
     shader.uniforms.uDispersion.value = MathUtils.damp(
@@ -285,19 +277,20 @@ function HeadPoints({ motion, positions, onReady }: AboutHeadCanvasProps & { pos
     shader.uniforms.uTime.value = clock.elapsedTime;
     shader.uniforms.uPointer.value.x = MathUtils.damp(
       shader.uniforms.uPointer.value.x,
-      pointer.active ? pointer.x : 20,
+      pointerInteraction.pointerX,
       8,
       delta,
     );
     shader.uniforms.uPointer.value.y = MathUtils.damp(
       shader.uniforms.uPointer.value.y,
-      pointer.active ? -pointer.y : 20,
+      pointerInteraction.pointerY,
       8,
       delta,
     );
+    shader.uniforms.uPointerAspect.value = pointerInteraction.pointerAspect;
     shader.uniforms.uPointerStrength.value = MathUtils.damp(
       shader.uniforms.uPointerStrength.value,
-      pointer.active ? 1 : 0,
+      pointerInteraction.strength,
       9,
       delta,
     );
@@ -306,7 +299,7 @@ function HeadPoints({ motion, positions, onReady }: AboutHeadCanvasProps & { pos
       aboutHeadConfig.rotation.resting.y
         + rotationProgress * aboutHeadConfig.rotation.scroll.y
         + idleY
-        + pointerX,
+        + pointerInteraction.tiltY,
       4.2,
       delta,
     );
@@ -315,8 +308,26 @@ function HeadPoints({ motion, positions, onReady }: AboutHeadCanvasProps & { pos
       aboutHeadConfig.rotation.resting.x
         + rotationProgress * aboutHeadConfig.rotation.scroll.x
         + idleX
-        + pointerY,
+        + pointerInteraction.tiltX,
       4.2,
+      delta,
+    );
+    group.rotation.z = MathUtils.damp(
+      group.rotation.z,
+      pointerInteraction.tiltZ,
+      3,
+      delta,
+    );
+    group.position.x = MathUtils.damp(
+      group.position.x,
+      pointerInteraction.offsetX,
+      5,
+      delta,
+    );
+    group.position.y = MathUtils.damp(
+      group.position.y,
+      pointerInteraction.offsetY,
+      4,
       delta,
     );
   });
@@ -325,7 +336,11 @@ function HeadPoints({ motion, positions, onReady }: AboutHeadCanvasProps & { pos
     <group
       ref={groupRef}
       rotation={[aboutHeadConfig.rotation.resting.x, aboutHeadConfig.rotation.resting.y, 0]}
-      scale={aboutHeadConfig.scale}
+      scale={
+        mobile
+          ? particleObjectScaleConfig.aboutHead.mobile
+          : particleObjectScaleConfig.aboutHead.desktop
+      }
     >
       <points geometry={geometry} frustumCulled={false}>
         <primitive ref={materialRef} object={material} attach="material" />

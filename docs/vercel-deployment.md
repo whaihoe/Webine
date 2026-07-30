@@ -56,7 +56,7 @@ To restore media uploads:
 4. Enable the option that adds a read-write token to the project, then connect the store to both Preview and Production.
 5. In **Settings → Environment Variables**, confirm `BLOB_READ_WRITE_TOKEN` exists for both Preview and Production. Do not copy this value into GitHub, documentation or Obsidian.
 6. Redeploy the affected environment. An already-built deployment does not pick up a newly connected store automatically.
-7. Sign in to `/admin/media`, upload one JPEG and one animated GIF, confirm both previews load from Blob, then archive an unused test asset. The shared upload limit is 50 MB, 12,000 pixels per side and 500 GIF frames. An asset used by published content must remain protected until that content is replaced or unpublished.
+7. Sign in to `/admin/media`, upload one JPEG and one animated GIF, confirm both previews load from Blob, then archive an unused test asset. The shared upload limit is 50 MB, 12,000 pixels per side and 500 GIF frames. An asset referenced by draft or published content remains protected until every reference is replaced or removed. Archiving an unreferenced Vercel asset permanently deletes its Blob object. If Blob deletion fails, the asset stays active so the operation can be retried.
 
 To restore Contact submissions:
 

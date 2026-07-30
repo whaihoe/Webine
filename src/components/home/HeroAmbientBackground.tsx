@@ -1,6 +1,6 @@
 import { useEffect, useRef, type CSSProperties } from "react";
 import { AmbientParticleField } from "../AmbientParticleField";
-import { useParticleController } from "./ParticleSceneController";
+import { useParticleController } from "./ParticleSceneContext";
 
 const REACH_COVER_START = 0.015;
 const REACH_COVER_COMPLETE = 0.5;

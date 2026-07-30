@@ -11,7 +11,7 @@ import { useSiteSettings } from "../../content/SiteSettingsProvider";
 import {
   useParticleController,
   useParticleSceneAnchor,
-} from "./ParticleSceneController";
+} from "./ParticleSceneContext";
 
 type ScrollBoundTween = {
   kill: () => void;

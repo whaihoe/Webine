@@ -1,6 +1,6 @@
 import { ButtonLink } from "../ButtonLink";
 import { MobileSectionParticles } from "./MobileSectionParticles";
-import { useParticleSceneAnchor } from "./ParticleSceneController";
+import { useParticleSceneAnchor } from "./ParticleSceneContext";
 import { useSiteSettings } from "../../content/SiteSettingsProvider";
 
 export function ClosingCallToAction() {

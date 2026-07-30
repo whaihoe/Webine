@@ -7,6 +7,7 @@ import {
   validateImageBuffer,
   validateMediaBuffer,
 } from "../.test-build/server/media-service.js";
+import { deleteStoredMedia } from "../.test-build/server/media-storage.js";
 
 const onePixelGif = Buffer.from(
   "R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==",
@@ -59,5 +60,77 @@ test("rejects a non-MP4 payload declared as video", async () => {
   await assert.rejects(
     () => validateMediaBuffer(asArrayBuffer(onePixelGif), "video/mp4"),
     /VIDEO_CONTENT_INVALID/,
+  );
+});
+
+test("deletes Vercel Blob media by pathname with the configured token", async () => {
+  const calls = [];
+
+  await deleteStoredMedia(
+    {
+      provider: "vercel_blob",
+      providerAssetId: "webine/archive-me.webp",
+    },
+    { BLOB_READ_WRITE_TOKEN: "test-token" },
+    async (pathname, options) => {
+      calls.push({ pathname, options });
+    },
+  );
+
+  assert.deepEqual(calls, [{
+    pathname: "webine/archive-me.webp",
+    options: { token: "test-token" },
+  }]);
+});
+
+test("does not delete media managed by another provider", async () => {
+  let deleteCalled = false;
+
+  await deleteStoredMedia(
+    {
+      provider: "external",
+      providerAssetId: "/images/local.webp",
+    },
+    {},
+    async () => {
+      deleteCalled = true;
+    },
+  );
+
+  assert.equal(deleteCalled, false);
+});
+
+test("reports missing Blob configuration without attempting deletion", async () => {
+  await assert.rejects(
+    () => deleteStoredMedia(
+      {
+        provider: "vercel_blob",
+        providerAssetId: "webine/archive-me.webp",
+      },
+      {},
+      async () => {
+        throw new Error("should not run");
+      },
+    ),
+    (error) => error.code === "MEDIA_STORAGE_NOT_CONFIGURED"
+      && error.status === 503,
+  );
+});
+
+test("maps Blob deletion failures to a retryable repository error", async () => {
+  await assert.rejects(
+    () => deleteStoredMedia(
+      {
+        provider: "vercel_blob",
+        providerAssetId: "webine/archive-me.webp",
+      },
+      { BLOB_READ_WRITE_TOKEN: "test-token" },
+      async () => {
+        throw new Error("Blob unavailable");
+      },
+    ),
+    (error) => error.code === "MEDIA_STORAGE_DELETE_FAILED"
+      && error.status === 502
+      && /Try archiving it again/.test(error.message),
   );
 });

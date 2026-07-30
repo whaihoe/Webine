@@ -1,57 +1,70 @@
 export const servicesContent = {
   hero: {
     eyebrow: "Services / Design, build and support",
-    headingLead: "Built to launch.",
-    headingAccent: "Ready to evolve.",
+    headingLead: "One clear starting point.",
+    headingAccent: "Built around what changes next.",
     introduction:
-      "Webine designs new websites, reworks existing ones and provides defined ongoing care. Every build includes a practical foundation for mobile performance, accessibility and search visibility.",
+      "Webine shapes focused digital experiences for businesses that need to launch, evolve or keep improving. Each service combines clear thinking, premium visual direction and dependable implementation.",
   },
   services: [
     {
+      key: "website-design",
       index: "01",
-      title: "Web design and development",
-      outcome: "Create a new digital presence around the business instead of forcing it into a familiar template.",
-      description:
-        "For businesses starting fresh or launching something new, Webine handles the journey from structure and visual direction through responsive development and launch. The platform is selected around the project, whether it needs a focused landing page, a company website, a portfolio, a campaign or a scoped commerce experience.",
+      title: "Website design and development",
+      summary: "A complete new digital presence, shaped from strategy through launch.",
+      bestFor: "Businesses launching something new or replacing a website that no longer represents where the company is going.",
       includes: [
         "Strategy, page structure and enquiry paths",
         "Responsive interface design and purposeful interaction",
-        "Development, content systems, forms and launch support",
-        "Basic technical and on-page SEO setup",
+        "Development, content systems and forms",
+        "Launch preparation and practical SEO foundations",
       ],
     },
     {
+      key: "website-redesign",
       index: "02",
       title: "Website redesign",
-      outcome: "Turn an outdated or generic existing website into a clearer and more credible business asset.",
-      description:
-        "A redesign begins with what already exists. We audit the current pages, content, journeys and technical constraints, keep what still has value and rebuild the parts that weaken trust or make the website difficult to use. The result is a considered evolution rather than a cosmetic reskin.",
+      summary: "A considered evolution of an existing website, not a cosmetic reskin.",
+      bestFor: "Businesses with useful existing content or recognition, but an outdated structure, visual direction or technical experience.",
       includes: [
-        "Current-site and content audit",
-        "Information architecture and user-journey improvements",
-        "New visual direction with responsive redevelopment",
+        "Current-site, content and journey audit",
+        "Information architecture improvements",
+        "New visual direction and responsive redevelopment",
         "SEO-aware migration, URL and metadata planning",
       ],
     },
     {
+      key: "landing-pages",
       index: "03",
-      title: "Website maintenance",
-      outcome: "Keep the website healthy and current through a monthly subscription with a clear allowance.",
-      description:
-        "Ongoing care gives clients a reliable place to send updates after launch without turning support into unlimited work. Each plan defines the available time, response level and included tasks. Larger changes are scoped separately so both sides know what the subscription covers.",
+      title: "Landing pages and campaign sites",
+      summary: "A focused experience built around one launch, offer or audience.",
+      bestFor: "A new service, event, product, campaign or early-stage idea that needs a clear destination without a complete company website.",
       includes: [
-        "Text, image and small section updates",
-        "Form, layout and website health checks",
-        "Basic SEO monitoring and analytics review",
-        "Prioritised support within an agreed monthly allowance",
+        "One focused message and action path",
+        "Responsive design and development",
+        "Purposeful motion and interaction where useful",
+        "Forms, analytics-ready structure and launch support",
       ],
     },
     {
+      key: "branding-support",
       index: "04",
+      title: "Branding support",
+      summary: "Focused visual direction that gives the website a coherent identity.",
+      bestFor: "Businesses that need more than a template but do not yet need a large standalone identity programme.",
+      includes: [
+        "Colour palette and typography direction",
+        "Moodboard and visual language",
+        "Simple logo refinement where appropriate",
+        "A website-focused style guide",
+      ],
+    },
+    {
+      key: "seo-foundations",
+      index: "05",
       title: "SEO foundations",
-      outcome: "Give every build the technical and content structure search engines need to understand it.",
-      description:
-        "Basic SEO setup is included with website work rather than sold as a ranking promise. We organise the page structure and metadata, make media understandable and prepare the website for mobile search. Deeper strategy can be added later when the business has the content and evidence to support it.",
+      summary: "A clear technical and content structure that search engines can understand.",
+      bestFor: "Website projects that need sound search foundations without unsupported ranking promises or a separate long-term marketing retainer.",
       includes: [
         "Page titles, descriptions and heading structure",
         "Clean URLs, image alternatives and mobile readiness",
@@ -60,23 +73,19 @@ export const servicesContent = {
       ],
     },
     {
-      index: "05",
-      title: "Branding support",
-      outcome: "Create enough visual direction for the website to feel coherent when a complete brand system does not exist yet.",
-      description:
-        "Webine can work within an established brand or provide a focused identity add-on before website design begins. Early support stays practical and website-led. Broader identity programmes or specialist work can be scoped with the right collaborator when needed.",
+      key: "website-care",
+      index: "06",
+      title: "Website care and maintenance",
+      summary: "Defined ongoing support that keeps the website healthy and current.",
+      bestFor: "Teams that need a reliable route for small updates, checks and refinements after launch without hiring in-house.",
       includes: [
-        "Colour palette and typography direction",
-        "Moodboard and visual language",
-        "Simple logo refinement where appropriate",
-        "A website-focused style guide",
+        "Text, image and small section updates",
+        "Form, layout and website health checks",
+        "Basic SEO monitoring and analytics review",
+        "Prioritised support within an agreed monthly allowance",
       ],
     },
   ],
-  ownership: {
-    eyebrow: "Built without lock-in",
-    heading: "Your website should remain a business asset you understand and own.",
-    copy:
-      "Clients keep ownership of domains, platform plans and essential third-party accounts. Webine can design, build, connect and support the system without making access dependent on an unclear hosting arrangement.",
-  },
 } as const;
+
+export type WebineService = (typeof servicesContent.services)[number];

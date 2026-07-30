@@ -252,7 +252,9 @@ test("uses the three-layer token architecture", async () => {
   assert.match(primitives, /--primitive-radius-default:\s*2rem/);
   assert.match(primitives, /--primitive-radius-media:\s*0\.6rem/);
   assert.match(primitives, /--primitive-radius-panel:\s*1\.75rem/);
+  assert.match(primitives, /--primitive-body-m:\s*clamp\(1\.0625rem, 1\.15vw, 1\.25rem\)/);
   assert.match(semantic, /--color-canvas:\s*var\(--primitive-slate-950\)/);
+  assert.match(semantic, /--body-m:\s*var\(--primitive-body-m\)/);
   assert.match(components, /--button-primary-bg:\s*var\(--color-brand\)/);
   assert.match(components, /--button-radius:\s*var\(--primitive-radius-default\)/);
   assert.match(components, /--project-media-radius:\s*var\(--primitive-radius-media\)/);
@@ -263,10 +265,14 @@ test("uses the three-layer token architecture", async () => {
 });
 
 test("enables the approved homepage experience layers", async () => {
-  const [config, controller] = await Promise.all([
+  const [config, controller, particleContext] = await Promise.all([
     readFile(new URL("src/config/experience.ts", projectRoot), "utf8"),
     readFile(
       new URL("src/components/home/ParticleSceneController.tsx", projectRoot),
+      "utf8",
+    ),
+    readFile(
+      new URL("src/components/home/ParticleSceneContext.ts", projectRoot),
       "utf8",
     ),
   ]);
@@ -315,19 +321,22 @@ test("enables the approved homepage experience layers", async () => {
   assert.match(config, /mobileDensityFloor:\s*\{ dark:\s*0\.5, light:\s*0\.62 \}/);
   assert.match(config, /ambientField:/);
   assert.match(config, /aboutHead:/);
-  assert.match(config, /servicesOrb:/);
-  assert.match(config, /objectLooseness:\s*0\.075/);
-  assert.match(config, /electronDrift:\s*0\.056/);
-  assert.match(config, /scrollRotationLimit:\s*0\.26/);
-  assert.match(config, /rotationX:\s*0\.055/);
-  assert.match(config, /rotationY:\s*0\.38/);
-  assert.match(config, /rotationZ:\s*0\.025/);
-  assert.match(config, /transitionSpread:\s*0\.88/);
+  assert.match(config, /servicesMorph:/);
+  assert.match(config, /count:\s*{ desktop:\s*3600, mobile:\s*2200 }/);
+  assert.match(config, /transitionSeconds:\s*1\.05/);
+  assert.match(config, /transitionSpread:\s*1\.15/);
+  assert.match(config, /electronAmplitude:\s*0\.032/);
+  assert.match(config, /pointerBulge:\s*{[\s\S]*screenRadius:\s*\d+(?:\.\d+)?,[\s\S]*depth:\s*\d+(?:\.\d+)?,[\s\S]*pointScale:\s*\d+(?:\.\d+)?,[\s\S]*falloffPower:\s*\d+(?:\.\d+)?,[\s\S]*strength:\s*\d+(?:\.\d+)?/);
   assert.match(config, /heroModel:\s*{[^}]*url:\s*"\/models\/webine-logo-particle\.glb"[^}]*targetSize:\s*5\.2[^}]*fit:\s*"largest"[^}]*localScale:\s*\[1, 1, 2\.5\]/s);
   assert.match(config, /reachModel:\s*{[^}]*url:\s*"\/models\/reach-rings-particle\.glb"[^}]*targetSize:\s*5\.18[^}]*rotationDegrees:\s*\[-?\d+(?:\.\d+)?, -?\d+(?:\.\d+)?, -?\d+(?:\.\d+)?\]/s);
-  assert.match(config, /hero:\s*{[\s\S]*?desktop:\s*{[^}]*scale:\s*1[^}]*}[\s\S]*?tablet:\s*{[^}]*scale:\s*0\.52[^}]*}[\s\S]*?mobile:\s*{[^}]*scale:\s*0\.38[^}]*}/);
+  assert.match(config, /particleObjectScaleConfig\s*=\s*{[\s\S]*hero:\s*{ desktop:\s*1\.4, tablet:\s*0\.52, mobile:\s*0\.38 }/);
   assert.match(config, /closing:\s*{[\s\S]*?formation:\s*{\s*enterViewportY:\s*1\.2,\s*formedViewportY:\s*0\.62\s*}[\s\S]*?mobileFormation:\s*{\s*enterViewportY:\s*1\.5,\s*formedViewportY:\s*-1\s*}/);
   assert.match(controller, /layout === "mobile" && "mobileFormation" in motionConfig/);
+  assert.match(controller, /export function ParticleSceneController/);
+  assert.doesNotMatch(controller, /export function useParticle/);
+  assert.match(particleContext, /export function useParticleController/);
+  assert.match(particleContext, /export function useParticleSceneAnchor/);
+  assert.match(particleContext, /export function useStoryActivitySnapshot/);
   assert.match(config, /closingModel:\s*{[^}]*url:\s*"\/models\/colony-planet-particle\.glb"[^}]*targetSize:\s*4\.8[^}]*fit:\s*"largest"[^}]*rotationDegrees:\s*\[58, -22, 0\][^}]*localScale:\s*\[1, 1, 1\][^}]*ambientRotationScale:\s*0\.42/s);
   assert.equal((config.match(/formation:\s*{/g) ?? []).length, 4);
   assert.equal((config.match(/dispersion:\s*{/g) ?? []).length, 4);
@@ -351,6 +360,8 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
     smoothScroll,
     mobileParticles,
     mobileParticleData,
+    pointerEngine,
+    pointerHook,
   ] = await Promise.all([
     readFile(new URL("src/pages/HomePage.tsx", projectRoot), "utf8"),
     readFile(
@@ -389,6 +400,8 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
       new URL("src/three/mobile-section-particle-targets.ts", projectRoot),
       "utf8",
     ),
+    readFile(new URL("src/three/particle-pointer.ts", projectRoot), "utf8"),
+    readFile(new URL("src/hooks/useParticlePointer.ts", projectRoot), "utf8"),
   ]);
 
   assert.match(home, /HomeParticleExperience/);
@@ -553,7 +566,15 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.match(shaders, /attribute vec3 targetReach/);
   assert.match(shaders, /attribute vec3 targetInterlude/);
   assert.match(shaders, /attribute vec3 targetClosing/);
-  assert.match(shaders, /uPointerStrength/);
+  assert.match(shaders, /particlePointerVertexShaderChunk/);
+  assert.match(pointerEngine, /uniform float uPointerStrength/);
+  assert.match(pointerEngine, /applyParticlePointer/);
+  assert.match(pointerEngine, /applyParticlePointerPointScale/);
+  assert.match(pointerEngine, /updateParticleInteraction/);
+  assert.match(pointerHook, /window\.addEventListener\("pointermove"/);
+  assert.match(points, /useParticlePointer/);
+  assert.match(points, /updateParticleInteraction/);
+  assert.doesNotMatch(points, /addEventListener\("pointermove"/);
   assert.match(shaders, /uColourCycleSpeed/);
   assert.match(shaders, /particleAmbient/);
   assert.match(shaders, /vec3 electronMotion/);
@@ -578,7 +599,15 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   assert.match(shaders, /releaseCloud/);
   assert.match(shaders, /mix\(\s*releaseCloud,\s*scatterTarget/);
   assert.doesNotMatch(shaders, /uLightThemeProgress/);
-  assert.match(shaders, /particlePosition\.z \+= pointerInfluence/);
+  assert.match(shaders, /applyParticlePointer\(viewPosition\)/);
+  assert.match(pointerEngine, /screenPosition = clipPosition\.xy/);
+  assert.match(pointerEngine, /pointerDelta\.x \*= uPointerAspect/);
+  assert.match(pointerEngine, /pointerMotion\.pointerBulge\.falloffPower/);
+  assert.match(pointerEngine, /pointerMotion\.pointerBulge\.strength/);
+  assert.match(pointerEngine, /Number\.isInteger\(value\) \? value\.toFixed\(1\)/);
+  assert.match(pointerEngine, /glslFloat\(pointerMotion\.pointerBulge\.strength\)/);
+  assert.match(pointerEngine, /viewPosition\.z \+= pointerInfluence/);
+  assert.doesNotMatch(pointerEngine, /positionX|positionY|scaleX|scaleY/);
   assert.match(shaders, /vNarrativeVisibility/);
   assert.match(entrance, /INTRO_SESSION_KEY/);
   assert.match(entrance, /setIntroProgress/);
@@ -749,7 +778,13 @@ test("keeps the process line behind its timeline nodes", async () => {
   assert.match(sceneStyles, /nth-of-type\(even\)[^{]*\{[^}]*left:\s*calc\(100% \+ 2\.5rem \+ 1\.5px\)/s);
   assert.match(sceneStyles, /nth-of-type\(odd\)[^{]*\{[^}]*left:\s*calc\(-2\.5rem - 0\.5px\)/s);
   assert.match(timeline, /ref=\{\(element\) => \{\s*nodeRefs\.current\[index\] = element;/s);
-  assert.match(timeline, /className="process-step__content" data-gsap-reveal="card"/);
+  assert.match(timeline, /cardRefs\.current\[index\] = element/);
+  assert.match(timeline, /gsap\.set\(cards, \{ y: 104, opacity: 0 \}\)/);
+  assert.match(timeline, /gsap\.to\(card,/);
+  assert.match(timeline, /className="process-step__surface"/);
+  assert.match(timeline, /<TimelineAmbientBackground \/>/);
+  assert.match(sceneStyles, /\.process-step dt,\s*\.process-step dd\s*{[^}]*margin:\s*0/s);
+  assert.doesNotMatch(timeline, /className="process-step__content" data-gsap-reveal="card"/);
   assert.doesNotMatch(timeline, /className="process-step"\s*data-gsap-reveal/);
 });
 
@@ -919,7 +954,7 @@ test("keeps the lazy particle bundle inside its transfer budget", async () => {
 });
 
 test("keeps the generated CMS editor protected and out of the public bundle", async () => {
-  const [app, collectionEditor, itemEditor, assetField, mediaOverview, mediaLibrary, uploadImage, adminPage, adminRoutes] = await Promise.all([
+  const [app, collectionEditor, itemEditor, assetField, mediaOverview, mediaLibrary, uploadImage, adminPage, adminRoutes, mediaRepository, mediaStorage] = await Promise.all([
     readFile(new URL("src/App.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/admin/CollectionEditor.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/admin/ItemEditor.tsx", projectRoot), "utf8"),
@@ -929,6 +964,8 @@ test("keeps the generated CMS editor protected and out of the public bundle", as
     readFile(new URL("src/admin/upload-image.ts", projectRoot), "utf8"),
     readFile(new URL("src/pages/AdminPage.tsx", projectRoot), "utf8"),
     readFile(new URL("server/api-routes/admin.ts", projectRoot), "utf8"),
+    readFile(new URL("server/media-repository.ts", projectRoot), "utf8"),
+    readFile(new URL("server/media-storage.ts", projectRoot), "utf8"),
   ]);
   const assetNames = await readdir(new URL("dist/assets/", projectRoot));
 
@@ -958,9 +995,14 @@ test("keeps the generated CMS editor protected and out of the public bundle", as
   assert.match(assetField, /image\/gif/);
   assert.match(mediaLibrary, /image\/gif/);
   assert.match(mediaLibrary, />Archive<\/button>/);
-  assert.match(mediaLibrary, /Replace or unpublish this media before archiving it/);
+  assert.match(mediaLibrary, /asset\.usageCount > 0/);
+  assert.match(mediaLibrary, /permanently deleted/);
+  assert.match(mediaLibrary, /Replace or remove this media from all content before archiving it/);
   assert.match(adminRoutes, /MEDIA_STORAGE_NOT_CONFIGURED/);
   assert.match(adminRoutes, /getRuntimeReadiness/);
+  assert.match(mediaRepository, /await removeStoredMedia/);
+  assert.match(mediaStorage, /del/);
+  assert.match(mediaStorage, /MEDIA_STORAGE_DELETE_FAILED/);
   assert.doesNotMatch(itemEditor, /image path|provider URL/i);
   assert.match(adminPage, /collections\/:collectionKey\/schema/);
   assert.match(adminPage, /collections\/:collectionKey\/items\/:itemId/);
@@ -1141,6 +1183,11 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(head, /centredPositions/);
   assert.match(head, /motion\.current\.rotation/);
   assert.match(head, /motion\.current\.dispersion/);
+  assert.match(head, /useParticlePointer/);
+  assert.match(head, /updateParticleInteraction/);
+  assert.match(head, /particlePointerVertexShaderChunk/);
+  assert.match(head, /applyParticlePointer\(viewPosition\)/);
+  assert.doesNotMatch(head, /addEventListener\("pointermove"/);
   assert.match(head, /dpr=\{mobile \? \[0\.75, 1\.05\]/);
   assert.match(portrait, /start: "top 76%"/);
   assert.match(portrait, /once: true/);
@@ -1177,32 +1224,139 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   ]);
 });
 
-test("builds the Services page from Webine's real offer and shared process", async () => {
-  const [page, chapters, particleOrb, content, sitemap] = await Promise.all([
+test("builds the Services page as six expanding offers with GPU-morphed model particles", async () => {
+  const [
+    page,
+    chapters,
+    particleExperience,
+    particleTargets,
+    particleShaders,
+    content,
+    config,
+    styles,
+    reach,
+    expandablePanel,
+    manifestSource,
+    sitemap,
+  ] = await Promise.all([
     readFile(new URL("src/pages/ServicesPage.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/services/ServicesChapterController.tsx", projectRoot), "utf8"),
-    readFile(new URL("src/components/services/ServicesParticleOrb.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/services/ServicesParticleExperience.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/three/services/service-particle-targets.ts", projectRoot), "utf8"),
+    readFile(new URL("src/three/services/service-particle-shaders.ts", projectRoot), "utf8"),
     readFile(new URL("src/content/services-content.ts", projectRoot), "utf8"),
+    readFile(new URL("src/config/experience.ts", projectRoot), "utf8"),
+    readFile(new URL("src/styles/services.css", projectRoot), "utf8"),
+    readFile(new URL("src/components/home/ReachSection.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/hooks/useExpandablePanel.ts", projectRoot), "utf8"),
+    readFile(new URL("public/models/services/manifest.json", projectRoot), "utf8"),
     readFile(new URL("server/api-routes/sitemap.ts", projectRoot), "utf8"),
   ]);
+
   assert.match(page, /ServicesChapterController/);
   assert.match(page, /<AmbientParticleField variant="services"/);
-  assert.match(page, /useSiteSettings/);
-  assert.match(chapters, /ScrollTrigger/);
-  assert.match(chapters, /data-service-chapter/);
-  assert.match(chapters, /ServicesParticleOrb/);
-  assert.match(particleOrb, /createOrbParticles\(orbConfig\.count\)/);
-  assert.match(particleOrb, /sampleParticleSurfaceField/);
-  assert.match(particleOrb, /surface\.colourBucket/);
-  assert.match(particleOrb, /electronTime/);
-  assert.match(particleOrb, /orbitBias/);
-  assert.match(particleOrb, /particleGlow\.haloScale/);
-  assert.match(particleOrb, /particleGlow\.haloAlpha/);
-  assert.match(particleOrb, /IntersectionObserver/);
-  for (const service of ["Web design and development", "Website redesign", "Website maintenance", "SEO foundations", "Branding support"]) {
+  assert.doesNotMatch(page, /useSiteSettings|services-process|services-ownership/);
+  assert.match(chapters, /ServicesParticleExperience/);
+  assert.match(chapters, /aria-expanded=\{expanded\}/);
+  assert.match(chapters, /data-cursor-surface="large"/);
+  assert.match(chapters, /className="service-card__panel"/);
+  assert.match(chapters, /Best for/);
+  assert.match(chapters, /What it includes/);
+  assert.match(chapters, /useExpandablePanel\(expanded\)/);
+  assert.match(reach, /useExpandablePanel\(expanded\)/);
+  assert.match(reach, /className="reach-principle__panel"/);
+  assert.doesNotMatch(reach, /\shidden=\{!expanded\}/);
+  assert.match(expandablePanel, /gsap\.to\(panel,/);
+  assert.match(expandablePanel, /duration:\s*0\.72/);
+  assert.match(expandablePanel, /ease:\s*"power3\.inOut"/);
+  assert.match(expandablePanel, /panelTween\.kill\(\)/);
+  assert.match(expandablePanel, /contentTween\.kill\(\)/);
+  assert.match(chapters, /const \[activeIndex, setActiveIndex\] = useState\(0\)/);
+  assert.match(chapters, /const \[expandedIndex, setExpandedIndex\] = useState<number \| null>\(0\)/);
+  assert.match(chapters, /if \(expandedIndex === index\)[\s\S]*setExpandedIndex\(null\)/);
+  assert.match(chapters, /setActiveIndex\(index\)[\s\S]*setExpandedIndex\(index\)/);
+  assert.match(particleExperience, /<Canvas/);
+  assert.match(particleExperience, /frameloop="demand"/);
+  assert.match(particleExperience, /IntersectionObserver/);
+  assert.match(particleExperience, /\{targets && visible \? \(/);
+  assert.match(particleExperience, /media\.addEventListener\("change", update\)/);
+  assert.doesNotMatch(particleExperience, /window\.addEventListener\("resize"/);
+  assert.match(particleExperience, /<MobiusRunner visible=\{visible && activeIndex === 5\} mobile=\{mobile\}/);
+  assert.match(particleExperience, /runnerConfig\.pathCentreX/);
+  assert.match(particleExperience, /runnerConfig\.pathRadius/);
+  assert.match(particleExperience, /runner\.quaternion\.premultiply\(rollingStep\)/);
+  assert.match(particleTargets, /GLTFLoader/);
+  assert.match(particleTargets, /selectPositions/);
+  assert.match(particleTargets, /sourceTargetCache/);
+  assert.match(particleTargets, /disposeGeometries\(model\.scene\)/);
+  assert.match(particleShaders, /attribute vec3 targetFrom/);
+  assert.match(particleShaders, /attribute vec3 targetTo/);
+  assert.match(particleShaders, /uniform float uMorph/);
+  assert.match(particleShaders, /sin\(progress \* 3\.14159265\)/);
+  assert.match(particleShaders, /particlePointerVertexShaderChunk/);
+  assert.match(particleShaders, /applyParticlePointer\(viewPosition\)/);
+  assert.match(particleExperience, /useParticlePointer/);
+  assert.match(particleExperience, /updateParticleInteraction/);
+  assert.doesNotMatch(particleExperience, /addEventListener\("pointermove"/);
+  assert.match(particleExperience, /morphConfig\.anchor\.desktop/);
+  assert.match(particleExperience, /anchor\.x \+ model\.centreOffset\.x/);
+  assert.match(particleExperience, /anchor\.y \+ model\.centreOffset\.y/);
+  assert.match(particleExperience, /anchor\.z \+ model\.centreOffset\.z/);
+  assert.equal((config.match(/centreOffset:\s*{\s*x:\s*-?\d+(?:\.\d+)?,\s*y:\s*-?\d+(?:\.\d+)?,\s*z:\s*-?\d+(?:\.\d+)?\s*}/g) ?? []).length, 6);
+  assert.doesNotMatch(particleExperience, /rotationOffsetRef|activeElapsedRef|idleWave/);
+  assert.match(particleExperience, /rotation\.restingY \+ pointerInteraction\.tiltY/);
+  assert.match(particleShaders, /gl_PointSize = applyParticlePointerPointScale\(uPointSize/);
+  assert.match(particleShaders, /objectCentreView\.z/);
+  assert.match(config, /"website-design":\s*1\.65/);
+  assert.match(config, /"website-redesign":\s*\d+(?:\.\d+)?/);
+  assert.match(config, /"landing-pages":\s*2\.7/);
+  assert.match(config, /"branding-support":\s*1\.62/);
+  assert.match(config, /"seo-foundations":\s*1\.72/);
+  assert.match(config, /"website-care":\s*1\.72/);
+  assert.equal(
+    (
+      config.match(
+        /rotation:\s*{\s*x:\s*-?\d+(?:\.\d+)?,\s*restingY:\s*-?\d+(?:\.\d+)?\s*}/g,
+      ) ?? []
+    ).length,
+    6,
+  );
+  assert.match(styles, /\.services-experience__visual-sticky\s*{[^}]*position:\s*sticky/s);
+  assert.match(styles, /\.service-card\s*{[^}]*backdrop-filter:\s*blur/s);
+  assert.match(styles, /\.service-card\s*{[^}]*background:\s*transparent/s);
+  assert.match(styles, /\.service-card\[data-expanded="true"\]\s*{[^}]*background:\s*transparent/s);
+
+  for (const service of [
+    "Website design and development",
+    "Website redesign",
+    "Landing pages and campaign sites",
+    "Branding support",
+    "SEO foundations",
+    "Website care and maintenance",
+  ]) {
     assert.match(content, new RegExp(service));
   }
   assert.doesNotMatch(content, /paid advertising|managed hosting|conversion optimisation/i);
+
+  const manifest = JSON.parse(manifestSource);
+  assert.equal(manifest.results.length, 6);
+  assert.equal(manifest.results[0].distribution.land, 3744);
+  assert.equal(manifest.results[0].distribution.ocean, 1056);
+  assert.equal(manifest.results[5].source, "fita_de_moebius.glb");
+  for (const result of manifest.results) {
+    assert.equal(result.pointCount, 4800);
+    assert.ok(result.outputBytes < 70000);
+    const glb = await readFile(new URL(`public/models/services/${result.output}`, projectRoot));
+    const jsonLength = glb.readUInt32LE(12);
+    const gltf = JSON.parse(glb.subarray(20, 20 + jsonLength).toString("utf8").trimEnd());
+    assert.equal(gltf.accessors[0].count, 4800);
+    assert.equal(gltf.meshes[0].primitives[0].mode, 0);
+    assert.equal(gltf.materials, undefined);
+    assert.equal(gltf.textures, undefined);
+    assert.equal(gltf.images, undefined);
+    assert.equal(gltf.animations, undefined);
+  }
+
   assert.match(sitemap, /"\/services"/);
 });
 

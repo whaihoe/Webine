@@ -1,9 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { gsap } from "../../animation/scroll-runtime";
 import {
   useParticleController,
   useParticleSceneAnchor,
-} from "./ParticleSceneController";
+} from "./ParticleSceneContext";
 import { MobileTimelineFlowParticles } from "./MobileSectionParticles";
+import { TimelineAmbientBackground } from "./TimelineAmbientBackground";
 import { useSiteSettings } from "../../content/SiteSettingsProvider";
 
 export function ProcessTimeline() {
@@ -11,9 +13,32 @@ export function ProcessTimeline() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const lineRef = useRef<HTMLDivElement | null>(null);
   const nodeRefs = useRef<Array<HTMLElement | null>>([]);
+  const cardRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const cardRevealInitialisedRef = useRef(false);
   const registerScene = useParticleSceneAnchor("process");
   const { store } = useParticleController();
   const [activeStep, setActiveStep] = useState(-1);
+
+  useLayoutEffect(() => {
+    const cards = cardRefs.current.filter((card): card is HTMLDivElement => Boolean(card));
+    if (!cardRevealInitialisedRef.current) {
+      gsap.set(cards, { y: 104, opacity: 0 });
+      cardRevealInitialisedRef.current = true;
+    }
+    cards.forEach((card, index) => {
+      const reached = index <= activeStep;
+      gsap.to(card, {
+        y: reached ? 0 : 104,
+        opacity: reached ? 1 : 0,
+        duration: reached ? 0.92 : 0.52,
+        ease: reached ? "power3.out" : "power2.inOut",
+        overwrite: true,
+      });
+    });
+    return () => {
+      gsap.killTweensOf(cards);
+    };
+  }, [activeStep]);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -111,6 +136,7 @@ export function ProcessTimeline() {
       aria-labelledby="process-heading"
       data-particle-scene="process"
     >
+      <TimelineAmbientBackground />
       <div className="site-container process-section__intro">
         <p className="eyebrow" data-gsap-reveal="copy">05 / How it moves</p>
         <h2 id="process-heading" data-gsap-reveal="copy">
@@ -150,20 +176,27 @@ export function ProcessTimeline() {
             >
               <span />
             </div>
-            <div className="process-step__content" data-gsap-reveal="card">
-              <p className="process-step__index">0{index + 1}</p>
-              <h3>{step.title}</h3>
-              <p className="process-step__action">{step.action}</p>
-              <dl>
-                <div>
-                  <dt>Your part</dt>
-                  <dd>{step.client}</dd>
-                </div>
-                <div>
-                  <dt>Output</dt>
-                  <dd>{step.output}</dd>
-                </div>
-              </dl>
+            <div
+              ref={(element) => {
+                cardRefs.current[index] = element;
+              }}
+              className="process-step__surface"
+            >
+              <div className="process-step__content">
+                <p className="process-step__index">0{index + 1}</p>
+                <h3>{step.title}</h3>
+                <p className="process-step__action">{step.action}</p>
+                <dl>
+                  <div>
+                    <dt>Your part</dt>
+                    <dd>{step.client}</dd>
+                  </div>
+                  <div>
+                    <dt>Output</dt>
+                    <dd>{step.output}</dd>
+                  </div>
+                </dl>
+              </div>
             </div>
           </article>
         ))}

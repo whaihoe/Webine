@@ -8,13 +8,63 @@ import {
 import {
   useParticleController,
   useParticleSceneAnchor,
-} from "./ParticleSceneController";
+} from "./ParticleSceneContext";
 import { MobileSectionParticles } from "./MobileSectionParticles";
 import { useSiteSettings } from "../../content/SiteSettingsProvider";
+import type { PrincipleSetting } from "../../content/site-settings";
+import { useExpandablePanel } from "../../hooks/useExpandablePanel";
 
 type ReachSectionProps = {
   onElementChange?: (element: HTMLElement | null) => void;
 };
+
+function ReachPrincipleCard({
+  principle,
+  index,
+  expanded,
+  onToggle,
+}: {
+  principle: PrincipleSetting;
+  index: number;
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  const { panelRef, contentRef } = useExpandablePanel(expanded);
+  const panelId = `reach-example-${index}`;
+
+  return (
+    <article
+      className="reach-principle"
+      data-gsap-reveal="card"
+      data-expanded={expanded}
+    >
+      <span className="reach-principle__index">
+        {String(index + 1).padStart(2, "0")}
+      </span>
+      <h3>{principle.title}</h3>
+      <p>{principle.description}</p>
+      <button
+        type="button"
+        aria-expanded={expanded}
+        aria-controls={panelId}
+        onClick={onToggle}
+      >
+        {expanded ? "Hide example" : "See practical example"}
+        <span aria-hidden="true">{expanded ? "−" : "+"}</span>
+      </button>
+      <div
+        ref={panelRef}
+        id={panelId}
+        className="reach-principle__panel"
+        aria-hidden={!expanded}
+      >
+        <div ref={contentRef} className="reach-principle__panel-content">
+          <p className="reach-principle__example">{principle.example}</p>
+        </div>
+      </div>
+    </article>
+  );
+}
 
 export function ReachSection({
   onElementChange,
@@ -80,34 +130,13 @@ export function ReachSection({
             const expanded = expandedIndex === index;
 
             return (
-              <article
+              <ReachPrincipleCard
                 key={principle.title}
-                className="reach-principle"
-                data-gsap-reveal="card"
-                data-expanded={expanded}
-              >
-                <span className="reach-principle__index">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <h3>{principle.title}</h3>
-                <p>{principle.description}</p>
-                <button
-                  type="button"
-                  aria-expanded={expanded}
-                  aria-controls={`reach-example-${index}`}
-                  onClick={() => setExpandedIndex(expanded ? null : index)}
-                >
-                  {expanded ? "Hide example" : "See practical example"}
-                  <span aria-hidden="true">{expanded ? "−" : "+"}</span>
-                </button>
-                <p
-                  id={`reach-example-${index}`}
-                  className="reach-principle__example"
-                  hidden={!expanded}
-                >
-                  {principle.example}
-                </p>
-              </article>
+                principle={principle}
+                index={index}
+                expanded={expanded}
+                onToggle={() => setExpandedIndex(expanded ? null : index)}
+              />
             );
           })}
         </div>

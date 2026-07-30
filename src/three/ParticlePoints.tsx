@@ -12,11 +12,16 @@ import {
   experienceConfig,
   particleSceneConfig,
 } from "../config/experience";
+import { useParticlePointer } from "../hooks/useParticlePointer";
 import {
   createParticleTargetBuffers,
   createProceduralParticleTargets,
 } from "./particle-targets";
 import { particleFragmentShader, particleVertexShader } from "./shaders";
+import {
+  createParticleInteractionState,
+  updateParticleInteraction,
+} from "./particle-pointer";
 import type { StoryProgressStore } from "./story-progress";
 import type { ParticleRenderProfile } from "./types";
 
@@ -58,7 +63,8 @@ export function ParticlePoints({
 }: ParticlePointsProps) {
   const groupRef = useRef<Group>(null);
   const materialRef = useRef<ShaderMaterial>(null);
-  const pointerRef = useRef({ x: 0, y: 0, active: false });
+  const pointerRef = useParticlePointer();
+  const pointerInteractionRef = useRef(createParticleInteractionState());
   const pointerUniformRef = useRef(new Vector2(20, 20));
   const rotationPhaseRef = useRef(0);
   const scrollRotationRef = useRef(0);
@@ -120,6 +126,7 @@ export function ParticlePoints({
       uDensityContrast: { value: surfaceField.densityContrast },
       uLightThemeStrength: { value: 0 },
       uPointer: { value: pointerUniformRef.current },
+      uPointerAspect: { value: 1 },
       uPointerStrength: { value: 0 },
       uCyanColour: { value: getTokenColour("--primitive-cyan-400") },
       uBlueColour: { value: getTokenColour("--primitive-blue-500") },
@@ -151,36 +158,6 @@ export function ParticlePoints({
   useEffect(() => {
     onReady();
   }, [onReady]);
-
-  useEffect(() => {
-    const finePointer = window.matchMedia("(pointer: fine)");
-
-    if (!finePointer.matches) {
-      return;
-    }
-
-    const handlePointerMove = (event: PointerEvent) => {
-      pointerRef.current = {
-        x: (event.clientX / window.innerWidth) * 2 - 1,
-        y: -((event.clientY / window.innerHeight) * 2 - 1),
-        active: true,
-      };
-    };
-    const handlePointerLeave = () => {
-      pointerRef.current.active = false;
-    };
-
-    window.addEventListener("pointermove", handlePointerMove, { passive: true });
-    document.documentElement.addEventListener("pointerleave", handlePointerLeave);
-
-    return () => {
-      window.removeEventListener("pointermove", handlePointerMove);
-      document.documentElement.removeEventListener(
-        "pointerleave",
-        handlePointerLeave,
-      );
-    };
-  }, []);
 
   useFrame(({ clock, viewport }, delta) => {
     const material = materialRef.current;
@@ -368,12 +345,12 @@ export function ParticlePoints({
       closingSettledStrength,
     );
     const elapsed = clock.elapsedTime;
-    const localPointerX =
-      (pointer.x * viewport.width * 0.5 - group.position.x) /
-      Math.max(group.scale.x, 0.001);
-    const localPointerY =
-      (pointer.y * viewport.height * 0.5 - group.position.y) /
-      Math.max(group.scale.y, 0.001);
+    const pointerInteraction = pointerInteractionRef.current;
+    updateParticleInteraction(pointerInteraction, pointer, {
+      viewportWidth: viewport.width,
+      viewportHeight: viewport.height,
+      formedStrength: idleStrength,
+    });
 
     material.uniforms.uProgress.value = MathUtils.damp(
       material.uniforms.uProgress.value,
@@ -419,28 +396,24 @@ export function ParticlePoints({
     );
     material.uniforms.uPointer.value.x = MathUtils.damp(
       material.uniforms.uPointer.value.x,
-      pointer.active ? localPointerX : 20,
+      pointerInteraction.pointerX,
       8,
       delta,
     );
     material.uniforms.uPointer.value.y = MathUtils.damp(
       material.uniforms.uPointer.value.y,
-      pointer.active ? localPointerY : 20,
+      pointerInteraction.pointerY,
       8,
       delta,
     );
+    material.uniforms.uPointerAspect.value = pointerInteraction.pointerAspect;
     material.uniforms.uPointerStrength.value = MathUtils.damp(
       material.uniforms.uPointerStrength.value,
-      pointer.active ? idleStrength : 0,
+      pointerInteraction.strength,
       9,
       delta,
     );
     material.uniforms.uTime.value = elapsed;
-    const pointerTravel = pointer.active
-      ? ambientMotion.pointerTravel * idleStrength
-      : 0;
-    const pointerOffsetX = pointer.x * pointerTravel;
-    const pointerOffsetY = pointer.y * pointerTravel * 0.72;
     if (!positionInitialisedRef.current) {
       group.position.set(sceneX, sceneY, 0);
       group.scale.setScalar(targetScale);
@@ -448,14 +421,14 @@ export function ParticlePoints({
     }
     group.position.x = MathUtils.damp(
       group.position.x,
-      sceneX + pointerOffsetX,
+      sceneX + pointerInteraction.offsetX,
       releaseProgress > 0.92 ? 14 : 5,
       delta,
     );
     group.position.y = MathUtils.damp(
       group.position.y,
-      sceneY +
-        pointerOffsetY +
+        sceneY +
+        pointerInteraction.offsetY +
         Math.sin(elapsed * 0.34) * ambientMotion.floatY * idleStrength,
       releaseProgress > 0.92 ? 14 : 4,
       delta,
@@ -468,19 +441,13 @@ export function ParticlePoints({
     );
     rotationPhaseRef.current +=
       delta * ((Math.PI * 2) / ambientMotion.fullRotationSeconds) * idleStrength;
-    const pointerTiltX = pointer.active
-      ? -pointer.y * ambientMotion.pointerTilt
-      : 0;
-    const pointerTiltY = pointer.active
-      ? pointer.x * ambientMotion.pointerTilt
-      : 0;
     group.rotation.x = MathUtils.damp(
       group.rotation.x,
       Math.sin(elapsed * 0.2) *
         ambientMotion.rotationX *
         idleStrength *
         ambientRotationScale +
-        pointerTiltX + scrollRotationRef.current * 0.08,
+        pointerInteraction.tiltX + scrollRotationRef.current * 0.08,
       3,
       delta,
     );
@@ -489,7 +456,7 @@ export function ParticlePoints({
       Math.sin(rotationPhaseRef.current) *
         ambientMotion.rotationY *
         ambientRotationScale +
-        pointerTiltY + scrollRotationRef.current,
+        pointerInteraction.tiltY + scrollRotationRef.current,
       3,
       delta,
     );
@@ -499,7 +466,7 @@ export function ParticlePoints({
         ambientMotion.rotationZ *
         idleStrength *
         ambientRotationScale +
-        (pointer.active ? pointer.x * ambientMotion.pointerTilt * 0.34 : 0) +
+        pointerInteraction.tiltZ +
         scrollRotationRef.current * 0.14,
       3,
       delta,

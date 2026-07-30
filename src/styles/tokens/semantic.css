@@ -39,6 +39,7 @@
   --heading-2: var(--primitive-heading-2);
   --heading-3: var(--primitive-heading-3);
   --body-l: var(--primitive-body-l);
+  --body-m: var(--primitive-body-m);
   --body: var(--primitive-body);
   --label: var(--primitive-label);
   --space-page-x: var(--primitive-space-4);

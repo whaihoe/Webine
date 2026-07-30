@@ -282,3 +282,68 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - The complete outline holds for 0.4 seconds before fading, preserving the existing grayscale photograph handoff while making individual particle movement readable at phone size.
 - At 390 by 844, the portrait canvas measures 363 by 454 pixels. Two settled-state captures 160 milliseconds apart produced different image hashes while canvas opacity remained 1 and scroll position remained 3254, confirming visible local particle movement rather than page movement or fading.
 - Node 22 zero-warning lint, the production build, server type checking, isolated test-server build, all 73 automated tests and the rendered mobile checks pass.
+
+## 2026-07-30 Services redesign and Home timeline pass
+
+- The six generated Services assets each contain one 4,800-point GLB primitive, contain no materials, textures, images or animations and remain below 70 KB. The globe manifest records 3,744 land points and 1,056 ocean points.
+- At 1280 by 800, all six semantic service buttons switch the active card and particle target. The opening and closing card heights change continuously through the GSAP interval, the model canvas remains ready and the document has zero horizontal overflow.
+- At 390 by 844, Services retains six cards, one H1, two intentional canvases and zero horizontal overflow. The active model stays sticky above the ambient field and below the translucent card surfaces.
+- On Home, the timeline ambient state remains `waiting` at page entry and changes to `mounted` only when the process enters its near-viewport threshold. The section then contains the existing Home narrative canvas, mobile flow canvas and the new ambient canvas.
+- Timeline cards begin at a 54-pixel vertical offset and 0.7 opacity. When the corresponding node reaches viewport centre, the card reaches zero offset and full opacity while the existing line progress and particle geometry remain active.
+- Desktop and 390-pixel rendered checks confirm a 28-pixel Reach principles radius, rounded timeline cards and zero horizontal overflow.
+
+## 2026-07-30 Services placement and timeline reveal refinement
+
+- At 1280 by 800, the Services accordion begins at x 568.96 while the formed particle object occupies the left half. Some particles may cross beneath the card edge, but the object centre and readable silhouette remain left of the content.
+- Collapsed and expanded service cards compute to a fully transparent background while retaining blur, border and readable text. The page remains free of horizontal overflow.
+- The Services shader now responds to a fine pointer with local depth displacement, outward spread, cyan emphasis and point growth. The canvas remains pointer-transparent to content and the window-owned listener is removed on unmount.
+- CRT and A380 rendered checks show their corrected front-facing states after the active card morph completes.
+- On the Home timeline at 1280 by 800, the first card surface measures `translateY(104px)` and zero opacity before activation, approximately `translateY(49.98px)` and 0.519 opacity during entry, then zero offset and full opacity after the 0.92-second reveal. Its node remains on the line throughout.
+- At 390 by 844, Services and the Home timeline retain zero horizontal overflow. Timeline `dd` elements compute to zero top and left margins, keeping Your part and Output values aligned with their labels.
+
+## 2026-07-30 shared particle engine and final Services tuning
+
+- Home, About Head and Services import the same pointer hook, frame calculation and shader bulge chunk. Source checks confirm those renderers no longer register their own pointer listeners.
+- The central `particleObjectScaleConfig` supplies all Home, About Head and Services model scales. Services point size remains an independent shader uniform, so changing a model scale changes the formed object extent without scaling the dots.
+- Services models no longer run an idle or full-turn rotation. Rendered desktop checks confirm the globe and redesign targets hold their resting orientation while retaining subtle pointer travel, tilt and local bulge.
+- At 1280 by 800, Home, Services and About each retain one H1 and zero horizontal overflow. Services contains six cards, exactly one expanded trigger and successful card-to-model switching.
+- At 390 by 844, Services contains six 358-pixel cards, two intentional canvases and zero horizontal overflow. Transparent card surfaces keep their border and authored backdrop-blur CSS, allowing the particle layers to remain visible beneath them.
+- The invalid Current website and consent-checkbox path was repeated in the production build. It remains on `/contact`, does not log a runtime error, keeps the entered value, marks the website field invalid and shows the complete example address in red at the top of the form and below the field.
+- Node 22 zero-warning lint, client build, server type checking, isolated test-server build and all 73 automated tests pass.
+
+## 2026-07-30 replacement Möbius, projected bulge and collapsible Services cards
+
+- The replacement Website care derivative records `fita_de_moebius.glb` as its source, contains one 4,800-point primitive, contains no materials or textures and remains below 70 KB.
+- At 1280 by 800, the replacement strip reads as a continuous twisted loop. Its 96-point sphere follows the middle curve just above the surface and visibly changes position while its accumulated quaternion provides rolling motion.
+- Home, About Head and Services compile the same projected pointer shader. Desktop screenshots at the live pointer position show a small local response rather than a model-wide distortion. The response remains aligned with the cursor after each model’s authored rotation.
+- The shared hover radius is aspect-corrected screen space and its depth is view space. Services particle perspective uses the object centre, so changing a model scale does not change point size, pointer radius or bulge depth.
+- At 1280 by 800, the first card starts expanded. Closing it produces zero expanded cards while keeping active model index 0. Opening Branding changes both indices to 3, then closing it keeps active model index 3 while expanded state becomes `none`.
+- At 390 by 844, the first card also starts expanded. Closing it leaves six 358-pixel cards, zero expanded cards and zero horizontal overflow. Transparent card surfaces and the sticky particle layers remain intact.
+- Rendered Home, About and Services checks report one H1 and zero horizontal overflow. Browser logs contain no application errors. The existing dependency-owned Three.js Clock deprecation warning remains unchanged.
+
+## 2026-07-30 medium body token and shared accordion motion
+
+- `--primitive-body-m` defines the medium body scale and the semantic `--body-m` token references it. Existing Services and case-study consumers now resolve through the intended primitive-to-semantic token path.
+- Services cards and Reach principles use the same `useExpandablePanel` hook. Both animate panel height for 0.72 seconds with `power3.inOut`, then combine the existing delayed content rise and opacity transition.
+- At 1280 by 800, a Reach panel measured 0 pixels before expansion, an intermediate height during the tween and its complete 112-pixel content height after expansion. Collapse returned it to 0 pixels and restored `aria-hidden`.
+- At 390 by 844, the expanded panel reached its complete content height, full opacity and `aria-expanded="true"` with zero page-level horizontal overflow.
+
+## 2026-07-30 Vercel Blob archive cleanup
+
+- Repository integration coverage confirms that draft and published references both block media archival. After every reference is removed, a Vercel Blob pathname is passed to the storage cleanup boundary before the asset record changes to archived.
+- Failure coverage confirms that a missing Blob token returns a 503 storage-configuration error and a Blob API failure returns a 502 retry message. In both cases the media record remains active.
+- Provider coverage confirms that the new cleanup boundary ignores externally managed media and only calls the Vercel Blob deletion client for `vercel_blob` assets.
+- The complete verification gate passes zero-warning lint, the production client build, server type checks and all 79 automated tests.
+
+## 2026-07-30 Services particle visual-centre tuning
+
+- At 1280 by 800, the lowered Services globe occupies the visual centre below the 78-pixel floating header rather than the geometric centre of the complete viewport. The A380 retains a balanced reading through its independent positive-Y centre correction.
+- At 390 by 844, the particle stage remains below the mobile header, the introduction and cards retain their intended translucent overlap and the page has zero horizontal overflow.
+- Source coverage confirms one responsive stage anchor and six per-model `centreOffset` controls. These offsets are applied separately from model scale, shader point size and the shared pointer bulge.
+
+## 2026-07-30 Services large-surface cursor
+
+- Every Services card trigger declares `data-cursor-surface="large"` and therefore uses the existing circular 58-pixel public cursor state rather than the geometry-matched control state.
+- The marker stays on the semantic button, preserving the existing accordion click, focus, keyboard and touch contracts without another pointer listener.
+- At 1280 by 800, a real pointer over the 661-pixel-wide card trigger produced `data-surface="large"`, a 57.99 by 57.99-pixel outer circle with a 999-pixel radius and the resting 10-pixel core. Moving into the expanded non-clickable details restored the normal 44-pixel circle.
+- At 390 by 844, the kinetic cursor remains unmounted from the document state, computes to `display: none` and the page retains zero horizontal overflow.

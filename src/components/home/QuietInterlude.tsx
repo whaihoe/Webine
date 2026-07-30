@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { InterludeChapterContent } from "./InterludeChapterContent";
 import { MobileSectionParticles } from "./MobileSectionParticles";
-import { useParticleSceneAnchor } from "./ParticleSceneController";
+import { useParticleSceneAnchor } from "./ParticleSceneContext";
 
 export function QuietInterlude() {
   const sectionRef = useRef<HTMLElement | null>(null);

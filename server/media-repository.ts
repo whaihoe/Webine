@@ -1,6 +1,10 @@
 import type { Client, Row } from "@libsql/client";
 import { CmsRepositoryError } from "./cms-repository.js";
 import { getDatabase } from "./database.js";
+import {
+  deleteStoredMedia,
+  type MediaStorageRecord,
+} from "./media-storage.js";
 
 function asNumber(value: Row[string]) {
   return typeof value === "bigint" ? Number(value) : Number(value ?? 0);
@@ -97,10 +101,29 @@ export async function updateAsset(id: string, value: unknown, actorId: string, r
   return getAsset(id, client);
 }
 
-export async function archiveAsset(id: string, actorId: string, requestId: string, client: Client = getDatabase()) {
+export async function archiveAsset(
+  id: string,
+  actorId: string,
+  requestId: string,
+  client: Client = getDatabase(),
+  removeStoredMedia: (record: MediaStorageRecord) => Promise<void> =
+    deleteStoredMedia,
+) {
   const current = await getAsset(id, client);
   if (!current) throw new CmsRepositoryError("NOT_FOUND", "That media asset does not exist.", 404);
-  if (current.publishedUsageCount > 0) throw new CmsRepositoryError("ASSET_IN_USE", "Unpublish or replace this image before archiving it.", 409);
+  if (current.usageCount > 0) {
+    throw new CmsRepositoryError(
+      "ASSET_IN_USE",
+      "Replace or remove this media from all content before archiving it.",
+      409,
+    );
+  }
+  const storage = await getAssetStorageRecord(id, client);
+  if (!storage) throw new CmsRepositoryError("NOT_FOUND", "That media asset does not exist.", 404);
+  await removeStoredMedia({
+    provider: String(storage.provider),
+    providerAssetId: String(storage.provider_asset_id),
+  });
   await client.batch([
     { sql: `UPDATE assets SET status = 'archived', version = version + 1,
       updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id = ?`, args: [id] },

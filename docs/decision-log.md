@@ -772,3 +772,52 @@
 
 - Restored visible per-particle movement after formation by replacing the near-static settled multiplier with centrally configured desktop and phone values. Phone movement is stronger but remains bounded closely around the portrait contour.
 - Extended the completed-outline hold from 0.01 to 0.4 seconds so the independently moving silhouette can be read before the existing fade and photograph handoff. Phones retain 595 particles, a 30 FPS ceiling, 1× DPR and one drawing pass.
+
+## 2026-07-30, Services model morphs and timeline atmosphere
+
+- Replaced the five-chapter Services scroll narrative with six premium expanding cards. Collapsed cards retain the service name and summary, while the active card opens downward to show only Best for and What it includes.
+- Converted the six supplied GLBs into geometry-only 4,800-point targets of approximately 58 KB each. Materials, textures, images and animations are removed. Globe sampling favours land by 78 to 22 percent.
+- Added one sticky GPU canvas that disperses and morphs between the six targets. Only the globe completes full turns. Every other model uses independently configurable left and right bounds, and the Mobius target includes a small moving particle runner.
+- Added a sticky 96-point process atmosphere that mounts only near the timeline. Existing particles still feed the line and its colour, while each rounded timeline card now rises when the live node reaches viewport centre.
+- Rounded the Reach principles container and timeline cards without changing their semantic structure or established responsive grid.
+
+## 2026-07-30, Services left anchor and timeline card reveal
+
+- Moved the desktop Services model anchor into the left half opposite the right-hand accordion. The canvas remains full-width so the formed object may overlap the card edge without losing its sticky lifecycle.
+- Added a model-local fine-pointer bulge in the Services shader. Pointer depth, spread, radius and point growth are centrally configurable and do not intercept card interaction.
+- Matched Services idle rotation to the Home object's 42-second cycle. CRT and A380 now begin from a 180-degree resting yaw, with their left and right limits applied as offsets from that facing.
+- Removed colour fills from collapsed and expanded service cards. Their outlines and blur remain while the ambient and model layers show through.
+- Moved the Home timeline reveal onto a dedicated card surface. It now rises 104 pixels from zero opacity as its node reaches viewport centre, while the node remains aligned to the line. Definition-list margins are explicitly reset.
+
+## 2026-07-30, Shared particle interaction and runtime cleanup
+
+- Added `particleObjectScaleConfig` at the top of `experience.ts` as the single place to tune every Home object, About Head and all six Services model scales. The A380 remains at its existing scale while the other Services forms are reduced.
+- Replaced separate Home, About Head and Services pointer listeners and coordinate calculations with one shared React hook, one stable frame-loop interaction update and one shared shader bulge function.
+- Kept the Services cards fully transparent with their existing backdrop blur, border and shadow so the ambient and model layers continue to show through.
+- Cached the parsed Services source targets, disposed temporary GLTF geometry after extraction and stopped mounting the Services WebGL canvas while the scene is outside its near-viewport boundary.
+- Added explicit GSAP cleanup for Services panel transitions and Home timeline-card reveal tweens. Page asset preloading now reads the Services model URLs from the central experience configuration.
+- Removed Services idle and globe rotation after visual review. Models now hold their configured resting orientation and respond only with the shared subtle pointer travel, tilt and local bulge. The common bulge depth, spread and point growth were reduced.
+
+## 2026-07-30, view-facing bulge, replacement Möbius and nullable cards
+
+- Replaced the Website care source with the supplied CC BY 4.0 `fita_de_moebius.glb` and regenerated its 4,800-point geometry-only public derivative. A smaller particle sphere now follows the normalised centreline and rolls around the strip’s changing local width axis.
+- Moved shared bulge proximity into aspect-corrected screen space after the model transform. The displacement now travels in view-space depth towards the camera, following the currently visible facing instead of each GLB’s original local front.
+- Fixed the shared bulge radius, depth and point growth independently from object scale. Services also calculates point perspective from the object centre, so scale changes the point formation without changing individual particle size.
+- Split selected-model state from expanded-card state. The first offer remains expanded on entry, every open card can be closed and the latest selected particle model stays visible when all cards are collapsed.
+
+## 2026-07-30, media archive storage cleanup
+
+- Changed media archive protection to include draft and published references, preventing an archived file from breaking unpublished work.
+- Added a provider-owned storage cleanup boundary. Unreferenced Vercel Blob media is deleted before its database record is archived, while external media keeps its existing provider behaviour.
+- Kept the database asset active when Blob configuration is missing or deletion fails. The Admin displays the server error and the owner can retry without losing the media record.
+
+## 2026-07-30, Services particle composition controls
+
+- Lowered the responsive Services particle-stage anchors so the object is centred in the usable space below the floating navigation rather than the complete viewport.
+- Added an independent `centreOffset` to every Services model in `experience.ts`. This adjusts the model's visual composition point without changing its scale, particle size, hover bulge or authored rotation.
+- Gave the A380 a small upward centre correction because its visible mass sits lower than the other normalised model targets.
+
+## 2026-07-30, Services large-surface cursor
+
+- Marked every Services card trigger with the shared large-surface cursor contract. The pointer now keeps the existing 58-pixel circular treatment across each clickable card surface instead of stretching to the card geometry.
+- Reused `KineticCursor` without adding route-owned pointer listeners or a Services-only cursor variant. Touch, coarse pointers and keyboard behaviour remain unchanged.

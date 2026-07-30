@@ -1,85 +1,97 @@
-import { useLayoutEffect, useRef } from "react";
-import { gsap, ScrollTrigger } from "../../animation/scroll-runtime";
-import { experienceConfig } from "../../config/experience";
-import { servicesContent } from "../../content/services-content";
-import { ServicesParticleOrb, type ServicesParticleMotion } from "./ServicesParticleOrb";
+import { useState } from "react";
+import { servicesContent, type WebineService } from "../../content/services-content";
+import { useExpandablePanel } from "../../hooks/useExpandablePanel";
+import { ServicesParticleExperience } from "./ServicesParticleExperience";
 
-const orbConfig = experienceConfig.particles.servicesOrb;
-
-export function ServicesChapterController() {
-  const rootRef = useRef<HTMLDivElement>(null);
-  const particleMotion = useRef<ServicesParticleMotion>({
-    rotation: orbConfig.rotation.start,
-    scale: orbConfig.scale.start,
-  });
-
-  useLayoutEffect(() => {
-    const root = rootRef.current;
-    if (!root) return;
-    const chapters = Array.from(root.querySelectorAll<HTMLElement>("[data-service-chapter]"));
-    const markers = Array.from(root.querySelectorAll<HTMLElement>("[data-service-marker]"));
-    const context = gsap.context(() => {
-      chapters.forEach((chapter, index) => {
-        const copy = chapter.querySelectorAll<HTMLElement>("[data-service-copy]");
-        gsap.fromTo(copy, { opacity: 0.24, y: index % 2 ? 38 : 58 }, {
-          opacity: 1,
-          y: 0,
-          stagger: 0.08,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: chapter,
-            start: "top 76%",
-            end: "top 38%",
-            scrub: 0.85,
-          },
-        });
-        ScrollTrigger.create({
-          trigger: chapter,
-          start: "top center",
-          end: "bottom center",
-          onToggle: ({ isActive }) => {
-            if (!isActive) return;
-            markers.forEach((marker, markerIndex) => marker.dataset.active = String(markerIndex === index));
-            root.dataset.activeService = String(index);
-          },
-        });
-      });
-      gsap.fromTo(particleMotion.current, {
-          rotation: orbConfig.rotation.start,
-          scale: orbConfig.scale.start,
-        }, {
-          rotation: orbConfig.rotation.end,
-          scale: orbConfig.scale.end,
-          ease: "none",
-          scrollTrigger: { trigger: root, start: "top bottom", end: "bottom top", scrub: 1.4 },
-        });
-    }, root);
-    return () => context.revert();
-  }, []);
+function ServiceCard({
+  service,
+  expanded,
+  onToggle,
+}: {
+  service: WebineService;
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  const { panelRef, contentRef } = useExpandablePanel(expanded);
 
   return (
-    <div ref={rootRef} className="services-chapters" data-active-service="0" data-gsap-managed="true">
-      <div className="site-container services-chapters__layout">
-        <aside className="services-chapters__rail" aria-label="Service chapters">
-          <p>What Webine provides</p>
-          <ol>
-            {servicesContent.services.map((service, index) => (
-              <li key={service.index} data-service-marker data-active={index === 0}><span>{service.index}</span>{service.title}</li>
-            ))}
-          </ol>
-          <div className="services-chapters__visual" aria-hidden="true"><ServicesParticleOrb motion={particleMotion} /></div>
-        </aside>
-        <div className="services-chapters__content">
-          {servicesContent.services.map((service) => (
-            <article key={service.index} data-service-chapter>
-              <span data-service-copy>{service.index}</span>
-              <h2 data-service-copy>{service.title}</h2>
-              <p className="services-chapters__outcome" data-service-copy>{service.outcome}</p>
-              <p data-service-copy>{service.description}</p>
-              <ul data-service-copy>
-                {service.includes.map((item) => <li key={item}>{item}</li>)}
-              </ul>
-            </article>
+    <article className="service-card" data-expanded={expanded}>
+      <button
+        type="button"
+        className="service-card__trigger"
+        aria-expanded={expanded}
+        aria-controls={`service-panel-${service.index}`}
+        data-cursor-surface="large"
+        onClick={onToggle}
+      >
+        <span className="service-card__index">{service.index}</span>
+        <span className="service-card__heading">
+          <strong>{service.title}</strong>
+          <small>{service.summary}</small>
+        </span>
+        <span className="service-card__toggle-mark" aria-hidden="true"><i /><i /></span>
+      </button>
+      <div
+        ref={panelRef}
+        id={`service-panel-${service.index}`}
+        className="service-card__panel"
+        aria-hidden={!expanded}
+      >
+        <div ref={contentRef} className="service-card__details">
+          <div className="service-card__best-for">
+            <span>Best for</span>
+            <p>{service.bestFor}</p>
+          </div>
+          <div className="service-card__includes">
+            <span>What it includes</span>
+            <ul>
+              {service.includes.map((item) => <li key={item}>{item}</li>)}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+export function ServicesChapterController() {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
+
+  function toggleService(index: number) {
+    if (expandedIndex === index) {
+      setExpandedIndex(null);
+      return;
+    }
+    setActiveIndex(index);
+    setExpandedIndex(index);
+  }
+
+  return (
+    <div
+      className="services-experience"
+      data-active-service={activeIndex}
+      data-expanded-service={expandedIndex ?? "none"}
+      data-gsap-managed="true"
+    >
+      <div className="services-experience__visual">
+        <div className="services-experience__visual-sticky">
+          <ServicesParticleExperience activeIndex={activeIndex} />
+        </div>
+      </div>
+      <div className="site-container services-experience__content">
+        <div className="services-experience__introduction">
+          <p className="eyebrow">What Webine provides</p>
+          <p>Choose the closest starting point. The exact scope is shaped around what the website needs to change for the business.</p>
+        </div>
+        <div className="services-accordion">
+          {servicesContent.services.map((service, index) => (
+            <ServiceCard
+              key={service.key}
+              service={service}
+              expanded={expandedIndex === index}
+              onToggle={() => toggleService(index)}
+            />
           ))}
         </div>
       </div>

@@ -11,7 +11,7 @@ import {
   type MobileSectionParticleTargets,
 } from "../../three/mobile-section-particle-targets";
 import type { StoryProgressSnapshot } from "../../three/story-progress";
-import { useParticleController } from "./ParticleSceneController";
+import { useParticleController } from "./ParticleSceneContext";
 
 const MOBILE_QUERY = `(max-width: ${experienceConfig.particles.mobile.maxWidth}px)`;
 const MOBILE_PARTICLE_DPR = 1;

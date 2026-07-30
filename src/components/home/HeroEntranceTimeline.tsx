@@ -1,7 +1,7 @@
 import { gsap } from "gsap";
 import { useLayoutEffect, type RefObject } from "react";
 import { usePageLoad } from "../../loading/page-load-context";
-import { useParticleController } from "./ParticleSceneController";
+import { useParticleController } from "./ParticleSceneContext";
 
 type HeroEntranceTimelineProps = {
   rootRef: RefObject<HTMLElement | null>;

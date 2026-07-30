@@ -12,7 +12,7 @@ import { getParticleCapability } from "../../three/capability";
 import {
   useParticleController,
   useStoryActivitySnapshot,
-} from "./ParticleSceneController";
+} from "./ParticleSceneContext";
 import { ParticlePosterFallback } from "./ParticlePosterFallback";
 
 const LazyParticleNarrativeCanvas = lazy(

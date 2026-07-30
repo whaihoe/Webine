@@ -1,4 +1,5 @@
 import { experienceConfig } from "../config/experience";
+import { particlePointerVertexShaderChunk } from "./particle-pointer";
 
 const particleGlow = experienceConfig.particles.glow;
 
@@ -42,8 +43,7 @@ export const particleVertexShader = `
   uniform float uColourCycleSpeed;
   uniform float uDensityScale;
   uniform float uDensityCycleSpeed;
-  uniform vec2 uPointer;
-  uniform float uPointerStrength;
+  ${particlePointerVertexShaderChunk}
 
   varying float vRandom;
   varying float vPointerInfluence;
@@ -259,18 +259,9 @@ export const particleVertexShader = `
     particlePosition += electronMotion * settledMovement *
       mix(1.0, 0.38, particleAmbient);
 
-    vec2 pointerDelta = particlePosition.xy - uPointer;
-    float pointerDistance = length(pointerDelta);
-    float pointerInfluence = smoothstep(
-      1.2,
-      0.0,
-      pointerDistance
-    ) * uPointerStrength;
-    particlePosition.z += pointerInfluence * 0.58;
-    particlePosition.xy += pointerDelta * pointerInfluence * 0.035;
-
     vec4 modelPosition = modelMatrix * vec4(particlePosition, 1.0);
     vec4 viewPosition = viewMatrix * modelPosition;
+    float pointerInfluence = applyParticlePointer(viewPosition);
     gl_Position = projectionMatrix * viewPosition;
 
     float releasePointScale = mix(
@@ -278,9 +269,11 @@ export const particleVertexShader = `
       1.0,
       smoothstep(0.0, 0.34, uTimelineReleaseProgress)
     );
-    gl_PointSize = uPointSize * ${particleGlow.shaderSpriteScale} *
+    gl_PointSize = applyParticlePointerPointScale(
+      uPointSize * ${particleGlow.shaderSpriteScale},
+      pointerInfluence
+    ) *
       mix(1.0, 0.72, particleAmbient) *
-      (1.0 + pointerInfluence * 0.72) *
       mix(
         1.0,
         releasePointScale,

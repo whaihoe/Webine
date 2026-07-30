@@ -20,13 +20,13 @@ function MediaAssetCard({ asset, onChanged }: { asset: AdminAsset; onChanged: ()
     finally { setBusy(false); }
   }
   async function archive() {
-    if (!window.confirm(`Archive ${asset.originalFilename}? It will be removed from the reusable media library.`)) return;
+    if (!window.confirm(`Archive ${asset.originalFilename}? It will be removed from the reusable media library and its stored file will be permanently deleted.`)) return;
     setBusy(true); setError("");
     try { await mutateAdminResource(`/api/admin/media/${asset.id}`, "DELETE", {}); onChanged(); }
     catch (caught) { setError(caught instanceof Error ? caught.message : "The media item could not be archived."); }
     finally { setBusy(false); }
   }
-  const archiveBlocked = asset.publishedUsageCount > 0;
+  const archiveBlocked = asset.usageCount > 0;
   const isVideo = asset.mimeType === "video/mp4";
   return <article className="admin-media-card">
     {isVideo
@@ -40,7 +40,7 @@ function MediaAssetCard({ asset, onChanged }: { asset: AdminAsset; onChanged: ()
         <button type="button" onClick={() => setEditing((value) => !value)}>{editing ? "Close details" : "Edit details"}</button>
         <button type="button" disabled={busy || archiveBlocked} onClick={() => void archive()}>Archive</button>
       </div>
-      {archiveBlocked ? <small>Replace or unpublish this media before archiving it.</small> : null}
+      {archiveBlocked ? <small>Replace or remove this media from all content before archiving it.</small> : null}
       {!editing && error ? <p className="admin-form-error" role="alert">{error}</p> : null}
     </div>
     {editing ? <form className="admin-media-card__editor" onSubmit={save}>

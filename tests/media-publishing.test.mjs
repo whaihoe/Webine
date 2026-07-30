@@ -4,7 +4,7 @@ import { mkdtemp, readFile, readdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { changeItemStatus, createItem } from "../.test-build/server/cms-repository.js";
+import { changeItemStatus, createItem, updateItem } from "../.test-build/server/cms-repository.js";
 import { archiveAsset, createAsset, getAsset } from "../.test-build/server/media-repository.js";
 import { listPublicProjects } from "../.test-build/server/public-content.js";
 import { removeTemporaryDirectory } from "./test-utils.mjs";
@@ -125,7 +125,81 @@ test("links uploaded media through draft, publish, public query and archive prot
     const unpublished = await changeItemStatus("projects", draft.id, { action: "unpublish", version: published.version }, "owner", "request_unpublish", client);
     assert.equal(unpublished.status, "draft");
     assert.equal((await listPublicProjects({}, client)).some((project) => project.slug === "workflow-project"), false);
+    await assert.rejects(
+      () => archiveAsset("asset_workflow", "owner", "request_archive_draft_usage", client),
+      (error) => error.code === "ASSET_IN_USE",
+    );
+    const revised = await updateItem("projects", draft.id, {
+      version: unpublished.version,
+      data: {
+        ...unpublished.data,
+        hero_image: "asset_portrait",
+        content_blocks: [
+          { type: "image", assetIds: ["asset_portrait", "asset_video"], layout: "wide" },
+          { type: "bento", assetIds: ["asset_portrait", "asset_wide"] },
+          { type: "video", assetId: "asset_video" },
+        ],
+      },
+    }, "owner", "request_remove_asset_usage", client);
+    assert.equal(revised.status, "draft");
+    assert.equal((await getAsset("asset_workflow", client)).usageCount, 0);
     const archived = await archiveAsset("asset_workflow", "owner", "request_archive_after_unpublish", client);
     assert.equal(archived.archived, true);
+  });
+});
+
+test("deletes an unreferenced Vercel Blob before archiving its media record", async () => {
+  await withDatabase(async (client) => {
+    await createAsset({
+      id: "asset_blob", provider: "vercel_blob", providerAssetId: "webine/blob-image.webp",
+      deliveryUrl: "https://example.public.blob.vercel-storage.com/webine/blob-image.webp",
+      originalFilename: "blob-image.webp", mimeType: "image/webp", byteSize: 1024,
+      width: 1200, height: 800, altText: "Blob test image", caption: "",
+      focalX: 0.5, focalY: 0.5, decorative: false,
+    }, "owner", "request_blob_asset", client);
+    const deleted = [];
+
+    const archived = await archiveAsset(
+      "asset_blob",
+      "owner",
+      "request_archive_blob",
+      client,
+      async (record) => {
+        deleted.push(record);
+      },
+    );
+
+    assert.deepEqual(deleted, [{
+      provider: "vercel_blob",
+      providerAssetId: "webine/blob-image.webp",
+    }]);
+    assert.equal(archived.archived, true);
+    assert.equal((await getAsset("asset_blob", client)).status, "archived");
+  });
+});
+
+test("keeps media active when Vercel Blob deletion fails", async () => {
+  await withDatabase(async (client) => {
+    await createAsset({
+      id: "asset_blob_retry", provider: "vercel_blob", providerAssetId: "webine/retry.webp",
+      deliveryUrl: "https://example.public.blob.vercel-storage.com/webine/retry.webp",
+      originalFilename: "retry.webp", mimeType: "image/webp", byteSize: 1024,
+      width: 1200, height: 800, altText: "Retry test image", caption: "",
+      focalX: 0.5, focalY: 0.5, decorative: false,
+    }, "owner", "request_blob_retry_asset", client);
+
+    await assert.rejects(
+      () => archiveAsset(
+        "asset_blob_retry",
+        "owner",
+        "request_archive_blob_retry",
+        client,
+        async () => {
+          throw new Error("Blob unavailable");
+        },
+      ),
+      /Blob unavailable/,
+    );
+    assert.equal((await getAsset("asset_blob_retry", client)).status, "ready");
   });
 });

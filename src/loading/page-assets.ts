@@ -1,3 +1,5 @@
+import { experienceConfig } from "../config/experience";
+
 type ProgressReporter = (progress: number) => void;
 
 type PageAssetResult = {
@@ -35,6 +37,10 @@ function routeAssets(pathname: string) {
       "/about/kidson-mask.png",
       "/about/whai-hoe-mask.png",
     ];
+  }
+
+  if (pathname === "/services") {
+    return experienceConfig.particles.servicesMorph.models.map((model) => model.url);
   }
 
   return [];
@@ -105,6 +111,14 @@ function pageSignalsReady(pathname: string) {
 
   if (pathname === "/about") {
     return Boolean(document.querySelector(".about-head__visual.is-ready"));
+  }
+
+  if (pathname === "/services") {
+    const particleExperience = document.querySelector<HTMLElement>("[data-service-particle-state]");
+    return Boolean(
+      particleExperience
+      && particleExperience.dataset.serviceParticleState !== "loading",
+    );
   }
 
   return true;
