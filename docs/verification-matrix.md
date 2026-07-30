@@ -347,3 +347,9 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - The marker stays on the semantic button, preserving the existing accordion click, focus, keyboard and touch contracts without another pointer listener.
 - At 1280 by 800, a real pointer over the 661-pixel-wide card trigger produced `data-surface="large"`, a 57.99 by 57.99-pixel outer circle with a 999-pixel radius and the resting 10-pixel core. Moving into the expanded non-clickable details restored the normal 44-pixel circle.
 - At 390 by 844, the kinetic cursor remains unmounted from the document state, computes to `display: none` and the page retains zero horizontal overflow.
+
+## 2026-07-30 uniform footer particle brush
+
+- Footer particles now use one uniform random sample across the complete brush radius. The former centre-only particle class, triangular centre weighting and brighter slow-moving core render path have been removed.
+- At 1280 by 800, a real pointer stroke across the revealed footer filled the complete brush width without a brighter centre line. The canvas remained active at its 2,000-particle ceiling and the page retained zero horizontal overflow.
+- Regression coverage requires uniform `-brushRadius` to `brushRadius` sampling and rejects both the former triangular sampler and any remaining core-particle path.

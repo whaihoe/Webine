@@ -39,6 +39,14 @@ test("preloads the particle module at the final section and mounts it only at th
   assert.match(footer, /MutationObserver\(observeCurrentSurface\)/);
 });
 
+test("distributes footer brush particles uniformly across the stroke", async () => {
+  const brush = await source("src/components/FooterParticleBrush.tsx");
+
+  assert.match(brush, /randomBetween\(-brushRadius, brushRadius\)/);
+  assert.doesNotMatch(brush, /Math\.random\(\) - Math\.random\(\)/);
+  assert.doesNotMatch(brush, /\bcore\b/);
+});
+
 test("uses the computed background of the actual final section", async () => {
   const [footer, layout] = await Promise.all([
     source("src/components/SiteFooter.tsx"),

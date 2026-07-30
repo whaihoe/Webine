@@ -27,7 +27,6 @@ type BrushParticle = {
   spreadAcceleration: number;
   buoyancy: number;
   haze: boolean;
-  core: boolean;
   sprite: HTMLCanvasElement;
   colour: string;
 };
@@ -40,7 +39,7 @@ type ColourBand = {
 
 const maxParticles = 2000;
 const brushSpacing = 2.8;
-const particlesPerStep = 7;
+const particlesPerStep = 10;
 const entryBurstParticles = 14;
 const pixelRatioCap = 1.75;
 const spriteSize = 112;
@@ -215,36 +214,27 @@ function createParticle(
   colour: HslColour,
   getSprite: (colour: HslColour) => HTMLCanvasElement,
 ): BrushParticle {
-  const core = Math.random() < 0.44;
-  const haze = !core && Math.random() < 0.21;
+  const haze = Math.random() < 0.12;
   const perpendicular = {
     x: -direction.y,
     y: direction.x,
   };
   const brushRadius = 25 + Math.min(speed * 0.011, 22);
 
-  // Core particles stay close to the cursor path and spread very gently. This
-  // closes the hollow centre that appears when every particle is immediately
-  // accelerated away from the middle of the stroke.
-  const crossBrushOffset = core
-    ? (Math.random() - Math.random()) * 8.5
-    : (Math.random() - Math.random()) * (brushRadius + 6.5);
-  const alongBrushOffset = core
-    ? randomBetween(-5.5, 4.5)
-    : randomBetween(-9.5, 7.2);
+  // Give every part of the brush the same emission probability instead of
+  // concentrating particles on the cursor path.
+  const crossBrushOffset = randomBetween(-brushRadius, brushRadius);
+  const alongBrushOffset = randomBetween(-9.5, 7.2);
   const trailingPush = Math.min(speed * 0.0065, 10);
-  const spreadSide = Math.abs(crossBrushOffset) > 0.75
-    ? Math.sign(crossBrushOffset)
-    : (Math.random() < 0.5 ? -1 : 1);
+  const spreadSide = Math.random() < 0.5 ? -1 : 1;
   const spreadAngle =
     Math.atan2(perpendicular.y * spreadSide, perpendicular.x * spreadSide) +
     randomBetween(-0.58, 0.58);
   const spreadDirectionX = Math.cos(spreadAngle);
   const spreadDirectionY = Math.sin(spreadAngle);
-  const initialSpreadSpeed = core
-    ? randomBetween(1.1, 4.2)
-    : (haze ? randomBetween(14, 29) : randomBetween(7, 18)) +
-      Math.min(speed * 0.0035, 6);
+  const initialSpreadSpeed =
+    (haze ? randomBetween(14, 29) : randomBetween(7, 18)) +
+    Math.min(speed * 0.0035, 6);
   const quantizedColour = quantizeColour(colour);
 
   return {
@@ -266,38 +256,19 @@ function createParticle(
       -direction.y * trailingPush +
       spreadDirectionY * initialSpreadSpeed +
       randomBetween(-2.5, 2.5),
-    radius: core
-      ? randomBetween(1.7, 4.4)
-      : haze
-        ? randomBetween(8.8, 14.5)
-        : randomBetween(1.9, 5.2),
-    alpha: core
-      ? randomBetween(0.28, 0.5)
-      : haze
-        ? randomBetween(0.05, 0.11)
-        : randomBetween(0.22, 0.46),
+    radius: haze ? randomBetween(8.8, 14.5) : randomBetween(1.9, 5.2),
+    alpha: haze ? randomBetween(0.05, 0.11) : randomBetween(0.22, 0.46),
     age: randomBetween(0, 22),
-    lifetime: core
-      ? randomBetween(1350, 2050)
-      : haze
-        ? randomBetween(1700, 2500)
-        : randomBetween(1250, 2050),
+    lifetime: haze ? randomBetween(1700, 2500) : randomBetween(1250, 2050),
     driftPhase: Math.random() * Math.PI * 2,
-    driftSpeed: core ? randomBetween(0.6, 1.5) : randomBetween(0.8, 2.1),
+    driftSpeed: randomBetween(0.8, 2.1),
     spreadDirectionX,
     spreadDirectionY,
-    spreadAcceleration: core
-      ? randomBetween(0.3, 1.3)
-      : haze
-        ? randomBetween(6, 12)
-        : randomBetween(3, 7.5),
-    buoyancy: core
-      ? randomBetween(0.2, 1)
-      : haze
-        ? randomBetween(1.7, 4.4)
-        : randomBetween(0.45, 2.2),
+    spreadAcceleration: haze
+      ? randomBetween(6, 12)
+      : randomBetween(3, 7.5),
+    buoyancy: haze ? randomBetween(1.7, 4.4) : randomBetween(0.45, 2.2),
     haze,
-    core,
     sprite: getSprite(quantizedColour),
     colour: `hsl(${colourChannels(quantizedColour)})`,
   };
@@ -365,13 +336,11 @@ export function FooterParticleBrush() {
           continue;
         }
 
-        const drag = Math.exp(-delta * (particle.core ? 1.55 : particle.haze ? 1.05 : 1.3));
+        const drag = Math.exp(-delta * (particle.haze ? 1.05 : 1.3));
         particle.velocityX *= drag;
         particle.velocityY *= drag;
 
-        const spreadEase = particle.core
-          ? 0.2 + progress * 0.35
-          : 0.35 + progress * 0.85;
+        const spreadEase = 0.35 + progress * 0.85;
         particle.velocityX +=
           particle.spreadDirectionX *
           particle.spreadAcceleration *
@@ -385,20 +354,20 @@ export function FooterParticleBrush() {
         particle.velocityY -= particle.buoyancy * delta;
         particle.driftPhase += particle.driftSpeed * delta;
 
-        const flowStrength = particle.core ? 0.8 : particle.haze ? 4.6 : 2.4;
+        const flowStrength = particle.haze ? 4.6 : 2.4;
         const flowX = Math.sin(particle.driftPhase) * flowStrength;
         const flowY = Math.cos(particle.driftPhase * 0.83) * flowStrength * 0.75;
         particle.x += particle.velocityX * delta + flowX * delta;
         particle.y += particle.velocityY * delta + flowY * delta;
 
         const arrival = Math.min(1, progress * 12);
-        const tailGradient = Math.pow(1 - progress, particle.haze ? 1.45 : particle.core ? 1.8 : 1.9);
+        const tailGradient = Math.pow(1 - progress, particle.haze ? 1.45 : 1.9);
         const opacity = particle.alpha * arrival * tailGradient;
-        const expansion = 1 + progress * (particle.core ? 0.28 : particle.haze ? 1.05 : 0.58);
+        const expansion = 1 + progress * (particle.haze ? 1.05 : 0.58);
         const radius = particle.radius * expansion;
-        const renderedSize = radius * (particle.core ? 4.5 : particle.haze ? 7 : 5.1);
+        const renderedSize = radius * (particle.haze ? 7 : 5.1);
 
-        context.globalAlpha = opacity * (particle.core ? 0.4 : particle.haze ? 0.34 : 0.42);
+        context.globalAlpha = opacity * (particle.haze ? 0.34 : 0.42);
         context.drawImage(
           particle.sprite,
           particle.x - renderedSize * 0.5,
@@ -408,13 +377,13 @@ export function FooterParticleBrush() {
         );
 
         if (!particle.haze) {
-          context.globalAlpha = opacity * (particle.core ? 0.42 : 0.32);
+          context.globalAlpha = opacity * 0.32;
           context.fillStyle = particle.colour;
           context.beginPath();
           context.arc(
             particle.x,
             particle.y,
-            Math.max(0.55, radius * (particle.core ? 0.42 : 0.38)),
+            Math.max(0.55, radius * 0.38),
             0,
             Math.PI * 2,
           );

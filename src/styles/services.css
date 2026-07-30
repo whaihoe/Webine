@@ -152,8 +152,8 @@
   border-radius: var(--primitive-radius-panel);
   background: transparent;
   box-shadow: 0 1.5rem 4rem hsl(var(--primitive-slate-950) / 0.16);
-  backdrop-filter: blur(1.15rem);
-  -webkit-backdrop-filter: blur(1.15rem);
+  backdrop-filter: blur(0.2rem);
+  -webkit-backdrop-filter: blur(0.2rem);
   transition: border-color var(--primitive-duration-standard) ease;
 }
 
@@ -352,9 +352,9 @@
     padding: var(--primitive-space-6);
     border: 1px solid hsl(var(--primitive-white) / 0.1);
     border-radius: var(--primitive-radius-panel);
-    background: hsl(var(--primitive-slate-950) / 0.62);
-    backdrop-filter: blur(1rem);
-    -webkit-backdrop-filter: blur(1rem);
+    background: hsl(var(--primitive-slate-950) / 0.2);
+    backdrop-filter: blur(0.2rem);
+    -webkit-backdrop-filter: blur(0.2rem);
   }
 
   .service-card__trigger {
