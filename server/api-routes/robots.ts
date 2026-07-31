@@ -5,7 +5,18 @@ export function handleRobotsRequest(request: Request) {
 
   const url = new URL(request.url);
   const origin = `${url.protocol}//${url.host}`;
-  const body = `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /preview\nDisallow: /api/\n\nSitemap: ${origin}/sitemap.xml\n`;
+
+  const body = [
+    "User-agent: *",
+    "Allow: /",
+    "Allow: /api/projects",
+    "Disallow: /admin",
+    "Disallow: /preview",
+    "Disallow: /api/",
+    "",
+    `Sitemap: ${origin}/sitemap.xml`,
+    "",
+  ].join("\n");
 
   return new Response(request.method === "HEAD" ? null : body, {
     headers: {
