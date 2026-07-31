@@ -283,6 +283,8 @@ export function MobileTimelineFlowParticles() {
     let lastProgress = Number.NaN;
     let buffers: MobileSectionParticleTargets | null = null;
     const colours = getParticleSurfacePalette();
+    const processTransition =
+      experienceConfig.particles.processTransition.mobile;
     const particleSprites = colours.map((colour) =>
       createParticleSprite(colour)
     );
@@ -299,8 +301,8 @@ export function MobileTimelineFlowParticles() {
       const progress = getTimelineFlowProgress(store.getSnapshot());
       const centreX = width * 0.5;
       const centreY = height * 0.5;
-      const scatterRadiusX = width * 0.49;
-      const scatterRadiusY = height * 0.48;
+      const scatterRadiusX = width * processTransition.scatterRadiusX;
+      const scatterRadiusY = height * processTransition.scatterRadiusY;
       const pointSize = experienceConfig.particles.mobile.pointSize;
       const count = Math.floor(
         buffers.randomness.length * experienceConfig.particles.mobile.renderRatio,
@@ -332,15 +334,17 @@ export function MobileTimelineFlowParticles() {
             continue;
           }
 
-          const contactThreshold = 0.5 + randomness * 0.42;
+          const contactThreshold =
+            processTransition.contactStart +
+            randomness * processTransition.contactRange;
           const gatherProgress = smoothstepRange(
-            0.04,
+            processTransition.gatherStart,
             contactThreshold,
             progress,
           );
           const contactProgress = smoothstepRange(
-            contactThreshold - 0.018,
-            contactThreshold + 0.018,
+            contactThreshold - processTransition.contactFadeFeather,
+            contactThreshold + processTransition.contactFadeFeather,
             progress,
           );
           const angle = hash01(randomness * 173.1 + index * 1.37) * Math.PI * 2;
@@ -349,7 +353,9 @@ export function MobileTimelineFlowParticles() {
           const startX = centreX + Math.cos(angle) * scatterRadiusX * radius;
           const startY = centreY + Math.sin(angle) * scatterRadiusY * radius;
           const curve = Math.sin(gatherProgress * Math.PI) *
-            (randomness - 0.5) * Math.min(width, height) * 0.08;
+            (randomness - 0.5) *
+            Math.min(width, height) *
+            processTransition.curveStrength;
           const x = startX + (centreX - startX) * gatherProgress -
             Math.sin(angle) * curve;
           const y = startY + (centreY - startY) * gatherProgress +

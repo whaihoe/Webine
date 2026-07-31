@@ -56,8 +56,6 @@
   margin-top: clamp(5rem, 10vw, 9rem);
   display: grid;
   overflow: hidden;
-  border: 1px solid hsl(var(--primitive-slate-300));
-  border-radius: var(--primitive-radius-panel);
   background: hsl(var(--primitive-white) / 0.34);
 }
 
@@ -76,6 +74,7 @@
   transform: scaleX(var(--reach-progress));
   transform-origin: left;
   will-change: transform;
+  z-index: 2;
 }
 
 .reach-principle {
@@ -817,7 +816,6 @@
   grid-template-columns: 2.75rem 1fr;
   gap: var(--primitive-space-4);
   border-bottom: 1px solid hsl(var(--primitive-slate-300));
-  background: hsl(var(--primitive-slate-50));
   color: hsl(var(--primitive-slate-700));
 }
 

@@ -78,6 +78,8 @@ The refined particle timing uses measurements from the same timeline line. The r
 - `timelineIntakeProgress` begins earlier and controls release from the interlude, dispersed travel, point gathering and staggered contact fade.
 - `timelineReleaseProgress` begins when the line bottom reaches the same reading line and controls only point-origin emission and dispersion. Closing formation belongs to the closing section point.
 
+The intake window and its renderer-specific formation response are tunable in `experienceConfig.particles.processTransition`. `progress.startViewportY` and `progress.completeViewportY` control where the process line drives the transition. The `gpu` and `mobile` blocks then tune travel, dispersion, gathering and contact fade without replacing the live line geometry that keeps forward and reverse scrolling deterministic.
+
 Hero, reach, interlude and closing use independent motion ranges stored beside their own responsive anchor configuration. When a point enters the viewport, that section's particles begin forming around it. Formation reaches one when the point reaches viewport centre. The object then stays attached to the moving point until it crosses the top edge, where that section's dispersion begins. Reverse scrolling derives the same states from the same point geometry.
 
 The selected-work chapter remains an intentional shape exception. It owns no settled target. Visibility starts falling once reach dispersion reaches 18 percent and reaches zero by 78 percent, before the runway pin begins. It remains invisible through horizontal work, then fades back from 70 to 84 percent while the chapter card expands.

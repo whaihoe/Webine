@@ -242,6 +242,41 @@ export const experienceConfig = {
       tubeRadius: 0.2,
       rotationDegrees: [0, 150, 0],
     },
+    processTransition: {
+      // Process-line top position as a fraction of viewport height.
+      // The transition runs from startViewportY to completeViewportY.
+      progress: {
+        startViewportY: 1,
+        completeViewportY: 0.4,
+      },
+      gpu: {
+        // Complete-object travel from the interlude anchor to the process inlet.
+        groupTravelStart: 0,
+        groupTravelComplete: 0.56,
+        // Release the interlude form into its dispersed field.
+        dispersedFieldStart: 0,
+        dispersedFieldComplete: 0.27,
+        interludeReleaseAssistStart: 0,
+        interludeReleaseAssistComplete: 0.72,
+        // Stagger gathering and contact fade across the particle population.
+        contactStart: 0.29,
+        contactRange: 0.54,
+        gatherLead: 0.24,
+        gatherFloorStart: 0.24,
+        gatherFloorComplete: 0.76,
+        contactFadeFeather: 0.018,
+      },
+      mobile: {
+        // Mobile keeps the same progress source with a purpose-built 2D path.
+        contactStart: 0.5,
+        contactRange: 0.42,
+        gatherStart: 0.04,
+        contactFadeFeather: 0.018,
+        scatterRadiusX: 0.49,
+        scatterRadiusY: 0.48,
+        curveStrength: 0.08,
+      },
+    },
     closingModel: {
       url: "/models/colony-planet-particle.glb",
       targetSize: 4.8,

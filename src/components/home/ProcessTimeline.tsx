@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { gsap } from "../../animation/scroll-runtime";
 import { getViewportReadingLine } from "../../animation/viewport-geometry";
+import { experienceConfig } from "../../config/experience";
 import {
   useParticleController,
   useParticleSceneAnchor,
@@ -56,6 +57,8 @@ export function ProcessTimeline() {
       const viewportWidth = Math.max(window.innerWidth, 1);
       const readingLine = getViewportReadingLine(viewportHeight);
       const lineRect = line.getBoundingClientRect();
+      const processTransition =
+        experienceConfig.particles.processTransition.progress;
       const progress = Math.min(
         Math.max(
           (readingLine - lineRect.top) / Math.max(lineRect.height, 1),
@@ -73,8 +76,15 @@ export function ProcessTimeline() {
       );
       const intakeProgress = Math.min(
         Math.max(
-          (viewportHeight * 0.88 - lineRect.top) /
-            Math.max(viewportHeight * 0.48, 1),
+          (viewportHeight * processTransition.startViewportY - lineRect.top) /
+            Math.max(
+              viewportHeight *
+                (
+                  processTransition.startViewportY -
+                  processTransition.completeViewportY
+                ),
+              1,
+            ),
           0,
         ),
         1,

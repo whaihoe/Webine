@@ -2,6 +2,9 @@ import { experienceConfig } from "../config/experience";
 import { particlePointerVertexShaderChunk } from "./particle-pointer";
 
 const particleGlow = experienceConfig.particles.glow;
+const processTransition = experienceConfig.particles.processTransition.gpu;
+const glslFloat = (value: number) =>
+  Number.isInteger(value) ? value.toFixed(1) : String(value);
 
 export const particleVertexShader = `
   attribute vec3 targetHero;
@@ -141,28 +144,38 @@ export const particleVertexShader = `
 
     if (uTimelineIntakeProgress > 0.0) {
       float intakeRelease = smoothstep(
-        0.0,
-        0.27,
+        ${glslFloat(processTransition.dispersedFieldStart)},
+        ${glslFloat(processTransition.dispersedFieldComplete)},
         uTimelineIntakeProgress
       );
       intakeRelease = max(
         intakeRelease,
-        smoothstep(0.0, 0.72, uInterludeExitProgress)
+        smoothstep(
+          ${glslFloat(processTransition.interludeReleaseAssistStart)},
+          ${glslFloat(processTransition.interludeReleaseAssistComplete)},
+          uInterludeExitProgress
+        )
       );
       vec3 intakeField = mix(targetInterlude, scatterTarget, intakeRelease);
-      float contactThreshold = 0.29 + particleRandom * 0.54;
+      float contactThreshold =
+        ${glslFloat(processTransition.contactStart)} +
+        particleRandom * ${glslFloat(processTransition.contactRange)};
       float gatherProgress = smoothstep(
-        contactThreshold - 0.24,
+        contactThreshold - ${glslFloat(processTransition.gatherLead)},
         contactThreshold,
         uTimelineIntakeProgress
       );
       gatherProgress = max(
         gatherProgress,
-        smoothstep(0.24, 0.76, uTimelineIntakeProgress)
+        smoothstep(
+          ${glslFloat(processTransition.gatherFloorStart)},
+          ${glslFloat(processTransition.gatherFloorComplete)},
+          uTimelineIntakeProgress
+        )
       );
       float contactProgress = smoothstep(
-        contactThreshold - 0.018,
-        contactThreshold + 0.018,
+        contactThreshold - ${glslFloat(processTransition.contactFadeFeather)},
+        contactThreshold + ${glslFloat(processTransition.contactFadeFeather)},
         uTimelineIntakeProgress
       );
       narrativeTarget = mix(intakeField, vec3(0.0), gatherProgress);

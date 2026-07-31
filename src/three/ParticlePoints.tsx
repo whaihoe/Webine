@@ -90,6 +90,7 @@ export function ParticlePoints({
   );
   const ambientMotion = experienceConfig.particles.ambientMotion;
   const surfaceField = experienceConfig.particles.surfaceField;
+  const processTransition = experienceConfig.particles.processTransition.gpu;
   const uniforms = useMemo(
     () => ({
       uProgress: { value: 0 },
@@ -251,7 +252,11 @@ export function ParticlePoints({
     const inletY =
       (0.5 - snapshot.timelineInletPosition.y) * viewport.height;
     if (intakeProgress > 0) {
-      const inletTravel = MathUtils.smoothstep(intakeProgress, 0, 0.56);
+      const inletTravel = MathUtils.smoothstep(
+        intakeProgress,
+        processTransition.groupTravelStart,
+        processTransition.groupTravelComplete,
+      );
       sceneX = MathUtils.lerp(
         toWorldX(interludeAnchor.x),
         inletX,

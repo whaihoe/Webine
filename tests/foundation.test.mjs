@@ -362,6 +362,7 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
     mobileParticleData,
     pointerEngine,
     pointerHook,
+    experienceSource,
   ] = await Promise.all([
     readFile(new URL("src/pages/HomePage.tsx", projectRoot), "utf8"),
     readFile(
@@ -402,6 +403,7 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
     ),
     readFile(new URL("src/three/particle-pointer.ts", projectRoot), "utf8"),
     readFile(new URL("src/hooks/useParticlePointer.ts", projectRoot), "utf8"),
+    readFile(new URL("src/config/experience.ts", projectRoot), "utf8"),
   ]);
 
   assert.match(home, /HomeParticleExperience/);
@@ -661,9 +663,40 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
     ),
     readFile(new URL("src/styles/home-scenes.css", projectRoot), "utf8"),
   ]);
-  assert.match(processTimeline, /viewportHeight \* 0\.88/);
   assert.match(processTimeline, /MobileTimelineFlowParticles/);
   assert.match(processTimeline, /setTimelineGeometry/);
+  assert.match(
+    processTimeline,
+    /experienceConfig\.particles\.processTransition\.progress/,
+  );
+  assert.match(
+    processTimeline,
+    /processTransition\.startViewportY[\s\S]*processTransition\.completeViewportY/,
+  );
+  assert.match(
+    experienceSource,
+    /processTransition:\s*{[\s\S]*progress:\s*{[\s\S]*startViewportY:\s*0\.88[\s\S]*completeViewportY:\s*0\.4[\s\S]*gpu:\s*{[\s\S]*groupTravelComplete:\s*0\.56[\s\S]*contactStart:\s*0\.29[\s\S]*mobile:\s*{[\s\S]*contactStart:\s*0\.5/,
+  );
+  assert.match(
+    points,
+    /processTransition\.groupTravelStart[\s\S]*processTransition\.groupTravelComplete/,
+  );
+  assert.match(
+    shaders,
+    /const glslFloat = \(value: number\)[\s\S]*Number\.isInteger\(value\) \? value\.toFixed\(1\)/,
+  );
+  assert.match(
+    shaders,
+    /glslFloat\(processTransition\.dispersedFieldStart\)[\s\S]*glslFloat\(processTransition\.contactFadeFeather\)/,
+  );
+  assert.match(
+    mobileParticles,
+    /experienceConfig\.particles\.processTransition\.mobile/,
+  );
+  assert.match(
+    mobileParticles,
+    /processTransition\.scatterRadiusX[\s\S]*processTransition\.curveStrength/,
+  );
   assert.match(processTimeline, /getViewportReadingLine\(viewportHeight\)/);
   assert.doesNotMatch(processTimeline, /window\.innerHeight \/ 2/);
   assert.match(

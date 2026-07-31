@@ -833,3 +833,9 @@
 - Replaced the process timeline's geometric viewport midpoint with the centre of the usable viewport below the live fixed header. The line fill, node activation, card reveal and outlet release stay synchronised while appearing slightly earlier, with the largest proportional improvement on short mobile screens.
 - Moved fixed-header measurement into one shared viewport-geometry helper and reused it for Lenis anchor offsets. Particle anchors, parallax centres, pinned-scene geometry and already-early global reveals retain their existing intentional thresholds.
 - Confirmed forward and reverse timeline motion at 320 by 568, 390 by 844 and 1280 by 800 with zero horizontal overflow.
+
+## 2026-07-31, central process particle transition tuning
+
+- Added `particles.processTransition` to `src/config/experience.ts` so the interlude-to-process dispersal, travel, gathering and contact fade can be tuned without editing renderer logic.
+- Kept one geometry-derived intake value for both rendering paths. The persistent GPU scene and section-owned mobile canvas expose separate response controls because their coordinate systems and path construction differ.
+- Replaced the former timing literals in the process controller, GPU group travel, vertex shader and mobile flow canvas with the named configuration values.

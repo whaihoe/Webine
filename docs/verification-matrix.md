@@ -369,3 +369,10 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - At 1280 by 800, the live 78-pixel header produces a 439-pixel reading line. The desktop card, line and node remain aligned with zero horizontal overflow.
 - The global reveal controller already starts at 92 percent, portrait entry starts at 76 percent and the Selected Work entry starts at 88 percent. Particle anchors, full-range parallax and pinned-scene centres remain deliberately tied to composition geometry rather than content visibility.
 - Browser logs contain no application errors. The existing dependency-owned Three.js Clock deprecation warning remains unchanged.
+
+## 2026-07-31 configurable process particle transition
+
+- Source coverage confirms that the process controller, GPU group travel, vertex shader and mobile flow canvas all read the named `particles.processTransition` controls from `experience.ts`.
+- At 1280 by 800, the persistent WebGL scene compiles with no shader or application errors, the process atmosphere and timeline remain aligned and the page has zero horizontal overflow.
+- At 390 by 844, the section-owned process canvas renders at the configured intake handoff with zero horizontal overflow. Scrolling forward moved the timeline progress to `0.1276`, then reversing restored it to `0`.
+- The shader config formatter emits integer-valued controls as GLSL floats, preventing a tunable value such as `0` from invalidating `smoothstep`.
