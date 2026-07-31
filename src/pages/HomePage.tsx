@@ -114,7 +114,9 @@ function HomeContent() {
                 className="hero-section__description"
                 data-hero-intro="description"
               >
-                {settings.hero.supportingCopy}
+                <span data-nosnippet="">
+                  {settings.hero.supportingCopy}
+                </span>
               </p>
               <div className="hero-section__actions" data-hero-intro="actions">
                 <ButtonLink href={settings.hero.primaryCta.href}>{settings.hero.primaryCta.label}</ButtonLink>
