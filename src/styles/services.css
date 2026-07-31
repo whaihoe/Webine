@@ -152,7 +152,7 @@
   border-radius: var(--primitive-radius-panel);
   background: transparent;
   box-shadow: 0 1.5rem 4rem hsl(var(--primitive-slate-950) / 0.16);
-  backdrop-filter: blur(0.2rem);
+  backdrop-filter: blur(0.2rem) !important;
   -webkit-backdrop-filter: blur(0.2rem);
   transition: border-color var(--primitive-duration-standard) ease;
 }
