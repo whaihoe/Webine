@@ -10,6 +10,7 @@ export function handleRobotsRequest(request: Request) {
     "User-agent: *",
     "Allow: /",
     "Allow: /api/projects",
+    "Allow: /api/site-settings",
     "Disallow: /admin",
     "Disallow: /preview",
     "Disallow: /api/",
