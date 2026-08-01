@@ -6,17 +6,17 @@ export const publicNavigation = [
 ] as const;
 
 export const routeTitles: Record<string, string> = {
-  "/": "Webine | Make the ordinary unmistakable",
-  "/about": "About | Webine",
-  "/services": "Services | Webine",
-  "/works": "Works | Webine",
-  "/contact": "Contact | Webine",
-  "/admin": "Admin | Webine",
-  "/preview": "Content preview | Webine",
+  "/": "Webine • Digital Agency in Singapore",
+  "/about": "About • Webine",
+  "/services": "Services • Webine",
+  "/works": "Works • Webine",
+  "/contact": "Contact • Webine",
+  "/admin": "Admin • Webine",
+  "/preview": "Content preview • Webine",
 };
 
 export const routeDescriptions: Record<string, string> = {
-  "/": "Webine shapes distinctive websites around real business potential, clear strategy and purposeful interaction.",
+  "/": "Webine is a digital agency based in Singapore, providing website design, development, e-commerce and digital experiences for growing businesses.",
   "/about": "Meet the people behind Webine and see how clarity, purposeful motion and dependable development shape the studio's work.",
   "/services": "Web design, website redesign, monthly maintenance, SEO foundations and branding support from Webine.",
   "/works": "Explore Webine's published website work, internal studies and clearly labelled concept projects.",
