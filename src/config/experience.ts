@@ -38,6 +38,7 @@ export const experienceConfig = {
     enabled: true,
     initialScene: "scattered-field",
     lazyLoadDelayMs: 120,
+    // Shared by the GPU, canvas, ambient, portrait and Services particle renderers.
     glow: {
       haloScale: 2.45,
       haloAlpha: 0.16,

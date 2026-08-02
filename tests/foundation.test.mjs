@@ -1365,7 +1365,8 @@ test("builds the Services page as six expanding offers with GPU-morphed model pa
   assert.match(particleExperience, /<Canvas/);
   assert.match(particleExperience, /frameloop="demand"/);
   assert.match(particleExperience, /IntersectionObserver/);
-  assert.match(particleExperience, /\{targets && visible \? \(/);
+  assert.match(particleExperience, /\{targets \? \(/);
+  assert.doesNotMatch(particleExperience, /\{targets && visible \? \(/);
   assert.match(particleExperience, /media\.addEventListener\("change", update\)/);
   assert.doesNotMatch(particleExperience, /window\.addEventListener\("resize"/);
   assert.match(particleExperience, /<MobiusRunner visible=\{visible && activeIndex === 5\} mobile=\{mobile\}/);
@@ -1380,6 +1381,13 @@ test("builds the Services page as six expanding offers with GPU-morphed model pa
   assert.match(particleShaders, /attribute vec3 targetTo/);
   assert.match(particleShaders, /uniform float uMorph/);
   assert.match(particleShaders, /sin\(progress \* 3\.14159265\)/);
+  assert.match(particleShaders, /experienceConfig\.particles\.glow/);
+  assert.match(particleShaders, /particleGlow\.shaderSpriteScale/);
+  assert.match(particleShaders, /particleGlow\.shaderCoreStart/);
+  assert.match(particleShaders, /particleGlow\.shaderHaloStart/);
+  assert.match(particleShaders, /particleGlow\.haloAlpha/);
+  assert.match(particleExperience, /particleGlow\.shaderSpriteScale/);
+  assert.match(particleExperience, /float glowAlpha = core \+ halo \* \(1\.0 - core\)/);
   assert.match(particleShaders, /particlePointerVertexShaderChunk/);
   assert.match(particleShaders, /applyParticlePointer\(viewPosition\)/);
   assert.match(particleExperience, /useParticlePointer/);
@@ -1392,7 +1400,7 @@ test("builds the Services page as six expanding offers with GPU-morphed model pa
   assert.equal((config.match(/centreOffset:\s*{\s*x:\s*-?\d+(?:\.\d+)?,\s*y:\s*-?\d+(?:\.\d+)?,\s*z:\s*-?\d+(?:\.\d+)?\s*}/g) ?? []).length, 6);
   assert.doesNotMatch(particleExperience, /rotationOffsetRef|activeElapsedRef|idleWave/);
   assert.match(particleExperience, /rotation\.restingY \+ pointerInteraction\.tiltY/);
-  assert.match(particleShaders, /gl_PointSize = applyParticlePointerPointScale\(uPointSize/);
+  assert.match(particleShaders, /gl_PointSize = applyParticlePointerPointScale\(\s*uPointSize \* \$\{particleGlow\.shaderSpriteScale\}/);
   assert.match(particleShaders, /objectCentreView\.z/);
   assert.match(config, /"website-design":\s*1\.65/);
   assert.match(config, /"website-redesign":\s*\d+(?:\.\d+)?/);
@@ -1409,9 +1417,9 @@ test("builds the Services page as six expanding offers with GPU-morphed model pa
     6,
   );
   assert.match(styles, /\.services-experience__visual-sticky\s*{[^}]*position:\s*sticky/s);
-  assert.match(styles, /\.service-card\s*{[^}]*backdrop-filter:\s*blur/s);
-  assert.match(styles, /\.service-card\s*{[^}]*background:\s*transparent/s);
-  assert.match(styles, /\.service-card\[data-expanded="true"\]\s*{[^}]*background:\s*transparent/s);
+  assert.match(styles, /\.service-card\s*{[^}]*-webkit-backdrop-filter:\s*blur\(3px\)[^}]*backdrop-filter:\s*blur\(3px\)/s);
+  assert.match(styles, /\.service-card\s*{[^}]*background:\s*hsl\(var\(--primitive-slate-950\)\s*\/\s*0\.52\)/s);
+  assert.match(styles, /\.service-card\[data-expanded="true"\]\s*{[^}]*background:\s*hsl\(var\(--primitive-slate-950\)\s*\/\s*0\.52\)/s);
 
   for (const service of [
     "Website design and development",

@@ -1017,8 +1017,8 @@
   box-shadow:
     0 1.5rem 4rem hsl(var(--primitive-slate-950) / 0.2),
     inset 0 1px 0 hsl(var(--primitive-white) / 0.025);
-  backdrop-filter: blur(0.2rem) saturate(115%) !important;
-  -webkit-backdrop-filter: blur(0.2rem) saturate(115%) !important;
+  -webkit-backdrop-filter: blur(3px) !important;
+  backdrop-filter: blur(3px) !important;
   transition:
     background-color var(--primitive-duration-chapter) ease,
     box-shadow var(--primitive-duration-chapter) ease;

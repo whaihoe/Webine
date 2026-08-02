@@ -376,3 +376,9 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - At 1280 by 800, the persistent WebGL scene compiles with no shader or application errors, the process atmosphere and timeline remain aligned and the page has zero horizontal overflow.
 - At 390 by 844, the section-owned process canvas renders at the configured intake handoff with zero horizontal overflow. Scrolling forward moved the timeline progress to `0.1276`, then reversing restored it to `0`.
 - The shader config formatter emits integer-valued controls as GLSL floats, preventing a tunable value such as `0` from invalidating `smoothstep`.
+
+## 2026-08-03 production blur and Services particle readiness
+
+- The production CSS bundle contains both `-webkit-backdrop-filter: blur(3px)` and `backdrop-filter: blur(3px)` for the Home timeline and Services cards. Local computed styles resolve the standard property to `blur(3px)` on both surfaces.
+- On a direct local production-preview visit to `/services`, the Services particle state reached `ready` and its canvas was already mounted while the sticky visual remained 1,070 pixels below the viewport.
+- Focused Services coverage, zero-warning lint, the client production build and both server TypeScript checks pass. The complete suite has 80 passes from 81 tests, with only the existing process-transition expectation for `startViewportY` remaining unrelated.
