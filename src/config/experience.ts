@@ -106,7 +106,9 @@ export const experienceConfig = {
       travelY: { min: 34, range: 82 },
     },
     aboutHead: {
-      mobilePointLimit: 5600,
+      pointLimit: { desktop: 7800, mobile: 4200 },
+      frameRate: { desktop: 45, mobile: 30 },
+      visibilityRatio: 0.08,
       densityFloor: 0.52,
       sequence: {
         scrollScreens: { desktop: 2.4, mobile: 2.1 },

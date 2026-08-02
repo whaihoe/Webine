@@ -1,4 +1,4 @@
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState, type MutableRefObject } from "react";
 import {
   AdditiveBlending,
@@ -39,15 +39,46 @@ const particleGlow = experienceConfig.particles.glow;
 function selectRuntimePositions(buffer: ArrayBuffer) {
   const source = new Float32Array(buffer);
   const sourceCount = source.length / 3;
-  if (window.innerWidth >= 768 || sourceCount <= aboutHeadConfig.mobilePointLimit) return source;
-  const selected = new Float32Array(aboutHeadConfig.mobilePointLimit * 3);
-  for (let index = 0; index < aboutHeadConfig.mobilePointLimit; index += 1) {
-    const sourceIndex = Math.floor(index * sourceCount / aboutHeadConfig.mobilePointLimit);
+  const pointLimit = window.innerWidth < 768
+    ? aboutHeadConfig.pointLimit.mobile
+    : aboutHeadConfig.pointLimit.desktop;
+  if (sourceCount <= pointLimit) return source;
+  const selected = new Float32Array(pointLimit * 3);
+  for (let index = 0; index < pointLimit; index += 1) {
+    const sourceIndex = Math.floor(index * sourceCount / pointLimit);
     selected[index * 3] = source[sourceIndex * 3];
     selected[index * 3 + 1] = source[sourceIndex * 3 + 1];
     selected[index * 3 + 2] = source[sourceIndex * 3 + 2];
   }
   return selected;
+}
+
+function AboutHeadFrameScheduler({ active, maxFrameRate }: {
+  active: boolean;
+  maxFrameRate: number;
+}) {
+  const invalidate = useThree((state) => state.invalidate);
+
+  useEffect(() => {
+    if (!active) return;
+
+    let animationFrame = 0;
+    let previousFrame = 0;
+    const frameInterval = 1000 / maxFrameRate;
+    const renderFrame = (time: number) => {
+      if (time - previousFrame >= frameInterval) {
+        previousFrame = time - ((time - previousFrame) % frameInterval);
+        invalidate();
+      }
+      animationFrame = window.requestAnimationFrame(renderFrame);
+    };
+
+    invalidate();
+    animationFrame = window.requestAnimationFrame(renderFrame);
+    return () => window.cancelAnimationFrame(animationFrame);
+  }, [active, invalidate, maxFrameRate]);
+
+  return null;
 }
 
 const vertexShader = `
@@ -182,7 +213,7 @@ function seededRandom(seed: number) {
   };
 }
 
-function HeadPoints({ motion, positions, onReady }: AboutHeadCanvasProps & { positions: Float32Array }) {
+function HeadPoints({ motion, active, positions, onReady }: AboutHeadCanvasProps & { positions: Float32Array }) {
   const groupRef = useRef<Group>(null);
   const materialRef = useRef<ShaderMaterial>(null);
   const pointerRef = useParticlePointer();
@@ -264,6 +295,7 @@ function HeadPoints({ motion, positions, onReady }: AboutHeadCanvasProps & { pos
   }, [geometry, material, onReady]);
 
   useFrame(({ clock, viewport }, delta) => {
+    if (!active) return;
     const group = groupRef.current;
     const shader = materialRef.current;
     if (!group || !shader) return;
@@ -391,10 +423,14 @@ export default function AboutHeadCanvas({ motion, active, onReady }: AboutHeadCa
     <Canvas
       className="about-head__canvas"
       camera={{ position: [0, 0, 6.4], fov: 42 }}
-      dpr={mobile ? [0.75, 1.05] : [0.75, 1.35]}
-      frameloop={active ? "always" : "never"}
+      dpr={mobile ? [0.75, 1] : [0.75, 1.25]}
+      frameloop="demand"
       gl={{ alpha: true, antialias: false, powerPreference: "high-performance" }}
     >
+      <AboutHeadFrameScheduler
+        active={active}
+        maxFrameRate={mobile ? aboutHeadConfig.frameRate.mobile : aboutHeadConfig.frameRate.desktop}
+      />
       <HeadPoints motion={motion} active={active} positions={positions} onReady={onReady} />
     </Canvas>
   );

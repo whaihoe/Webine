@@ -18,10 +18,19 @@ export function AboutHeadExperience() {
     const copy = hero?.querySelector<HTMLElement>("[data-about-hero-copy]");
     if (!hero || !frame || !copy) return;
 
-    const observer = new IntersectionObserver(([entry]) => setActive(entry.isIntersecting), {
-      rootMargin: "35% 0px",
+    let inView = false;
+    const syncActiveState = () => {
+      setActive(inView && document.visibilityState === "visible");
+    };
+    const observer = new IntersectionObserver(([entry]) => {
+      inView = entry.isIntersecting
+        && entry.intersectionRatio >= experienceConfig.particles.aboutHead.visibilityRatio;
+      syncActiveState();
+    }, {
+      threshold: [0, experienceConfig.particles.aboutHead.visibilityRatio],
     });
     observer.observe(hero);
+    document.addEventListener("visibilitychange", syncActiveState);
 
     const sequence = experienceConfig.particles.aboutHead.sequence;
     const mobile = window.matchMedia("(max-width: 47.99rem)").matches;
@@ -58,13 +67,19 @@ export function AboutHeadExperience() {
     const refreshFrame = window.requestAnimationFrame(() => ScrollTrigger.refresh());
     return () => {
       window.cancelAnimationFrame(refreshFrame);
+      document.removeEventListener("visibilitychange", syncActiveState);
       observer.disconnect();
       context.revert();
     };
   }, []);
 
   return (
-    <div ref={sectionRef} className="about-head" data-gsap-managed="true">
+    <div
+      ref={sectionRef}
+      className="about-head"
+      data-about-head-active={active}
+      data-gsap-managed="true"
+    >
       <div className="about-head__sticky" aria-hidden="true">
         <div className={`about-head__visual${ready ? " is-ready" : ""}`}>
           <Suspense fallback={<div className="about-head__fallback" />}>

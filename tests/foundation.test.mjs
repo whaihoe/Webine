@@ -675,7 +675,7 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   );
   assert.match(
     experienceSource,
-    /processTransition:\s*{[\s\S]*progress:\s*{[\s\S]*startViewportY:\s*0\.88[\s\S]*completeViewportY:\s*0\.4[\s\S]*gpu:\s*{[\s\S]*groupTravelComplete:\s*0\.56[\s\S]*contactStart:\s*0\.29[\s\S]*mobile:\s*{[\s\S]*contactStart:\s*0\.5/,
+    /processTransition:\s*{[\s\S]*progress:\s*{[\s\S]*startViewportY:\s*1[\s\S]*completeViewportY:\s*0\.4[\s\S]*gpu:\s*{[\s\S]*groupTravelComplete:\s*0\.56[\s\S]*contactStart:\s*0\.29[\s\S]*mobile:\s*{[\s\S]*contactStart:\s*0\.5/,
   );
   assert.match(
     points,
@@ -1260,7 +1260,13 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(waterRippleShaders, /distanceToSegment/);
   assert.match(waterRippleShaders, /coverUv/);
   assert.match(waterRippleShaders, /mix\(monochrome, sampledColor\.rgb, revealAmount\)/);
-  assert.match(head, /aboutHeadConfig\.mobilePointLimit/);
+  assert.match(head, /aboutHeadConfig\.pointLimit\.mobile/);
+  assert.match(head, /aboutHeadConfig\.pointLimit\.desktop/);
+  assert.match(head, /frameloop="demand"/);
+  assert.match(head, /AboutHeadFrameScheduler/);
+  assert.match(headExperience, /entry\.intersectionRatio >= experienceConfig\.particles\.aboutHead\.visibilityRatio/);
+  assert.match(headExperience, /document\.visibilityState === "visible"/);
+  assert.match(headExperience, /data-about-head-active=\{active\}/);
   assert.doesNotMatch(portraitStyles, /\.about-head__visual\s*{[^}]*transform:/s);
   assert.match(head, /vSurfaceColour/);
   assert.match(head, /vSurfaceDensity/);
@@ -1275,7 +1281,7 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(head, /particlePointerVertexShaderChunk/);
   assert.match(head, /applyParticlePointer\(viewPosition\)/);
   assert.doesNotMatch(head, /addEventListener\("pointermove"/);
-  assert.match(head, /dpr=\{mobile \? \[0\.75, 1\.05\]/);
+  assert.match(head, /dpr=\{mobile \? \[0\.75, 1\] : \[0\.75, 1\.25\]\}/);
   assert.match(portrait, /start: "top 76%"/);
   assert.match(portrait, /once: true/);
   assert.match(config, /aboutPortrait:\s*{[\s\S]*outlineDurationSeconds:\s*1\.8/);
