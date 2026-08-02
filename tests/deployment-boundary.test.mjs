@@ -65,6 +65,10 @@ test("documents every application-owned Vercel variable", async () => {
     "TURSO_AUTH_TOKEN",
     "BLOB_READ_WRITE_TOKEN",
     "ENQUIRY_HASH_SECRET",
+    "VITE_TURNSTILE_SITE_KEY",
+    "TURNSTILE_SECRET_KEY",
+    "TURNSTILE_ALLOWED_HOSTNAMES",
+    "TURNSTILE_EXPECTED_ACTION",
     "RESEND_API_KEY",
     "ENQUIRY_NOTIFICATION_EMAIL",
     "ENQUIRY_NOTIFICATION_FROM_EMAIL",
@@ -88,6 +92,7 @@ test("documents every application-owned Vercel variable", async () => {
 test("blocks production builds when required services are not configured", () => {
   const configured = {
     ...process.env,
+    VITE_SITE_URL: "https://www.madebywebine.com",
     VITE_CLERK_PUBLISHABLE_KEY: "pk_test_example",
     CLERK_PUBLISHABLE_KEY: "pk_test_example",
     CLERK_SECRET_KEY: "sk_test_example",
@@ -97,6 +102,10 @@ test("blocks production builds when required services are not configured", () =>
     TURSO_AUTH_TOKEN: "database-token",
     BLOB_READ_WRITE_TOKEN: "blob-token",
     ENQUIRY_HASH_SECRET: "a".repeat(64),
+    VITE_TURNSTILE_SITE_KEY: "1x00000000000000000000AA",
+    TURNSTILE_SECRET_KEY: "1x0000000000000000000000000000000AA",
+    TURNSTILE_ALLOWED_HOSTNAMES: "madebywebine.com,www.madebywebine.com",
+    TURNSTILE_EXPECTED_ACTION: "contact_enquiry",
     ADMIN_DEV_BYPASS: "false",
   };
   const ready = spawnSync(
@@ -115,6 +124,15 @@ test("blocks production builds when required services are not configured", () =>
   );
   assert.equal(blocked.status, 1);
   assert.match(blocked.stderr, /BLOB_READ_WRITE_TOKEN is missing/);
+
+  const wrongCanonical = { ...configured, VITE_SITE_URL: "https://webine.vercel.app" };
+  const canonicalBlocked = spawnSync(
+    process.execPath,
+    ["scripts/check-production-env.mjs"],
+    { cwd: projectRoot, encoding: "utf8", env: wrongCanonical },
+  );
+  assert.equal(canonicalBlocked.status, 1);
+  assert.match(canonicalBlocked.stderr, /VITE_SITE_URL must use https:\/\/www\.madebywebine\.com/);
 
   const deferredNotifications = {
     ...configured,

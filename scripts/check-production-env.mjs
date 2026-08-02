@@ -8,6 +8,10 @@ const requiredVariables = [
   "TURSO_AUTH_TOKEN",
   "BLOB_READ_WRITE_TOKEN",
   "ENQUIRY_HASH_SECRET",
+  "VITE_TURNSTILE_SITE_KEY",
+  "TURNSTILE_SECRET_KEY",
+  "TURNSTILE_ALLOWED_HOSTNAMES",
+  "TURNSTILE_EXPECTED_ACTION",
 ];
 
 const issues = [];
@@ -59,6 +63,25 @@ for (const party of authorisedParties) {
 
 if (process.env.ADMIN_DEV_BYPASS?.trim().toLowerCase() === "true") {
   issues.push("ADMIN_DEV_BYPASS must not be enabled in a Vercel deployment");
+}
+
+if (process.env.VITE_SITE_URL?.trim() !== "https://www.madebywebine.com") {
+  issues.push("VITE_SITE_URL must use https://www.madebywebine.com in Production");
+}
+
+const turnstileHostnames = new Set(
+  (process.env.TURNSTILE_ALLOWED_HOSTNAMES ?? "")
+    .split(",")
+    .map((value) => value.trim().toLowerCase())
+    .filter(Boolean),
+);
+for (const hostname of ["madebywebine.com", "www.madebywebine.com"]) {
+  if (!turnstileHostnames.has(hostname)) {
+    issues.push(`TURNSTILE_ALLOWED_HOSTNAMES must include ${hostname}`);
+  }
+}
+if (process.env.TURNSTILE_EXPECTED_ACTION?.trim() !== "contact_enquiry") {
+  issues.push("TURNSTILE_EXPECTED_ACTION must be contact_enquiry");
 }
 
 if (issues.length > 0) {

@@ -28,12 +28,18 @@ function setCanonicalUrl(url: string) {
 
 function getPublicOrigin() {
   const configuredOrigin = import.meta.env.VITE_SITE_URL?.trim();
-  if (!configuredOrigin) return window.location.origin;
+  if (!configuredOrigin) {
+    return import.meta.env.PROD
+      ? "https://www.madebywebine.com"
+      : window.location.origin;
+  }
 
   try {
     return new URL(configuredOrigin).origin;
   } catch {
-    return window.location.origin;
+    return import.meta.env.PROD
+      ? "https://www.madebywebine.com"
+      : window.location.origin;
   }
 }
 

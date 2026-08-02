@@ -207,15 +207,16 @@ test("keeps global route motion purposeful, asset-aware and restorable", async (
 });
 
 test("prepares indexable public metadata and private-route noindex controls", async () => {
-  const [html, effects, vercel] = await Promise.all([
+  const [html, effects, vercel, robots] = await Promise.all([
     readFile(new URL("index.html", projectRoot), "utf8"),
     readFile(new URL("src/components/RouteEffects.tsx", projectRoot), "utf8"),
     readFile(new URL("vercel.json", projectRoot), "utf8"),
+    readFile(new URL("public/robots.txt", projectRoot), "utf8"),
   ]);
   assert.match(html, /property="og:title"/);
   assert.match(html, /name="theme-color"/);
   assert.match(effects, /noindex, nofollow/);
-  assert.match(vercel, /\/robots\.txt/);
+  assert.match(robots, /Sitemap: https:\/\/www\.madebywebine\.com\/sitemap\.xml/);
   assert.match(vercel, /\/sitemap\.xml/);
   assert.match(vercel, /Strict-Transport-Security/);
   assert.match(vercel, /X-Frame-Options/);

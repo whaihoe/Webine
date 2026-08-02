@@ -1,8 +1,9 @@
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useCallback, useState, type ChangeEvent, type FormEvent } from "react";
 import { AmbientParticleField } from "../components/AmbientParticleField";
 import { DirectionalArrow } from "../components/DirectionalArrow";
 import { FormField } from "../components/FormField";
 import { SiteShell } from "../components/SiteShell";
+import { TurnstileWidget } from "../components/TurnstileWidget";
 import { useSiteSettings } from "../content/SiteSettingsProvider";
 import { isValidOptionalWebsite, WEBSITE_FORMAT_MESSAGE } from "../../shared/enquiry-validation";
 
@@ -36,11 +37,14 @@ export function ContactPage() {
   const [form, setForm] = useState<ContactForm>(initialForm);
   const [submission, setSubmission] = useState<SubmissionState>({ status: "idle", message: "" });
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileResetVersion, setTurnstileResetVersion] = useState(0);
   const settings = useSiteSettings();
   const publicEmail = settings.contact.email || import.meta.env.VITE_PUBLIC_CONTACT_EMAIL?.trim();
   const headingWords = settings.contact.heading.split(/\s+/);
   const headingAccent = headingWords.pop() ?? "";
   const headingLead = headingWords.join(" ");
+  const updateTurnstileToken = useCallback((token: string) => setTurnstileToken(token), []);
 
   function updateField(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     const { name, value } = event.currentTarget;
@@ -77,7 +81,12 @@ export function ContactPage() {
         method: "POST",
         credentials: "same-origin",
         headers: { Accept: "application/json", "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, consentVersion: settings.contact.privacyVersion, sourcePage: "/contact" }),
+        body: JSON.stringify({
+          ...form,
+          consentVersion: settings.contact.privacyVersion,
+          sourcePage: "/contact",
+          turnstileToken,
+        }),
       });
       const envelope = await response.json() as { data: { accepted: boolean } | null; error: { code: string; message: string } | null };
       if (!response.ok || !envelope.data?.accepted) {
@@ -86,8 +95,10 @@ export function ContactPage() {
         throw submissionError;
       }
       setForm(initialForm);
+      setTurnstileResetVersion((value) => value + 1);
       setSubmission({ status: "success", message: "Thank you. Your enquiry is safely with Webine and we will reply as soon as possible." });
     } catch (error) {
+      setTurnstileResetVersion((value) => value + 1);
       const code = error instanceof Error && "code" in error ? String(error.code) : "";
       const fields = errorFields[code] ?? [];
       if (fields.length > 0) {
@@ -133,7 +144,8 @@ export function ContactPage() {
             <FormField id="details" name="details" label="Project outline" placeholder="What should the website help the business achieve?" value={form.details} onChange={updateField} multiline required minLength={20} error={fieldErrors.details} revealDelay={0.58} />
             <label className="contact-form__honeypot" aria-hidden="true">Leave this field empty<input name="websiteConfirm" value={form.websiteConfirm} onChange={updateField} tabIndex={-1} autoComplete="off" /></label>
             <label className="contact-form__consent" data-gsap-reveal="copy" data-gsap-delay="0.64"><input id="consent" type="checkbox" checked={form.consent} onChange={updateConsent} required aria-invalid={Boolean(fieldErrors.consent)} aria-describedby={fieldErrors.consent ? "consent-error" : undefined} /><span>I have read the <a href="#privacy">privacy notice</a> and agree to Webine using these details to respond to my enquiry.{fieldErrors.consent ? <small id="consent-error" className="form-field__error">{fieldErrors.consent}</small> : null}</span></label>
-            <button className="form-submit" type="submit" disabled={submission.status === "submitting"} data-gsap-reveal="copy" data-gsap-delay="0.7">{submission.status === "submitting" ? "Sending enquiry..." : "Submit enquiry"}<DirectionalArrow /></button>
+            <TurnstileWidget onTokenChange={updateTurnstileToken} resetVersion={turnstileResetVersion} />
+            <button className="form-submit" type="submit" disabled={submission.status === "submitting" || !turnstileToken} data-gsap-reveal="copy" data-gsap-delay="0.7">{submission.status === "submitting" ? "Sending enquiry..." : "Submit enquiry"}<DirectionalArrow /></button>
             {submission.status === "success" ? <p className="contact-form__status contact-form__status--success" role="status">{submission.message}</p> : null}
           </form>
         </div>

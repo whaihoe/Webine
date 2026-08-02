@@ -23,7 +23,7 @@ function asArrayBuffer(buffer) {
 
 test("accepts verified GIF media without changing the original animation payload", async () => {
   assert.ok(ACCEPTED_IMAGE_TYPES.includes("image/gif"));
-  assert.equal(MAX_IMAGE_BYTES, 50 * 1024 * 1024);
+  assert.equal(MAX_IMAGE_BYTES, 15 * 1024 * 1024);
   const image = await validateImageBuffer(asArrayBuffer(onePixelGif), "image/gif");
   assert.equal(image.mimeType, "image/gif");
   assert.equal(image.width, 1);
@@ -35,6 +35,21 @@ test("accepts verified GIF media without changing the original animation payload
 test("rejects a GIF payload declared as another image type", async () => {
   await assert.rejects(
     () => validateImageBuffer(asArrayBuffer(onePixelGif), "image/png"),
+    /IMAGE_CONTENT_INVALID/,
+  );
+});
+
+test("rejects oversized media before decoding and excessive dimensions", async () => {
+  await assert.rejects(
+    () => validateImageBuffer(asArrayBuffer(Buffer.alloc(MAX_IMAGE_BYTES + 1)), "image/png"),
+    /IMAGE_SIZE_INVALID/,
+  );
+  const sharp = (await import("sharp")).default;
+  const tooWide = await sharp({
+    create: { width: 12_001, height: 1, channels: 3, background: "white" },
+  }).png().toBuffer();
+  await assert.rejects(
+    () => validateImageBuffer(asArrayBuffer(tooWide), "image/png"),
     /IMAGE_CONTENT_INVALID/,
   );
 });

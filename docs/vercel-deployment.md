@@ -7,7 +7,8 @@ Add these under **Vercel project → Settings → Environment Variables**. Set t
 | Variable | Required | Scope | Purpose |
 |---|---:|---|---|
 | `VITE_CLERK_PUBLISHABLE_KEY` | Yes | Preview and Production | Public Clerk browser key used by React |
-| `VITE_SITE_URL` | No | Preview and Production | Stable public origin used for canonical and social metadata, such as `https://webine.vercel.app` |
+| `VITE_SITE_URL` | Yes | Preview and Production | Canonical public origin. Production must use `https://www.madebywebine.com` |
+| `VITE_TURNSTILE_SITE_KEY` | Yes | Preview and Production | Public Cloudflare Turnstile widget key compiled into the Contact page |
 | `CLERK_PUBLISHABLE_KEY` | Yes | Preview and Production | The same public Clerk key, used by the server verifier |
 | `CLERK_SECRET_KEY` | Yes | Preview and Production | Private Clerk server key |
 | `ADMIN_USER_ID` | Yes | Preview and Production | Exact Clerk user allowed into Admin |
@@ -16,6 +17,9 @@ Add these under **Vercel project → Settings → Environment Variables**. Set t
 | `TURSO_AUTH_TOKEN` | Yes | Preview and Production | Private database token |
 | `BLOB_READ_WRITE_TOKEN` | Yes | Preview and Production | Added automatically when the Vercel Blob store is connected |
 | `ENQUIRY_HASH_SECRET` | Yes | Preview and Production | Random secret of at least 32 characters used to hash rate-limit and deduplication keys |
+| `TURNSTILE_SECRET_KEY` | Yes | Preview and Production | Server-only key used to verify Contact tokens with Cloudflare Siteverify |
+| `TURNSTILE_ALLOWED_HOSTNAMES` | Yes | Preview and Production | Exact comma-separated hostnames accepted from Siteverify |
+| `TURNSTILE_EXPECTED_ACTION` | Yes | Preview and Production | Exact widget action, `contact_enquiry` |
 | `RESEND_API_KEY` | No | Preview and Production | Server-only Resend key used to email the owner when a new enquiry is stored |
 | `ENQUIRY_NOTIFICATION_EMAIL` | No | Preview and Production | Private inbox that receives new-enquiry emails |
 | `ENQUIRY_NOTIFICATION_FROM_EMAIL` | No | Preview and Production | Sender on a domain verified in Resend |
@@ -56,7 +60,7 @@ To restore media uploads:
 4. Enable the option that adds a read-write token to the project, then connect the store to both Preview and Production.
 5. In **Settings → Environment Variables**, confirm `BLOB_READ_WRITE_TOKEN` exists for both Preview and Production. Do not copy this value into GitHub, documentation or Obsidian.
 6. Redeploy the affected environment. An already-built deployment does not pick up a newly connected store automatically.
-7. Sign in to `/admin/media`, upload one JPEG and one animated GIF, confirm both previews load from Blob, then archive an unused test asset. The shared upload limit is 50 MB, 12,000 pixels per side and 500 GIF frames. An asset referenced by draft or published content remains protected until every reference is replaced or removed. Archiving an unreferenced Vercel asset permanently deletes its Blob object. If Blob deletion fails, the asset stays active so the operation can be retried.
+7. Sign in to `/admin/media`, upload one JPEG, animated GIF and MP4, confirm their previews load directly from Blob, then archive an unused test asset. Images are limited to 15 MB and MP4 video to 30 MB, with 12,000 pixels per side and 500 GIF frames retained pending evidence that lower visual limits suit existing assets. An asset referenced by draft or published content remains protected until every reference is replaced or removed. Archiving an unreferenced Vercel asset permanently deletes its Blob object. If Blob deletion fails, the asset stays active so the operation can be retried.
 
 To restore Contact submissions:
 
@@ -82,7 +86,7 @@ Production builds run `npm run build:vercel`, which checks the complete required
 
 ## Vercel Function topology
 
-The deployment uses seven Vercel Function entrypoints, keeping the project below the Hobby plan function-count limit while preserving the existing browser-facing API URLs. Vercel rewrites group the dynamic routes into their owning function.
+The deployment uses five Vercel Function entrypoints. Production media uses direct public Blob URLs and `robots.txt` is a static public file, so neither consumes a Function invocation.
 
 | Function | Public routes handled |
 |---|---|
@@ -90,11 +94,9 @@ The deployment uses seven Vercel Function entrypoints, keeping the project below
 | `api/projects.ts` | `/api/projects` and `/api/projects/:slug` |
 | `api/site-settings.ts` | `/api/site-settings` |
 | `api/enquiries.ts` | `/api/enquiries` |
-| `api/media.ts` | `/api/media/:assetId` for local media delivery |
-| `api/robots.ts` | `/robots.txt` |
 | `api/sitemap.ts` | `/sitemap.xml` |
 
-Admin business logic remains in `server/` and is routed by `server/api-routes/admin.ts`; the entrypoint does not duplicate CMS, auth or media rules. The development Vite adapter maps local requests to the same seven entrypoints used by Vercel.
+Admin business logic remains in `server/` and is routed by `server/api-routes/admin.ts`; the entrypoint does not duplicate CMS, auth or media rules. Local development retains `/api/media/:assetId` through `dev/media-development-handler.ts`. Vite serves `public/robots.txt` directly.
 
 The repository includes automated coverage that asserts the function entrypoint count remains at or below 12 and that the rewrite targets restore the original API path before the server handler runs.
 

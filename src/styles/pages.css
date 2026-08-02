@@ -1019,6 +1019,16 @@ article[data-block-type="image"][data-image-count="3"] .project-story-image-grid
   accent-color: hsl(var(--primitive-blue-500));
 }
 
+.contact-form__turnstile {
+  min-height: 4.1rem;
+  display: grid;
+  align-items: center;
+}
+
+.contact-form__turnstile > div {
+  width: 100%;
+}
+
 .contact-form__consent a,
 .contact-details a {
   color: inherit;

@@ -1,15 +1,33 @@
 import { getPublishedSiteSettings } from "../public-content.js";
-import { getRequestId, jsonResponse } from "../responses.js";
+import { errorResponse, getRequestId, jsonResponse } from "../responses.js";
+import { assertQueryContract, methodNotAllowed, RequestContractError, withoutBodyForHead } from "../request-contract.js";
 
-export async function handleSiteSettingsRequest(request: Request) {
-  if (request.method !== "GET") {
-    return new Response("Method not allowed", { status: 405 });
+const noQuery = new Map<string, (value: string) => boolean>();
+
+export async function handleSiteSettingsRequest(
+  request: Request,
+  loadSettings: typeof getPublishedSiteSettings = getPublishedSiteSettings,
+) {
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    return methodNotAllowed(request, ["GET", "HEAD"]);
   }
 
-  return jsonResponse(
-    await getPublishedSiteSettings(),
-    getRequestId(request),
-    200,
-    "public, s-maxage=300, stale-while-revalidate=3600",
-  );
+  try {
+    assertQueryContract(new URL(request.url), noQuery);
+    return withoutBodyForHead(request, jsonResponse(
+      await loadSettings(),
+      getRequestId(request),
+      200,
+      {
+        browser: "public, max-age=60",
+        cdn: "public, s-maxage=300, stale-while-revalidate=3600",
+        vercel: "public, s-maxage=300, stale-while-revalidate=3600",
+      },
+    ));
+  } catch (error) {
+    if (error instanceof RequestContractError) {
+      return errorResponse({ code: error.code, message: error.message }, getRequestId(request), error.status);
+    }
+    throw error;
+  }
 }

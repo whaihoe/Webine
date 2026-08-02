@@ -19,6 +19,7 @@ export async function handleProtectedAdminRequest(
       { code: "METHOD_NOT_ALLOWED", message: "This Admin action is not available yet." },
       requestId,
       405,
+      { Allow: methods.join(", ") },
     );
   }
 

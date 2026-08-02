@@ -6,8 +6,7 @@ const apiRoutes = [
   { pattern: /^\/api\/projects(?:\/|$)/, modulePath: "/api/projects.ts" },
   { pattern: /^\/api\/site-settings\/?$/, modulePath: "/api/site-settings.ts" },
   { pattern: /^\/api\/enquiries\/?$/, modulePath: "/api/enquiries.ts" },
-  { pattern: /^\/api\/media(?:\/|$)/, modulePath: "/api/media.ts" },
-  { pattern: /^\/robots\.txt$/, modulePath: "/api/robots.ts" },
+  { pattern: /^\/api\/media(?:\/|$)/, modulePath: "/dev/media-development-handler.ts" },
   { pattern: /^\/sitemap\.xml$/, modulePath: "/api/sitemap.ts" },
 ] as const;
 
@@ -98,7 +97,7 @@ export function adminApiDevelopmentPlugin(): Plugin {
         const pathname = requestUrl(request).pathname;
         const modulePath = resolveAdminApiModule(pathname);
 
-        if (!pathname.startsWith("/api/") && pathname !== "/robots.txt" && pathname !== "/sitemap.xml") {
+        if (!pathname.startsWith("/api/") && pathname !== "/sitemap.xml") {
           next();
           return;
         }

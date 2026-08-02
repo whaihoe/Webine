@@ -3,8 +3,21 @@ import {
   listPublicProjects,
 } from "../public-content.js";
 import { errorResponse, jsonResponse } from "../responses.js";
+import {
+  assertQueryContract,
+  methodNotAllowed,
+  RequestContractError,
+  withoutBodyForHead,
+} from "../request-contract.js";
 
 const projectRoute = /^\/api\/projects\/([a-z0-9]+(?:-[a-z0-9]+)*)$/;
+const featuredQuery = new Map([["featured", (value: string) => value === "true"]]);
+const noQuery = new Map<string, (value: string) => boolean>();
+const publicProjectCache = {
+  browser: "public, max-age=60",
+  cdn: "public, s-maxage=300, stale-while-revalidate=3600",
+  vercel: "public, s-maxage=300, stale-while-revalidate=3600",
+};
 
 function normalisePathname(pathname: string) {
   return pathname.length > 1 && pathname.endsWith("/")
@@ -12,43 +25,57 @@ function normalisePathname(pathname: string) {
     : pathname;
 }
 
-export async function routeProjectRequest(request: Request) {
+type ProjectOperations = {
+  list: typeof listPublicProjects;
+  get: typeof getPublicProject;
+};
+
+export async function routeProjectRequest(
+  request: Request,
+  operations: ProjectOperations = { list: listPublicProjects, get: getPublicProject },
+) {
   const url = new URL(request.url);
   const pathname = normalisePathname(url.pathname);
 
-  if (request.method !== "GET") {
-    return new Response("Method not allowed", { status: 405 });
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    return methodNotAllowed(request, ["GET", "HEAD"]);
   }
 
-  if (pathname === "/api/projects") {
-    const featuredOnly = url.searchParams.get("featured") === "true";
-    return jsonResponse(
-      await listPublicProjects({ featuredOnly }),
-      crypto.randomUUID(),
-      200,
-      "public, s-maxage=300, stale-while-revalidate=3600",
-    );
-  }
+  try {
+    if (pathname === "/api/projects") {
+      assertQueryContract(url, featuredQuery);
+      const response = jsonResponse(
+        await operations.list({ featuredOnly: url.searchParams.get("featured") === "true" }),
+        crypto.randomUUID(),
+        200,
+        publicProjectCache,
+      );
+      return withoutBodyForHead(request, response);
+    }
 
-  const projectMatch = pathname.match(projectRoute);
-  if (projectMatch) {
-    const requestId = crypto.randomUUID();
-    const project = await getPublicProject(projectMatch[1]);
-    return project
-      ? jsonResponse(
-          project,
-          requestId,
-          200,
-          "public, s-maxage=300, stale-while-revalidate=3600",
-        )
-      : errorResponse(
-          {
-            code: "NOT_FOUND",
-            message: "That project is not published.",
-          },
-          requestId,
-          404,
-        );
+    const projectMatch = pathname.match(projectRoute);
+    if (projectMatch && projectMatch[1].length <= 80) {
+      assertQueryContract(url, noQuery);
+      const requestId = crypto.randomUUID();
+      const project = await operations.get(projectMatch[1]);
+      const response = project
+        ? jsonResponse(project, requestId, 200, publicProjectCache)
+        : errorResponse(
+            { code: "NOT_FOUND", message: "That project is not published." },
+            requestId,
+            404,
+          );
+      return withoutBodyForHead(request, response);
+    }
+  } catch (error) {
+    if (error instanceof RequestContractError) {
+      return errorResponse(
+        { code: error.code, message: error.message },
+        crypto.randomUUID(),
+        error.status,
+      );
+    }
+    throw error;
   }
 
   return errorResponse(

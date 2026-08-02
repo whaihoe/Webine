@@ -51,6 +51,18 @@ export async function getAsset(id: string, client: Client = getDatabase()) {
   return result.rows[0] ? mapAsset(result.rows[0]) : null;
 }
 
+export async function getAssetByStorage(
+  provider: "external" | "vercel_blob",
+  providerAssetId: string,
+  client: Client = getDatabase(),
+) {
+  const result = await client.execute({
+    sql: `${assetSelect} WHERE assets.provider = ? AND assets.provider_asset_id = ? GROUP BY assets.id`,
+    args: [provider, providerAssetId],
+  });
+  return result.rows[0] ? mapAsset(result.rows[0]) : null;
+}
+
 export async function createAsset(input: {
   id: string; provider: "external" | "vercel_blob"; providerAssetId: string; deliveryUrl: string;
   originalFilename: string; mimeType: string; byteSize: number; width: number; height: number;

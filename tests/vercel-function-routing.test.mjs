@@ -13,9 +13,7 @@ test("keeps the Vercel deployment below the Hobby function entrypoint limit", as
   assert.deepEqual(functionFiles, [
     "admin.ts",
     "enquiries.ts",
-    "media.ts",
     "projects.ts",
-    "robots.ts",
     "site-settings.ts",
     "sitemap.ts",
   ]);
@@ -47,11 +45,6 @@ test("restores public API paths after Vercel rewrites", async () => {
     "https://webine.example/api/projects/webine-identity-system",
   );
 
-  const media = restoreRewrittenRequest(
-    new Request("https://webine.example/api/media?__webine_route=asset-123"),
-    "/api/media",
-  );
-  assert.equal(media.url, "https://webine.example/api/media/asset-123");
 });
 
 test("rewrites existing public API URLs to the consolidated functions", async () => {
@@ -59,7 +52,7 @@ test("rewrites existing public API URLs to the consolidated functions", async ()
     await readFile(new URL("vercel.json", projectRoot), "utf8"),
   );
 
-  assert.deepEqual(configuration.rewrites.slice(2, 5), [
+  assert.deepEqual(configuration.rewrites.slice(1, 3), [
     {
       source: "/api/admin/:path*",
       destination: "/api/admin?__webine_route=:path*",
@@ -67,10 +60,6 @@ test("rewrites existing public API URLs to the consolidated functions", async ()
     {
       source: "/api/projects/:path*",
       destination: "/api/projects?__webine_route=:path*",
-    },
-    {
-      source: "/api/media/:path*",
-      destination: "/api/media?__webine_route=:path*",
     },
   ]);
 });

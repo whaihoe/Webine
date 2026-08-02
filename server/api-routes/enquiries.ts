@@ -8,7 +8,10 @@ import {
   RequestBodyError,
 } from "../responses.js";
 
-export async function handleEnquiryRequest(request: Request) {
+export async function handleEnquiryRequest(
+  request: Request,
+  submit: typeof createEnquiry = createEnquiry,
+) {
   const requestId = getRequestId(request);
 
   if (request.method !== "POST") {
@@ -19,6 +22,7 @@ export async function handleEnquiryRequest(request: Request) {
       },
       requestId,
       405,
+      { Allow: "POST" },
     );
   }
 
@@ -36,7 +40,7 @@ export async function handleEnquiryRequest(request: Request) {
 
   try {
     return jsonResponse(
-      await createEnquiry(await readJsonRequest(request), request, requestId),
+      await submit(await readJsonRequest(request, 32 * 1024), request, requestId),
       requestId,
       201,
     );
@@ -51,6 +55,9 @@ export async function handleEnquiryRequest(request: Request) {
         },
         requestId,
         error.status,
+        error instanceof CmsRepositoryError && error.code === "RATE_LIMITED"
+          ? { "Retry-After": String(15 * 60) }
+          : {},
       );
     }
 

@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Allow: /api/projects
+Allow: /api/site-settings
+Disallow: /admin
+Disallow: /preview
+Disallow: /api/admin
+Disallow: /api/enquiries
+Disallow: /api/admin/media/upload-token
+Disallow: /api/admin/media/complete
+
+Sitemap: https://www.madebywebine.com/sitemap.xml

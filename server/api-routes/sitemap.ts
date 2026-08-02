@@ -1,4 +1,9 @@
 import { listPublicProjects } from "../public-content.js";
+import { getCanonicalSiteOrigin } from "../canonical-origin.js";
+import { assertQueryContract, methodNotAllowed, RequestContractError } from "../request-contract.js";
+import { errorResponse, getRequestId } from "../responses.js";
+
+const noQuery = new Map<string, (value: string) => boolean>();
 
 function escapeXml(value: string) {
   return value.replace(
@@ -16,11 +21,19 @@ function escapeXml(value: string) {
 
 export async function handleSitemapRequest(request: Request) {
   if (request.method !== "GET" && request.method !== "HEAD") {
-    return new Response("Method not allowed", { status: 405 });
+    return methodNotAllowed(request, ["GET", "HEAD"]);
   }
 
   const url = new URL(request.url);
-  const origin = `${url.protocol}//${url.host}`;
+  try {
+    assertQueryContract(url, noQuery);
+  } catch (error) {
+    if (error instanceof RequestContractError) {
+      return errorResponse({ code: error.code, message: error.message }, getRequestId(request), error.status);
+    }
+    throw error;
+  }
+  const origin = getCanonicalSiteOrigin(request);
   const projects = await listPublicProjects();
   const paths = [
     "/",
@@ -37,7 +50,10 @@ export async function handleSitemapRequest(request: Request) {
   return new Response(request.method === "HEAD" ? null : body, {
     headers: {
       "Content-Type": "application/xml; charset=utf-8",
-      "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
+      "Cache-Control": "public, max-age=300",
+      "CDN-Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
+      "Vercel-CDN-Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
+      "X-Content-Type-Options": "nosniff",
     },
   });
 }

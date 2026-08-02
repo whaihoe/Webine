@@ -13,9 +13,20 @@ export type AdminAuthenticationResult =
   | { ok: true; identity: AdminIdentity }
   | { ok: false; code: string; message: string; status: 401 | 403 | 503 };
 
+export function hasAdminCredentialCarrier(request: Request) {
+  const authorization = request.headers.get("authorization")?.trim() ?? "";
+  if (/^Bearer\s+\S+$/i.test(authorization)) return true;
+  const cookie = request.headers.get("cookie") ?? "";
+  return cookie.split(";").some((part) => {
+    const name = part.split("=", 1)[0]?.trim();
+    return name === "__session" || name?.startsWith("__clerk_");
+  });
+}
+
 export async function authenticateAdminRequest(
   request: Request,
   environment: AdminAccessEnvironment = process.env,
+  clerkFactory: typeof createClerkClient = createClerkClient,
 ): Promise<AdminAuthenticationResult> {
   const configuration = resolveAdminAccessConfiguration(environment);
 
@@ -38,6 +49,15 @@ export async function authenticateAdminRequest(
     };
   }
 
+  if (!hasAdminCredentialCarrier(request)) {
+    return {
+      ok: false,
+      code: "ADMIN_SIGN_IN_REQUIRED",
+      message: "Sign in to access Webine Admin.",
+      status: 401,
+    };
+  }
+
   const requestOrigin = new URL(request.url).origin;
 
   if (!configuration.authorisedParties.includes(requestOrigin)) {
@@ -50,7 +70,7 @@ export async function authenticateAdminRequest(
   }
 
   try {
-    const clerk = createClerkClient({
+    const clerk = clerkFactory({
       publishableKey: configuration.publishableKey,
       secretKey: configuration.secretKey,
     });

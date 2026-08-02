@@ -66,10 +66,20 @@ export async function uploadAdminMedia(
   if (import.meta.env.DEV) return localUpload(file, details, onProgress);
 
   const sessionToken = await getToken?.();
-  const blob = await upload(`webine/${file.name}`, file, {
+  const assetId = crypto.randomUUID();
+  const safeFilename = file.name
+    .replace(/[^a-zA-Z0-9._-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 120) || "upload";
+  const blob = await upload(`webine/media/${assetId}/${safeFilename}`, file, {
     access: "public",
     handleUploadUrl: "/api/admin/media/upload-token",
     contentType: file.type,
+    clientPayload: JSON.stringify({
+      assetId,
+      byteSize: file.size,
+      mimeType: file.type,
+    }),
     headers: sessionToken
       ? { Authorization: `Bearer ${sessionToken}` }
       : undefined,
@@ -78,6 +88,7 @@ export async function uploadAdminMedia(
   });
   return completeUpload("/api/admin/media/complete", "POST", {
     ...details,
+    assetId,
     url: blob.url,
     pathname: blob.pathname,
     originalFilename: file.name,

@@ -5,10 +5,6 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
-      "source": "/robots.txt",
-      "destination": "/api/robots"
-    },
-    {
       "source": "/sitemap.xml",
       "destination": "/api/sitemap"
     },
@@ -19,10 +15,6 @@
     {
       "source": "/api/projects/:path*",
       "destination": "/api/projects?__webine_route=:path*"
-    },
-    {
-      "source": "/api/media/:path*",
-      "destination": "/api/media?__webine_route=:path*"
     },
     { "source": "/", "destination": "/index.html" },
     { "source": "/about", "destination": "/index.html" },
@@ -75,6 +67,32 @@
       ]
     },
     {
+      "source": "/api/admin/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "private, no-store"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/api/enquiries",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "private, no-store"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
       "source": "/(.*)",
       "headers": [
         {
@@ -100,6 +118,10 @@
         {
           "key": "Content-Security-Policy",
           "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline'; connect-src 'self' https:; img-src 'self' data: blob: https://img.clerk.com https://*.public.blob.vercel-storage.com; media-src 'self' blob: https://*.public.blob.vercel-storage.com; worker-src 'self' blob:; frame-src 'self' https://challenges.cloudflare.com https://*.js.stripe.com https://js.stripe.com https://hooks.stripe.com https://*.protect.clerk.com; upgrade-insecure-requests"
+        },
+        {
+          "key": "Content-Security-Policy-Report-Only",
+          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' https://challenges.cloudflare.com https://*.clerk.accounts.dev https://*.protect.clerk.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://challenges.cloudflare.com https://*.clerk.accounts.dev https://*.protect.clerk.com https://clerk-telemetry.com https://*.clerk-telemetry.com; img-src 'self' data: blob: https://img.clerk.com https://*.public.blob.vercel-storage.com; media-src 'self' blob: https://*.public.blob.vercel-storage.com; worker-src 'self' blob:; frame-src 'self' https://challenges.cloudflare.com https://*.protect.clerk.com; upgrade-insecure-requests"
         }
       ]
     }

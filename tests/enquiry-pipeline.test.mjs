@@ -135,8 +135,10 @@ test("sends a private Resend email for a newly stored enquiry", async () => {
   delete process.env.ENQUIRY_NOTIFICATION_WEBHOOK_URL;
   const originalFetch = globalThis.fetch;
   let requestBody;
+  let notificationCalls = 0;
 
   globalThis.fetch = async (url, init) => {
+    notificationCalls += 1;
     assert.equal(url, "https://api.resend.com/emails");
     assert.equal(init.headers.Authorization, "Bearer re_test");
     requestBody = JSON.parse(init.body);
@@ -152,6 +154,11 @@ test("sends a private Resend email for a newly stored enquiry", async () => {
       assert.equal(requestBody.reply_to, "prospect0@example.com");
       assert.deepEqual(requestBody.to, ["owner@example.com"]);
       assert.match(requestBody.subject, /Example business/);
+      assert.deepEqual(await retryEnquiryNotification(enquiry.id, client), {
+        id: enquiry.id,
+        notificationStatus: "sent",
+      });
+      assert.equal(notificationCalls, 1);
     });
   } finally {
     globalThis.fetch = originalFetch;

@@ -1,9 +1,13 @@
 import { getAssetStorageRecord } from "../media-repository.js";
 import { readLocalImage } from "../media-service.js";
+import { methodNotAllowed } from "../request-contract.js";
 
 const mediaRoute = /^\/api\/media\/([a-zA-Z0-9-]+)\/?$/;
 
 export async function routeMediaRequest(request: Request) {
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    return methodNotAllowed(request, ["GET", "HEAD"]);
+  }
   const match = new URL(request.url).pathname.match(mediaRoute);
   const asset = match ? await getAssetStorageRecord(match[1]) : null;
 
