@@ -2,7 +2,7 @@
 
 ## Executive summary
 
-The hardening branch removes avoidable production Functions, rejects malformed traffic before paid work and adds layered protection for enquiries, Admin and Blob media. The source branch has not been deployed. One verified Vercel production firewall rule now rate-limits the highest-cost public write route. Cloudflare work and the remaining Vercel dashboard work stay in separate manual checklists.
+The hardening branch removes avoidable production Functions, rejects malformed traffic before paid work and adds layered protection for enquiries, Admin and Blob media. It is pushed and deployed to a Vercel Authentication-protected Preview, but has not been promoted to Production. One verified Vercel production firewall rule now rate-limits the highest-cost public write route. Cloudflare work and the remaining Vercel dashboard work stay in separate manual checklists.
 
 ## Implemented source controls
 
@@ -34,8 +34,11 @@ Secretlint with its recommended rules found no secrets. `npm audit` reports two 
 
 - Authenticated CLI account: `whaihoe`; scope and project: `webine/webine`; project ID: `prj_Ktp0WoQzCI5BrNKbnWGFpATYrZlf`.
 - CLI version: 58.4.4. Production aliases include `madebywebine.com`, `www.madebywebine.com`, `webine.vercel.app` and other exact Vercel aliases.
-- The current live deployment still has the old media and robots Functions because this branch is not deployed. Its project setting also reports Node 24.x while the repository pins Node 22.x. The branch's `vercel.json` and engine declaration should be confirmed in Preview before Production.
-- Existing Turnstile variables were checked by name only. All four exist in Production. `VITE_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` are not configured for Preview, so secure Preview input remains required.
+- Branch `security/vercel-abuse-hardening` is deployed and Ready at `https://webine-git-security-vercel-abuse-hardening-webine.vercel.app`. Deployment `dpl_2yem2epzKMDKKrzuL4ZdU3ZU1Ujc` contains exactly the five expected Functions: Admin, enquiries, projects, site settings and sitemap. Media and robots Functions are absent.
+- The Preview build used Node 22.x from the repository engine declaration even though the project setting reports Node 24.x. This confirms the repository pin wins for this build.
+- Official Cloudflare Turnstile test credentials and the required site, hostname and Clerk-party settings are configured only for this branch's Preview environment. Their values are not stored in source or documentation. Production credentials and environment values were not changed.
+- Vercel Authentication is active for Preview. Anonymous HTTP and CLI route checks redirect to Vercel sign-in, so application-level Preview smoke testing requires an authenticated browser session. Local desktop and 390 px browser checks passed without console errors and the Turnstile test flow enabled submission without sending an enquiry.
+- The Production deployment remains unchanged and still contains the old media and robots Functions. The hardening branch has not been promoted to Production.
 - Applied through Vercel CLI: `enquiries-abuse`, ID `rule_enquiries_abuse_gthpd8`, enabled, exact `POST /api/enquiries`, IP key, fixed window, 10 requests per 60 seconds, deny when exceeded. The published rule was fetched again and there are no pending drafts.
 - Rollback: run `vercel firewall rules remove rule_enquiries_abuse_gthpd8 --yes --project webine --scope webine`, inspect the draft, then `vercel firewall publish --yes --project webine --scope webine`. This reduces abuse protection but does not alter data or deploy source code.
 - A controlled production smoke check returned 200 for `/api/projects`, 405 for `GET /api/enquiries` and 200 for `HEAD /sitemap.xml`. No enquiry was submitted.
@@ -45,9 +48,8 @@ Secretlint with its recommended rules found no secrets. `npm audit` reports two 
 - Follow [Cloudflare manual setup](CLOUDFLARE_MANUAL_SETUP.md).
 - Follow [Vercel manual setup](VERCEL_MANUAL_SETUP.md).
 - Confirm the existing Production Turnstile widget is the intended managed widget. Only variable names appear in source.
-- Add the existing Turnstile site key and secret securely to Preview. Do not copy values through logs or source control.
 - Apply migration `0012_security_hardening.sql` to Preview Turso, verify Preview and then apply it to Production through the normal reviewed migration process.
-- Deploy to Preview before Production and test public navigation, Contact, Clerk Admin, CMS edits, direct Blob upload, image, GIF and MP4 display, response headers and CSP reports.
+- While signed in to Vercel, test the protected Preview's public navigation, Contact flow, Clerk Admin, CMS edits, direct Blob upload, image, GIF and MP4 display, response headers and CSP reports before considering Production.
 
 ## Remaining risks
 
