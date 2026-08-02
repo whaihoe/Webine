@@ -1213,8 +1213,14 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(page, /AboutHeadExperience/);
   assert.match(page, /data-about-hero-frame/);
   assert.match(headExperience, /gsap\.timeline/);
-  assert.match(headExperience, /pin:\s*hero/);
-  assert.match(headExperience, /pinSpacing:\s*true/);
+  assert.match(headExperience, /pin:\s*mobile \? false : hero/);
+  assert.match(headExperience, /pinSpacing:\s*!mobile/);
+  assert.match(headExperience, /hero\.offsetHeight - window\.innerHeight/);
+  assert.match(headExperience, /media\.addEventListener\("change", update\)/);
+  assert.match(headExperience, /\}, \[mobile\]\)/);
+  assert.match(page, /--about-mobile-scroll-height/);
+  assert.match(portraitStyles, /@media \(max-width: 47\.99rem\)[\s\S]*\.about-hero\s*{[\s\S]*height:\s*var\(--about-mobile-scroll-height, 310svh\)/);
+  assert.match(portraitStyles, /\.about-hero__frame\s*{[\s\S]*position:\s*sticky[\s\S]*height:\s*100svh/);
   assert.match(headExperience, /rotation:\s*1[\s\S]*dispersion:\s*1/);
   assert.match(headExperience, /scaleX:\s*frameScale\.scaleX/);
   assert.doesNotMatch(headExperience, /preventDefault|addEventListener\(["'](?:wheel|touchmove)/);

@@ -1,15 +1,25 @@
-import { lazy, Suspense, useCallback, useLayoutEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { gsap, ScrollTrigger } from "../../animation/scroll-runtime";
 import { experienceConfig } from "../../config/experience";
 
 const AboutHeadCanvas = lazy(() => import("../../three/AboutHeadCanvas"));
+const MOBILE_ABOUT_QUERY = "(max-width: 47.99rem)";
 
 export function AboutHeadExperience() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const motion = useRef({ rotation: 0, dispersion: 0 });
   const [ready, setReady] = useState(false);
   const [active, setActive] = useState(false);
+  const [mobile, setMobile] = useState(() => window.matchMedia(MOBILE_ABOUT_QUERY).matches);
   const handleReady = useCallback(() => setReady(true), []);
+
+  useEffect(() => {
+    const media = window.matchMedia(MOBILE_ABOUT_QUERY);
+    const update = () => setMobile(media.matches);
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
   useLayoutEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
@@ -33,7 +43,6 @@ export function AboutHeadExperience() {
     document.addEventListener("visibilitychange", syncActiveState);
 
     const sequence = experienceConfig.particles.aboutHead.sequence;
-    const mobile = window.matchMedia("(max-width: 47.99rem)").matches;
     const scrollScreens = mobile ? sequence.scrollScreens.mobile : sequence.scrollScreens.desktop;
     const frameScale = mobile ? sequence.frame.mobile : sequence.frame.desktop;
     const context = gsap.context(() => {
@@ -42,11 +51,13 @@ export function AboutHeadExperience() {
         scrollTrigger: {
           trigger: hero,
           start: "top top",
-          end: () => `+=${Math.round(window.innerHeight * scrollScreens)}`,
-          pin: hero,
-          pinSpacing: true,
+          end: () => mobile
+            ? `+=${Math.max(1, hero.offsetHeight - window.innerHeight)}`
+            : `+=${Math.round(window.innerHeight * scrollScreens)}`,
+          pin: mobile ? false : hero,
+          pinSpacing: !mobile,
           scrub: mobile ? sequence.scrub.mobile : sequence.scrub.desktop,
-          anticipatePin: 1,
+          anticipatePin: mobile ? 0 : 1,
           invalidateOnRefresh: true,
         },
       });
@@ -71,7 +82,7 @@ export function AboutHeadExperience() {
       observer.disconnect();
       context.revert();
     };
-  }, []);
+  }, [mobile]);
 
   return (
     <div

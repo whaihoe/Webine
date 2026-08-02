@@ -91,6 +91,18 @@
 }
 
 @media (max-width: 47.99rem) {
+  .about-hero {
+    height: var(--about-mobile-scroll-height, 310svh);
+  }
+
+  .about-hero__frame {
+    position: sticky;
+    inset: auto;
+    top: 0;
+    width: 100%;
+    height: 100svh;
+  }
+
   .about-head__visual::before {
     width: 102vw;
     opacity: 0.92;

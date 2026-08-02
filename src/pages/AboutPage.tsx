@@ -2,8 +2,16 @@ import { AboutHeadExperience } from "../components/about/AboutHeadExperience";
 import { PortraitReveal } from "../components/about/PortraitReveal";
 import { ButtonLink } from "../components/ButtonLink";
 import { SiteShell } from "../components/SiteShell";
+import { experienceConfig } from "../config/experience";
 import { aboutContent } from "../content/about-content";
 import { usePageMetadata } from "../hooks/usePageMetadata";
+import type { CSSProperties } from "react";
+
+const aboutHeroStyle = {
+  "--about-mobile-scroll-height": `${(
+    1 + experienceConfig.particles.aboutHead.sequence.scrollScreens.mobile
+  ) * 100}svh`,
+} as CSSProperties;
 
 export function AboutPage() {
   usePageMetadata(
@@ -14,7 +22,11 @@ export function AboutPage() {
   return (
     <SiteShell>
       <div className="about-page theme-dark">
-        <section className="about-hero" aria-labelledby="about-heading">
+        <section
+          className="about-hero"
+          style={aboutHeroStyle}
+          aria-labelledby="about-heading"
+        >
           <div className="about-hero__frame" data-about-hero-frame>
             <div className="site-container about-hero__copy page-header-copy" data-about-hero-copy>
               <p className="eyebrow page-header-copy__eyebrow" data-gsap-reveal="copy">{aboutContent.hero.eyebrow}</p>
