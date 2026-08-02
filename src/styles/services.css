@@ -160,8 +160,8 @@
     0 1.5rem 4rem hsl(var(--primitive-slate-950) / 0.2),
     inset 0 1px 0 hsl(var(--primitive-white) / 0.025);
 
-  backdrop-filter: blur(0.2rem) !important;
-  -webkit-backdrop-filter: blur(0.2rem) !important;
+  backdrop-filter: blur(3px) !important;
+  -webkit-backdrop-filter: blur(3px) !important;
 }
 
 .service-card::before {
@@ -202,7 +202,7 @@
 }
 
 .service-card[data-expanded="true"] {
-  background: transparent;
+  background: hsl(var(--primitive-slate-950) / 0.52);
 }
 
 .service-card__trigger {
