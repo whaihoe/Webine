@@ -27,6 +27,7 @@ test("serves origin-correct robots and published-project sitemap files", async (
     const xml = await sitemap.text();
     assert.equal(sitemap.headers.get("content-type"), "application/xml; charset=utf-8");
     assert.match(xml, /https:\/\/www\.madebywebine\.com\/works\/webine-identity-system/);
+    assert.match(xml, /https:\/\/www\.madebywebine\.com\/privacy/);
     assert.doesNotMatch(xml, /\/admin|\/preview/);
   } finally {
     if (previousVercelEnvironment === undefined) delete process.env.VERCEL_ENV;

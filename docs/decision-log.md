@@ -851,3 +851,9 @@
 - Extended the bounded Admin entity-ID route contract to accept underscores already used by seeded and imported media such as `asset_deszio_12`.
 - Kept the same 80-character limit and alphanumeric, hyphen and underscore allowlist. Unknown paths still return before authentication and valid media paths still require Clerk.
 - Legacy `external` media now reaches the existing archive workflow without attempting Vercel Blob deletion. Blob-owned media retains verified provider cleanup before database archival.
+
+## 2026-08-03, unified metadata, Privacy route and mobile effect boundaries
+
+- Consolidated static public metadata in `src/config/navigation.ts` and standardised page titles as `Webine • Page`. Project case studies keep their content-derived title through the existing metadata hook.
+- Added a dedicated `/privacy` route with the current enquiry notice, collected information, uses, service providers, retention, security, choices, tracking position and request process. The primary navigation, mobile menu, footer, Contact consent copy and sitemap now link to it.
+- Split the About water ripple renderer into a desktop-only lazy chunk. Viewports below 48 rem render only the portrait image even when browser emulation advertises a mouse. The kinetic cursor chunk, project hover media and project-card hover timeline use the same desktop and fine-pointer boundary.

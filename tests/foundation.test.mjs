@@ -19,15 +19,59 @@ test("keeps every current route", async () => {
     readFile(new URL("src/main.tsx", projectRoot), "utf8"),
   ]);
 
-  for (const path of ["/", "/about", "/services", "/works", "/contact", "/preview"]) {
+  for (const path of ["/", "/about", "/services", "/works", "/contact", "/privacy", "/preview"]) {
     assert.match(app, new RegExp(`path=["']${path.replace("/", "\\/")}["']`));
   }
   assert.match(app, /path=["']\/admin\/\*["']/);
   assert.match(main, /<BrowserRouter>/);
   assert.doesNotMatch(main, /future=/);
-  assert.equal((app.match(/lazy\(\(\) =>/g) ?? []).length, 7);
+  assert.equal((app.match(/lazy\(\(\) =>/g) ?? []).length, 8);
   assert.match(app, /data-page-load-pending="true"/);
   assert.match(app, /<Suspense[\s\S]*?fallback=\{\([\s\S]*?data-page-load-pending="true"/);
+});
+
+test("uses one metadata convention and a complete Privacy route", async () => {
+  const [navigation, about, services, works, privacy, contact, footer, sitemap] = await Promise.all([
+    readFile(new URL("src/config/navigation.ts", projectRoot), "utf8"),
+    readFile(new URL("src/pages/AboutPage.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/pages/ServicesPage.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/pages/WorksPage.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/pages/PrivacyPage.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/pages/ContactPage.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/SiteFooter.tsx", projectRoot), "utf8"),
+    readFile(new URL("server/api-routes/sitemap.ts", projectRoot), "utf8"),
+  ]);
+
+  for (const page of ["About", "Services", "Works", "Contact", "Privacy"]) {
+    assert.match(navigation, new RegExp(`Webine • ${page}`));
+  }
+  assert.doesNotMatch(about, /usePageMetadata/);
+  assert.doesNotMatch(services, /usePageMetadata/);
+  assert.match(works, /`Webine • \$\{project\.seoTitle \|\| project\.title\}`/);
+  assert.match(privacy, /Information Webine collects/);
+  assert.match(privacy, /Service providers and sharing/);
+  assert.match(privacy, /Retention/);
+  assert.match(privacy, /Security/);
+  assert.match(privacy, /Your choices/);
+  assert.match(contact, /<Link to="\/privacy">privacy notice<\/Link>/);
+  assert.match(footer, /to="\/privacy">Privacy<\/Link>/);
+  assert.match(sitemap, /"\/privacy"/);
+});
+
+test("does not load desktop-only hover effects on mobile", async () => {
+  const [siteShell, projectCard, rippleImage, mediaQuery] = await Promise.all([
+    readFile(new URL("src/components/SiteShell.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/projects/ProjectCard.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/about/WaterRippleImage.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/hooks/useMediaQuery.ts", projectRoot), "utf8"),
+  ]);
+
+  assert.match(siteShell, /lazy\(\(\) =>[\s\S]*import\("\.\/KineticCursor"\)/);
+  assert.match(siteShell, /showKineticCursor \? \(/);
+  assert.match(projectCard, /project\.hoverImage && showHoverEffects/);
+  assert.match(projectCard, /compact \|\| !showHoverEffects/);
+  assert.match(rippleImage, /interactive \? \([\s\S]*<WaterRippleCanvas/);
+  assert.match(mediaQuery, /window\.matchMedia\(query\)\.matches/);
 });
 
 test("keeps Contact as the primary project action instead of duplicate navigation", async () => {
@@ -40,7 +84,7 @@ test("keeps Contact as the primary project action instead of duplicate navigatio
 
   const publicItems = navigation.slice(0, navigation.indexOf("] as const"));
   assert.doesNotMatch(publicItems, /label:\s*["']Contact["']/);
-  assert.match(publicItems, /Home[\s\S]*Works[\s\S]*Services[\s\S]*About/);
+  assert.match(publicItems, /Home[\s\S]*Works[\s\S]*Services[\s\S]*About[\s\S]*Privacy/);
   assert.match(header, /href=["']\/contact["'][\s\S]*Start a project/);
   assert.match(mobileMenu, /href=["']\/contact["'][\s\S]*Start a project/);
   assert.match(header, /window\.scrollY > 24/);
@@ -1190,6 +1234,7 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
     portrait,
     portraitParticles,
     waterRippleImage,
+    waterRippleCanvas,
     waterRipplePlane,
     waterRippleShaders,
     portraitStyles,
@@ -1203,6 +1248,7 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
     readFile(new URL("src/components/about/PortraitReveal.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/about/portrait-particle-engine.ts", projectRoot), "utf8"),
     readFile(new URL("src/components/about/WaterRippleImage.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/components/about/WaterRippleCanvas.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/about/water-ripple/WaterRipplePlane.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/about/water-ripple/shaders.ts", projectRoot), "utf8"),
     readFile(new URL("src/styles/about.css", projectRoot), "utf8"),
@@ -1254,12 +1300,15 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(portrait, /axis:\s*"vertical"/);
   assert.match(portrait, /createImageParallax/);
   assert.match(portrait, /scrub:\s*1\.1/);
-  assert.match(waterRippleImage, /<Canvas/);
+  assert.doesNotMatch(waterRippleImage, /@react-three\/fiber|<Canvas/);
   assert.match(waterRippleImage, /water-ripple-image__fallback/);
-  assert.match(waterRippleImage, /frameloop=\{interactive \? \(visible \? "always" : "never"\) : "demand"\}/);
-  assert.match(waterRippleImage, /\(any-hover: hover\) and \(any-pointer: fine\)/);
+  assert.match(waterRippleImage, /lazy\(\(\) =>[\s\S]*import\("\.\/WaterRippleCanvas"\)/);
+  assert.match(waterRippleImage, /useMediaQuery\(INTERACTIVE_RIPPLE_QUERY\)/);
+  assert.match(waterRippleImage, /interactive \? \([\s\S]*<WaterRippleCanvas/);
   assert.match(waterRippleImage, /IntersectionObserver/);
-  assert.match(waterRippleImage, /disabled=\{!interactive\}/);
+  assert.match(waterRippleCanvas, /@react-three\/fiber/);
+  assert.match(waterRippleCanvas, /frameloop=\{visible \? "always" : "never"\}/);
+  assert.match(waterRippleCanvas, /disabled=\{false\}/);
   assert.match(waterRipplePlane, /rippleSimulationFragmentShader/);
   assert.match(waterRipplePlane, /revealSimulationFragmentShader/);
   assert.match(waterRipplePlane, /smoothstep\(speedThreshold, fullStrengthSpeed, speed\)/);

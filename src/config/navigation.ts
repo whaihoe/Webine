@@ -3,16 +3,18 @@ export const publicNavigation = [
   { href: "/works", label: "Works" },
   { href: "/services", label: "Services" },
   { href: "/about", label: "About" },
+  { href: "/privacy", label: "Privacy" },
 ] as const;
 
 export const routeTitles: Record<string, string> = {
   "/": "Webine • Digital Agency in Singapore",
-  "/about": "About • Webine",
-  "/services": "Services • Webine",
-  "/works": "Works • Webine",
-  "/contact": "Contact • Webine",
-  "/admin": "Admin • Webine",
-  "/preview": "Content preview • Webine",
+  "/about": "Webine • About",
+  "/services": "Webine • Services",
+  "/works": "Webine • Works",
+  "/contact": "Webine • Contact",
+  "/privacy": "Webine • Privacy",
+  "/admin": "Webine • Admin",
+  "/preview": "Webine • Content preview",
 };
 
 export const routeDescriptions: Record<string, string> = {
@@ -21,6 +23,7 @@ export const routeDescriptions: Record<string, string> = {
   "/services": "Web design, website redesign, monthly maintenance, SEO foundations and branding support from Webine.",
   "/works": "Explore Webine's published website work, internal studies and clearly labelled concept projects.",
   "/contact": "Tell Webine what your business needs from a stronger website and start a project enquiry.",
+  "/privacy": "Read how Webine collects, uses, protects and retains personal information provided through the website.",
   "/admin": "Protected Webine content workspace.",
   "/preview": "Protected Webine content preview.",
 };

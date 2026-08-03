@@ -33,7 +33,7 @@ function ProjectCaseStudy({
   index: number;
 }) {
   usePageMetadata(
-    project.seoTitle ? `${project.seoTitle} | Webine` : `${project.title} | Webine`,
+    `Webine • ${project.seoTitle || project.title}`,
     project.seoDescription || project.summary,
   );
 

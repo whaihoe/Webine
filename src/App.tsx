@@ -14,6 +14,8 @@ const NotFoundPage = lazy(() =>
   import("./pages/NotFoundPage").then((module) => ({ default: module.NotFoundPage })));
 const PreviewPage = lazy(() =>
   import("./pages/PreviewPage").then((module) => ({ default: module.PreviewPage })));
+const PrivacyPage = lazy(() =>
+  import("./pages/PrivacyPage").then((module) => ({ default: module.PrivacyPage })));
 const ServicesPage = lazy(() =>
   import("./pages/ServicesPage").then((module) => ({ default: module.ServicesPage })));
 const WorksPage = lazy(() =>
@@ -41,6 +43,7 @@ export function App() {
               <Route path="/works" element={<WorksPage />} />
               <Route path="/works/:projectSlug" element={<WorksPage />} />
               <Route path="/contact" element={<ContactPage />} />
+              <Route path="/privacy" element={<PrivacyPage />} />
               <Route path="/admin/*" element={<AdminEntry />} />
               <Route path="/preview" element={<PreviewPage />} />
               <Route path="*" element={<NotFoundPage />} />

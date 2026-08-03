@@ -389,3 +389,10 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - The production CSS bundle contains both `-webkit-backdrop-filter: blur(3px)` and `backdrop-filter: blur(3px)` for the Home timeline and Services cards. Local computed styles resolve the standard property to `blur(3px)` on both surfaces.
 - On a direct local production-preview visit to `/services`, the Services particle state reached `ready` and its canvas was already mounted while the sticky visual remained 1,070 pixels below the viewport.
 - Focused Services coverage, zero-warning lint, the client production build and both server TypeScript checks pass. The complete suite has 80 passes from 81 tests, with only the existing process-transition expectation for `startViewportY` remaining unrelated.
+
+## 2026-08-03 metadata, Privacy and mobile effect loading
+
+- Static routes resolve to the `Webine • Page` title pattern, including `Webine • Services` and `Webine • Privacy`. The Privacy route has one H1, nine labelled information sections, a canonical Production URL and no horizontal overflow at 390 by 844 or 1280 by 800.
+- At 390 pixels, the About portraits render two fallback images with no ripple canvases. The browser asset inventory contains neither the `WaterRippleCanvas` chunk nor the `KineticCursor` chunk. At 1280 pixels with a fine pointer, both chunks load and two ripple canvases plus one kinetic cursor mount as intended.
+- Project hover media is not rendered and its GSAP hover timeline is not created until the viewport is at least 48 rem and a fine hover pointer is available.
+- Zero-warning lint, the client production build, server and test-server TypeScript checks, all 102 automated tests and `git diff --check` pass. Browser review found no application errors. The dependency-owned Three.js Clock deprecation warning remains unchanged.

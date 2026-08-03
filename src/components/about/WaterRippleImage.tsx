@@ -1,9 +1,11 @@
-import { Canvas } from "@react-three/fiber";
-import { Suspense, useCallback, useEffect, useRef, useState } from "react";
-import * as THREE from "three";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { DEFAULT_WATER_RIPPLE_SETTINGS } from "./water-ripple/constants";
 import type { WaterRippleImageProps } from "./water-ripple/types";
-import { WaterRipplePlane } from "./water-ripple/WaterRipplePlane";
+
+const WaterRippleCanvas = lazy(() =>
+  import("./WaterRippleCanvas").then((module) => ({ default: module.WaterRippleCanvas })));
+const INTERACTIVE_RIPPLE_QUERY = "(min-width: 48rem) and (any-hover: hover) and (any-pointer: fine)";
 
 export type { WaterRippleImageProps } from "./water-ripple/types";
 
@@ -28,10 +30,16 @@ export function WaterRippleImage({
   const rootRef = useRef<HTMLDivElement>(null);
   const [canvasReady, setCanvasReady] = useState(false);
   const [visible, setVisible] = useState(false);
-  const [interactive, setInteractive] = useState(false);
+  const interactive = useMediaQuery(INTERACTIVE_RIPPLE_QUERY);
   const handleCanvasReady = useCallback(() => setCanvasReady(true), []);
 
   useEffect(() => {
+    if (!interactive) {
+      setVisible(false);
+      setCanvasReady(false);
+      return;
+    }
+
     const root = rootRef.current;
     if (!root) return;
 
@@ -42,18 +50,7 @@ export function WaterRippleImage({
     observer.observe(root);
 
     return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const finePointer = window.matchMedia(
-      "(any-hover: hover) and (any-pointer: fine)",
-    );
-    const update = () => setInteractive(finePointer.matches);
-
-    update();
-    finePointer.addEventListener("change", update);
-    return () => finePointer.removeEventListener("change", update);
-  }, []);
+  }, [interactive]);
 
   return (
     <div
@@ -83,29 +80,11 @@ export function WaterRippleImage({
         />
       </div>
 
-      <Canvas
-        className="water-ripple-image__canvas"
-        orthographic
-        flat
-        frameloop={interactive ? (visible ? "always" : "never") : "demand"}
-        camera={{ position: [0, 0, 1], zoom: 1 }}
-        dpr={[1, 1.5]}
-        gl={{
-          antialias: true,
-          alpha: true,
-          premultipliedAlpha: false,
-          powerPreference: "high-performance",
-        }}
-        onCreated={({ gl }) => {
-          gl.outputColorSpace = THREE.SRGBColorSpace;
-          gl.toneMapping = THREE.NoToneMapping;
-          gl.setClearColor(0x000000, 0);
-        }}
-        aria-hidden="true"
-      >
+      {interactive ? (
         <Suspense fallback={null}>
-          <WaterRipplePlane
+          <WaterRippleCanvas
             src={src}
+            visible={visible}
             strength={strength}
             radius={radius}
             damping={damping}
@@ -117,11 +96,10 @@ export function WaterRippleImage({
             colorRevealRadius={colorRevealRadius}
             colorRevealDecay={colorRevealDecay}
             colorRevealShrink={colorRevealShrink}
-            disabled={!interactive}
             onReady={handleCanvasReady}
           />
         </Suspense>
-      </Canvas>
+      ) : null}
       {overlay}
     </div>
   );

@@ -4,7 +4,6 @@ import { ButtonLink } from "../components/ButtonLink";
 import { SiteShell } from "../components/SiteShell";
 import { experienceConfig } from "../config/experience";
 import { aboutContent } from "../content/about-content";
-import { usePageMetadata } from "../hooks/usePageMetadata";
 import type { CSSProperties } from "react";
 
 const aboutHeroStyle = {
@@ -14,11 +13,6 @@ const aboutHeroStyle = {
 } as CSSProperties;
 
 export function AboutPage() {
-  usePageMetadata(
-    "About | Webine",
-    "Meet the people behind Webine and see how clarity, purposeful motion and dependable development shape the studio's work.",
-  );
-
   return (
     <SiteShell>
       <div className="about-page theme-dark">

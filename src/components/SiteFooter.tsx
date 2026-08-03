@@ -353,7 +353,7 @@ export function SiteFooter() {
                 <span className="site-footer__legal" data-footer-animate="bottom">
                   <span>© {year} {settings.footer.copyrightLabel}</span>
                   <span aria-hidden="true"> / </span>
-                  <Link className="site-footer__bottom-link" to="/contact#privacy">Privacy</Link>
+                  <Link className="site-footer__bottom-link" to="/privacy">Privacy</Link>
                 </span>
 
                 <span

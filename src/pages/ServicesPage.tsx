@@ -2,14 +2,8 @@ import { AmbientParticleField } from "../components/AmbientParticleField";
 import { ServicesChapterController } from "../components/services/ServicesChapterController";
 import { SiteShell } from "../components/SiteShell";
 import { servicesContent } from "../content/services-content";
-import { usePageMetadata } from "../hooks/usePageMetadata";
 
 export function ServicesPage() {
-  usePageMetadata(
-    "Services | Webine",
-    "Website design, redesign, landing pages, branding support, SEO foundations and ongoing website care from Webine.",
-  );
-
   return (
     <SiteShell>
       <div className="services-page theme-dark">

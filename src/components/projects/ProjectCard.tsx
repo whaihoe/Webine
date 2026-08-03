@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { gsap } from "../../animation/scroll-runtime";
 import type { PublicProject } from "../../content/public-projects";
+import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { DirectionalArrow } from "../DirectionalArrow";
 import { projectMediaFrameStyle } from "./project-media-layout";
 import { ProjectMedia } from "./ProjectMedia";
@@ -14,6 +15,8 @@ type ProjectCardProps = {
   revealDelay?: number;
   onFocus?: () => void;
 };
+
+const HOVER_MEDIA_QUERY = "(min-width: 48rem) and (hover: hover) and (pointer: fine)";
 
 export function ProjectCard({
   project,
@@ -29,9 +32,10 @@ export function ProjectCard({
   const metaStartRef = useRef<HTMLSpanElement>(null);
   const metaEndRef = useRef<HTMLSpanElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
+  const showHoverEffects = useMediaQuery(HOVER_MEDIA_QUERY);
 
   useLayoutEffect(() => {
-    if (compact) return;
+    if (compact || !showHoverEffects) return;
 
     const content = contentRef.current;
     const meta = metaRef.current;
@@ -71,7 +75,7 @@ export function ProjectCard({
       content.removeEventListener("blur", leave);
       context.revert();
     };
-  }, [compact]);
+  }, [compact, showHoverEffects]);
 
   return (
     <article
@@ -107,7 +111,7 @@ export function ProjectCard({
                 `${project.heroImage.focalX * 100}% ${project.heroImage.focalY * 100}%`,
             }}
           />
-          {project.hoverImage ? (
+          {project.hoverImage && showHoverEffects ? (
             <ProjectMedia
               asset={project.hoverImage}
               className="project-card__hover-image"

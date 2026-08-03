@@ -62,7 +62,7 @@ export function RouteEffects() {
       ? routeTitles["/works"]
       : location.pathname.startsWith("/admin/")
         ? routeTitles["/admin"]
-        : routeTitles[location.pathname] ?? "Page not found | Webine";
+        : routeTitles[location.pathname] ?? "Webine • Page not found";
     document.title = title;
     setAnnouncement(title);
     const routeKey = location.pathname.startsWith("/works/")

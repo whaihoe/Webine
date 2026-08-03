@@ -1,4 +1,5 @@
 import { useCallback, useState, type ChangeEvent, type FormEvent } from "react";
+import { Link } from "react-router-dom";
 import { AmbientParticleField } from "../components/AmbientParticleField";
 import { DirectionalArrow } from "../components/DirectionalArrow";
 import { FormField } from "../components/FormField";
@@ -143,7 +144,7 @@ export function ContactPage() {
             </div>
             <FormField id="details" name="details" label="Project outline" placeholder="What should the website help the business achieve?" value={form.details} onChange={updateField} multiline required minLength={20} error={fieldErrors.details} revealDelay={0.58} />
             <label className="contact-form__honeypot" aria-hidden="true">Leave this field empty<input name="websiteConfirm" value={form.websiteConfirm} onChange={updateField} tabIndex={-1} autoComplete="off" /></label>
-            <label className="contact-form__consent" data-gsap-reveal="copy" data-gsap-delay="0.64"><input id="consent" type="checkbox" checked={form.consent} onChange={updateConsent} required aria-invalid={Boolean(fieldErrors.consent)} aria-describedby={fieldErrors.consent ? "consent-error" : undefined} /><span>I have read the <a href="#privacy">privacy notice</a> and agree to Webine using these details to respond to my enquiry.{fieldErrors.consent ? <small id="consent-error" className="form-field__error">{fieldErrors.consent}</small> : null}</span></label>
+            <label className="contact-form__consent" data-gsap-reveal="copy" data-gsap-delay="0.64"><input id="consent" type="checkbox" checked={form.consent} onChange={updateConsent} required aria-invalid={Boolean(fieldErrors.consent)} aria-describedby={fieldErrors.consent ? "consent-error" : undefined} /><span>I have read the <Link to="/privacy">privacy notice</Link> and agree to Webine using these details to respond to my enquiry.{fieldErrors.consent ? <small id="consent-error" className="form-field__error">{fieldErrors.consent}</small> : null}</span></label>
             <TurnstileWidget onTokenChange={updateTurnstileToken} resetVersion={turnstileResetVersion} />
             <button className="form-submit" type="submit" disabled={submission.status === "submitting" || !turnstileToken} data-gsap-reveal="copy" data-gsap-delay="0.7">{submission.status === "submitting" ? "Sending enquiry..." : "Submit enquiry"}<DirectionalArrow /></button>
             {submission.status === "success" ? <p className="contact-form__status contact-form__status--success" role="status">{submission.message}</p> : null}
