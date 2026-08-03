@@ -205,6 +205,37 @@ test("rejects unknown Admin paths without authentication", async () => {
   assert.equal(response.status, 404);
 });
 
+test("routes legacy underscore media IDs to the protected archive handler", async () => {
+  const names = [
+    "VERCEL",
+    "ADMIN_USER_ID",
+    "CLERK_PUBLISHABLE_KEY",
+    "CLERK_SECRET_KEY",
+    "CLERK_AUTHORIZED_PARTIES",
+  ];
+  const previous = Object.fromEntries(names.map((name) => [name, process.env[name]]));
+  Object.assign(process.env, {
+    VERCEL: "1",
+    ADMIN_USER_ID: "user_owner",
+    CLERK_PUBLISHABLE_KEY: "pk_test_example",
+    CLERK_SECRET_KEY: "sk_test_example",
+    CLERK_AUTHORIZED_PARTIES: "https://www.madebywebine.com",
+  });
+  try {
+    const response = await routeAdminRequest(new Request(
+      "https://www.madebywebine.com/api/admin/media/asset_deszio_12",
+      { method: "DELETE", headers: { origin: "https://www.madebywebine.com" } },
+    ));
+    assert.equal(response.status, 401);
+    assert.equal((await response.json()).error.code, "ADMIN_SIGN_IN_REQUIRED");
+  } finally {
+    for (const name of names) {
+      if (previous[name] === undefined) delete process.env[name];
+      else process.env[name] = previous[name];
+    }
+  }
+});
+
 test("rejects invalid Admin methods before authentication", async () => {
   const response = await routeAdminRequest(new Request("https://www.madebywebine.com/api/admin/session", { method: "DELETE" }));
   assert.equal(response.status, 405);

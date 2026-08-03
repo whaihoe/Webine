@@ -48,7 +48,7 @@ import {
 
 const COLLECTION_KEY_PATTERN = "([a-z][a-z0-9_]{1,49})";
 const ITEM_ID_PATTERN = "([a-zA-Z0-9_-]{1,120})";
-const ID_PATTERN = "([a-zA-Z0-9-]{1,80})";
+const ID_PATTERN = "([a-zA-Z0-9_-]{1,80})";
 
 const collectionRoute = new RegExp(
   `^/api/admin/collections/${COLLECTION_KEY_PATTERN}$`,

@@ -845,3 +845,9 @@
 - Kept the WebKit-prefixed backdrop declaration before the standard declaration. The production CSS optimiser now retains both forms, so the 3-pixel blur works in the built Vercel stylesheet as well as local development.
 - Mounted the Services WebGL canvas as soon as its model targets are ready instead of waiting for the sticky visual to intersect the viewport. Offscreen frame scheduling remains paused, but WebGL setup and shader compilation complete before the cards arrive.
 - Applied the shared `particles.glow` sprite, core and halo controls to the Services model and Mobius runner. Glow tuning remains central in `src/config/experience.ts` with the other particle renderers.
+
+## 2026-08-03, legacy media archive routing
+
+- Extended the bounded Admin entity-ID route contract to accept underscores already used by seeded and imported media such as `asset_deszio_12`.
+- Kept the same 80-character limit and alphanumeric, hyphen and underscore allowlist. Unknown paths still return before authentication and valid media paths still require Clerk.
+- Legacy `external` media now reaches the existing archive workflow without attempting Vercel Blob deletion. Blob-owned media retains verified provider cleanup before database archival.
