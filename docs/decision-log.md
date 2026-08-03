@@ -839,3 +839,9 @@
 - Added `particles.processTransition` to `src/config/experience.ts` so the interlude-to-process dispersal, travel, gathering and contact fade can be tuned without editing renderer logic.
 - Kept one geometry-derived intake value for both rendering paths. The persistent GPU scene and section-owned mobile canvas expose separate response controls because their coordinate systems and path construction differ.
 - Replaced the former timing literals in the process controller, GPU group travel, vertex shader and mobile flow canvas with the named configuration values.
+
+## 2026-08-03, production card blur and prepared Services particles
+
+- Kept the WebKit-prefixed backdrop declaration before the standard declaration. The production CSS optimiser now retains both forms, so the 3-pixel blur works in the built Vercel stylesheet as well as local development.
+- Mounted the Services WebGL canvas as soon as its model targets are ready instead of waiting for the sticky visual to intersect the viewport. Offscreen frame scheduling remains paused, but WebGL setup and shader compilation complete before the cards arrive.
+- Applied the shared `particles.glow` sprite, core and halo controls to the Services model and Mobius runner. Glow tuning remains central in `src/config/experience.ts` with the other particle renderers.

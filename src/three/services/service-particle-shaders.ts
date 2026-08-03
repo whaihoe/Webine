@@ -1,4 +1,7 @@
+import { experienceConfig } from "../../config/experience";
 import { particlePointerVertexShaderChunk } from "../particle-pointer";
+
+const particleGlow = experienceConfig.particles.glow;
 
 export const serviceParticleVertexShader = `
   attribute vec3 targetFrom;
@@ -46,7 +49,10 @@ export const serviceParticleVertexShader = `
     vec4 objectCentreView = viewMatrix * modelMatrix * vec4(0.0, 0.0, 0.0, 1.0);
     float pointerInfluence = applyParticlePointer(viewPosition);
     gl_Position = projectionMatrix * viewPosition;
-    gl_PointSize = applyParticlePointerPointScale(uPointSize, pointerInfluence)
+    gl_PointSize = applyParticlePointerPointScale(
+      uPointSize * ${particleGlow.shaderSpriteScale},
+      pointerInfluence
+    )
       * (7.0 / max(1.0, -objectCentreView.z));
     vRandom = particleRandom;
     vDepth = clamp((-viewPosition.z - 4.0) / 5.0, 0.0, 1.0);
@@ -69,13 +75,24 @@ export const serviceParticleFragmentShader = `
     vec2 centred = gl_PointCoord - 0.5;
     float distanceFromCentre = length(centred);
     if (distanceFromCentre > 0.5) discard;
-    float core = 1.0 - smoothstep(0.08, 0.5, distanceFromCentre);
+    float core = 1.0 - smoothstep(
+      ${particleGlow.shaderCoreStart},
+      ${particleGlow.shaderCoreEnd},
+      distanceFromCentre
+    );
+    float haloDisc = 1.0 - smoothstep(
+      ${particleGlow.shaderHaloStart},
+      0.5,
+      distanceFromCentre
+    );
+    float halo = haloDisc * ${particleGlow.haloAlpha};
+    float glowAlpha = core + halo * (1.0 - core);
     float colourFlow = 0.5 + 0.5 * sin(
       uTime * 0.34 * uColourFlowScale + vRandom * 18.0
     );
     vec3 nearColour = mix(uCyanColour, uBlueColour, colourFlow);
     vec3 colour = mix(nearColour, uDeepBlueColour, vDepth * 0.58);
     colour = mix(colour, uCyanColour, vPointerInfluence * 0.42);
-    gl_FragColor = vec4(colour, core * (0.58 + vRandom * 0.4));
+    gl_FragColor = vec4(colour, glowAlpha * (0.58 + vRandom * 0.4));
   }
 `;

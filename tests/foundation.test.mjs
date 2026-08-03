@@ -676,7 +676,7 @@ test("uses desktop WebGL and section-owned mobile particle canvases", async () =
   );
   assert.match(
     experienceSource,
-    /processTransition:\s*{[\s\S]*progress:\s*{[\s\S]*startViewportY:\s*0\.88[\s\S]*completeViewportY:\s*0\.4[\s\S]*gpu:\s*{[\s\S]*groupTravelComplete:\s*0\.56[\s\S]*contactStart:\s*0\.29[\s\S]*mobile:\s*{[\s\S]*contactStart:\s*0\.5/,
+    /processTransition:\s*{[\s\S]*progress:\s*{[\s\S]*startViewportY:\s*1[\s\S]*completeViewportY:\s*0\.4[\s\S]*gpu:\s*{[\s\S]*groupTravelComplete:\s*0\.56[\s\S]*contactStart:\s*0\.29[\s\S]*mobile:\s*{[\s\S]*contactStart:\s*0\.5/,
   );
   assert.match(
     points,
@@ -1214,8 +1214,14 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(page, /AboutHeadExperience/);
   assert.match(page, /data-about-hero-frame/);
   assert.match(headExperience, /gsap\.timeline/);
-  assert.match(headExperience, /pin:\s*hero/);
-  assert.match(headExperience, /pinSpacing:\s*true/);
+  assert.match(headExperience, /pin:\s*mobile \? false : hero/);
+  assert.match(headExperience, /pinSpacing:\s*!mobile/);
+  assert.match(headExperience, /hero\.offsetHeight - window\.innerHeight/);
+  assert.match(headExperience, /media\.addEventListener\("change", update\)/);
+  assert.match(headExperience, /\}, \[mobile\]\)/);
+  assert.match(page, /--about-mobile-scroll-height/);
+  assert.match(portraitStyles, /@media \(max-width: 47\.99rem\)[\s\S]*\.about-hero\s*{[\s\S]*height:\s*var\(--about-mobile-scroll-height, 310svh\)/);
+  assert.match(portraitStyles, /\.about-hero__frame\s*{[\s\S]*position:\s*sticky[\s\S]*height:\s*100svh/);
   assert.match(headExperience, /rotation:\s*1[\s\S]*dispersion:\s*1/);
   assert.match(headExperience, /scaleX:\s*frameScale\.scaleX/);
   assert.doesNotMatch(headExperience, /preventDefault|addEventListener\(["'](?:wheel|touchmove)/);
@@ -1261,7 +1267,13 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(waterRippleShaders, /distanceToSegment/);
   assert.match(waterRippleShaders, /coverUv/);
   assert.match(waterRippleShaders, /mix\(monochrome, sampledColor\.rgb, revealAmount\)/);
-  assert.match(head, /aboutHeadConfig\.mobilePointLimit/);
+  assert.match(head, /aboutHeadConfig\.pointLimit\.mobile/);
+  assert.match(head, /aboutHeadConfig\.pointLimit\.desktop/);
+  assert.match(head, /frameloop="demand"/);
+  assert.match(head, /AboutHeadFrameScheduler/);
+  assert.match(headExperience, /entry\.intersectionRatio >= experienceConfig\.particles\.aboutHead\.visibilityRatio/);
+  assert.match(headExperience, /document\.visibilityState === "visible"/);
+  assert.match(headExperience, /data-about-head-active=\{active\}/);
   assert.doesNotMatch(portraitStyles, /\.about-head__visual\s*{[^}]*transform:/s);
   assert.match(head, /vSurfaceColour/);
   assert.match(head, /vSurfaceDensity/);
@@ -1276,7 +1288,7 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(head, /particlePointerVertexShaderChunk/);
   assert.match(head, /applyParticlePointer\(viewPosition\)/);
   assert.doesNotMatch(head, /addEventListener\("pointermove"/);
-  assert.match(head, /dpr=\{mobile \? \[0\.75, 1\.05\]/);
+  assert.match(head, /dpr=\{mobile \? \[0\.75, 1\] : \[0\.75, 1\.25\]\}/);
   assert.match(portrait, /start: "top 76%"/);
   assert.match(portrait, /once: true/);
   assert.match(config, /aboutPortrait:\s*{[\s\S]*outlineDurationSeconds:\s*1\.8/);
@@ -1366,7 +1378,8 @@ test("builds the Services page as six expanding offers with GPU-morphed model pa
   assert.match(particleExperience, /<Canvas/);
   assert.match(particleExperience, /frameloop="demand"/);
   assert.match(particleExperience, /IntersectionObserver/);
-  assert.match(particleExperience, /\{targets && visible \? \(/);
+  assert.match(particleExperience, /\{targets \? \(/);
+  assert.doesNotMatch(particleExperience, /\{targets && visible \? \(/);
   assert.match(particleExperience, /media\.addEventListener\("change", update\)/);
   assert.doesNotMatch(particleExperience, /window\.addEventListener\("resize"/);
   assert.match(particleExperience, /<MobiusRunner visible=\{visible && activeIndex === 5\} mobile=\{mobile\}/);
@@ -1381,6 +1394,13 @@ test("builds the Services page as six expanding offers with GPU-morphed model pa
   assert.match(particleShaders, /attribute vec3 targetTo/);
   assert.match(particleShaders, /uniform float uMorph/);
   assert.match(particleShaders, /sin\(progress \* 3\.14159265\)/);
+  assert.match(particleShaders, /experienceConfig\.particles\.glow/);
+  assert.match(particleShaders, /particleGlow\.shaderSpriteScale/);
+  assert.match(particleShaders, /particleGlow\.shaderCoreStart/);
+  assert.match(particleShaders, /particleGlow\.shaderHaloStart/);
+  assert.match(particleShaders, /particleGlow\.haloAlpha/);
+  assert.match(particleExperience, /particleGlow\.shaderSpriteScale/);
+  assert.match(particleExperience, /float glowAlpha = core \+ halo \* \(1\.0 - core\)/);
   assert.match(particleShaders, /particlePointerVertexShaderChunk/);
   assert.match(particleShaders, /applyParticlePointer\(viewPosition\)/);
   assert.match(particleExperience, /useParticlePointer/);
@@ -1393,7 +1413,7 @@ test("builds the Services page as six expanding offers with GPU-morphed model pa
   assert.equal((config.match(/centreOffset:\s*{\s*x:\s*-?\d+(?:\.\d+)?,\s*y:\s*-?\d+(?:\.\d+)?,\s*z:\s*-?\d+(?:\.\d+)?\s*}/g) ?? []).length, 6);
   assert.doesNotMatch(particleExperience, /rotationOffsetRef|activeElapsedRef|idleWave/);
   assert.match(particleExperience, /rotation\.restingY \+ pointerInteraction\.tiltY/);
-  assert.match(particleShaders, /gl_PointSize = applyParticlePointerPointScale\(uPointSize/);
+  assert.match(particleShaders, /gl_PointSize = applyParticlePointerPointScale\(\s*uPointSize \* \$\{particleGlow\.shaderSpriteScale\}/);
   assert.match(particleShaders, /objectCentreView\.z/);
   assert.match(config, /"website-design":\s*1\.65/);
   assert.match(config, /"website-redesign":\s*\d+(?:\.\d+)?/);
@@ -1410,9 +1430,9 @@ test("builds the Services page as six expanding offers with GPU-morphed model pa
     6,
   );
   assert.match(styles, /\.services-experience__visual-sticky\s*{[^}]*position:\s*sticky/s);
-  assert.match(styles, /\.service-card\s*{[^}]*backdrop-filter:\s*blur/s);
-  assert.match(styles, /\.service-card\s*{[^}]*background:\s*transparent/s);
-  assert.match(styles, /\.service-card\[data-expanded="true"\]\s*{[^}]*background:\s*transparent/s);
+  assert.match(styles, /\.service-card\s*{[^}]*-webkit-backdrop-filter:\s*blur\(3px\)[^}]*backdrop-filter:\s*blur\(3px\)/s);
+  assert.match(styles, /\.service-card\s*{[^}]*background:\s*hsl\(var\(--primitive-slate-950\)\s*\/\s*0\.52\)/s);
+  assert.match(styles, /\.service-card\[data-expanded="true"\]\s*{[^}]*background:\s*hsl\(var\(--primitive-slate-950\)\s*\/\s*0\.52\)/s);
 
   for (const service of [
     "Website design and development",

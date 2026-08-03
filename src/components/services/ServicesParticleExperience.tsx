@@ -105,7 +105,7 @@ function MobiusRunner({ visible, mobile }: { visible: boolean; mobile: boolean }
           mobile
             ? particleGlow.objectPointSize.mobile
             : particleGlow.objectPointSize.desktop
-        ).toFixed(2)}
+        ).toFixed(2)} * ${particleGlow.shaderSpriteScale.toFixed(2)}
           * (7.0 / max(1.0, -viewPosition.z));
       }
     `,
@@ -115,7 +115,19 @@ function MobiusRunner({ visible, mobile }: { visible: boolean; mobile: boolean }
       void main() {
         float distanceFromCentre = length(gl_PointCoord - 0.5);
         if (distanceFromCentre > 0.5) discard;
-        gl_FragColor = vec4(uColour, uOpacity * (1.0 - smoothstep(0.08, 0.5, distanceFromCentre)));
+        float core = 1.0 - smoothstep(
+          ${particleGlow.shaderCoreStart},
+          ${particleGlow.shaderCoreEnd},
+          distanceFromCentre
+        );
+        float haloDisc = 1.0 - smoothstep(
+          ${particleGlow.shaderHaloStart},
+          0.5,
+          distanceFromCentre
+        );
+        float halo = haloDisc * ${particleGlow.haloAlpha};
+        float glowAlpha = core + halo * (1.0 - core);
+        gl_FragColor = vec4(uColour, uOpacity * glowAlpha);
       }
     `,
     transparent: true,
@@ -391,7 +403,7 @@ export function ServicesParticleExperience({ activeIndex }: { activeIndex: numbe
       data-service-particle-state={failed ? "failed" : targets ? "ready" : "loading"}
       aria-hidden="true"
     >
-      {targets && visible ? (
+      {targets ? (
         <Canvas
           camera={{ position: [0, 0, 5.8], fov: 44, near: 0.1, far: 20 }}
           dpr={morphConfig.pixelRatioCap}
