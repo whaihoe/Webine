@@ -21,7 +21,7 @@ This checklist keeps code readiness separate from production approval. Do not ma
 | Gate | Status | Evidence or next action |
 |---|---|---|
 | Vercel project | Ready for reviewed deployment | Confirm the linked branch and deploy the exact reviewed release after local verification |
-| Preview and Production Turso | Configured in Vercel | Apply migrations through `0011_privacy_retention_policy.sql`, keep Preview separate and test restore |
+| Preview and Production Turso | Configured in Vercel | Apply migrations through `0012_security_hardening.sql`, keep Preview separate and test restore |
 | Clerk | Configured in Vercel | Verify deployed login with the exact owner account and authorised origins |
 | Vercel Blob | Configured in Vercel | Verify one JPEG and GIF upload in Preview before promotion |
 | Secrets | Configured in Vercel | Keep values out of GitHub and verify the production environment gate during deployment |

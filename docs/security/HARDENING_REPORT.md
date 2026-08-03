@@ -26,7 +26,7 @@ Migration `0012_security_hardening.sql` adds `notification_lock_until` and an in
 
 ## Verification status
 
-Before changes, lint, server TypeScript and the production build passed. The full suite had 79 passes and two pre-existing visual-contract failures in `tests/foundation.test.mjs`: the expected particle transition values and transparent Services card rule no longer match current source. After hardening, the production build, lint and both TypeScript checks pass. The full suite has 99 tests, with 97 passing and the same two pre-existing failures. Focused security, enquiry, media, routing and deployment tests pass.
+Before changes, lint, server TypeScript and the production build passed. The full suite had 79 passes and two visual-contract failures in `tests/foundation.test.mjs`: the expected particle transition values and transparent Services card rule no longer matched current source. The later visual fixes updated those contracts. After merging the current `main` branch and fixing legacy underscore media IDs, the production build, lint, both TypeScript checks and all 100 tests pass. Focused security, enquiry, media, routing and deployment tests also pass.
 
 Secretlint with its recommended rules found no secrets. `npm audit` reports two high entries caused by one React Router RSC-mode CSRF advisory. Webine is a client-only Vite `BrowserRouter` app and does not use React Server Components or React Router actions. npm's suggested downgrade introduced several older router advisories, so 7.18.2 is retained until a patched upstream version is available. Routine tests use local libSQL fixtures and mocks rather than live Turso, Clerk, Cloudflare, Resend or Blob calls.
 

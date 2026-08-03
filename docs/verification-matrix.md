@@ -270,6 +270,13 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - Node 22 zero-warning lint, client production build, server type checking, isolated test-server build, all 72 automated tests and `git diff --check` pass.
 - `npm audit` clears the earlier brace-expansion and React Router 6 advisories. It still reports the upstream React Router RSC action advisory, which is not reachable in Webine because the application uses client-side `BrowserRouter` and no RSC or server-action mode.
 
+## 2026-08-03 hardening release audit
+
+- Lint, the client production build, server TypeScript, the test-server build, `git diff --check` and all 100 automated tests pass after merging the latest visual fixes into the hardening branch.
+- Browser review covers Home, About, Services, Works, Contact, the Deszio case-study route and the not-found route at 320, 375, 430, 768, 1024, 1280, 1440 and 1920 CSS-pixel widths. All 56 states have one H1, one main landmark, no missing image alternative text and no horizontal overflow.
+- Production CSS computes `backdrop-filter: blur(3px)` on both the Home process cards and Services cards. The Services particle canvas is present before scrolling and the mobile opening shows the inherited glow. The browser console has no application errors. The remaining Three.js clock deprecation warning originates from the renderer dependency.
+- Legacy media IDs containing underscores now reach the protected Admin archive handler. Provider-neutral cleanup leaves external media storage untouched while Vercel Blob media still requires successful Blob deletion before its record can archive.
+
 ## 2026-07-30 contact website validation pass
 
 - The browser and server use the same complete-address rule. Empty website values and full addresses such as `https://example.sg` pass, while `https://example` and scheme-less values fail with the same guidance.
