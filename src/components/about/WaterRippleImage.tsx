@@ -1,11 +1,11 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { desktopAnyFinePointerQuery } from "../../config/media-queries";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { DEFAULT_WATER_RIPPLE_SETTINGS } from "./water-ripple/constants";
 import type { WaterRippleImageProps } from "./water-ripple/types";
 
 const WaterRippleCanvas = lazy(() =>
   import("./WaterRippleCanvas").then((module) => ({ default: module.WaterRippleCanvas })));
-const INTERACTIVE_RIPPLE_QUERY = "(min-width: 48rem) and (any-hover: hover) and (any-pointer: fine)";
 
 export type { WaterRippleImageProps } from "./water-ripple/types";
 
@@ -30,7 +30,7 @@ export function WaterRippleImage({
   const rootRef = useRef<HTMLDivElement>(null);
   const [canvasReady, setCanvasReady] = useState(false);
   const [visible, setVisible] = useState(false);
-  const interactive = useMediaQuery(INTERACTIVE_RIPPLE_QUERY);
+  const interactive = useMediaQuery(desktopAnyFinePointerQuery);
   const handleCanvasReady = useCallback(() => setCanvasReady(true), []);
 
   useEffect(() => {

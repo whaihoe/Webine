@@ -10,10 +10,7 @@ import {
   Vector2,
   type Group,
 } from "three";
-import {
-  experienceConfig,
-  particleObjectScaleConfig,
-} from "../config/experience";
+import { particleObjectConfig, particleRenderConfig } from "../config/experience";
 import { useParticlePointer } from "../hooks/useParticlePointer";
 import {
   createParticleInteractionState,
@@ -32,9 +29,9 @@ type AboutHeadCanvasProps = {
   onReady?: () => void;
 };
 
-const aboutHeadConfig = experienceConfig.particles.aboutHead;
-const surfaceField = experienceConfig.particles.surfaceField;
-const particleGlow = experienceConfig.particles.glow;
+const aboutHeadConfig = particleObjectConfig.aboutHead.renderer;
+const surfaceField = particleRenderConfig.surfaceField;
+const particleGlow = particleRenderConfig.glow;
 
 function selectRuntimePositions(buffer: ArrayBuffer) {
   const source = new Float32Array(buffer);
@@ -381,8 +378,8 @@ function HeadPoints({ motion, active, positions, onReady }: AboutHeadCanvasProps
       rotation={[aboutHeadConfig.rotation.resting.x, aboutHeadConfig.rotation.resting.y, 0]}
       scale={
         mobile
-          ? particleObjectScaleConfig.aboutHead.mobile
-          : particleObjectScaleConfig.aboutHead.desktop
+          ? particleObjectConfig.aboutHead.scales.mobile
+          : particleObjectConfig.aboutHead.scales.desktop
       }
     >
       <points geometry={geometry} frustumCulled={false}>

@@ -2,13 +2,13 @@ import { AboutHeadExperience } from "../components/about/AboutHeadExperience";
 import { PortraitReveal } from "../components/about/PortraitReveal";
 import { ButtonLink } from "../components/ButtonLink";
 import { SiteShell } from "../components/SiteShell";
-import { experienceConfig } from "../config/experience";
+import { particleObjectConfig } from "../config/experience";
 import { aboutContent } from "../content/about-content";
 import type { CSSProperties } from "react";
 
 const aboutHeroStyle = {
   "--about-mobile-scroll-height": `${(
-    1 + experienceConfig.particles.aboutHead.sequence.scrollScreens.mobile
+    1 + particleObjectConfig.aboutHead.renderer.sequence.scrollScreens.mobile
   ) * 100}svh`,
 } as CSSProperties;
 
@@ -37,6 +37,7 @@ export function AboutPage() {
           <div className="site-container about-statement__grid">
             <p className="eyebrow" data-gsap-reveal="copy">{aboutContent.statement.eyebrow}</p>
             <div>
+              <p className="about-statement__answer">Webine is a Singapore digital studio that brings strategy, visual direction and website development into one focused process.</p>
               <h2 id="about-statement-heading" data-gsap-reveal="copy">{aboutContent.statement.heading}</h2>
               <p data-gsap-reveal="copy" data-gsap-delay="0.1">{aboutContent.statement.copy}</p>
             </div>

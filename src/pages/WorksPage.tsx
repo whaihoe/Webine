@@ -1,9 +1,9 @@
+import { useEffect } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { BackArrow } from "../components/BackArrow";
 import { DirectionalArrow } from "../components/DirectionalArrow";
 import { GalaxyBackdrop } from "../components/GalaxyBackdrop";
 import { ProjectCard } from "../components/projects/ProjectCard";
-import { projectMediaFrameStyle } from "../components/projects/project-media-layout";
 import {
   ProjectStoryBlock,
   type ProjectStoryAsset,
@@ -12,8 +12,12 @@ import { ProjectMedia } from "../components/projects/ProjectMedia";
 import { SiteShell } from "../components/SiteShell";
 import type { PublicProject } from "../content/public-projects";
 import { useSiteSettings } from "../content/SiteSettingsProvider";
-import { usePageMetadata } from "../hooks/usePageMetadata";
 import { usePublicProjects } from "../hooks/usePublicProjects";
+import { applyPageMetadata } from "../seo/document-metadata";
+import {
+  getMissingProjectPageMetadata,
+  getProjectPageMetadata,
+} from "../seo/page-metadata";
 
 function formatCompletionDate(value?: string) {
   if (!value) return "";
@@ -32,10 +36,9 @@ function ProjectCaseStudy({
   projects: PublicProject[];
   index: number;
 }) {
-  usePageMetadata(
-    `Webine • ${project.seoTitle || project.title}`,
-    project.seoDescription || project.summary,
-  );
+  useEffect(() => {
+    applyPageMetadata(getProjectPageMetadata(project));
+  }, [project]);
 
   const story = [
     ["About the client", project.aboutClient],
@@ -78,7 +81,6 @@ function ProjectCaseStudy({
           data-gsap-reveal="media"
           data-gsap-delay="0.16"
           data-image-parallax-viewport="true"
-          style={projectMediaFrameStyle(project.heroImage, { maxViewportHeight: 75 })}
         >
           <ProjectMedia
             asset={project.heroImage}
@@ -102,7 +104,7 @@ function ProjectCaseStudy({
       <div className="site-container project-case-study__story">
         {story.map(([heading, copy], storyIndex) => copy ? (
           <article key={heading} data-gsap-reveal="card" data-gsap-delay={storyIndex * 0.06}>
-            <span>{heading}</span>
+            <h2>{heading}</h2>
             <p>{copy}</p>
           </article>
         ) : null)}
@@ -126,6 +128,13 @@ function ProjectCaseStudy({
       </nav>
     </section>
   );
+}
+
+function ProjectUnavailableMetadata({ pathname }: { pathname: string }) {
+  useEffect(() => {
+    applyPageMetadata(getMissingProjectPageMetadata(pathname));
+  }, [pathname]);
+  return null;
 }
 
 function ProjectState({
@@ -174,7 +183,7 @@ export function WorksPage() {
       return <SiteShell><ProjectState title="Loading project" pending /></SiteShell>;
     }
     if (resource.status === "error") {
-      return <SiteShell><ProjectState title="Project could not load." copy={resource.message} retry={resource.retry} /></SiteShell>;
+      return <SiteShell><ProjectUnavailableMetadata pathname={`/works/${projectSlug}`} /><ProjectState title="Project could not load." copy={resource.message} retry={resource.retry} /></SiteShell>;
     }
     return (
       <SiteShell>
@@ -185,7 +194,7 @@ export function WorksPage() {
                 <ProjectCaseStudy project={active} projects={projects} index={activeIndex} />
               </div>
             )
-          : <ProjectState title="That project is not published." />}
+          : <><ProjectUnavailableMetadata pathname={`/works/${projectSlug}`} /><ProjectState title="That project is not published." /></>}
       </SiteShell>
     );
   }

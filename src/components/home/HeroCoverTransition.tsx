@@ -1,9 +1,9 @@
 import { useEffect, useLayoutEffect, useState, type RefObject } from "react";
 import { gsap, ScrollTrigger } from "../../animation/scroll-runtime";
-import { experienceConfig } from "../../config/experience";
+import { particleRenderConfig } from "../../config/experience";
 
 const NATIVE_STICKY_QUERY =
-  `(max-width: ${experienceConfig.particles.mobile.maxWidth}px), ` +
+  `(max-width: ${particleRenderConfig.homeProfiles.mobile.maxWidth}px), ` +
   "(hover: none) and (pointer: coarse)";
 
 type HeroCoverTransitionProps = {

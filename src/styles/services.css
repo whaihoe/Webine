@@ -141,6 +141,13 @@
   font-size: var(--body-l);
 }
 
+.services-experience__introduction h2 {
+  max-width: 17ch;
+  margin-top: var(--primitive-space-5);
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  line-height: 1.06;
+}
+
 .services-accordion {
   display: grid;
   gap: var(--primitive-space-3);

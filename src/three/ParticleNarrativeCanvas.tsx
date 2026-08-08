@@ -1,6 +1,6 @@
 import { Canvas, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useState } from "react";
-import { experienceConfig } from "../config/experience";
+import { particleObjectConfig, particleRenderConfig } from "../config/experience";
 import {
   loadParticleModel,
   sampleParticleModelSurface,
@@ -17,7 +17,7 @@ type LoadedParticleModels = {
 };
 
 function getParticleLayout(): ParticleLayout {
-  if (window.innerWidth < experienceConfig.particles.desktop.minWidth) {
+  if (window.innerWidth < particleRenderConfig.homeProfiles.desktop.minWidth) {
     return "tablet";
   }
 
@@ -112,9 +112,9 @@ export default function ParticleNarrativeCanvas({
 
   useEffect(() => {
     let cancelled = false;
-    const heroModelConfig = experienceConfig.particles.heroModel;
-    const reachModelConfig = experienceConfig.particles.reachModel;
-    const closingModelConfig = experienceConfig.particles.closingModel;
+    const heroModelConfig = particleObjectConfig.home.heroModel;
+    const reachModelConfig = particleObjectConfig.home.reachModel;
+    const closingModelConfig = particleObjectConfig.home.closingModel;
 
     Promise.all([
       loadParticleModel(heroModelConfig.url),
@@ -140,7 +140,7 @@ export default function ParticleNarrativeCanvas({
   }, [onFailure]);
 
   const profile = useMemo(
-    () => experienceConfig.particles[layout],
+    () => particleRenderConfig.homeProfiles[layout],
     [layout],
   );
   const heroTarget = useMemo(() => {
@@ -151,7 +151,7 @@ export default function ParticleNarrativeCanvas({
     return sampleParticleModelSurface(
       models.hero,
       profile.count,
-      experienceConfig.particles.heroModel,
+      particleObjectConfig.home.heroModel,
     );
   }, [models, profile.count]);
   const closingTarget = useMemo(() => {
@@ -162,7 +162,7 @@ export default function ParticleNarrativeCanvas({
     return sampleParticleModelSurface(
       models.closing,
       profile.count,
-      experienceConfig.particles.closingModel,
+      particleObjectConfig.home.closingModel,
     );
   }, [models, profile.count]);
   const reachTarget = useMemo(() => {
@@ -173,7 +173,7 @@ export default function ParticleNarrativeCanvas({
     return sampleParticleModelSurface(
       models.reach,
       profile.count,
-      experienceConfig.particles.reachModel,
+      particleObjectConfig.home.reachModel,
     );
   }, [models, profile.count]);
   if (!heroTarget || !reachTarget || !closingTarget) {

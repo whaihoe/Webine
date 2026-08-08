@@ -1,11 +1,12 @@
 import { useEffect, useRef } from "react";
+import { finePointerQuery } from "../config/media-queries";
 import type { ParticlePointerState } from "../three/particle-pointer";
 
 export function useParticlePointer() {
   const pointerRef = useRef<ParticlePointerState>({ x: 0, y: 0, active: false });
 
   useEffect(() => {
-    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const finePointer = window.matchMedia(finePointerQuery);
     const handlePointerMove = (event: PointerEvent) => {
       if (!finePointer.matches) return;
       pointerRef.current.x = event.clientX / window.innerWidth * 2 - 1;

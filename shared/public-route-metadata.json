@@ -1,0 +1,99 @@
+[
+  {
+    "path": "/",
+    "canonicalPath": "/",
+    "title": "Webine • Digital Agency in Singapore",
+    "description": "Webine is a Singapore digital agency creating distinctive websites through strategy, design, development and purposeful interaction.",
+    "heading": "Make the ordinary unmistakable.",
+    "linkLabel": "Home",
+    "pageType": "WebSite",
+    "breadcrumbs": []
+  },
+  {
+    "path": "/about",
+    "canonicalPath": "/about",
+    "title": "About Webine | Singapore Website Design Studio",
+    "description": "Meet the small Singapore team behind Webine and how we combine strategy, visual direction and development.",
+    "heading": "Two perspectives. One clear direction.",
+    "linkLabel": "About",
+    "pageType": "AboutPage",
+    "breadcrumbs": [
+      { "name": "Home", "path": "/" },
+      { "name": "About", "path": "/about" }
+    ]
+  },
+  {
+    "path": "/services",
+    "canonicalPath": "/services",
+    "title": "Website Design & Development Services Singapore | Webine",
+    "description": "Explore Webine's website design, redesign, landing page, SEO foundations and ongoing website care services for Singapore businesses.",
+    "heading": "Website support shaped around what needs to change.",
+    "linkLabel": "Services",
+    "pageType": "CollectionPage",
+    "breadcrumbs": [
+      { "name": "Home", "path": "/" },
+      { "name": "Services", "path": "/services" }
+    ]
+  },
+  {
+    "path": "/works",
+    "canonicalPath": "/works",
+    "title": "Webine Works | Website Design Case Studies",
+    "description": "View Webine's website design case studies, internal studies and honestly labelled concept projects.",
+    "heading": "Work with a clear point of view.",
+    "linkLabel": "Works",
+    "pageType": "CollectionPage",
+    "breadcrumbs": [
+      { "name": "Home", "path": "/" },
+      { "name": "Works", "path": "/works" }
+    ]
+  },
+  {
+    "path": "/contact",
+    "canonicalPath": "/contact",
+    "title": "Contact Webine | Start a Website Project in Singapore",
+    "description": "Tell Webine about your website design, redesign or support needs and start a project enquiry in Singapore.",
+    "heading": "Have something worth making unmistakable?",
+    "linkLabel": "Contact",
+    "pageType": "ContactPage",
+    "breadcrumbs": [
+      { "name": "Home", "path": "/" },
+      { "name": "Contact", "path": "/contact" }
+    ]
+  },
+  {
+    "path": "/privacy",
+    "canonicalPath": "/privacy",
+    "title": "Webine Privacy Notice",
+    "description": "Read how Webine collects, uses, protects and retains personal information provided through the website.",
+    "heading": "Privacy notice",
+    "linkLabel": "Privacy",
+    "pageType": "WebPage",
+    "breadcrumbs": [
+      { "name": "Home", "path": "/" },
+      { "name": "Privacy", "path": "/privacy" }
+    ]
+  },
+  {
+    "path": "/admin",
+    "canonicalPath": "/admin",
+    "title": "Webine • Admin",
+    "description": "Protected Webine content workspace.",
+    "heading": "Webine Admin",
+    "linkLabel": "Admin",
+    "pageType": "WebPage",
+    "breadcrumbs": [],
+    "noIndex": true
+  },
+  {
+    "path": "/preview",
+    "canonicalPath": "/preview",
+    "title": "Webine • Content preview",
+    "description": "Protected Webine content preview.",
+    "heading": "Webine content preview",
+    "linkLabel": "Preview",
+    "pageType": "WebPage",
+    "breadcrumbs": [],
+    "noIndex": true
+  }
+]

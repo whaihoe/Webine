@@ -1,4 +1,4 @@
-import { experienceConfig } from "../config/experience";
+import { particleRenderConfig } from "../config/experience";
 
 export type MobileParticleSceneId = "hero" | "reach" | "interlude" | "closing";
 
@@ -18,7 +18,7 @@ const TARGET_NAMES: readonly MobileParticleSceneId[] = [
 let targetPromise: Promise<MobileSectionParticleTargets> | null = null;
 
 export function loadMobileSectionParticleTargets(count: number) {
-  if (count !== experienceConfig.particles.mobile.count) {
+  if (count !== particleRenderConfig.homeProfiles.mobile.count) {
     return Promise.reject(
       new Error("Mobile particle target count does not match the baked asset."),
     );

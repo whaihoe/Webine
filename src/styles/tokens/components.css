@@ -16,6 +16,7 @@
   --input-text: var(--color-text-primary);
   --input-placeholder: var(--color-text-secondary);
   --input-radius: var(--primitive-radius-default);
+  --project-media-aspect: 16 / 10;
   --project-media-radius: var(--primitive-radius-media);
   --panel-radius: var(--primitive-radius-panel);
   --dialog-background: var(--primitive-slate-950);

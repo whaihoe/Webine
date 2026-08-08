@@ -4,7 +4,7 @@ type VirtualScrollInput = {
   event: WheelEvent | TouchEvent;
 };
 
-export function normaliseWheelDelta(delta: number, maximum: number) {
+function normaliseWheelDelta(delta: number, maximum: number) {
   if (!Number.isFinite(delta) || !Number.isFinite(maximum) || maximum <= 0) {
     return 0;
   }

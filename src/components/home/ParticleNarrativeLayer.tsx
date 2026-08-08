@@ -7,7 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { experienceConfig } from "../../config/experience";
+import { experienceConfig, particleRenderConfig } from "../../config/experience";
 import { getParticleCapability } from "../../three/capability";
 import {
   useParticleController,
@@ -62,7 +62,7 @@ export function ParticleNarrativeLayer() {
   const activity = useStoryActivitySnapshot();
   const [shouldLoad, setShouldLoad] = useState(false);
   const [useMobileSectionParticles, setUseMobileSectionParticles] = useState(
-    () => window.innerWidth <= experienceConfig.particles.mobile.maxWidth,
+    () => window.innerWidth <= particleRenderConfig.homeProfiles.mobile.maxWidth,
   );
   const [renderState, setRenderState] = useState<
     "loading" | "fallback" | "live"

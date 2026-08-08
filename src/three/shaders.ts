@@ -1,7 +1,7 @@
-import { experienceConfig } from "../config/experience";
+import { experienceConfig, particleRenderConfig } from "../config/experience";
 import { particlePointerVertexShaderChunk } from "./particle-pointer";
 
-const particleGlow = experienceConfig.particles.glow;
+const particleGlow = particleRenderConfig.glow;
 const processTransition = experienceConfig.particles.processTransition.gpu;
 const glslFloat = (value: number) =>
   Number.isInteger(value) ? value.toFixed(1) : String(value);

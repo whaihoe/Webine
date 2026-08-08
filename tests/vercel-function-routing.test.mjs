@@ -62,4 +62,11 @@ test("rewrites existing public API URLs to the consolidated functions", async ()
       destination: "/api/projects?__webine_route=:path*",
     },
   ]);
+  assert.deepEqual(
+    configuration.rewrites.find((rewrite) => rewrite.source === "/works/:slug"),
+    {
+      source: "/works/:slug",
+      destination: "/api/projects?__webine_document=:slug",
+    },
+  );
 });

@@ -1,4 +1,4 @@
-import { experienceConfig } from "../config/experience";
+import { particleObjectConfig } from "../config/experience";
 
 type ProgressReporter = (progress: number) => void;
 
@@ -40,7 +40,7 @@ function routeAssets(pathname: string) {
   }
 
   if (pathname === "/services") {
-    return experienceConfig.particles.servicesMorph.models.map((model) => model.url);
+    return particleObjectConfig.services.renderer.models.map((model) => model.url);
   }
 
   return [];

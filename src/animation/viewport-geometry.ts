@@ -2,7 +2,7 @@ function clampViewportInset(inset: number, viewportHeight: number) {
   return Math.min(Math.max(inset, 0), Math.max(viewportHeight, 0));
 }
 
-export function getFixedHeaderBottom(viewportHeight = window.innerHeight) {
+function getFixedHeaderBottom(viewportHeight = window.innerHeight) {
   const header = document.querySelector<HTMLElement>("[data-site-header]");
   const headerBottom = header?.getBoundingClientRect().bottom ?? 0;
 

@@ -175,6 +175,13 @@
   max-width: 12ch;
 }
 
+.about-statement__answer {
+  max-width: 40rem;
+  margin: 0 0 var(--primitive-space-7);
+  color: hsl(var(--primitive-slate-700));
+  font-size: var(--body-m);
+}
+
 .about-statement h2 + p {
   max-width: 44rem;
   margin: var(--primitive-space-10) 0 0 auto;

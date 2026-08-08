@@ -1,5 +1,5 @@
-export const collectionKeyPattern = /^[a-z][a-z0-9_]{1,49}$/;
-export const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const collectionKeyPattern = /^[a-z][a-z0-9_]{1,49}$/;
+const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export const fieldTypes = [
   "short_text",
@@ -23,7 +23,7 @@ export const fieldTypes = [
   "content_blocks",
 ] as const;
 
-export type FieldType = (typeof fieldTypes)[number];
+type FieldType = (typeof fieldTypes)[number];
 
 export type FieldOption = {
   key: string;
@@ -77,14 +77,14 @@ export type ValidationIssue = {
   message: string;
 };
 
-export type ValidationContext = {
+type ValidationContext = {
   allowLocalHttp?: boolean;
   requireRequiredFields?: boolean;
   assets?: Record<string, { status: string; altText: string; decorative?: boolean; mimeType?: string }>;
   references?: Record<string, { collectionKey: string; status: string }>;
 };
 
-export type CollectionMutationContext = {
+type CollectionMutationContext = {
   itemCount: number;
   valuesByField: Record<string, unknown[]>;
 };

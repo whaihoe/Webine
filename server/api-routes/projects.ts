@@ -2,6 +2,10 @@ import {
   getPublicProject,
   listPublicProjects,
 } from "../public-content.js";
+import {
+  renderMissingProjectDocument,
+  renderProjectRouteDocument,
+} from "../../shared/route-document.mjs";
 import { errorResponse, jsonResponse } from "../responses.js";
 import {
   assertQueryContract,
@@ -11,6 +15,7 @@ import {
 } from "../request-contract.js";
 
 const projectRoute = /^\/api\/projects\/([a-z0-9]+(?:-[a-z0-9]+)*)$/;
+const projectSlug = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const featuredQuery = new Map([["featured", (value: string) => value === "true"]]);
 const noQuery = new Map<string, (value: string) => boolean>();
 const publicProjectCache = {
@@ -29,6 +34,61 @@ type ProjectOperations = {
   list: typeof listPublicProjects;
   get: typeof getPublicProject;
 };
+
+type ProjectDocumentOperations = Pick<ProjectOperations, "get"> & {
+  loadShell?: (request: Request) => Promise<string>;
+};
+
+async function loadProjectShell(request: Request) {
+  const response = await fetch(new URL("/works/project/index.html", request.url), {
+    headers: { Accept: "text/html" },
+  });
+  if (!response.ok) {
+    throw new Error(`Project document shell returned ${response.status}.`);
+  }
+  return response.text();
+}
+
+export async function routeProjectDocumentRequest(
+  request: Request,
+  slug: string,
+  operations: ProjectDocumentOperations = { get: getPublicProject },
+) {
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    return methodNotAllowed(request, ["GET", "HEAD"]);
+  }
+  if (!projectSlug.test(slug) || slug.length > 80) {
+    return new Response(request.method === "HEAD" ? null : "Project not found.", {
+      status: 404,
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "public, max-age=60",
+        "X-Robots-Tag": "noindex, nofollow",
+      },
+    });
+  }
+
+  const [project, shell] = await Promise.all([
+    operations.get(slug),
+    (operations.loadShell ?? loadProjectShell)(request),
+  ]);
+  const body = project
+    ? renderProjectRouteDocument(shell, project)
+    : renderMissingProjectDocument(shell, slug);
+  const status = project ? 200 : 404;
+
+  return new Response(request.method === "HEAD" ? null : body, {
+    status,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": "public, max-age=60",
+      "CDN-Cache-Control": "public, s-maxage=300, stale-while-revalidate=3600",
+      "Vercel-CDN-Cache-Control": "public, s-maxage=300, stale-while-revalidate=3600",
+      "X-Content-Type-Options": "nosniff",
+      "X-Robots-Tag": project ? "index, follow" : "noindex, nofollow",
+    },
+  });
+}
 
 export async function routeProjectRequest(
   request: Request,

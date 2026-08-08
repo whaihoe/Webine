@@ -7,12 +7,15 @@
     "node": "22.x"
   },
   "overrides": {
-    "brace-expansion": "5.0.8",
-    "minimatch": "9.0.7"
+    "brace-expansion": "5.0.9",
+    "js-yaml": "4.3.1",
+    "minimatch": "9.0.7",
+    "nanoid": "3.3.17",
+    "undici": "6.28.0"
   },
   "scripts": {
     "dev": "vite --host 127.0.0.1",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && node scripts/generate-route-documents.mjs",
     "build:vercel": "npm run check:production-env && npm run build",
     "preview": "vite preview --host 127.0.0.1",
     "check:production-env": "node scripts/check-production-env.mjs",
@@ -54,7 +57,7 @@
     "autoprefixer": "10.4.21",
     "eslint": "8.57.1",
     "eslint-plugin-react-hooks": "4.6.2",
-    "postcss": "8.5.18",
+    "postcss": "8.5.26",
     "tailwindcss": "3.4.17",
     "typescript": "^5.9.3",
     "vite": "^8.1.4"

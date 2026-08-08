@@ -1,5 +1,6 @@
 import { lazy, Suspense, useState, type ReactNode } from "react";
 import { experienceMode } from "../config/experience";
+import { desktopFinePointerQuery } from "../config/media-queries";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 import { usePageLoad } from "../loading/page-load-context";
 import { PublicSmoothScroll } from "./PublicSmoothScroll";
@@ -9,7 +10,6 @@ import { GsapRevealController } from "./GsapRevealController";
 
 const KineticCursor = lazy(() =>
   import("./KineticCursor").then((module) => ({ default: module.KineticCursor })));
-const KINETIC_CURSOR_QUERY = "(min-width: 48rem) and (hover: hover) and (pointer: fine)";
 
 type SiteShellProps = {
   children: ReactNode;
@@ -22,7 +22,7 @@ export function SiteShell({
 }: SiteShellProps) {
   const [shellElement, setShellElement] = useState<HTMLDivElement | null>(null);
   const { isPageReady } = usePageLoad();
-  const showKineticCursor = useMediaQuery(KINETIC_CURSOR_QUERY);
+  const showKineticCursor = useMediaQuery(desktopFinePointerQuery);
 
   return (
     <div ref={setShellElement} className="site-shell" data-experience-mode={experienceMode}>

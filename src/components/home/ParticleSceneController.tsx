@@ -6,7 +6,7 @@ import {
   type ReactNode,
 } from "react";
 import {
-  experienceConfig,
+  particleRenderConfig,
   particleSceneConfig,
 } from "../../config/experience";
 import {
@@ -30,11 +30,11 @@ const particleAnchorSceneIds = new Set<ParticleSceneAnchorId>([
 ]);
 
 function getParticleLayout(viewportWidth: number): ParticleLayout {
-  if (viewportWidth >= experienceConfig.particles.desktop.minWidth) {
+  if (viewportWidth >= particleRenderConfig.homeProfiles.desktop.minWidth) {
     return "desktop";
   }
 
-  if (viewportWidth > experienceConfig.particles.mobile.maxWidth) {
+  if (viewportWidth > particleRenderConfig.homeProfiles.mobile.maxWidth) {
     return "tablet";
   }
 
@@ -78,7 +78,7 @@ export function ParticleSceneController({
     const measure = (timestamp: number) => {
       frame = 0;
       const layout = getParticleLayout(window.innerWidth);
-      const profile = experienceConfig.particles[layout];
+      const profile = particleRenderConfig.homeProfiles[layout];
       const frameInterval = 1000 / profile.maxFrameRate;
 
       if (timestamp - lastMeasureAt < frameInterval) {
@@ -194,7 +194,7 @@ export function ParticleSceneController({
       const layout = getParticleLayout(window.innerWidth);
       measureUntil =
         performance.now() +
-        experienceConfig.particles[layout].measurementSettleMs;
+        particleRenderConfig.homeProfiles[layout].measurementSettleMs;
 
       if (!frame) {
         frame = window.requestAnimationFrame(measure);

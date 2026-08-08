@@ -22,7 +22,7 @@ type ProjectMediaProps = {
   style?: CSSProperties;
 };
 
-export function isProjectVideo(asset: ProjectMediaAsset) {
+function isProjectVideo(asset: ProjectMediaAsset) {
   return asset.mimeType === "video/mp4";
 }
 

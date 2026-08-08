@@ -1,12 +1,13 @@
 import { useEffect, useRef } from "react";
-import { experienceConfig } from "../config/experience";
+import { finePointerQuery } from "../config/media-queries";
+import { particleRenderConfig } from "../config/experience";
 import {
   getParticleSurfacePalette,
   sampleParticleSurfaceField,
 } from "../utils/particle-surface-field";
 
-const ambientConfig = experienceConfig.particles.ambientField;
-const particleGlow = experienceConfig.particles.glow;
+const ambientConfig = particleRenderConfig.ambientField;
+const particleGlow = particleRenderConfig.glow;
 type AmbientFieldVariant = keyof typeof ambientConfig.counts;
 
 type AmbientParticleFieldProps = {
@@ -75,7 +76,7 @@ export function AmbientParticleField({
     const palette = getParticleSurfacePalette();
     const pointerTarget = { x: 0, y: 0 };
     const pointer = { x: 0, y: 0 };
-    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const finePointer = window.matchMedia(finePointerQuery);
     const frameInterval = 1000 / (
       window.innerWidth < 600 ? ambientConfig.frameRate.mobile : ambientConfig.frameRate.desktop
     );

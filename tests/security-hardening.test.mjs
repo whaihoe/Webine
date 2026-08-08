@@ -8,7 +8,10 @@ import {
   routeAdminRequest,
 } from "../.test-build/server/api-routes/admin.js";
 import { handleEnquiryRequest } from "../.test-build/server/api-routes/enquiries.js";
-import { routeProjectRequest } from "../.test-build/server/api-routes/projects.js";
+import {
+  routeProjectDocumentRequest,
+  routeProjectRequest,
+} from "../.test-build/server/api-routes/projects.js";
 import { handleSiteSettingsRequest } from "../.test-build/server/api-routes/site-settings.js";
 import { getCanonicalSiteOrigin } from "../.test-build/server/canonical-origin.js";
 import { createEnquiry } from "../.test-build/server/enquiry-service.js";
@@ -65,6 +68,44 @@ test("uses separate browser and CDN cache contracts for public content", async (
   assert.equal(response.headers.get("cache-control"), "public, max-age=60");
   assert.equal(response.headers.get("cdn-cache-control"), "public, s-maxage=300, stale-while-revalidate=3600");
   assert.equal(response.headers.get("vercel-cdn-cache-control"), "public, s-maxage=300, stale-while-revalidate=3600");
+});
+
+test("serves project-specific HTML and a real noindex response for missing work", async () => {
+  const shell = await readFile(new URL("../dist/works/project/index.html", import.meta.url), "utf8");
+  const project = {
+    slug: "example-project",
+    title: "Example Project",
+    summary: "A truthful example project summary.",
+    label: "Concept project",
+    category: "Website design",
+    year: 2026,
+    heroImage: { url: "https://images.example/example.webp" },
+  };
+  const loadShell = async () => shell;
+  const response = await routeProjectDocumentRequest(
+    new Request("https://www.madebywebine.com/works/example-project"),
+    project.slug,
+    { get: async () => project, loadShell },
+  );
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("x-robots-tag"), "index, follow");
+  assert.equal((html.match(/<title>/g) ?? []).length, 1);
+  assert.match(html, /<title>Webine • Example Project<\/title>/);
+  assert.match(html, /<link rel="canonical" href="https:\/\/www\.madebywebine\.com\/works\/example-project"/);
+  assert.match(html, /<h1>Example Project<\/h1>/);
+  assert.match(html, /CreativeWork/);
+
+  const missing = await routeProjectDocumentRequest(
+    new Request("https://www.madebywebine.com/works/missing-project"),
+    "missing-project",
+    { get: async () => null, loadShell },
+  );
+  const missingHtml = await missing.text();
+  assert.equal(missing.status, 404);
+  assert.equal(missing.headers.get("x-robots-tag"), "noindex, nofollow");
+  assert.match(missingHtml, /<meta name="robots" content="noindex, nofollow"/);
+  assert.doesNotMatch(missingHtml, /rel="canonical"/);
 });
 
 test("rejects site-settings query variants before loading settings", async () => {

@@ -10,6 +10,8 @@ import {
 } from "three";
 import {
   experienceConfig,
+  particleObjectConfig,
+  particleRenderConfig,
   particleSceneConfig,
 } from "../config/experience";
 import { useParticlePointer } from "../hooks/useParticlePointer";
@@ -74,7 +76,7 @@ export function ParticlePoints({
     () => createProceduralParticleTargets(
       profile.count,
       profile.ambientRatio,
-      experienceConfig.particles.interludeObject,
+      particleObjectConfig.home.interlude,
     ),
     [profile.ambientRatio, profile.count],
   );
@@ -88,8 +90,8 @@ export function ParticlePoints({
       ),
     [closingTarget, heroTarget, proceduralTargets, reachTarget],
   );
-  const ambientMotion = experienceConfig.particles.ambientMotion;
-  const surfaceField = experienceConfig.particles.surfaceField;
+  const ambientMotion = particleRenderConfig.motion;
+  const surfaceField = particleRenderConfig.surfaceField;
   const processTransition = experienceConfig.particles.processTransition.gpu;
   const uniforms = useMemo(
     () => ({
@@ -352,7 +354,7 @@ export function ParticlePoints({
       closingMotion.formation * (1 - closingMotion.dispersion);
     const ambientRotationScale = MathUtils.lerp(
       1,
-      experienceConfig.particles.closingModel.ambientRotationScale,
+      particleObjectConfig.home.closingModel.ambientRotationScale,
       closingSettledStrength,
     );
     const elapsed = clock.elapsedTime;

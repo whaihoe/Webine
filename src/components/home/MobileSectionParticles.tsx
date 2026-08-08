@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { experienceConfig } from "../../config/experience";
+import { experienceConfig, particleObjectConfig, particleRenderConfig } from "../../config/experience";
 import {
   getParticleSurfacePalette,
   sampleParticleSurfaceField,
@@ -13,10 +13,10 @@ import {
 import type { StoryProgressSnapshot } from "../../three/story-progress";
 import { useParticleController } from "./ParticleSceneContext";
 
-const MOBILE_QUERY = `(max-width: ${experienceConfig.particles.mobile.maxWidth}px)`;
+const MOBILE_QUERY = `(max-width: ${particleRenderConfig.homeProfiles.mobile.maxWidth}px)`;
 const MOBILE_PARTICLE_DPR = 1;
 const MOBILE_AMBIENT_FRAME_RATE = 24;
-const particleGlow = experienceConfig.particles.glow;
+const particleGlow = particleRenderConfig.glow;
 
 function createParticleSprite(colour: string, light = false) {
   const sprite = document.createElement("canvas");
@@ -139,9 +139,9 @@ function prepareTarget(
   let minRawZ = Number.POSITIVE_INFINITY;
   let maxRawZ = Number.NEGATIVE_INFINITY;
   const rotationDegrees = scene === "reach"
-    ? experienceConfig.particles.reachModel.rotationDegrees
+    ? particleObjectConfig.home.reachModel.rotationDegrees
     : scene === "interlude"
-      ? experienceConfig.particles.interludeObject.rotationDegrees
+      ? particleObjectConfig.home.interlude.rotationDegrees
     : [0, 0, 0] as const;
   const rotationX = rotationDegrees[0] * (Math.PI / 180);
   const rotationY = rotationDegrees[1] * (Math.PI / 180);
@@ -303,9 +303,9 @@ export function MobileTimelineFlowParticles() {
       const centreY = height * 0.5;
       const scatterRadiusX = width * processTransition.scatterRadiusX;
       const scatterRadiusY = height * processTransition.scatterRadiusY;
-      const pointSize = experienceConfig.particles.mobile.pointSize;
+      const pointSize = particleRenderConfig.homeProfiles.mobile.pointSize;
       const count = Math.floor(
-        buffers.randomness.length * experienceConfig.particles.mobile.renderRatio,
+        buffers.randomness.length * particleRenderConfig.homeProfiles.mobile.renderRatio,
       );
       lastProgress = progress;
 
@@ -420,7 +420,7 @@ export function MobileTimelineFlowParticles() {
     resizeObserver.observe(activeCanvas);
     resizeCanvas();
 
-    loadMobileSectionParticleTargets(experienceConfig.particles.mobile.count)
+    loadMobileSectionParticleTargets(particleRenderConfig.homeProfiles.mobile.count)
       .then((loadedBuffers) => {
         if (cancelled) {
           return;
@@ -519,10 +519,10 @@ export function MobileSectionParticles({
       createParticleSprite(colour, lightScene)
     );
     const densityFloor = lightScene
-      ? experienceConfig.particles.surfaceField.mobileDensityFloor.light
-      : experienceConfig.particles.surfaceField.mobileDensityFloor.dark;
-    const ambientMotion = experienceConfig.particles.ambientMotion;
-    const surfaceField = experienceConfig.particles.surfaceField;
+      ? particleRenderConfig.surfaceField.mobileDensityFloor.light
+      : particleRenderConfig.surfaceField.mobileDensityFloor.dark;
+    const ambientMotion = particleRenderConfig.motion;
+    const surfaceField = particleRenderConfig.surfaceField;
     const ambientFrameInterval = 1000 / MOBILE_AMBIENT_FRAME_RATE;
 
     function isNearViewport() {
@@ -561,9 +561,9 @@ export function MobileSectionParticles({
       const height = activeCanvas.height / MOBILE_PARTICLE_DPR;
       const strength = getFormationStrength(store.getSnapshot(), scene);
       const targetBlend = 1 - Math.pow(1 - strength, 2.4);
-      const pointSize = experienceConfig.particles.mobile.pointSize;
+      const pointSize = particleRenderConfig.homeProfiles.mobile.pointSize;
       const count = Math.floor(
-        projection.targetX.length * experienceConfig.particles.mobile.renderRatio,
+        projection.targetX.length * particleRenderConfig.homeProfiles.mobile.renderRatio,
       );
       const elapsed = timestamp / 1000;
       const currentScrollY = window.scrollY;
@@ -578,7 +578,7 @@ export function MobileSectionParticles({
       scrollRotation *= 0.982;
       lastScrollY = currentScrollY;
       const closingRotationScale = scene === "closing"
-        ? experienceConfig.particles.closingModel.ambientRotationScale
+        ? particleObjectConfig.home.closingModel.ambientRotationScale
         : 1;
       const rotationX = Math.sin(elapsed * 0.2) *
         ambientMotion.rotationX * closingRotationScale * strength;
@@ -645,9 +645,9 @@ export function MobileSectionParticles({
           const mobility = identity * identity;
           const electronRate = 0.23 + identity * 0.86;
           const electronPhase = identity * Math.PI * 10 + index * 0.017;
-          const electronAmplitude = (0.55 + mobility * experienceConfig.particles.mobile.electronDrift) *
+          const electronAmplitude = (0.55 + mobility * particleRenderConfig.homeProfiles.mobile.electronDrift) *
             (0.74 + (1 - strength) * 0.62);
-          const objectLooseness = experienceConfig.particles.mobile.objectLooseness * targetBlend;
+          const objectLooseness = particleRenderConfig.homeProfiles.mobile.objectLooseness * targetBlend;
           const spreadX = Math.sin(identity * 91.73 + index * 0.013) * objectLooseness;
           const spreadY = Math.cos(identity * 67.19 + index * 0.009) * objectLooseness * 0.82;
           const electronX = (
@@ -727,7 +727,7 @@ export function MobileSectionParticles({
     resizeObserver.observe(activeCanvas);
     resizeCanvas();
 
-    loadMobileSectionParticleTargets(experienceConfig.particles.mobile.count)
+    loadMobileSectionParticleTargets(particleRenderConfig.homeProfiles.mobile.count)
       .then((loadedBuffers) => {
         if (cancelled) {
           return;

@@ -94,5 +94,3 @@ export async function uploadAdminMedia(
     originalFilename: file.name,
   });
 }
-
-export const uploadAdminImage = uploadAdminMedia;

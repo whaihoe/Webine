@@ -1,7 +1,6 @@
 import { Link, useSearchParams } from "react-router-dom";
 import type { AdminAsset, AdminItem } from "../admin/api";
 import { useAdminResource } from "../admin/useAdminResource";
-import { projectMediaFrameStyle } from "../components/projects/project-media-layout";
 import { ProjectMedia } from "../components/projects/ProjectMedia";
 import { ProjectStoryBlock } from "../components/projects/ProjectStoryBlock";
 import { SiteShell } from "../components/SiteShell";
@@ -37,8 +36,8 @@ export function PreviewPage() {
     <SiteShell headerTheme="light">
       <section className="project-case-study theme-light" aria-labelledby="preview-heading">
         <div className="site-container project-case-study__top"><Link to={back}>Return to editor</Link><p>Protected draft preview / {resource.data.item.status}</p></div>
-        <div className="site-container project-case-study__hero"><div className="page-header-copy page-header-copy--case"><p className="eyebrow page-header-copy__eyebrow">Unpublished CMS state</p><h1 className="page-header-copy__title" id="preview-heading">{String(data.title ?? "Untitled project")}</h1><p className="page-header-copy__summary">{String(data.short_summary ?? "Add a project summary in Admin.")}</p></div>{asset ? <div className="project-case-study__media-frame" style={projectMediaFrameStyle(asset, { maxViewportHeight: 75 })}><ProjectMedia asset={asset} style={{ objectPosition: `${asset.focalX * 100}% ${asset.focalY * 100}%` }} /></div> : <div className="project-case-study__missing-media">Select project cover media</div>}{facts.length ? <dl className="project-case-study__facts">{facts.map(([label, value]) => <div key={String(label)}><dt>{String(label)}</dt><dd>{String(value)}</dd></div>)}</dl> : null}</div>
-        <div className="site-container project-case-study__story">{[["About the client", structuredText(data.about_client)], ["Challenge", structuredText(data.challenge)], ["Approach", structuredText(data.approach)], ["Outcome", structuredText(data.outcome)]].map(([heading, copy]) => copy ? <article key={heading}><span>{heading}</span><p>{copy}</p></article> : null)}{blocks.map((block, index) => {
+        <div className="site-container project-case-study__hero"><div className="page-header-copy page-header-copy--case"><p className="eyebrow page-header-copy__eyebrow">Unpublished CMS state</p><h1 className="page-header-copy__title" id="preview-heading">{String(data.title ?? "Untitled project")}</h1><p className="page-header-copy__summary">{String(data.short_summary ?? "Add a project summary in Admin.")}</p></div>{asset ? <div className="project-case-study__media-frame"><ProjectMedia asset={asset} style={{ objectPosition: `${asset.focalX * 100}% ${asset.focalY * 100}%` }} /></div> : <div className="project-case-study__missing-media">Select project cover media</div>}{facts.length ? <dl className="project-case-study__facts">{facts.map(([label, value]) => <div key={String(label)}><dt>{String(label)}</dt><dd>{String(value)}</dd></div>)}</dl> : null}</div>
+        <div className="site-container project-case-study__story">{[["About the client", structuredText(data.about_client)], ["Challenge", structuredText(data.challenge)], ["Approach", structuredText(data.approach)], ["Outcome", structuredText(data.outcome)]].map(([heading, copy]) => copy ? <article key={heading}><h2>{heading}</h2><p>{copy}</p></article> : null)}{blocks.map((block, index) => {
           const blockAssets = contentBlockAssetIds(block)
             .map((assetId) => resource.data.assets.find((candidate) => candidate.id === assetId))
             .filter((candidate): candidate is AdminAsset => Boolean(candidate));

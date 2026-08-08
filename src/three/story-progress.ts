@@ -1,6 +1,6 @@
 import type { SceneProgress } from "./types";
 
-export type ViewportPoint = {
+type ViewportPoint = {
   x: number;
   y: number;
 };
@@ -16,7 +16,7 @@ export type ParticleSceneAnchorPositions = Record<
   ViewportPoint
 >;
 
-export type ParticleSceneMotionProgress = {
+type ParticleSceneMotionProgress = {
   formation: number;
   dispersion: number;
 };

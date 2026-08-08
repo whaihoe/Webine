@@ -2,7 +2,6 @@ import {
   contentBlockType,
   type ProjectContentBlock,
 } from "../../../shared/project-content-blocks";
-import { projectMediaFrameStyle } from "./project-media-layout";
 import {
   ProjectMedia,
   type ProjectMediaAsset,
@@ -32,6 +31,14 @@ function imageAlt(image: ProjectStoryAsset) {
   return image.decorative === true ? "" : String(image.altText ?? "");
 }
 
+function sourceAspectRatio(image: ProjectStoryAsset) {
+  const width = Number(image.width);
+  const height = Number(image.height);
+  return Number.isFinite(width) && width > 0 && Number.isFinite(height) && height > 0
+    ? `${width} / ${height}`
+    : "1 / 1";
+}
+
 function StoryImage({
   image,
   parallax,
@@ -45,7 +52,7 @@ function StoryImage({
     <div
       className={`project-case-study__media-frame project-case-study__media-frame--story${parallax ? "" : " project-case-study__media-frame--bento"}`}
       data-image-parallax-viewport={parallax ? "true" : undefined}
-      style={projectMediaFrameStyle(image, parallax ? { maxViewportHeight: 75 } : {})}
+      style={parallax ? undefined : { aspectRatio: sourceAspectRatio(image) }}
     >
       <ProjectMedia
         asset={image}
@@ -79,12 +86,11 @@ export function ProjectStoryBlock({
       data-has-heading={heading ? "true" : "false"}
       data-gsap-reveal={reveal ? "card" : undefined}
     >
-      {heading || (!isBento && !isImage && !isVideo) ? <span>{heading || type || "Story"}</span> : null}
+      {heading || (!isBento && !isImage && !isVideo) ? <h2>{heading || type || "Story"}</h2> : null}
       {isVideo && images[0]?.url ? (
         <figure className="project-story-video">
           <div
             className="project-case-study__media-frame project-case-study__media-frame--video"
-            style={projectMediaFrameStyle(images[0])}
           >
             <ProjectMedia asset={images[0]} />
           </div>

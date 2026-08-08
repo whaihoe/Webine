@@ -122,7 +122,7 @@ export type AdminDashboard = {
   };
 };
 
-export type AdminReadinessItem = {
+type AdminReadinessItem = {
   configured: boolean;
   label: string;
   requiredVariable: string;

@@ -262,6 +262,7 @@
 }
 
 .work-runway[data-scroll-mode="pinned"] .work-card {
+  flex-basis: min(55.68svh, 33.408rem);
   grid-template-rows: minmax(0, 58%) minmax(0, 42%);
   overflow: hidden;
 }
@@ -269,7 +270,7 @@
 .work-runway[data-scroll-mode="pinned"] .work-card__media {
   height: 100%;
   min-height: 0;
-  aspect-ratio: auto;
+  aspect-ratio: var(--project-media-aspect);
 }
 
 .work-runway[data-scroll-mode="pinned"] .work-card__content {
@@ -413,7 +414,7 @@
   position: relative;
   width: 100%;
   min-height: 0;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: var(--project-media-aspect);
   overflow: hidden;
   border-radius: var(--primitive-radius-media);
   isolation: isolate;
@@ -654,9 +655,9 @@
     margin-right: 0;
   }
 
-  .work-card {
-    flex-basis: min(76vw, 68rem);
-    grid-template-columns: minmax(0, 1.55fr) minmax(20rem, 0.75fr);
+  .work-runway[data-scroll-mode="pinned"] .work-card {
+    flex-basis: calc(min(84.8vh, 54.4rem) + min(24vw, 20rem) + var(--primitive-space-8));
+    grid-template-columns: min(84.8vh, 54.4rem) minmax(20rem, 1fr);
     gap: var(--primitive-space-8);
   }
 
@@ -680,7 +681,7 @@
   .work-card__media {
     height: 100%;
     min-height: min(53vh, 34rem);
-    aspect-ratio: auto;
+    aspect-ratio: var(--project-media-aspect);
   }
 
   .work-card__content {

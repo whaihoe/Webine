@@ -1,6 +1,6 @@
-import { experienceConfig } from "../config/experience";
+import { particleRenderConfig } from "../config/experience";
 
-const surface = experienceConfig.particles.surfaceField;
+const surface = particleRenderConfig.surfaceField;
 const TAU = Math.PI * 2;
 
 function smoothstep(edge0: number, edge1: number, value: number) {

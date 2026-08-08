@@ -1,4 +1,4 @@
-import { experienceConfig } from "../../config/experience";
+import { particleObjectConfig, particleRenderConfig } from "../../config/experience";
 
 export type SilhouetteParticle = {
   targetX: number;
@@ -42,8 +42,8 @@ type CoverRectangle = {
 };
 
 const SILHOUETTE_LUMINANCE_THRESHOLD = 128;
-const particleGlow = experienceConfig.particles.glow;
-const portraitMotion = experienceConfig.particles.aboutPortrait.motion;
+const particleGlow = particleRenderConfig.glow;
+const portraitMotion = particleObjectConfig.aboutPortrait.motion;
 
 function clamp(value: number, minimum = 0, maximum = 1) {
   return Math.min(maximum, Math.max(minimum, value));

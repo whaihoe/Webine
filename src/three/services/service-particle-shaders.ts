@@ -1,7 +1,7 @@
-import { experienceConfig } from "../../config/experience";
+import { particleRenderConfig } from "../../config/experience";
 import { particlePointerVertexShaderChunk } from "../particle-pointer";
 
-const particleGlow = experienceConfig.particles.glow;
+const particleGlow = particleRenderConfig.glow;
 
 export const serviceParticleVertexShader = `
   attribute vec3 targetFrom;

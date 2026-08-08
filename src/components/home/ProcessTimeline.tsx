@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { gsap } from "../../animation/scroll-runtime";
 import { getViewportReadingLine } from "../../animation/viewport-geometry";
-import { experienceConfig } from "../../config/experience";
+import { experienceConfig, particleRenderConfig } from "../../config/experience";
 import {
   useParticleController,
   useParticleSceneAnchor,
@@ -20,6 +20,11 @@ export function ProcessTimeline() {
   const registerScene = useParticleSceneAnchor("process");
   const { store } = useParticleController();
   const [activeStep, setActiveStep] = useState(-1);
+  const [isMobile, setIsMobile] = useState(false);
+  const [revealedMobileCardStep, setRevealedMobileCardStep] = useState(-1);
+  const revealedCardStep = isMobile
+    ? Math.max(activeStep, revealedMobileCardStep)
+    : activeStep;
 
   useLayoutEffect(() => {
     const cards = cardRefs.current.filter((card): card is HTMLDivElement => Boolean(card));
@@ -28,7 +33,7 @@ export function ProcessTimeline() {
       cardRevealInitialisedRef.current = true;
     }
     cards.forEach((card, index) => {
-      const reached = index <= activeStep;
+      const reached = index <= revealedCardStep;
       gsap.to(card, {
         y: reached ? 0 : 104,
         opacity: reached ? 1 : 0,
@@ -40,7 +45,7 @@ export function ProcessTimeline() {
     return () => {
       gsap.killTweensOf(cards);
     };
-  }, [activeStep]);
+  }, [revealedCardStep]);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -55,6 +60,8 @@ export function ProcessTimeline() {
       frame = 0;
       const viewportHeight = Math.max(window.innerHeight, 1);
       const viewportWidth = Math.max(window.innerWidth, 1);
+      const mobile =
+        viewportWidth <= particleRenderConfig.homeProfiles.mobile.maxWidth;
       const readingLine = getViewportReadingLine(viewportHeight);
       const lineRect = line.getBoundingClientRect();
       const processTransition =
@@ -118,6 +125,12 @@ export function ProcessTimeline() {
         },
         releaseProgress,
       });
+      setIsMobile((current) => (current === mobile ? current : mobile));
+      if (mobile && nextActive >= 0) {
+        setRevealedMobileCardStep((current) =>
+          Math.max(current, nextActive),
+        );
+      }
       setActiveStep((current) => (current === nextActive ? current : nextActive));
 
       if (performance.now() < measureUntil) {

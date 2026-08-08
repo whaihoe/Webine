@@ -1,4 +1,4 @@
-import { experienceConfig } from "../config/experience";
+import { particleRenderConfig } from "../config/experience";
 
 export type ParticlePointerState = {
   x: number;
@@ -18,7 +18,7 @@ export type ParticleInteractionState = {
   tiltZ: number;
 };
 
-const pointerMotion = experienceConfig.particles.ambientMotion;
+const pointerMotion = particleRenderConfig.motion;
 
 function glslFloat(value: number) {
   return Number.isInteger(value) ? value.toFixed(1) : String(value);

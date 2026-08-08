@@ -791,7 +791,7 @@
 
 ## 2026-07-30, Shared particle interaction and runtime cleanup
 
-- Added `particleObjectScaleConfig` at the top of `experience.ts` as the single place to tune every Home object, About Head and all six Services model scales. The A380 remains at its existing scale while the other Services forms are reduced.
+- Added one central scale group for every Home object, About Head and all six Services models. This group now sits behind the public `particleObjectConfig` contract. The A380 remains at its existing scale while the other Services forms are reduced.
 - Replaced separate Home, About Head and Services pointer listeners and coordinate calculations with one shared React hook, one stable frame-loop interaction update and one shared shader bulge function.
 - Kept the Services cards fully transparent with their existing backdrop blur, border and shadow so the ambient and model layers continue to show through.
 - Cached the parsed Services source targets, disposed temporary GLTF geometry after extraction and stopped mounting the Services WebGL canvas while the scene is outside its near-viewport boundary.
@@ -857,3 +857,26 @@
 - Consolidated static public metadata in `src/config/navigation.ts` and standardised page titles as `Webine • Page`. Project case studies keep their content-derived title through the existing metadata hook.
 - Added a dedicated `/privacy` route with the current enquiry notice, collected information, uses, service providers, retention, security, choices, tracking position and request process. The primary navigation, mobile menu, footer, Contact consent copy and sitemap now link to it.
 - Split the About water ripple renderer into a desktop-only lazy chunk. Viewports below 48 rem render only the portrait image even when browser emulation advertises a mouse. The kinetic cursor chunk, project hover media and project-card hover timeline use the same desktop and fine-pointer boundary.
+
+## 2026-08-08, canonical indexing and answer-ready route metadata
+
+- Made `https://www.madebywebine.com` the only canonical public origin. The apex-domain redirect remains a permanent Cloudflare redirect, so Search Console may correctly classify the apex URL as a redirected page while indexing the `www` destination.
+- Added one shared public-route metadata contract and build-time HTML documents for Home, About, Services, Works, Contact and Privacy. Direct requests now return route-specific titles, descriptions, canonical URLs, social metadata, structured data and a truthful progressive HTML summary with internal links before client JavaScript runs.
+- Added the missing Vercel Privacy rewrite. The existing consolidated Projects function now returns project-specific HTML, canonical metadata, CreativeWork data and crawlable project copy for valid case studies. Missing or unpublished slugs return a real 404 with `noindex` instead of a soft Works-page response.
+
+## 2026-08-08, shared experience contracts and mobile process hold
+
+- Split particle configuration into two explicit public contracts. `particleRenderConfig` owns renderer-wide glow, motion, colour, ambient and responsive profile settings, while `particleObjectConfig` owns recognisable Home, About and Services object settings. Existing GPU and section-owned phone renderers remain separate implementations behind those shared contracts.
+- Added one shared input-capability query owner for fine-pointer and desktop fine-pointer behaviour. Particle interaction, the kinetic cursor, Project hover media, portrait ripple and footer brush now reference it instead of repeating query strings.
+- Added one `--project-media-aspect` component token and migrated Home Selected Work, Works cards, case-study hero, ordinary story media, video and protected preview frames to its 16:10 contract. Mixed-aspect Bento media keeps its source ratio. Selected Work preserves its existing image height and derives card width from the shared ratio.
+- Moved the public header and mobile-menu item list into one shared browser and static-document contract containing Home, Works, Services and About. Privacy remains indexable and linked in the footer, Contact consent and sitemap, but no longer appears in the header navigation.
+- Kept process geometry, line fill, nodes and particles reversible. At phone widths only, the highest revealed process card is retained for the rest of the mounted Home visit so scrolling back up does not hide already-read cards.
+- Added truthful Organization, WebSite, WebPage, breadcrumb, service and project structured data without unsupported prices, reviews, awards, addresses or credentials. About and Services also contain short, direct answers that explain what Webine is and what support it provides.
+- Kept route metadata under one runtime owner and removed the replaced hook, duplicate navigation metadata and unused local exports. Restored the intended global heading tokens where the Tailwind reset had reduced route headings.
+- Updated the vulnerable transitive Undici version and PostCSS development dependency. The complete npm audit now reports zero known vulnerabilities.
+- Fixed a route-document replacement defect that left two closing title tags in generated HTML. Regression coverage now requires exactly one opening and closing title tag on every public, private and project shell document.
+- Made the sitemap consume the same public-route metadata contract as the generated documents, removing the duplicated static path list. Project metadata construction is also shared between the browser and server document paths.
+
+## 2026-08-08, mobile process-card reading hold
+
+- Kept the timeline's live geometry reversible at every breakpoint. On phone widths, a card remains visible once its node has reached the reading line, so reverse scrolling does not hide already-read process content. Tablet and desktop continue to use the live reversible card reveal.

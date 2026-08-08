@@ -14,7 +14,7 @@ import {
   type Points,
 } from "three";
 import { gsap } from "../../animation/scroll-runtime";
-import { experienceConfig } from "../../config/experience";
+import { particleObjectConfig, particleRenderConfig } from "../../config/experience";
 import { useParticlePointer } from "../../hooks/useParticlePointer";
 import {
   serviceParticleFragmentShader,
@@ -26,8 +26,8 @@ import {
   updateParticleInteraction,
 } from "../../three/particle-pointer";
 
-const morphConfig = experienceConfig.particles.servicesMorph;
-const particleGlow = experienceConfig.particles.glow;
+const morphConfig = particleObjectConfig.services.renderer;
+const particleGlow = particleRenderConfig.glow;
 const runnerConfig = morphConfig.mobiusRunner;
 
 function getTokenColour(token: string) {
@@ -220,7 +220,7 @@ function MorphingServiceObject({
       uPointerStrength: { value: 0 },
       uColourFlowScale: {
         value: mobile
-          ? experienceConfig.particles.surfaceField.compactFlowScale
+          ? particleRenderConfig.surfaceField.compactFlowScale
           : 1,
       },
       uCyanColour: { value: getTokenColour("--primitive-cyan-400") },

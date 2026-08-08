@@ -8,7 +8,8 @@ const projectRoot = new URL("../", import.meta.url);
 test("builds a local browser application", async () => {
   const html = await readFile(new URL("dist/index.html", projectRoot), "utf8");
 
-  assert.match(html, /<div id="root"><\/div>/);
+  assert.match(html, /<div id="root">[\s\S]*data-static-route-fallback="true"/);
+  assert.match(html, /<main id="main-content">[\s\S]*<h1>Make the ordinary unmistakable\.<\/h1>/);
   assert.match(html, /Webine/);
   assert.doesNotMatch(html, /openai|cloudflare|vinext|wrangler/i);
 });
@@ -31,8 +32,9 @@ test("keeps every current route", async () => {
 });
 
 test("uses one metadata convention and a complete Privacy route", async () => {
-  const [navigation, about, services, works, privacy, contact, footer, sitemap] = await Promise.all([
-    readFile(new URL("src/config/navigation.ts", projectRoot), "utf8"),
+  const [metadata, routeEffects, about, services, works, privacy, contact, footer, sitemap] = await Promise.all([
+    readFile(new URL("shared/public-route-metadata.json", projectRoot), "utf8"),
+    readFile(new URL("src/components/RouteEffects.tsx", projectRoot), "utf8"),
     readFile(new URL("src/pages/AboutPage.tsx", projectRoot), "utf8"),
     readFile(new URL("src/pages/ServicesPage.tsx", projectRoot), "utf8"),
     readFile(new URL("src/pages/WorksPage.tsx", projectRoot), "utf8"),
@@ -42,12 +44,15 @@ test("uses one metadata convention and a complete Privacy route", async () => {
     readFile(new URL("server/api-routes/sitemap.ts", projectRoot), "utf8"),
   ]);
 
-  for (const page of ["About", "Services", "Works", "Contact", "Privacy"]) {
-    assert.match(navigation, new RegExp(`Webine • ${page}`));
+  for (const path of ["/about", "/services", "/works", "/contact", "/privacy"]) {
+    assert.match(metadata, new RegExp(`"path": "${path}"`));
   }
+  assert.match(routeEffects, /getStaticPageMetadata/);
+  assert.match(routeEffects, /applyPageMetadata/);
   assert.doesNotMatch(about, /usePageMetadata/);
   assert.doesNotMatch(services, /usePageMetadata/);
-  assert.match(works, /`Webine • \$\{project\.seoTitle \|\| project\.title\}`/);
+  assert.match(works, /getProjectPageMetadata/);
+  assert.doesNotMatch(works, /usePageMetadata/);
   assert.match(privacy, /Information Webine collects/);
   assert.match(privacy, /Service providers and sharing/);
   assert.match(privacy, /Retention/);
@@ -55,7 +60,7 @@ test("uses one metadata convention and a complete Privacy route", async () => {
   assert.match(privacy, /Your choices/);
   assert.match(contact, /<Link to="\/privacy">privacy notice<\/Link>/);
   assert.match(footer, /to="\/privacy">Privacy<\/Link>/);
-  assert.match(sitemap, /"\/privacy"/);
+  assert.match(sitemap, /publicRouteMetadata/);
 });
 
 test("does not load desktop-only hover effects on mobile", async () => {
@@ -76,15 +81,15 @@ test("does not load desktop-only hover effects on mobile", async () => {
 
 test("keeps Contact as the primary project action instead of duplicate navigation", async () => {
   const [navigation, header, mobileMenu, styles] = await Promise.all([
-    readFile(new URL("src/config/navigation.ts", projectRoot), "utf8"),
+    readFile(new URL("shared/public-navigation.mjs", projectRoot), "utf8"),
     readFile(new URL("src/components/SiteHeader.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/MobileMenu.tsx", projectRoot), "utf8"),
     readFile(new URL("src/styles/layout.css", projectRoot), "utf8"),
   ]);
 
-  const publicItems = navigation.slice(0, navigation.indexOf("] as const"));
-  assert.doesNotMatch(publicItems, /label:\s*["']Contact["']/);
-  assert.match(publicItems, /Home[\s\S]*Works[\s\S]*Services[\s\S]*About[\s\S]*Privacy/);
+  assert.doesNotMatch(navigation, /label:\s*["']Contact["']/);
+  assert.match(navigation, /Home[\s\S]*Works[\s\S]*Services[\s\S]*About/);
+  assert.doesNotMatch(navigation, /Privacy/);
   assert.match(header, /href=["']\/contact["'][\s\S]*Start a project/);
   assert.match(mobileMenu, /href=["']\/contact["'][\s\S]*Start a project/);
   assert.match(header, /window\.scrollY > 24/);
@@ -251,15 +256,17 @@ test("keeps global route motion purposeful, asset-aware and restorable", async (
 });
 
 test("prepares indexable public metadata and private-route noindex controls", async () => {
-  const [html, effects, vercel, robots] = await Promise.all([
+  const [html, metadata, documentMetadata, vercel, robots] = await Promise.all([
     readFile(new URL("index.html", projectRoot), "utf8"),
-    readFile(new URL("src/components/RouteEffects.tsx", projectRoot), "utf8"),
+    readFile(new URL("shared/public-route-metadata.json", projectRoot), "utf8"),
+    readFile(new URL("src/seo/document-metadata.ts", projectRoot), "utf8"),
     readFile(new URL("vercel.json", projectRoot), "utf8"),
     readFile(new URL("public/robots.txt", projectRoot), "utf8"),
   ]);
   assert.match(html, /property="og:title"/);
   assert.match(html, /name="theme-color"/);
-  assert.match(effects, /noindex, nofollow/);
+  assert.match(metadata, /"noIndex": true/);
+  assert.match(documentMetadata, /noindex, nofollow/);
   assert.match(robots, /Sitemap: https:\/\/www\.madebywebine\.com\/sitemap\.xml/);
   assert.match(vercel, /\/sitemap\.xml/);
   assert.match(vercel, /Strict-Transport-Security/);
@@ -374,7 +381,7 @@ test("enables the approved homepage experience layers", async () => {
   assert.match(config, /pointerBulge:\s*{[\s\S]*screenRadius:\s*\d+(?:\.\d+)?,[\s\S]*depth:\s*\d+(?:\.\d+)?,[\s\S]*pointScale:\s*\d+(?:\.\d+)?,[\s\S]*falloffPower:\s*\d+(?:\.\d+)?,[\s\S]*strength:\s*\d+(?:\.\d+)?/);
   assert.match(config, /heroModel:\s*{[^}]*url:\s*"\/models\/webine-logo-particle\.glb"[^}]*targetSize:\s*5\.2[^}]*fit:\s*"largest"[^}]*localScale:\s*\[1, 1, 2\.5\]/s);
   assert.match(config, /reachModel:\s*{[^}]*url:\s*"\/models\/reach-rings-particle\.glb"[^}]*targetSize:\s*5\.18[^}]*rotationDegrees:\s*\[-?\d+(?:\.\d+)?, -?\d+(?:\.\d+)?, -?\d+(?:\.\d+)?\]/s);
-  assert.match(config, /particleObjectScaleConfig\s*=\s*{[\s\S]*hero:\s*{ desktop:\s*1\.4, tablet:\s*0\.52, mobile:\s*0\.38 }/);
+  assert.match(config, /particleObjectScaleSettings\s*=\s*{[\s\S]*hero:\s*{ desktop:\s*1\.4, tablet:\s*0\.52, mobile:\s*0\.38 }/);
   assert.match(config, /closing:\s*{[\s\S]*?formation:\s*{\s*enterViewportY:\s*1\.2,\s*formedViewportY:\s*0\.62\s*}[\s\S]*?mobileFormation:\s*{\s*enterViewportY:\s*1\.5,\s*formedViewportY:\s*-1\s*}/);
   assert.match(controller, /layout === "mobile" && "mobileFormation" in motionConfig/);
   assert.match(controller, /export function ParticleSceneController/);
@@ -910,6 +917,10 @@ test("keeps the process line behind its timeline nodes", async () => {
   assert.match(timeline, /cardRefs\.current\[index\] = element/);
   assert.match(timeline, /gsap\.set\(cards, \{ y: 104, opacity: 0 \}\)/);
   assert.match(timeline, /gsap\.to\(card,/);
+  assert.match(timeline, /const \[revealedMobileCardStep, setRevealedMobileCardStep\] = useState\(-1\)/);
+  assert.match(timeline, /isMobile\s*\? Math\.max\(activeStep, revealedMobileCardStep\)\s*:\s*activeStep/);
+  assert.match(timeline, /mobile && nextActive >= 0/);
+  assert.match(timeline, /setRevealedMobileCardStep\(\(current\) =>\s*Math\.max\(current, nextActive\)/s);
   assert.match(timeline, /className="process-step__surface"/);
   assert.match(timeline, /<TimelineAmbientBackground \/>/);
   assert.match(sceneStyles, /\.process-step dt,\s*\.process-step dd\s*{[^}]*margin:\s*0/s);
@@ -936,21 +947,21 @@ test("extends the Home motion language across Works and Contact without assignin
   ]);
 
   assert.match(works, /parallax="vertical"/);
-  assert.match(styles, /\.project-case-study__media-frame\s*{[^}]*width:\s*100%[^}]*min-width:\s*0[^}]*min-height:\s*0/s);
+  assert.match(styles, /\.project-case-study__media-frame\s*{[^}]*width:\s*100%[^}]*aspect-ratio:\s*var\(--project-media-aspect\)/s);
   assert.doesNotMatch(styles, /--project-media-safe-inset/);
   assert.match(styles, /\.project-case-study__media-frame :is\(img, video\)\s*{[^}]*inset:\s*-6% 0[^}]*object-fit:\s*cover/s);
   assert.match(styles, /\.galaxy-backdrop--project \.galaxy-backdrop__nebula\s*{[^}]*var\(--galaxy-project-accent\)/s);
   assert.doesNotMatch(styles, /--project-accent/);
-  assert.doesNotMatch(styles, /\.project-grid > \.project-card:first-child \.project-card__media\s*\{[^}]*aspect-ratio/s);
-  assert.match(projectCard, /style=\{compact \? undefined : projectMediaFrameStyle\(project\.heroImage\)\}/);
-  assert.match(works, /projectMediaFrameStyle\(project\.heroImage, \{ maxViewportHeight: 75 \}\)/);
+  assert.match(styles, /\.project-card__media\s*{[^}]*aspect-ratio:\s*var\(--project-media-aspect\)/s);
+  assert.doesNotMatch(projectCard, /projectMediaFrameStyle/);
+  assert.doesNotMatch(works, /projectMediaFrameStyle/);
   assert.match(styles, /data-block-type="bento"/);
   assert.match(styles, /\.project-bento-grid/);
   assert.match(styles, /data-image-shape="portrait"/);
   assert.match(styles, /data-image-count="2"[^}]*\.project-story-image-grid\s*{[^}]*grid-template-columns:\s*minmax\(0, 1fr\)/s);
   assert.match(styles, /@media \(min-width:\s*48rem\)[\s\S]*data-image-count="2"[^}]*\.project-story-image-grid\s*{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/s);
   assert.match(homeStyles, /\.work-runway\[data-scroll-mode="pinned"\] \.work-card\s*{[^}]*grid-template-rows:\s*minmax\(0, 1fr\)/s);
-  assert.match(homeStyles, /\.work-card__media\s*{[^}]*aspect-ratio:\s*16 \/ 10/s);
+  assert.match(homeStyles, /\.work-card__media\s*{[^}]*aspect-ratio:\s*var\(--project-media-aspect\)/s);
   assert.match(particleCanvas, /frameloop="demand"/);
   assert.match(particleCanvas, /1000 \/ maxFrameRate/);
   assert.match(particleCanvas, /requestAnimationFrame\(renderFrame\)/);
@@ -1118,7 +1129,8 @@ test("keeps the generated CMS editor protected and out of the public bundle", as
   assert.match(mediaOverview, /Media assigned to this project/);
   assert.match(mediaOverview, /Cover/);
   assert.match(mediaOverview, /Story/);
-  assert.match(uploadImage, /uploadAdminImage/);
+  assert.match(uploadImage, /export async function uploadAdminMedia/);
+  assert.doesNotMatch(uploadImage, /uploadAdminImage/);
   assert.match(uploadImage, /Authorization: `Bearer \$\{sessionToken\}`/);
   assert.match(uploadImage, /contentType: file\.type/);
   assert.match(assetField, /image\/gif/);
@@ -1303,7 +1315,7 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.doesNotMatch(waterRippleImage, /@react-three\/fiber|<Canvas/);
   assert.match(waterRippleImage, /water-ripple-image__fallback/);
   assert.match(waterRippleImage, /lazy\(\(\) =>[\s\S]*import\("\.\/WaterRippleCanvas"\)/);
-  assert.match(waterRippleImage, /useMediaQuery\(INTERACTIVE_RIPPLE_QUERY\)/);
+  assert.match(waterRippleImage, /useMediaQuery\(desktopAnyFinePointerQuery\)/);
   assert.match(waterRippleImage, /interactive \? \([\s\S]*<WaterRippleCanvas/);
   assert.match(waterRippleImage, /IntersectionObserver/);
   assert.match(waterRippleCanvas, /@react-three\/fiber/);
@@ -1320,7 +1332,7 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(head, /aboutHeadConfig\.pointLimit\.desktop/);
   assert.match(head, /frameloop="demand"/);
   assert.match(head, /AboutHeadFrameScheduler/);
-  assert.match(headExperience, /entry\.intersectionRatio >= experienceConfig\.particles\.aboutHead\.visibilityRatio/);
+  assert.match(headExperience, /entry\.intersectionRatio >= particleObjectConfig\.aboutHead\.renderer\.visibilityRatio/);
   assert.match(headExperience, /document\.visibilityState === "visible"/);
   assert.match(headExperience, /data-about-head-active=\{active\}/);
   assert.doesNotMatch(portraitStyles, /\.about-head__visual\s*{[^}]*transform:/s);
@@ -1363,7 +1375,7 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(portraitStyles, /\.about-hero__frame\s*\{[^}]*will-change:\s*transform, border-radius/s);
   assert.match(portraitStyles, /\.about-head__canvas\s+canvas\s*\{[^}]*width:\s*100%\s*!important/s);
   assert.match(portraitStyles, /\.about-head__visual::before\s*\{[^}]*radial-gradient/s);
-  assert.match(sitemap, /"\/about"/);
+  assert.match(sitemap, /publicRouteMetadata/);
   await Promise.all([
     access(new URL("public/about/simple-head-points.bin", projectRoot)),
     access(new URL("public/about/kidson-portrait.webp", projectRoot)),
@@ -1443,7 +1455,7 @@ test("builds the Services page as six expanding offers with GPU-morphed model pa
   assert.match(particleShaders, /attribute vec3 targetTo/);
   assert.match(particleShaders, /uniform float uMorph/);
   assert.match(particleShaders, /sin\(progress \* 3\.14159265\)/);
-  assert.match(particleShaders, /experienceConfig\.particles\.glow/);
+  assert.match(particleShaders, /particleRenderConfig\.glow/);
   assert.match(particleShaders, /particleGlow\.shaderSpriteScale/);
   assert.match(particleShaders, /particleGlow\.shaderCoreStart/);
   assert.match(particleShaders, /particleGlow\.shaderHaloStart/);
@@ -1514,7 +1526,7 @@ test("builds the Services page as six expanding offers with GPU-morphed model pa
     assert.equal(gltf.animations, undefined);
   }
 
-  assert.match(sitemap, /"\/services"/);
+  assert.match(sitemap, /publicRouteMetadata/);
 });
 
 test("includes the approved Webine logo and current system documents", async () => {

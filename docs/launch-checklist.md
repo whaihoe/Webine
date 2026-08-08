@@ -27,26 +27,28 @@ This checklist keeps code readiness separate from production approval. Do not ma
 | Secrets | Configured in Vercel | Keep values out of GitHub and verify the production environment gate during deployment |
 | Analytics | Open | Select a privacy-compatible measurement setup |
 | Backups | Local pass | Configure provider backups and complete a non-production restore |
-| Purchased domain | In progress | The Vercel origin remains valid until the final domain and Resend sender are ready |
+| Purchased domain | Pass | `madebywebine.com` permanently redirects to the canonical `www.madebywebine.com` origin through Cloudflare |
 
 ## Discoverability and security
 
 | Gate | Status | Evidence or next action |
 |---|---|---|
-| Route titles and descriptions | Pass in code | Final copy review |
-| Project-specific metadata | Pass in code | Confirm rendered metadata on Preview |
-| Robots and dynamic sitemap | Pass in automated tests | Confirm the deployed origin and published Project URLs |
-| Social image | Pass in code | Default 1200 by 630 brand artwork, canonical URLs and large Twitter cards are configured |
-| Security headers | Pass in code | HSTS, CSP, frame denial, MIME sniffing, referrer, permissions, private-route no-store and noindex controls are configured |
+| Route titles and descriptions | Pass locally | Route-specific raw HTML and rendered metadata verified across all six public routes. Deploy the reviewed source |
+| Project-specific metadata | Pass locally | Consolidated Projects function returns project-specific initial HTML, canonical, social data and CreativeWork schema. Missing projects return 404 and noindex |
+| Robots and dynamic sitemap | Pass locally | Production robots and sitemap respond successfully. Deploy the Privacy rewrite, then resubmit the sitemap in Search Console |
+| Canonical and redirect alignment | Pass locally | All generated public URLs use the `www` origin. The apex 308 redirect is expected to remain excluded as a redirected page |
+| Structured data and answer content | Pass locally | Organization, WebSite, page, breadcrumb, service and project entities plus direct About and Services answers verified |
+| Social image | Pass locally | Default 1200 by 630 brand artwork, canonical URLs and large Twitter cards are configured |
+| Security headers | Partial local pass | HSTS, frame denial, MIME sniffing, referrer, permissions and private-route controls are configured. Promote the narrower report-only CSP only after Preview compatibility checks |
 | Repository secret scan | Pass locally | Repeat before first push and each release |
 
 ## Quality approval
 
 | Gate | Status | Evidence or next action |
 |---|---|---|
-| Automated build, types and tests | Pass | Lint, strict client and server types, production build and all 72 tests pass on the exact release source |
-| Dependency audit | Partial | The lint-toolchain and Router 6 advisories are resolved. npm still reports the upstream React Router RSC action advisory, but Webine does not enable RSC or server actions and no stable fully clear release is currently available |
-| Responsive visual matrix | Local browser pass | Complete the physical-device and cross-browser rows in `docs/verification-matrix.md` |
+| Automated build, types and tests | Pass locally | Exact Node 22.23.1 client build, server and test-server type checks and all 109 automated tests pass |
+| Dependency audit | Pass locally | Complete npm audit reports zero known vulnerabilities |
+| Responsive visual matrix | Local browser pass | Six public routes pass at 320, 390, 768, 1024, 1280 and 1920 widths. Complete physical-device and cross-browser rows |
 | Physical iPhone sticky and particle story | Open | User confirmation on Safari and Chrome |
 | Android touch experience | Open | Representative device confirmation |
 | Desktop mouse, trackpad and keyboard | Open | Cross-browser live pass |

@@ -17,14 +17,15 @@
       "destination": "/api/projects?__webine_route=:path*"
     },
     { "source": "/", "destination": "/index.html" },
-    { "source": "/about", "destination": "/index.html" },
-    { "source": "/services", "destination": "/index.html" },
-    { "source": "/works", "destination": "/index.html" },
-    { "source": "/works/:slug", "destination": "/index.html" },
-    { "source": "/contact", "destination": "/index.html" },
-    { "source": "/admin", "destination": "/index.html" },
-    { "source": "/admin/:path*", "destination": "/index.html" },
-    { "source": "/preview", "destination": "/index.html" }
+    { "source": "/about", "destination": "/about/index.html" },
+    { "source": "/services", "destination": "/services/index.html" },
+    { "source": "/works", "destination": "/works/index.html" },
+    { "source": "/works/:slug", "destination": "/api/projects?__webine_document=:slug" },
+    { "source": "/contact", "destination": "/contact/index.html" },
+    { "source": "/privacy", "destination": "/privacy/index.html" },
+    { "source": "/admin", "destination": "/admin/index.html" },
+    { "source": "/admin/:path*", "destination": "/admin/index.html" },
+    { "source": "/preview", "destination": "/preview/index.html" }
   ],
   "headers": [
     {

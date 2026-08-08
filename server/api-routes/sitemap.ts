@@ -1,4 +1,5 @@
 import { listPublicProjects } from "../public-content.js";
+import publicRouteMetadata from "../../shared/public-route-metadata.json" with { type: "json" };
 import { getCanonicalSiteOrigin } from "../canonical-origin.js";
 import { assertQueryContract, methodNotAllowed, RequestContractError } from "../request-contract.js";
 import { errorResponse, getRequestId } from "../responses.js";
@@ -36,12 +37,9 @@ export async function handleSitemapRequest(request: Request) {
   const origin = getCanonicalSiteOrigin(request);
   const projects = await listPublicProjects();
   const paths = [
-    "/",
-    "/about",
-    "/services",
-    "/works",
-    "/contact",
-    "/privacy",
+    ...publicRouteMetadata
+      .filter((route) => !route.noIndex)
+      .map((route) => route.canonicalPath),
     ...projects.map((project) => `/works/${project.slug}`),
   ];
   const body = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${paths

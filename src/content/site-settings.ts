@@ -1,6 +1,6 @@
-export type CtaSetting = { label: string; href: string };
+type CtaSetting = { label: string; href: string };
 export type PrincipleSetting = { title: string; description: string; example: string };
-export type ProcessStepSetting = { title: string; action: string; client: string; output: string };
+type ProcessStepSetting = { title: string; action: string; client: string; output: string };
 
 export type PublicSiteSettings = {
   hero: { eyebrow: string; headingBefore: string; headingAccent: string; headingAfter: string; supportingCopy: string; scrollCue: string; primaryCta: CtaSetting; secondaryCta: CtaSetting };

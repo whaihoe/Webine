@@ -26,7 +26,7 @@ function ServiceCard({
       >
         <span className="service-card__index">{service.index}</span>
         <span className="service-card__heading">
-          <strong>{service.title}</strong>
+          <strong role="heading" aria-level={3}>{service.title}</strong>
           <small>{service.summary}</small>
         </span>
         <span className="service-card__toggle-mark" aria-hidden="true"><i /><i /></span>
@@ -82,9 +82,10 @@ export function ServicesChapterController() {
       <div className="site-container services-experience__content">
         <div className="services-experience__introduction">
           <p className="eyebrow">What Webine provides</p>
-          <p>Choose the closest starting point. The exact scope is shaped around what the website needs to change for the business.</p>
+          <h2 id="services-answer-heading">What website support can Webine provide?</h2>
+          <p>Webine designs, rebuilds and supports websites for Singapore businesses. Choose the closest starting point, then shape the exact scope around what the website needs to change for the business.</p>
         </div>
-        <div className="services-accordion">
+        <div className="services-accordion" aria-labelledby="services-answer-heading">
           {servicesContent.services.map((service, index) => (
             <ServiceCard
               key={service.key}

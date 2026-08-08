@@ -1,10 +1,10 @@
 import { useLayoutEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { gsap } from "../../animation/scroll-runtime";
+import { desktopFinePointerQuery } from "../../config/media-queries";
 import type { PublicProject } from "../../content/public-projects";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { DirectionalArrow } from "../DirectionalArrow";
-import { projectMediaFrameStyle } from "./project-media-layout";
 import { ProjectMedia } from "./ProjectMedia";
 
 type ProjectCardProps = {
@@ -15,8 +15,6 @@ type ProjectCardProps = {
   revealDelay?: number;
   onFocus?: () => void;
 };
-
-const HOVER_MEDIA_QUERY = "(min-width: 48rem) and (hover: hover) and (pointer: fine)";
 
 export function ProjectCard({
   project,
@@ -32,7 +30,7 @@ export function ProjectCard({
   const metaStartRef = useRef<HTMLSpanElement>(null);
   const metaEndRef = useRef<HTMLSpanElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
-  const showHoverEffects = useMediaQuery(HOVER_MEDIA_QUERY);
+  const showHoverEffects = useMediaQuery(desktopFinePointerQuery);
 
   useLayoutEffect(() => {
     if (compact || !showHoverEffects) return;
@@ -95,7 +93,6 @@ export function ProjectCard({
         aria-label={`View ${project.title}`}
         data-cursor-surface="large"
         data-image-parallax-viewport={compact ? undefined : "true"}
-        style={compact ? undefined : projectMediaFrameStyle(project.heroImage)}
       >
         <span
           className="project-card__media-motion"

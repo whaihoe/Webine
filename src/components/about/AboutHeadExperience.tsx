@@ -1,6 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { gsap, ScrollTrigger } from "../../animation/scroll-runtime";
-import { experienceConfig } from "../../config/experience";
+import { particleObjectConfig } from "../../config/experience";
 
 const AboutHeadCanvas = lazy(() => import("../../three/AboutHeadCanvas"));
 const MOBILE_ABOUT_QUERY = "(max-width: 47.99rem)";
@@ -34,15 +34,15 @@ export function AboutHeadExperience() {
     };
     const observer = new IntersectionObserver(([entry]) => {
       inView = entry.isIntersecting
-        && entry.intersectionRatio >= experienceConfig.particles.aboutHead.visibilityRatio;
+        && entry.intersectionRatio >= particleObjectConfig.aboutHead.renderer.visibilityRatio;
       syncActiveState();
     }, {
-      threshold: [0, experienceConfig.particles.aboutHead.visibilityRatio],
+      threshold: [0, particleObjectConfig.aboutHead.renderer.visibilityRatio],
     });
     observer.observe(hero);
     document.addEventListener("visibilitychange", syncActiveState);
 
-    const sequence = experienceConfig.particles.aboutHead.sequence;
+    const sequence = particleObjectConfig.aboutHead.renderer.sequence;
     const scrollScreens = mobile ? sequence.scrollScreens.mobile : sequence.scrollScreens.desktop;
     const frameScale = mobile ? sequence.frame.mobile : sequence.frame.desktop;
     const context = gsap.context(() => {

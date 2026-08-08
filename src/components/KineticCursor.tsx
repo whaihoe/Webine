@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { desktopFinePointerQuery } from "../config/media-queries";
 
 const INTERACTIVE_SELECTOR = [
   "a[href]",
@@ -39,7 +40,7 @@ export function KineticCursor() {
     const root = rootRef.current;
     const inner = innerRef.current;
     const outer = outerRef.current;
-    const finePointer = window.matchMedia("(min-width: 48rem) and (hover: hover) and (pointer: fine)");
+    const finePointer = window.matchMedia(desktopFinePointerQuery);
     if (!root || !inner || !outer || !finePointer.matches) return;
 
     const documentRoot = document.documentElement;

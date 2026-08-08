@@ -311,7 +311,7 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 ## 2026-07-30 shared particle engine and final Services tuning
 
 - Home, About Head and Services import the same pointer hook, frame calculation and shader bulge chunk. Source checks confirm those renderers no longer register their own pointer listeners.
-- The central `particleObjectScaleConfig` supplies all Home, About Head and Services model scales. Services point size remains an independent shader uniform, so changing a model scale changes the formed object extent without scaling the dots.
+- The central scale groups exposed through `particleObjectConfig` supply all Home, About Head and Services model scales. Services point size remains an independent shader uniform, so changing a model scale changes the formed object extent without scaling the dots.
 - Services models no longer run an idle or full-turn rotation. Rendered desktop checks confirm the globe and redesign targets hold their resting orientation while retaining subtle pointer travel, tilt and local bulge.
 - At 1280 by 800, Home, Services and About each retain one H1 and zero horizontal overflow. Services contains six cards, exactly one expanded trigger and successful card-to-model switching.
 - At 390 by 844, Services contains six 358-pixel cards, two intentional canvases and zero horizontal overflow. Transparent card surfaces keep their border and authored backdrop-blur CSS, allowing the particle layers to remain visible beneath them.
@@ -396,3 +396,26 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - At 390 pixels, the About portraits render two fallback images with no ripple canvases. The browser asset inventory contains neither the `WaterRippleCanvas` chunk nor the `KineticCursor` chunk. At 1280 pixels with a fine pointer, both chunks load and two ripple canvases plus one kinetic cursor mount as intended.
 - Project hover media is not rendered and its GSAP hover timeline is not created until the viewport is at least 48 rem and a fine hover pointer is available.
 - Zero-warning lint, the client production build, server and test-server TypeScript checks, all 102 automated tests and `git diff --check` pass. Browser review found no application errors. The dependency-owned Three.js Clock deprecation warning remains unchanged.
+
+## 2026-08-08 SEO, GEO and AEO route verification
+
+- Local production-preview checks covered `/`, `/about`, `/services`, `/works`, `/contact` and `/privacy` at 1280 by 800 and 390 by 844. Every route has one H1, its expected `www` canonical, route-specific title and description, indexable robots state and zero horizontal overflow.
+- Raw generated HTML includes the same metadata, a route-specific H1, useful summary copy and links to every public route before JavaScript runs. Public routes expose valid JSON-LD for their page type, Webine and the website. Relevant routes also expose breadcrumbs, six service entities or a project CreativeWork entity.
+- Private Admin and preview documents remain `noindex`. Valid CMS case studies receive project-specific HTML and structured data from the consolidated Projects function, while missing projects return an actual 404 with `noindex`.
+- Browser review found no error boundary or application console error. The About and Services direct-answer content remains readable at phone and desktop widths, and route H2 sizes resolve through the intended Webine tokens.
+- The live pre-deployment audit confirmed that the apex Contact URL permanently redirects to the indexable `www` URL. It also confirmed that production `/privacy` remains a 404 until this change set is deployed.
+- Rendered checks at 320 by 568, 390 by 844, 768 by 1024, 1024 by 768, 1280 by 800 and 1920 by 1080 cover all six public routes. Each route has one main landmark, one H1, zero horizontal overflow, zero duplicate IDs, zero unnamed controls, zero missing image alternatives and no decorative canvas exposed to assistive technology.
+- The initial public entry is 360.84 KB raw and 123.26 KB gzip. The 854.34 KB Three.js and React Three Fiber chunk remains route-lazy and is not preloaded by the initial document. Physical-device frame timing and deployed Core Web Vitals remain release evidence gaps.
+- The final exact Node 22.23.1 release gate passes the client build, server and test-server type checks and all 109 automated tests.
+
+## 2026-08-08 shared configuration and responsive interaction verification
+
+- Source and architecture coverage confirms one `particleRenderConfig` for renderer-wide particle settings, one `particleObjectConfig` for recognisable particle objects and one shared fine-pointer query owner. Superseded exported scale settings and repeated JavaScript pointer-query strings have been removed.
+- At 1280 by 800, the Home Selected Work image remains 424 pixels high and now measures 678.4 pixels wide, producing the shared 1.6 ratio. Its complete card expands to 1017.6 pixels so media and copy no longer overlap. The Works card and Deszio case-study hero also measure 1.6 with zero page-level overflow.
+- At 390 by 844, the Home image remains 293.7 pixels high and expands to 469.9 pixels wide inside the clipped horizontal runway. Home, Works and the case-study hero all compute to 1.6 while the page keeps zero horizontal overflow.
+- Desktop and mobile menus contain Home, Works, Services and About only. The rendered footer retains Privacy and the static pre-hydration document mirrors the same primary-navigation contract while keeping Start a project and Privacy in their separate roles.
+- On a 390 by 844 viewport, all four process cards reached opacity 1 after forward scrolling. Reversing until timeline progress returned to 0.027 kept all four cards at opacity 1 and zero translation, while line, node and particle progress continued reversing. At 1280 by 800, the same reverse check hid the later three cards and retained only the currently reached first card, confirming desktop remains reversible.
+
+## 2026-08-08 mobile process-card hold
+
+- Automated source coverage requires the phone-only monotonic card-reveal state while preserving the existing live `activeStep` path. Rendered phone reverse-scroll confirmation remains required before release.

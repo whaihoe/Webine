@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "../../animation/scroll-runtime";
 import { createImageParallax } from "../../animation/image-parallax";
-import { experienceConfig } from "../../config/experience";
+import { particleObjectConfig } from "../../config/experience";
 import {
   createSilhouetteParticles,
   drawSilhouetteParticles,
@@ -19,8 +19,8 @@ type PortraitRevealProps = {
   reverse?: boolean;
 };
 
-const portraitSequence = experienceConfig.particles.aboutPortrait.sequence;
-const waterRipple = experienceConfig.particles.aboutPortrait.waterRipple;
+const portraitSequence = particleObjectConfig.aboutPortrait.sequence;
+const waterRipple = particleObjectConfig.aboutPortrait.waterRipple;
 
 export function PortraitReveal({ name, role, portrait, mask, description, index, reverse = false }: PortraitRevealProps) {
   const rootRef = useRef<HTMLElement>(null);

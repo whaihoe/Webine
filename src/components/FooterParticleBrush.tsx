@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { finePointerQuery } from "../config/media-queries";
 
 type BrushPoint = {
   x: number;
@@ -283,7 +284,7 @@ export function FooterParticleBrush() {
     const canvas = canvasRef.current;
     const footer = root?.closest<HTMLElement>(".site-footer__frame") ?? root?.closest<HTMLElement>(".site-footer");
     const context = canvas?.getContext("2d", { alpha: true });
-    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const finePointer = window.matchMedia(finePointerQuery);
 
     if (!root || !canvas || !footer || !context || !finePointer.matches) {
       if (canvas) canvas.dataset.brushState = "suspended";

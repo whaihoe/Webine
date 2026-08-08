@@ -43,42 +43,82 @@ img {
   max-width: 100%;
 }
 
-h1,
-h2,
-h3,
-p {
+body h1,
+body h2,
+body h3,
+body p {
   margin-top: 0;
 }
 
-h1,
-h2,
-h3 {
+body h1,
+body h2,
+body h3 {
   font-weight: 400;
   text-wrap: balance;
 }
 
-h1 {
+body h1 {
   font-size: var(--display-l);
   letter-spacing: -0.045em;
   line-height: 0.94;
 }
 
-h1 em,
-h2 em {
+body h1 em,
+body h2 em {
   font-family: var(--font-accent);
   font-weight: 400;
 }
 
-h2 {
+body h2 {
   font-size: var(--heading-2);
   letter-spacing: -0.035em;
   line-height: 1;
 }
 
-h3 {
+body h3 {
   font-size: var(--heading-3);
   letter-spacing: -0.025em;
   line-height: 1.08;
+}
+
+.static-route-fallback {
+  min-height: 100vh;
+  padding: clamp(1.25rem, 4vw, 3rem);
+  background: hsl(var(--primitive-slate-950));
+  color: hsl(var(--primitive-slate-50));
+}
+
+.static-route-fallback__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--primitive-space-6);
+}
+
+.static-route-fallback__header nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--primitive-space-4);
+}
+
+.static-route-fallback main {
+  display: grid;
+  align-content: center;
+  min-height: 72vh;
+  max-width: 64rem;
+  gap: var(--primitive-space-5);
+}
+
+.static-route-fallback main h1 {
+  max-width: 14ch;
+  font-size: var(--display-l);
+}
+
+.static-route-fallback main p {
+  max-width: 42rem;
+  color: hsl(var(--primitive-slate-300));
+  font-size: var(--body-l);
 }
 
 ::selection {
