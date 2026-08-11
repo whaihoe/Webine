@@ -45,7 +45,7 @@
 | `ProjectMediaOverview` | Project editor summary of cover, hover, story and social media | Assigned thumbnails, empty roles, saved and unsaved |
 | `ItemEditor` | Schema-generated draft and Project workflow | Repeated top and bottom Project actions, save, preview, publish, republish, unpublish, archive, confirmed purge, per-Project case-study colour, one-to-three-image blocks, responsive multi-image bento blocks and looping MP4 blocks |
 | `ProjectMedia` | Shared Project image or MP4 renderer | Native image loading or control-free muted MP4 playback that starts in the viewport, loops and pauses offscreen |
-| `ProjectStoryBlock` | Public and protected-preview Project storytelling | Shared statement, mixed-media group, aspect-aware bento and dedicated video rendering with backward compatibility for earlier single-image data |
+| `ProjectStoryBlock` | Public and protected-preview Project storytelling | Shared statement, mixed-media group, source-ratio Bento with balanced two-column and three-column packing, dedicated video rendering and backward compatibility for earlier single-image data |
 | `QuietInterlude` | Full long-term-value chapter aligned directly beneath the expanded runway card | Seamless takeover, section-owned point formation, top-point dispersion and reverse |
 | `TimelineAmbientBackground` | Near-viewport-mounted sticky atmosphere behind the Home process | Waiting, mounted, sticky and offscreen-paused |
 | `ProcessTimeline` | Semantic four-stage process with line fill, early point-contact intake, centred outlet geometry and node-timed card lift | Waiting, absorbing, active, complete, emitting and reverse, with a one-way card hold on phones |

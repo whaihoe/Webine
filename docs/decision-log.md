@@ -885,3 +885,9 @@
 
 - Kept the shared 16:10 Project media token for thumbnails across Home Selected Work, Works cards and case-study covers.
 - Kept a single Image content block at the existing 16:10 editorial ratio. Two-image and three-image content blocks now render every asset in a square frame, while Bento blocks continue to preserve each source image's stored aspect ratio.
+
+## 2026-08-11, compact mixed-ratio Bento flow
+
+- Replaced the twelve-column Bento row grid on tablet and desktop with balanced masonry-style columns. The former shared row height allowed a tall image to hold later horizontal images down and create large internal holes.
+- Kept every Bento asset at its stored source ratio. Phones retain the existing dense two-column grid, tablet and small desktop use two balanced columns and screens from 80 rem use three balanced columns.
+- Kept the implementation CSS-only because Bento media is non-interactive and its source order remains unchanged in the document. No resize observer, positioning script or separate layout data is required.

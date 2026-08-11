@@ -425,3 +425,9 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - The shared Project thumbnail and case-study cover contract remains 16:10. The Works card measures 1184 by 740 pixels at 1280 by 800 and 358 by 223.75 pixels at 390 by 844. The Deszio case-study cover also resolves to 1.6 at both widths.
 - Both published two-image Deszio story blocks render every frame at exactly 1:1. Desktop frames measure approximately 582.4 by 582.4 pixels in two columns, while phone frames measure 358 by 358 pixels in one column. Both layouts retain zero page-level horizontal overflow.
 - Automated coverage keeps one-image story frames on the existing `--project-media-aspect` token, applies the shared square token only to two-image and three-image blocks and verifies that Bento output retains each asset's stored source ratio.
+
+## 2026-08-11 compact mixed-ratio Bento flow
+
+- The production Deszio baseline at 789 by 988 measured a 725-pixel-wide Bento grid and seven source-ratio assets. The former twelve-column layout measured about 1,355 pixels high and left an approximately 218-pixel hole beneath the fifth image because the adjacent phone image controlled the shared row height.
+- Tablet and desktop Bento layouts now balance complete, break-safe image items into two columns. Screens from 80 rem use three columns, while the existing phone grid remains unchanged. All assets retain their inline stored aspect ratio and use `object-fit: contain`.
+- Automated coverage requires the two-column and three-column breakpoints, balanced column fill, break-safe items and removal of the former twelve-column row grid. A final rendered confirmation on the deployed Deszio case study remains part of release QA because production CMS content is not present in the local fixture.

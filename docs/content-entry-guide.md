@@ -22,7 +22,7 @@ Prepare Project images around the website's 16:10 media frame:
 
 - Cover and hover images: 2400 × 1500 px recommended, 1600 × 1000 px minimum
 - Story images: use one to three images in an Image block. Two appear side by side and three form a responsive group.
-- Bento images: mix landscape, square and portrait images at a consistent export quality. The layout uses each image's real aspect ratio, so a precomposed bento image is no longer needed.
+- Bento images: mix landscape, square and portrait images at a consistent export quality. The layout keeps each image's real aspect ratio and balances the sequence into compact columns on larger screens, so a precomposed bento image is no longer needed.
 - Social sharing image: 2400 × 1260 px, which is a 1.91:1 share ratio
 
 Keep important text, logos and faces inside the central 80 percent of the image. The website fills the frame edge to edge and uses the saved focal point during responsive cropping and parallax. Any deliberate breathing room should be part of the exported image itself.

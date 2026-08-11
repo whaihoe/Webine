@@ -959,7 +959,19 @@ test("extends the Home motion language across Works and Contact without assignin
   assert.doesNotMatch(works, /projectMediaFrameStyle/);
   assert.match(styles, /data-block-type="bento"/);
   assert.match(styles, /\.project-bento-grid/);
-  assert.match(styles, /data-image-shape="portrait"/);
+  assert.match(
+    styles,
+    /@media \(min-width:\s*48rem\)[\s\S]*\.project-bento-grid\s*{[^}]*column-count:\s*2[^}]*column-gap:\s*var\(--project-bento-gap\)[^}]*column-fill:\s*balance/s,
+  );
+  assert.match(
+    styles,
+    /\.project-bento-grid__item\s*{[^}]*margin-bottom:\s*var\(--project-bento-gap\)[^}]*break-inside:\s*avoid/s,
+  );
+  assert.match(
+    styles,
+    /@media \(min-width:\s*80rem\)[\s\S]*\.project-bento-grid\s*{[^}]*column-count:\s*3/s,
+  );
+  assert.doesNotMatch(styles, /\.project-bento-grid\s*{[^}]*grid-template-columns:\s*repeat\(12,/s);
   assert.match(styles, /data-image-count="2"[^}]*\.project-story-image-grid\s*{[^}]*grid-template-columns:\s*minmax\(0, 1fr\)/s);
   assert.match(styles, /@media \(min-width:\s*48rem\)[\s\S]*data-image-count="2"[^}]*\.project-story-image-grid\s*{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/s);
   assert.match(styles, /data-block-type="image"[^}]*:is\(\[data-image-count="2"\], \[data-image-count="3"\]\)[^{]*\.project-case-study__media-frame--story\s*{[^}]*aspect-ratio:\s*var\(--project-story-group-aspect\)/s);
