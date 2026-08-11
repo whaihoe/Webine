@@ -419,3 +419,9 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 ## 2026-08-08 mobile process-card hold
 
 - Automated source coverage requires the phone-only monotonic card-reveal state while preserving the existing live `activeStep` path. Rendered phone reverse-scroll confirmation remains required before release.
+
+## 2026-08-11 project story media aspect roles
+
+- The shared Project thumbnail and case-study cover contract remains 16:10. The Works card measures 1184 by 740 pixels at 1280 by 800 and 358 by 223.75 pixels at 390 by 844. The Deszio case-study cover also resolves to 1.6 at both widths.
+- Both published two-image Deszio story blocks render every frame at exactly 1:1. Desktop frames measure approximately 582.4 by 582.4 pixels in two columns, while phone frames measure 358 by 358 pixels in one column. Both layouts retain zero page-level horizontal overflow.
+- Automated coverage keeps one-image story frames on the existing `--project-media-aspect` token, applies the shared square token only to two-image and three-image blocks and verifies that Bento output retains each asset's stored source ratio.

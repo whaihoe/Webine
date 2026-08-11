@@ -706,6 +706,11 @@ article[data-block-type="image"][data-image-count="3"] .project-story-image-grid
   min-width: 0;
 }
 
+article[data-block-type="image"]:is([data-image-count="2"], [data-image-count="3"])
+  .project-case-study__media-frame--story {
+  aspect-ratio: var(--project-story-group-aspect);
+}
+
 .project-case-study__story article[data-block-type="image"][data-block-layout="wide"] figure {
   width: min(100%, 84rem);
   margin-inline: auto;

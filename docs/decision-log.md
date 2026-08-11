@@ -880,3 +880,8 @@
 ## 2026-08-08, mobile process-card reading hold
 
 - Kept the timeline's live geometry reversible at every breakpoint. On phone widths, a card remains visible once its node has reached the reading line, so reverse scrolling does not hide already-read process content. Tablet and desktop continue to use the live reversible card reveal.
+
+## 2026-08-11, project story media aspect roles
+
+- Kept the shared 16:10 Project media token for thumbnails across Home Selected Work, Works cards and case-study covers.
+- Kept a single Image content block at the existing 16:10 editorial ratio. Two-image and three-image content blocks now render every asset in a square frame, while Bento blocks continue to preserve each source image's stored aspect ratio.

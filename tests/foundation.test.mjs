@@ -309,6 +309,8 @@ test("uses the three-layer token architecture", async () => {
   assert.match(semantic, /--body-m:\s*var\(--primitive-body-m\)/);
   assert.match(components, /--button-primary-bg:\s*var\(--color-brand\)/);
   assert.match(components, /--button-radius:\s*var\(--primitive-radius-default\)/);
+  assert.match(components, /--project-media-aspect:\s*16 \/ 10/);
+  assert.match(components, /--project-story-group-aspect:\s*1 \/ 1/);
   assert.match(components, /--project-media-radius:\s*var\(--primitive-radius-media\)/);
   assert.match(components, /--panel-radius:\s*var\(--primitive-radius-panel\)/);
   for (const selector of ["admin-data-state", "admin-collection-card", "admin-form-error", "admin-content-block"]) {
@@ -960,6 +962,8 @@ test("extends the Home motion language across Works and Contact without assignin
   assert.match(styles, /data-image-shape="portrait"/);
   assert.match(styles, /data-image-count="2"[^}]*\.project-story-image-grid\s*{[^}]*grid-template-columns:\s*minmax\(0, 1fr\)/s);
   assert.match(styles, /@media \(min-width:\s*48rem\)[\s\S]*data-image-count="2"[^}]*\.project-story-image-grid\s*{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/s);
+  assert.match(styles, /data-block-type="image"[^}]*:is\(\[data-image-count="2"\], \[data-image-count="3"\]\)[^{]*\.project-case-study__media-frame--story\s*{[^}]*aspect-ratio:\s*var\(--project-story-group-aspect\)/s);
+  assert.match(styles, /\.project-case-study__media-frame\s*{[^}]*aspect-ratio:\s*var\(--project-media-aspect\)/s);
   assert.match(homeStyles, /\.work-runway\[data-scroll-mode="pinned"\] \.work-card\s*{[^}]*grid-template-rows:\s*minmax\(0, 1fr\)/s);
   assert.match(homeStyles, /\.work-card__media\s*{[^}]*aspect-ratio:\s*var\(--project-media-aspect\)/s);
   assert.match(particleCanvas, /frameloop="demand"/);

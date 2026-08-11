@@ -136,6 +136,9 @@ test("renders the collection builder and every generated item control", async ()
     assert.match(bentoHtml, /data-image-shape="wide"/);
     assert.match(bentoHtml, /data-image-shape="portrait"/);
     assert.match(bentoHtml, /data-image-shape="square"/);
+    assert.match(bentoHtml, /style="aspect-ratio:1800 \/ 900"/);
+    assert.match(bentoHtml, /style="aspect-ratio:800 \/ 1200"/);
+    assert.match(bentoHtml, /style="aspect-ratio:1000 \/ 1000"/);
     assert.equal((itemHtml.match(/<fieldset/g) ?? []).length, fields.length);
     assert.match(workspaceHtml, /aria-label="Webine Admin breadcrumb"/);
     assert.match(workspaceHtml, /href="\/admin"[^>]*>Admin<\/a>/);
