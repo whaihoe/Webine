@@ -498,12 +498,33 @@ export async function createItem(
   requestId: string,
   client: Client = getDatabase(),
 ) {
-  const collection = await validateItem(collectionKey, data, client);
+  let record = data;
+  if (
+    collectionKey === "projects"
+    && record
+    && typeof record === "object"
+    && !Array.isArray(record)
+    && !Object.prototype.hasOwnProperty.call(record, "featured_order")
+  ) {
+    const existingProjects = await client.execute(`SELECT data_json FROM collection_items
+      JOIN collections ON collections.id = collection_items.collection_id
+      WHERE collections.key = 'projects'`);
+    const highestOrder = existingProjects.rows.reduce((highest, row) => {
+      const projectData = parseJsonObject(row.data_json);
+      const order = projectData.featured_order;
+      return typeof order === "number" && Number.isInteger(order)
+        ? Math.max(highest, order)
+        : highest;
+    }, 0);
+    record = { ...(record as Record<string, unknown>), featured_order: highestOrder + 1 };
+  }
+
+  const collection = await validateItem(collectionKey, record, client);
   const collectionResult = await client.execute({ sql: "SELECT id FROM collections WHERE key = ?", args: [collectionKey] });
   const collectionId = String(collectionResult.rows[0].id);
   const itemId = crypto.randomUUID();
-  const record = data as Record<string, unknown>;
-  const relationships = await itemRelationshipStatements(collectionId, itemId, collection, record, client);
+  const itemData = record as Record<string, unknown>;
+  const relationships = await itemRelationshipStatements(collectionId, itemId, collection, itemData, client);
 
   try {
     await client.batch([
@@ -511,7 +532,7 @@ export async function createItem(
         sql: `INSERT INTO collection_items (
           id, collection_id, slug, status, data_json, created_by, updated_by
         ) VALUES (?, ?, ?, 'draft', ?, ?, ?)`,
-        args: [itemId, collectionId, itemSlug(collection, record), JSON.stringify(record), actorId, actorId],
+        args: [itemId, collectionId, itemSlug(collection, itemData), JSON.stringify(itemData), actorId, actorId],
       },
       ...relationships,
       auditStatement(actorId, "item.create", "collection_item", itemId, requestId),

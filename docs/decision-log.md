@@ -1,5 +1,11 @@
 # Webine decision log
 
+## 2026-08-13, newest Project first ordering
+
+- Made the server assign a new Project the next available featured-order number when the editor leaves that field empty, while preserving deliberate manual values.
+- Defined higher featured-order numbers as newer and earlier. The shared public Project query now returns `2` before `1`, so Home and Works consume the same order without route-specific sorting.
+- Kept Projects without an order after explicitly ordered Projects and documented the sequence in the content-entry guide.
+
 ## 2026-07-28, launch typography and deployment readiness
 
 - Approved Arial as the final primary typeface, superseding the earlier Railway intention.

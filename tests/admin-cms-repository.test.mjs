@@ -156,6 +156,28 @@ test("saves incomplete drafts, validates entered values and rejects stale writes
   });
 });
 
+test("assigns each new Project the next featured order while preserving explicit values", async () => {
+  await withDatabase(async (client) => {
+    const manual = await createItem(
+      "projects",
+      { title: "Manually ordered project", featured_order: 20 },
+      "user_owner",
+      "request_manual_order",
+      client,
+    );
+    const automatic = await createItem(
+      "projects",
+      { title: "Automatically ordered project" },
+      "user_owner",
+      "request_automatic_order",
+      client,
+    );
+
+    assert.equal(manual.data.featured_order, 20);
+    assert.equal(automatic.data.featured_order, 21);
+  });
+});
+
 test("protects system schemas from incompatible collection edits", async () => {
   await withDatabase(async (client) => {
     const projects = await getCollectionDefinition("projects", client);

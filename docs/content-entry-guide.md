@@ -7,12 +7,12 @@ Open `/admin` and sign in with the Clerk account whose user ID matches `ADMIN_US
 ## Add media first
 
 1. Open **Media**.
-2. Choose or drag a JPEG, PNG, WebP, AVIF or animated GIF image no larger than 50 MB. GIFs retain their animation and may contain up to 500 frames.
+2. Choose or drag a JPEG, PNG, WebP, AVIF or animated GIF image no larger than 15 MB, or an MP4 no larger than 30 MB. GIFs retain their animation and may contain up to 500 frames.
 3. Add meaningful alt text, or mark the image decorative only when it conveys no information.
 4. Adjust the focal point so responsive crops preserve the important subject.
 5. Complete the upload. The image can now be reused without uploading another copy.
 
-Editors select images from the media library. They never paste a filesystem path or storage URL into an image field.
+Editors select media from the media library. They never paste a filesystem path or storage URL into a media field. Project cover, hover, Image and Bento fields accept ready images or MP4 assets. Social sharing remains image-only, while a Video block accepts one MP4.
 
 Archive is available directly on each asset card. An asset used by published content stays protected. Replace or unpublish that content first, then archive the asset. Archive removes the asset from ordinary selection without destroying its audit history.
 
@@ -46,7 +46,7 @@ For a shorter, image-led case study, keep the optional story copy empty and add 
 
 ## Featured homepage order
 
-In a Project, enable **Featured** and set **Featured order**. Lower numbers appear earlier. Reordering the values changes the homepage runway without a code change.
+In a Project, enable **Featured** to include it in the homepage runway. New Projects automatically receive the next **Featured order** number. Higher numbers appear first, so a new Project numbered `2` appears before an older Project numbered `1` on both Home and Works. You can still edit the number manually when a different sequence is needed.
 
 ## Collections and fields
 

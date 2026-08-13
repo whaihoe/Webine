@@ -98,7 +98,7 @@ test("links uploaded media through draft, publish, public query and archive prot
       project_type: "category_web", year: 2026, services: ["service_design"],
       short_summary: "A complete media and publishing workflow check.", hero_image: "asset_workflow",
       hover_image: "asset_video",
-      card_theme: "dark", accent_colour: "#14b8a6", featured: true, featured_order: 0,
+      card_theme: "dark", accent_colour: "#14b8a6", featured: true, featured_order: 4,
       content_blocks: [
         { type: "image", assetIds: ["asset_workflow", "asset_portrait", "asset_video"], layout: "wide" },
         { type: "bento", assetIds: ["asset_portrait", "asset_wide"] },
@@ -114,6 +114,7 @@ test("links uploaded media through draft, publish, public query and archive prot
     assert.equal(published.status, "published");
     const publicProjects = await listPublicProjects({ featuredOnly: true }, client);
     assert.equal(publicProjects[0].slug, "workflow-project");
+    assert.deepEqual(publicProjects.slice(0, 4).map((project) => project.featuredOrder), [4, 3, 2, 1]);
     assert.equal(publicProjects[0].accentColour, "#14b8a6");
     assert.equal(publicProjects[0].contentBlocks[0].images.length, 3);
     assert.equal(publicProjects[0].contentBlocks[0].images[2].mimeType, "video/mp4");

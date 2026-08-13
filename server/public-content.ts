@@ -129,11 +129,15 @@ export async function listPublicProjects(
 
   return projects
     .filter((project) => !options.featuredOnly || project.featured)
-    .sort((a, b) =>
-      (a.featuredOrder ?? Number.MAX_SAFE_INTEGER)
-        - (b.featuredOrder ?? Number.MAX_SAFE_INTEGER)
-      || b.year - a.year
-      || a.title.localeCompare(b.title));
+    .sort((a, b) => {
+      if (a.featuredOrder === null || b.featuredOrder === null) {
+        if (a.featuredOrder !== null) return -1;
+        if (b.featuredOrder !== null) return 1;
+      }
+      return (b.featuredOrder ?? 0) - (a.featuredOrder ?? 0)
+        || b.year - a.year
+        || a.title.localeCompare(b.title);
+    });
 }
 
 export async function getPublicProject(slug: string, client: Client = getDatabase()) {
