@@ -2,20 +2,20 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { resolveAdminApiModule } from "../.test-build/dev/admin-api-development-plugin.js";
 
-test("maps local requests to API modules and the development-only media handler", () => {
-  assert.equal(resolveAdminApiModule("/api/admin/session"), "/api/admin.ts");
-  assert.equal(resolveAdminApiModule("/api/admin/dashboard"), "/api/admin.ts");
-  assert.equal(resolveAdminApiModule("/api/admin/collections"), "/api/admin.ts");
+test("maps only protected writes to the local Worker adapter", () => {
+  assert.equal(resolveAdminApiModule("/api/admin/session"), "/dev/worker-development-handler.ts");
+  assert.equal(resolveAdminApiModule("/api/admin/dashboard"), "/dev/worker-development-handler.ts");
+  assert.equal(resolveAdminApiModule("/api/admin/collections"), "/dev/worker-development-handler.ts");
   assert.equal(
     resolveAdminApiModule("/api/admin/collections/projects/items/item_123"),
-    "/api/admin.ts",
+    "/dev/worker-development-handler.ts",
   );
-  assert.equal(resolveAdminApiModule("/api/enquiries"), "/api/enquiries.ts");
-  assert.equal(resolveAdminApiModule("/api/projects"), "/api/projects.ts");
-  assert.equal(resolveAdminApiModule("/api/projects/webine-identity-system"), "/api/projects.ts");
-  assert.equal(resolveAdminApiModule("/api/site-settings"), "/api/site-settings.ts");
-  assert.equal(resolveAdminApiModule("/api/media/asset-123"), "/dev/media-development-handler.ts");
+  assert.equal(resolveAdminApiModule("/api/enquiries"), "/dev/worker-development-handler.ts");
+  assert.equal(resolveAdminApiModule("/api/projects"), undefined);
+  assert.equal(resolveAdminApiModule("/api/projects/webine-identity-system"), undefined);
+  assert.equal(resolveAdminApiModule("/api/site-settings"), undefined);
+  assert.equal(resolveAdminApiModule("/api/media/asset-123"), "/dev/worker-development-handler.ts");
   assert.equal(resolveAdminApiModule("/robots.txt"), undefined);
-  assert.equal(resolveAdminApiModule("/sitemap.xml"), "/api/sitemap.ts");
+  assert.equal(resolveAdminApiModule("/sitemap.xml"), undefined);
   assert.equal(resolveAdminApiModule("/api/unknown"), undefined);
 });

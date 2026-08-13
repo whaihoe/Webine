@@ -1,5 +1,3 @@
-import { head } from "@vercel/blob";
-import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { handleProtectedAdminRequest } from "../admin-handler.js";
 import {
   changeItemStatus,
@@ -26,25 +24,33 @@ import {
   createAsset,
   getAssetByStorage,
   listAssets,
+  promoteAssetWhenRenditionsReady,
+  saveAssetRendition,
   updateAsset,
 } from "../media-repository.js";
 import {
   ACCEPTED_MEDIA_TYPES,
   MAX_IMAGE_BYTES,
   MAX_VIDEO_BYTES,
-  storeLocalMedia,
-  validateMediaBuffer,
-} from "../media-service.js";
+} from "../../shared/media-policy.js";
 import {
   errorResponse,
   getRequestId,
   jsonResponse,
   readJsonRequest,
 } from "../responses.js";
+import { getRuntimeReadiness } from "../runtime-readiness.js";
 import {
-  getBlobReadWriteToken,
-  getRuntimeReadiness,
-} from "../runtime-readiness.js";
+  createR2UploadUrl,
+  getR2Bucket,
+  getR2DeliveryUrl,
+  signUploadIntent,
+  verifyUploadIntent,
+  type R2Environment,
+} from "../r2-storage.js";
+import { verifyR2Media } from "../r2-media-verification.js";
+import { publishPublicSnapshots, type SnapshotEnvironment } from "../public-snapshots.js";
+import { isMediaRenditionRole } from "../../shared/media-renditions.js";
 
 const COLLECTION_KEY_PATTERN = "([a-z][a-z0-9_]{1,49})";
 const ITEM_ID_PATTERN = "([a-zA-Z0-9_-]{1,120})";
@@ -69,7 +75,8 @@ const previewRoute = new RegExp(
   `^/api/admin/preview/${COLLECTION_KEY_PATTERN}/${ITEM_ID_PATTERN}$`,
 );
 const mediaAssetRoute = new RegExp(`^/api/admin/media/${ID_PATTERN}$`);
-const blobMediaPath = /^webine\/media\/([a-f0-9-]{36})\/([a-zA-Z0-9._-]{1,120})$/;
+const mediaRenditionsRoute = new RegExp(`^/api/admin/media/${ID_PATTERN}/renditions$`);
+const mediaPath = /^webine\/media\/([a-f0-9-]{36})\/([a-zA-Z0-9._-]{1,120})$/;
 
 type UploadIntent = {
   assetId: string;
@@ -78,7 +85,7 @@ type UploadIntent = {
 };
 
 export function parseUploadIntent(value: string | null, pathname: string) {
-  const match = pathname.match(blobMediaPath);
+  const match = pathname.match(mediaPath);
   let input: Partial<UploadIntent> = {};
   try {
     input = value ? JSON.parse(value) as Partial<UploadIntent> : {};
@@ -102,62 +109,6 @@ export function parseUploadIntent(value: string | null, pathname: string) {
   return { assetId: input.assetId, byteSize: Number(input.byteSize), mimeType, maximumBytes };
 }
 
-type BlobCompletionMetadata = {
-  pathname: string;
-  url: string;
-  contentType: string;
-  size: number;
-};
-
-export function assertBlobCompletionMetadata(
-  pathname: string,
-  suppliedUrl: string,
-  metadata: BlobCompletionMetadata,
-) {
-  if (
-    metadata.pathname !== pathname
-    || metadata.url !== suppliedUrl
-    || !ACCEPTED_MEDIA_TYPES.includes(metadata.contentType as typeof ACCEPTED_MEDIA_TYPES[number])
-  ) {
-    throw new CmsRepositoryError("MEDIA_PROVIDER_INVALID", "The upload did not come from the configured media store.", 422);
-  }
-  const maximumBytes = metadata.contentType === "video/mp4" ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES;
-  if (!Number.isInteger(metadata.size) || metadata.size < 1 || metadata.size > maximumBytes) {
-    throw new CmsRepositoryError("MEDIA_INVALID", "The uploaded media exceeds the allowed size.", 422);
-  }
-  return maximumBytes;
-}
-
-async function readBoundedResponse(response: Response, maximumBytes: number) {
-  const declared = Number(response.headers.get("content-length") ?? 0);
-  if (declared > maximumBytes) throw new Error("MEDIA_TOO_LARGE");
-  const reader = response.body?.getReader();
-  if (!reader) throw new Error("MEDIA_EMPTY");
-  const chunks: Uint8Array[] = [];
-  let size = 0;
-  let finished = false;
-  while (!finished) {
-    const { done, value } = await reader.read();
-    if (done) {
-      finished = true;
-      continue;
-    }
-    size += value.byteLength;
-    if (size > maximumBytes) {
-      await reader.cancel();
-      throw new Error("MEDIA_TOO_LARGE");
-    }
-    chunks.push(value);
-  }
-  const bytes = new Uint8Array(size);
-  let offset = 0;
-  chunks.forEach((chunk) => {
-    bytes.set(chunk, offset);
-    offset += chunk.byteLength;
-  });
-  return bytes.buffer;
-}
-
 function normalisePathname(pathname: string) {
   return pathname.length > 1 && pathname.endsWith("/")
     ? pathname.slice(0, -1)
@@ -165,11 +116,6 @@ function normalisePathname(pathname: string) {
 }
 
 function stringValue(value: unknown) {
-  return typeof value === "string" ? value : "";
-}
-
-function formString(form: FormData, key: string) {
-  const value = form.get(key);
   return typeof value === "string" ? value : "";
 }
 
@@ -192,6 +138,14 @@ async function handleDashboard(request: Request) {
       ...await getDashboard(),
       readiness: getRuntimeReadiness(),
     }, requestId));
+}
+
+async function handlePublicSnapshotRefresh(request: Request, environment: SnapshotEnvironment) {
+  return handleProtectedAdminRequest(
+    request,
+    async (_identity, requestId) => jsonResponse(await publishPublicSnapshots(environment), requestId),
+    { methods: ["POST"] },
+  );
 }
 
 async function handleCollections(request: Request) {
@@ -325,20 +279,23 @@ async function handleCollectionItemStatus(
   request: Request,
   collectionKey: string,
   itemId: string,
+  environment: SnapshotEnvironment,
 ) {
   return handleProtectedAdminRequest(
     request,
-    async (identity, requestId) =>
-      jsonResponse(
-        await changeItemStatus(
+    async (identity, requestId) => {
+      const result = await changeItemStatus(
           collectionKey,
           itemId,
           await readJsonRequest(request),
           identity.userId,
           requestId,
-        ),
-        requestId,
-      ),
+      );
+      if (["projects", "site_settings", "categories", "services"].includes(collectionKey)) {
+        try { await publishPublicSnapshots(environment); } catch { throw new CmsRepositoryError("PUBLIC_SNAPSHOT_FAILED", "Published data could not be refreshed for public delivery. Use the protected content refresh action before considering this change complete.", 502); }
+      }
+      return jsonResponse(result, requestId);
+    },
     { methods: ["POST"] },
   );
 }
@@ -397,7 +354,7 @@ async function handleMedia(request: Request) {
     jsonResponse(await listAssets(), requestId));
 }
 
-async function handleMediaAsset(request: Request, assetId: string) {
+async function handleMediaAsset(request: Request, assetId: string, environment: SnapshotEnvironment) {
   return handleProtectedAdminRequest(
     request,
     async (identity, requestId) => {
@@ -410,20 +367,24 @@ async function handleMediaAsset(request: Request, assetId: string) {
               identity.userId,
               requestId,
             );
+      if (request.method === "PATCH" && result && "publishedUsageCount" in result && Number(result.publishedUsageCount) > 0) {
+        await publishPublicSnapshots(environment);
+      }
       return jsonResponse(result, requestId);
     },
     { methods: ["PATCH", "DELETE"] },
   );
 }
 
-async function handleMediaComplete(request: Request) {
+async function handleMediaComplete(request: Request, environment: R2Environment) {
   return handleProtectedAdminRequest(
     request,
     async (identity, requestId) => {
       const input = (await readJsonRequest(request, 64 * 1024)) as Record<string, unknown>;
       const assetId = stringValue(input.assetId);
       const pathname = stringValue(input.pathname);
-      const pathMatch = pathname.match(blobMediaPath);
+      const intentToken = stringValue(input.intent);
+      const pathMatch = pathname.match(mediaPath);
       if (!pathMatch || pathMatch[1] !== assetId) {
         throw new CmsRepositoryError(
           "MEDIA_PROVIDER_INVALID",
@@ -432,54 +393,44 @@ async function handleMediaComplete(request: Request) {
         );
       }
 
-      const existing = await getAssetByStorage("vercel_blob", pathname);
+      let intent;
+      try { intent = await verifyUploadIntent(intentToken, environment); } catch { throw new CmsRepositoryError("MEDIA_UPLOAD_INTENT_INVALID", "The upload authorisation is invalid or expired.", 422); }
+      if (intent.pathname !== pathname) throw new CmsRepositoryError("MEDIA_UPLOAD_INTENT_INVALID", "The upload authorisation does not match this file.", 422);
+
+      const existing = await getAssetByStorage("r2", pathname);
       if (existing) return jsonResponse(existing, requestId);
 
-      const token = getBlobReadWriteToken();
-      if (!token) throw new CmsRepositoryError("MEDIA_STORAGE_NOT_CONFIGURED", "Media storage is not configured.", 503);
       let metadata;
       try {
-        metadata = await head(pathname, { token });
+        metadata = await getR2Bucket(environment).head(pathname);
       } catch {
         throw new CmsRepositoryError("MEDIA_VERIFY_FAILED", "The uploaded media could not be verified.", 422);
       }
-      const suppliedUrl = stringValue(input.url);
-      const maximumBytes = assertBlobCompletionMetadata(pathname, suppliedUrl, metadata);
-
-      const response = await fetch(metadata.url, {
-        redirect: "error",
-        signal: AbortSignal.timeout(8_000),
-      });
-      if (!response.ok) {
+      const contentType = metadata?.httpMetadata?.contentType ?? "";
+      const maximumBytes = contentType === "video/mp4" ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES;
+      if (!metadata || !ACCEPTED_MEDIA_TYPES.includes(contentType as typeof ACCEPTED_MEDIA_TYPES[number]) || metadata.size < 1 || metadata.size > maximumBytes) {
         throw new CmsRepositoryError(
-          "MEDIA_VERIFY_FAILED",
-          "The uploaded image could not be verified.",
+          "MEDIA_INVALID",
+          "The uploaded file does not match the authorised media type or size.",
           422,
         );
       }
+      if (contentType !== intent.mimeType || metadata.size !== intent.byteSize) throw new CmsRepositoryError("MEDIA_UPLOAD_INTENT_INVALID", "The uploaded file does not match its authorised type or size.", 422);
 
       let media;
       try {
-        media = await validateMediaBuffer(
-          await readBoundedResponse(response, maximumBytes),
-          metadata.contentType,
-        );
+        media = await verifyR2Media(getR2Bucket(environment), pathname, contentType);
       } catch {
-        throw new CmsRepositoryError(
-          "MEDIA_INVALID",
-          "The uploaded file is not an accepted website image or MP4 video.",
-          422,
-        );
+        throw new CmsRepositoryError("MEDIA_INVALID", "The uploaded file could not be verified as the selected media type.", 422);
       }
-
-      const asset = await createAsset(
+      await createAsset(
         {
           id: assetId,
-          provider: "vercel_blob",
+          provider: "r2",
           providerAssetId: pathname,
-          deliveryUrl: metadata.url,
+          deliveryUrl: getR2DeliveryUrl(pathname, environment),
           originalFilename: stringValue(input.originalFilename).slice(0, 240),
-          mimeType: media.mimeType,
+          mimeType: contentType,
           byteSize: media.byteSize,
           width: media.width,
           height: media.height,
@@ -488,131 +439,66 @@ async function handleMediaComplete(request: Request) {
           focalX: Number(input.focalX ?? 0.5),
           focalY: Number(input.focalY ?? 0.5),
           decorative: input.decorative === true,
+          status: "processing",
+          processingState: "quarantined",
         },
         identity.userId,
         requestId,
       );
-      return jsonResponse(asset, requestId, 201);
+      // The rendition processor owns promotion to ready after it records every derivative.
+      return jsonResponse(await getAssetByStorage("r2", pathname), requestId, 201);
     },
     { methods: ["POST"] },
   );
 }
 
-async function handleLocalMediaUpload(request: Request) {
+async function handleMediaRenditions(request: Request, assetId: string, environment: R2Environment) {
+  return handleProtectedAdminRequest(request, async (_identity, requestId) => {
+    const input = await readJsonRequest(request, 128 * 1024) as Record<string, unknown>;
+    const renditions = Array.isArray(input.renditions) ? input.renditions : [];
+    if (renditions.length !== 3) throw new CmsRepositoryError("RENDITIONS_INCOMPLETE", "Submit each required media rendition exactly once.", 422);
+    const roles = new Set<string>();
+    for (const value of renditions) {
+      const rendition = value && typeof value === "object" ? value as Record<string, unknown> : {};
+      const role = stringValue(rendition.role); const pathname = stringValue(rendition.pathname);
+      if (!isMediaRenditionRole(role) || roles.has(role) || !pathname.startsWith(`webine/renditions/${assetId}/`)) throw new CmsRepositoryError("INVALID_RENDITION", "The rendition manifest is invalid.", 422);
+      roles.add(role);
+      const metadata = await getR2Bucket(environment).head(pathname);
+      const contentType = metadata?.httpMetadata?.contentType ?? "";
+      const maximumBytes = contentType === "video/mp4" ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES;
+      if (!metadata || !ACCEPTED_MEDIA_TYPES.includes(contentType as typeof ACCEPTED_MEDIA_TYPES[number]) || metadata.size < 1 || metadata.size > maximumBytes) throw new CmsRepositoryError("INVALID_RENDITION", "A rendition object is missing or invalid.", 422);
+      const media = await verifyR2Media(getR2Bucket(environment), pathname, contentType);
+      await saveAssetRendition({ assetId, role, deliveryUrl: getR2DeliveryUrl(pathname, environment), mimeType: contentType, byteSize: media.byteSize, width: media.width, height: media.height, status: "ready" });
+    }
+    return jsonResponse(await promoteAssetWhenRenditionsReady(assetId), requestId);
+  }, { methods: ["POST"] });
+}
+
+async function handleMediaUploadToken(request: Request, environment: R2Environment) {
   return handleProtectedAdminRequest(
     request,
-    async (identity, requestId) => {
-      if (process.env.VERCEL === "1" || process.env.NODE_ENV === "production") {
-        throw new CmsRepositoryError(
-          "LOCAL_UPLOAD_DISABLED",
-          "Use the configured Vercel media store.",
-          404,
-        );
-      }
-
-      const form = await request.formData();
-      const file = form.get("file");
-      if (!(file instanceof File)) {
-        throw new CmsRepositoryError(
-          "MEDIA_REQUIRED",
-          "Choose an image or MP4 video to upload.",
-          422,
-        );
-      }
-
-      const decorative = formString(form, "decorative") === "true";
-      if (!decorative && !formString(form, "altText").trim()) {
-        throw new CmsRepositoryError(
-          "ALT_TEXT_REQUIRED",
-          "Describe the image or mark it as decorative.",
-          422,
-        );
-      }
-
-      let media;
-      try {
-        media = await validateMediaBuffer(await file.arrayBuffer(), file.type);
-      } catch {
-        throw new CmsRepositoryError(
-          "MEDIA_INVALID",
-          "Use a JPEG, PNG, WebP, AVIF or GIF no larger than 15 MB, or an MP4 no larger than 30 MB.",
-          422,
-        );
-      }
-
-      const id = crypto.randomUUID();
-      const providerAssetId = await storeLocalMedia(id, media);
-      const asset = await createAsset(
-        {
-          id,
-          provider: "external",
-          providerAssetId,
-          deliveryUrl: `/api/media/${id}`,
-          originalFilename: file.name.slice(0, 240),
-          mimeType: media.mimeType,
-          byteSize: media.byteSize,
-          width: media.width,
-          height: media.height,
-          altText: formString(form, "altText"),
-          caption: formString(form, "caption"),
-          focalX: Number(formString(form, "focalX") || 0.5),
-          focalY: Number(formString(form, "focalY") || 0.5),
-          decorative,
-        },
-        identity.userId,
-        requestId,
-      );
-      return jsonResponse(asset, requestId, 201);
+    async (_identity, requestId) => {
+      const body = (await readJsonRequest(request, 64 * 1024)) as Record<string, unknown>;
+      const assetId = stringValue(body.assetId);
+      const filename = stringValue(body.filename);
+      const mimeType = stringValue(body.mimeType);
+      const byteSize = Number(body.byteSize);
+      const pathname = `webine/media/${assetId}/${filename}`;
+      const intent = parseUploadIntent(JSON.stringify({ assetId, mimeType, byteSize }), pathname);
+      const result = await createR2UploadUrl(pathname, intent.mimeType, environment);
+      const intentToken = await signUploadIntent({ pathname, mimeType: intent.mimeType, byteSize: intent.byteSize, expiresAt: Date.now() + 5 * 60 * 1000 }, environment);
+      return jsonResponse({ pathname, intent: intentToken, ...result }, requestId);
     },
     { methods: ["POST"] },
   );
 }
 
-async function handleMediaUploadToken(request: Request) {
-  return handleProtectedAdminRequest(
-    request,
-    async (identity, requestId) => {
-      const token = getBlobReadWriteToken();
-      if (!token) {
-        throw new CmsRepositoryError(
-          "MEDIA_STORAGE_NOT_CONFIGURED",
-          "Media uploads are not configured. Connect a Vercel Blob store and redeploy.",
-          503,
-        );
-      }
-      const body = (await readJsonRequest(request, 64 * 1024)) as HandleUploadBody;
-      const result = await handleUpload({
-        body,
-        request,
-        token,
-        onBeforeGenerateToken: async (pathname, clientPayload) => {
-          const intent = parseUploadIntent(clientPayload, pathname);
-          return {
-            allowedContentTypes: [intent.mimeType],
-            maximumSizeInBytes: intent.maximumBytes,
-            validUntil: Date.now() + 5 * 60 * 1000,
-            addRandomSuffix: true,
-            tokenPayload: JSON.stringify({ assetId: intent.assetId, userId: identity.userId }),
-          };
-        },
-      });
-
-      return Response.json(result, {
-        headers: {
-          "Cache-Control": "private, no-store",
-          "X-Request-Id": requestId,
-        },
-      });
-    },
-    { methods: ["POST"] },
-  );
-}
-
-export async function routeAdminRequest(request: Request) {
+export async function routeAdminRequest(request: Request, environment: R2Environment & SnapshotEnvironment = process.env) {
   const pathname = normalisePathname(new URL(request.url).pathname);
 
   if (pathname === "/api/admin/session") return handleSession(request);
   if (pathname === "/api/admin/dashboard") return handleDashboard(request);
+  if (pathname === "/api/admin/content/refresh") return handlePublicSnapshotRefresh(request, environment);
   if (pathname === "/api/admin/collections") return handleCollections(request);
   if (pathname === "/api/admin/preview") return handlePreview(request);
 
@@ -622,15 +508,14 @@ export async function routeAdminRequest(request: Request) {
   }
   if (pathname === "/api/admin/enquiries") return handleEnquiries(request);
   if (pathname === "/api/admin/media") return handleMedia(request);
-  if (pathname === "/api/admin/media/local-upload") {
-    return handleLocalMediaUpload(request);
-  }
   if (pathname === "/api/admin/media/upload-token") {
-    return handleMediaUploadToken(request);
+    return handleMediaUploadToken(request, environment);
   }
   if (pathname === "/api/admin/media/complete") {
-    return handleMediaComplete(request);
+    return handleMediaComplete(request, environment);
   }
+  const renditionMatch = pathname.match(mediaRenditionsRoute);
+  if (renditionMatch) return handleMediaRenditions(request, renditionMatch[1], environment);
 
   const itemStatusMatch = pathname.match(collectionItemStatusRoute);
   if (itemStatusMatch) {
@@ -638,6 +523,7 @@ export async function routeAdminRequest(request: Request) {
       request,
       itemStatusMatch[1],
       itemStatusMatch[2],
+      environment,
     );
   }
 
@@ -658,7 +544,7 @@ export async function routeAdminRequest(request: Request) {
   }
 
   const mediaAssetMatch = pathname.match(mediaAssetRoute);
-  if (mediaAssetMatch) return handleMediaAsset(request, mediaAssetMatch[1]);
+  if (mediaAssetMatch) return handleMediaAsset(request, mediaAssetMatch[1], environment);
 
   return notFound(request);
 }

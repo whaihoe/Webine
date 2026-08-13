@@ -3,7 +3,6 @@ import type { AdminAsset } from "../../admin/api";
 import { initialUploadDetails, uploadAdminMedia } from "../../admin/upload-image";
 import { useAdminMutation } from "../../admin/useAdminMutation";
 import { useAdminResource } from "../../admin/useAdminResource";
-import { useAdminAuth } from "../../admin/AdminAuthContext";
 import type { FieldDefinition } from "../../cms/schema";
 import { validateImageFile, validateMediaFile, validateVideoFile } from "../../../shared/media-policy";
 
@@ -20,7 +19,6 @@ function fieldRole(field: FieldDefinition) {
 
 function InlineAssetUpload({ field, mediaKind, onUploaded }: { field: FieldDefinition; mediaKind: MediaKind; onUploaded: (asset: AdminAsset) => void }) {
   const mutateAdminResource = useAdminMutation();
-  const { getToken } = useAdminAuth();
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState("");
@@ -51,7 +49,6 @@ function InlineAssetUpload({ field, mediaKind, onUploaded }: { field: FieldDefin
         details,
         setProgress,
         mutateAdminResource,
-        getToken,
       );
       onUploaded(asset);
       setFile(null);
@@ -163,13 +160,13 @@ export function AssetFieldControl({
 
   const byId = new Map(resource.data.map((asset) => [asset.id, asset]));
   const selectedAssets = selectedIds.map((id) => byId.get(id)).filter((asset): asset is AdminAsset => Boolean(asset));
-  const matchingAssets = resource.data.filter((asset) =>
+  const matchingAssets = resource.data.filter((asset) => asset.status === "ready" && asset.processingState === "ready" && (
     resolvedMediaKind === "video"
       ? asset.mimeType === "video/mp4"
       : resolvedMediaKind === "media"
         ? asset.mimeType.startsWith("image/") || asset.mimeType === "video/mp4"
-        : asset.mimeType.startsWith("image/"),
-  );
+        : asset.mimeType.startsWith("image/")
+  ));
   const availableAssets = matchingAssets.filter((asset) => !selected.has(asset.id));
 
   return (
@@ -188,7 +185,7 @@ export function AssetFieldControl({
                 : <img src={asset.url} alt={asset.decorative ? "" : asset.altText} />}
               <div>
                 <span>{multiple ? `Gallery ${index + 1}` : fieldRole(field)}</span>
-                <strong>{asset.originalFilename}</strong>
+                <strong>{asset.displayName}</strong>
                 <small>{asset.width} × {asset.height}</small>
               </div>
               <div className="admin-project-media-selection__actions">
@@ -219,7 +216,7 @@ export function AssetFieldControl({
                   {asset.mimeType === "video/mp4"
                     ? <video src={asset.url} muted playsInline preload="metadata" aria-hidden="true" />
                     : <img src={asset.url} alt="" />}
-                  <span>{asset.originalFilename}</span>
+                  <span>{asset.displayName}</span>
                   <small>{asset.usageCount} existing use{asset.usageCount === 1 ? "" : "s"}</small>
                 </button>
               ))}

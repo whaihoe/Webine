@@ -2,7 +2,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import type { AdminAsset, AdminItem } from "../admin/api";
 import { useAdminResource } from "../admin/useAdminResource";
 import { ProjectMedia } from "../components/projects/ProjectMedia";
-import { ProjectStoryBlock } from "../components/projects/ProjectStoryBlock";
+import { ProjectStory } from "../components/projects/ProjectStory";
 import { SiteShell } from "../components/SiteShell";
 import { contentBlockAssetIds } from "../../shared/project-content-blocks";
 
@@ -37,12 +37,19 @@ export function PreviewPage() {
       <section className="project-case-study theme-light" aria-labelledby="preview-heading">
         <div className="site-container project-case-study__top"><Link to={back}>Return to editor</Link><p>Protected draft preview / {resource.data.item.status}</p></div>
         <div className="site-container project-case-study__hero"><div className="page-header-copy page-header-copy--case"><p className="eyebrow page-header-copy__eyebrow">Unpublished CMS state</p><h1 className="page-header-copy__title" id="preview-heading">{String(data.title ?? "Untitled project")}</h1><p className="page-header-copy__summary">{String(data.short_summary ?? "Add a project summary in Admin.")}</p></div>{asset ? <div className="project-case-study__media-frame"><ProjectMedia asset={asset} style={{ objectPosition: `${asset.focalX * 100}% ${asset.focalY * 100}%` }} /></div> : <div className="project-case-study__missing-media">Select project cover media</div>}{facts.length ? <dl className="project-case-study__facts">{facts.map(([label, value]) => <div key={String(label)}><dt>{String(label)}</dt><dd>{String(value)}</dd></div>)}</dl> : null}</div>
-        <div className="site-container project-case-study__story">{[["About the client", structuredText(data.about_client)], ["Challenge", structuredText(data.challenge)], ["Approach", structuredText(data.approach)], ["Outcome", structuredText(data.outcome)]].map(([heading, copy]) => copy ? <article key={heading}><h2>{heading}</h2><p>{copy}</p></article> : null)}{blocks.map((block, index) => {
+        <ProjectStory
+          aboutClient={structuredText(data.about_client)}
+          challenge={structuredText(data.challenge)}
+          approach={structuredText(data.approach)}
+          outcome={structuredText(data.outcome)}
+          blocks={blocks}
+          resolveImages={(block) => {
           const blockAssets = contentBlockAssetIds(block)
             .map((assetId) => resource.data.assets.find((candidate) => candidate.id === assetId))
             .filter((candidate): candidate is AdminAsset => Boolean(candidate));
-          return <ProjectStoryBlock key={index} block={block} blockIndex={index} images={blockAssets} />;
-        })}</div>
+          return blockAssets;
+        }}
+        />
       </section>
     </SiteShell>
   );

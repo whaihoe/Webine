@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
-  getBlobReadWriteToken,
   getEnquiryHashSecret,
   getRuntimeReadiness,
   hasEnquiryNotificationProvider,
@@ -10,13 +9,16 @@ import {
 test("reports the exact production services that still need configuration", () => {
   const missing = getRuntimeReadiness({});
   assert.equal(missing.mediaUploads.configured, false);
-  assert.equal(missing.mediaUploads.requiredVariable, "BLOB_READ_WRITE_TOKEN");
+  assert.match(missing.mediaUploads.requiredVariable, /R2_ACCESS_KEY_ID/);
   assert.equal(missing.enquiries.configured, false);
   assert.equal(missing.enquiries.requiredVariable, "ENQUIRY_HASH_SECRET");
   assert.equal(missing.enquiryNotifications.configured, false);
 
   const environment = {
-    BLOB_READ_WRITE_TOKEN: "  blob-token  ",
+    R2_ACCESS_KEY_ID: "access",
+    R2_SECRET_ACCESS_KEY: "secret",
+    R2_S3_ENDPOINT: "https://example.r2.cloudflarestorage.com",
+    R2_PUBLIC_BASE_URL: "https://media.example.com",
     ENQUIRY_HASH_SECRET: "  enquiry-secret  ",
     RESEND_API_KEY: "  resend-key  ",
     ENQUIRY_NOTIFICATION_EMAIL: "  owner@example.com  ",
@@ -27,6 +29,5 @@ test("reports the exact production services that still need configuration", () =
   assert.equal(configured.enquiries.configured, true);
   assert.equal(configured.enquiryNotifications.configured, true);
   assert.equal(hasEnquiryNotificationProvider(environment), true);
-  assert.equal(getBlobReadWriteToken(environment), "blob-token");
   assert.equal(getEnquiryHashSecret(environment), "enquiry-secret");
 });

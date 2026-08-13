@@ -2,7 +2,7 @@
 
 ## Sign in
 
-Open `/admin` and sign in with the Clerk account whose user ID matches `ADMIN_USER_ID`. The local development identity works only on this machine and is rejected on Vercel.
+Open `/admin` and sign in with the Clerk account whose user ID matches `ADMIN_USER_ID`. The local development identity works only on this machine and is rejected by the Cloudflare production runtime.
 
 ## Add media first
 
@@ -10,7 +10,16 @@ Open `/admin` and sign in with the Clerk account whose user ID matches `ADMIN_US
 2. Choose or drag a JPEG, PNG, WebP, AVIF or animated GIF image no larger than 15 MB, or an MP4 no larger than 30 MB. GIFs retain their animation and may contain up to 500 frames.
 3. Add meaningful alt text, or mark the image decorative only when it conveys no information.
 4. Adjust the focal point so responsive crops preserve the important subject.
-5. Complete the upload. The image can now be reused without uploading another copy.
+5. Complete the upload. The browser uploads directly to R2 using a short-lived signed URL. The asset stays unavailable while its bytes are verified and its renditions are processed. It can be reused only when its status becomes ready.
+
+For a newly quarantined Production asset, copy the Asset ID shown on its media card. Download its verified source, generate and save the manifest, then persist the outputs:
+
+```bash
+npm run process:media-rendition -- --input <source-file> --output-dir <output-directory> > <manifest-file>
+npm run persist:media-renditions -- --asset-id <asset-id> --manifest <manifest-file>
+```
+
+The second command needs the R2 S3 variables, `WEBINE_ADMIN_ORIGIN` and a short-lived `WEBINE_ADMIN_TOKEN` from the authenticated owner session. It uploads all three derivatives, then the Worker verifies them before marking the asset ready. Do not store that token in a repository file or shell profile.
 
 Editors select media from the media library. They never paste a filesystem path or storage URL into a media field. Project cover, hover, Image and Bento fields accept ready images or MP4 assets. Social sharing remains image-only, while a Video block accepts one MP4.
 
@@ -42,7 +51,13 @@ After later edits, save the new draft, preview it and choose **Republish**. Use 
 
 The accent colour belongs only to that Project's `/works/:slug` galaxy nebula. The page keeps the shared Works particles and dark background, while the nebula derives its atmospheric gradient from the selected colour. It does not recolour the Works index, particles or Home runway.
 
-For a shorter, image-led case study, keep the optional story copy empty and add an **Image** or **Bento** content block. Image blocks accept up to three ordered images. Use Bento when several images have different proportions, such as a vertical mobile screen beside a horizontal desktop screen. Add at least two images, order them in the editor and let their stored dimensions shape the responsive layout. The complete image remains visible rather than being forced into one shared crop. An optional heading and caption can still provide context.
+For a shorter, image-led case study, keep Challenge, Approach and Outcome concise, then interleave an **Image** or **Bento** content block where it supports the story. Image blocks accept up to three ordered images. Use Bento when several images have different proportions, such as a vertical mobile screen beside a horizontal desktop screen. Add at least two images, order them in the editor and let their stored dimensions shape the responsive layout. The complete image remains visible rather than being forced into one shared crop. An optional heading and caption can still provide context.
+
+## Arrange a Project story
+
+The **Project story** field is the one place to arrange the case study. Challenge, Approach and Outcome are always present because they are required before publication. They can be moved around custom statement, text, image, Bento and video blocks, but they cannot be removed or changed into another block type. Their text is edited inside the matching entry.
+
+Each story entry and custom block has one **Show divider and bottom spacing** toggle. Turning it off removes both the divider and that entry's bottom padding. About the client stays fixed above the arranged story. Older Projects keep their original Challenge, Approach and Outcome followed by custom blocks until they are next saved, then receive stable story IDs automatically.
 
 ## Featured homepage order
 
@@ -66,7 +81,7 @@ Particle counts, object transforms and scroll choreography remain in `src/config
 
 ## Safe operating rules
 
-- Keep real credentials in Vercel, never in CMS content.
+- Keep real credentials in Cloudflare Worker secrets, never in CMS content.
 - Do not upload passwords, identity documents or payment details.
 - Preview before every first publication and major republish.
 - Use the database backup process before risky schema or bulk content work.

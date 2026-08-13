@@ -1,0 +1,60 @@
+name = "webine"
+main = "worker.ts"
+compatibility_date = "2026-08-14"
+compatibility_flags = ["nodejs_compat", "populate_process_env"]
+workers_dev = false
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+run_worker_first = ["/api/admin/*", "/api/enquiries", "/admin", "/admin/*", "/preview", "/preview/*"]
+not_found_handling = "404-page"
+
+[[r2_buckets]]
+binding = "MEDIA_BUCKET"
+bucket_name = "webine-media"
+preview_bucket_name = "webine-media-preview"
+
+[[r2_buckets]]
+binding = "CONTENT_BUCKET"
+bucket_name = "webine-content"
+preview_bucket_name = "webine-content-preview"
+
+[[ratelimits]]
+name = "ADMIN_RATE_LIMITER"
+namespace_id = "1001"
+simple = { limit = 120, period = 60 }
+
+[[ratelimits]]
+name = "ENQUIRY_RATE_LIMITER"
+namespace_id = "1002"
+simple = { limit = 12, period = 60 }
+
+[vars]
+VITE_SITE_URL = "https://www.madebywebine.com"
+TURNSTILE_EXPECTED_ACTION = "contact_enquiry"
+
+[env.preview]
+name = "webine-preview"
+
+[[env.preview.r2_buckets]]
+binding = "MEDIA_BUCKET"
+bucket_name = "webine-media-preview"
+
+[[env.preview.r2_buckets]]
+binding = "CONTENT_BUCKET"
+bucket_name = "webine-content-preview"
+
+[[env.preview.ratelimits]]
+name = "ADMIN_RATE_LIMITER"
+namespace_id = "2001"
+simple = { limit = 120, period = 60 }
+
+[[env.preview.ratelimits]]
+name = "ENQUIRY_RATE_LIMITER"
+namespace_id = "2002"
+simple = { limit = 12, period = 60 }
+
+[env.preview.vars]
+VITE_SITE_URL = "https://preview.madebywebine.com"
+TURNSTILE_EXPECTED_ACTION = "contact_enquiry"

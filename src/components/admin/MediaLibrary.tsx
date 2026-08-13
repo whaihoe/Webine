@@ -4,7 +4,6 @@ import { initialUploadDetails, uploadAdminMedia, type UploadDetails } from "../.
 import { useAdminResource } from "../../admin/useAdminResource";
 import { useAdminMutation } from "../../admin/useAdminMutation";
 import { AdminDataState } from "./AdminDataState";
-import { useAdminAuth } from "../../admin/AdminAuthContext";
 import { MAX_IMAGE_SIZE_LABEL, validateMediaFile } from "../../../shared/media-policy";
 
 function MediaAssetCard({ asset, onChanged }: { asset: AdminAsset; onChanged: () => void }) {
@@ -33,14 +32,18 @@ function MediaAssetCard({ asset, onChanged }: { asset: AdminAsset; onChanged: ()
       ? <video src={asset.url} muted loop autoPlay playsInline aria-label={asset.decorative ? undefined : asset.altText} />
       : <img src={asset.url} alt={asset.decorative ? "" : asset.altText} style={{ objectPosition: `${details.focalX * 100}% ${details.focalY * 100}%` }} />}
     <div>
-      <strong>{asset.originalFilename}</strong>
+      <strong>{asset.displayName}</strong>
+      <small>Original: {asset.originalFilename}</small>
       <span>{asset.width} × {asset.height}</span>
+      <span>Status: {asset.processingState}</span>
+      <small>Asset ID: {asset.id}</small>
       <span>{asset.usageCount} use{asset.usageCount === 1 ? "" : "s"}{asset.publishedUsageCount ? `, ${asset.publishedUsageCount} published` : ""}</span>
       <div className="admin-media-card__actions">
         <button type="button" onClick={() => setEditing((value) => !value)}>{editing ? "Close details" : "Edit details"}</button>
         <button type="button" disabled={busy || archiveBlocked} onClick={() => void archive()}>Archive</button>
       </div>
       {archiveBlocked ? <small>Replace or remove this media from all content before archiving it.</small> : null}
+      {asset.processingState !== "ready" ? <small>Process all three renditions using this asset ID before assigning it to a Project.</small> : null}
       {!editing && error ? <p className="admin-form-error" role="alert">{error}</p> : null}
     </div>
     {editing ? <form className="admin-media-card__editor" onSubmit={save}>
@@ -57,7 +60,6 @@ function MediaAssetCard({ asset, onChanged }: { asset: AdminAsset; onChanged: ()
 
 export function MediaLibrary() {
   const mutateAdminResource = useAdminMutation();
-  const { getToken } = useAdminAuth();
   const resource = useAdminResource<AdminAsset[]>("/api/admin/media");
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -103,7 +105,6 @@ export function MediaLibrary() {
         details,
         setProgress,
         mutateAdminResource,
-        getToken,
       );
       setFile(null);
       setDetails(initialUploadDetails);

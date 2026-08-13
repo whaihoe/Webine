@@ -6,7 +6,7 @@ type ApiError = {
 };
 
 export function getRequestId(request: Request) {
-  return request.headers.get("x-vercel-id") ?? crypto.randomUUID();
+  return request.headers.get("cf-ray") ?? crypto.randomUUID();
 }
 
 export function jsonResponse(
@@ -16,7 +16,7 @@ export function jsonResponse(
   cacheControl: string | {
     browser: string;
     cdn?: string;
-    vercel?: string;
+    edge?: string;
   } = "private, no-store",
 ) {
   const cacheHeaders = typeof cacheControl === "string"
@@ -24,7 +24,7 @@ export function jsonResponse(
     : {
         "Cache-Control": cacheControl.browser,
         ...(cacheControl.cdn ? { "CDN-Cache-Control": cacheControl.cdn } : {}),
-        ...(cacheControl.vercel ? { "Vercel-CDN-Cache-Control": cacheControl.vercel } : {}),
+        ...(cacheControl.edge ? { "CDN-Cache-Control": cacheControl.edge } : {}),
       };
   return Response.json(
     { data, error: null, meta: { requestId } },

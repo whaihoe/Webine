@@ -1,4 +1,6 @@
-# Webine Vercel and GitHub boundary
+# Historical Vercel deployment and rollback reference
+
+> **Historical only.** This document records the retired Vercel-first operating contract and is retained solely for rollback history during the Cloudflare observation period. It is not a live setup guide. Use [the Cloudflare migration plan](./cloudflare-migration-plan.md) and [the Cloudflare cutover runbook](./cloudflare-cutover-runbook.md) for all current operations. Do not recreate Vercel settings from this document unless an approved incident rollback requires them.
 
 ## Environment variables in Vercel
 

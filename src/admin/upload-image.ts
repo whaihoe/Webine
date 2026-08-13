@@ -1,8 +1,6 @@
-import { upload } from "@vercel/blob/client";
 import type { ApiEnvelope } from "../content/api-envelope";
 import type { AdminAsset } from "./api";
 import { AdminApiError } from "./api";
-import type { AdminTokenProvider } from "./AdminAuthContext";
 import { validateMediaFile } from "../../shared/media-policy";
 
 export type UploadDetails = {
@@ -20,6 +18,20 @@ export const initialUploadDetails: UploadDetails = {
   focalX: 0.5,
   focalY: 0.5,
 };
+
+function uploadToR2(file: File, uploadUrl: string, onProgress: (value: number) => void) {
+  return new Promise<void>((resolve, reject) => {
+    const request = new XMLHttpRequest();
+    request.open("PUT", uploadUrl);
+    request.setRequestHeader("Content-Type", file.type);
+    request.upload.onprogress = (event) => event.lengthComputable && onProgress(Math.round(event.loaded / event.total * 100));
+    request.onerror = () => reject(new AdminApiError(0, "UPLOAD_FAILED", "The upload connection was interrupted."));
+    request.onload = () => request.status >= 200 && request.status < 300
+      ? resolve()
+      : reject(new AdminApiError(request.status, "UPLOAD_FAILED", "The media store rejected the upload."));
+    request.send(file);
+  });
+}
 
 function localUpload(file: File, details: UploadDetails, onProgress: (value: number) => void) {
   return new Promise<AdminAsset>((resolve, reject) => {
@@ -52,7 +64,6 @@ export async function uploadAdminMedia(
   details: UploadDetails,
   onProgress: (value: number) => void,
   completeUpload: (path: string, method: "POST", body: unknown) => Promise<AdminAsset>,
-  getToken?: AdminTokenProvider,
 ) {
   const validationMessage = validateMediaFile(file);
   if (validationMessage) {
@@ -65,32 +76,24 @@ export async function uploadAdminMedia(
 
   if (import.meta.env.DEV) return localUpload(file, details, onProgress);
 
-  const sessionToken = await getToken?.();
   const assetId = crypto.randomUUID();
   const safeFilename = file.name
     .replace(/[^a-zA-Z0-9._-]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 120) || "upload";
-  const blob = await upload(`webine/media/${assetId}/${safeFilename}`, file, {
-    access: "public",
-    handleUploadUrl: "/api/admin/media/upload-token",
-    contentType: file.type,
-    clientPayload: JSON.stringify({
-      assetId,
-      byteSize: file.size,
-      mimeType: file.type,
-    }),
-    headers: sessionToken
-      ? { Authorization: `Bearer ${sessionToken}` }
-      : undefined,
-    multipart: file.size > 4 * 1024 * 1024,
-    onUploadProgress: ({ percentage }) => onProgress(Math.round(percentage)),
-  });
+  const token = await completeUpload("/api/admin/media/upload-token", "POST", {
+    assetId,
+    filename: safeFilename,
+    byteSize: file.size,
+    mimeType: file.type,
+  }) as unknown as { uploadUrl: string; pathname: string; deliveryUrl: string; intent: string };
+  await uploadToR2(file, token.uploadUrl, onProgress);
   return completeUpload("/api/admin/media/complete", "POST", {
     ...details,
     assetId,
-    url: blob.url,
-    pathname: blob.pathname,
+    pathname: token.pathname,
+    intent: token.intent,
+    deliveryUrl: token.deliveryUrl,
     originalFilename: file.name,
   });
 }

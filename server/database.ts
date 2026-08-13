@@ -12,8 +12,8 @@ export function getDatabase() {
   const url = process.env.TURSO_DATABASE_URL?.trim() || "file:.data/webine.db";
   const authToken = process.env.TURSO_AUTH_TOKEN?.trim();
 
-  if (process.env.VERCEL === "1" && !process.env.TURSO_DATABASE_URL?.trim()) {
-    throw new Error("TURSO_DATABASE_URL is required on Vercel.");
+  if (process.env.NODE_ENV === "production" && !process.env.TURSO_DATABASE_URL?.trim()) {
+    throw new Error("TURSO_DATABASE_URL is required in production.");
   }
 
   database = createClient({ url, authToken });

@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { gsap } from "../../animation/scroll-runtime";
 import { desktopFinePointerQuery } from "../../config/media-queries";
@@ -31,6 +31,8 @@ export function ProjectCard({
   const metaEndRef = useRef<HTMLSpanElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const showHoverEffects = useMediaQuery(desktopFinePointerQuery);
+  const [hoverMediaActive, setHoverMediaActive] = useState(false);
+  const renditionRole = compact ? "landing" : "works";
 
   useLayoutEffect(() => {
     if (compact || !showHoverEffects) return;
@@ -93,6 +95,10 @@ export function ProjectCard({
         aria-label={`View ${project.title}`}
         data-cursor-surface="large"
         data-image-parallax-viewport={compact ? undefined : "true"}
+        onPointerEnter={() => setHoverMediaActive(true)}
+        onPointerLeave={() => setHoverMediaActive(false)}
+        onFocus={() => setHoverMediaActive(true)}
+        onBlur={() => setHoverMediaActive(false)}
       >
         <span
           className="project-card__media-motion"
@@ -103,6 +109,7 @@ export function ProjectCard({
             asset={project.heroImage}
             imageParallaxAxis={compact ? "horizontal" : undefined}
             loading={priority ? "eager" : "lazy"}
+            renditionRole={renditionRole}
             style={{
               objectPosition:
                 `${project.heroImage.focalX * 100}% ${project.heroImage.focalY * 100}%`,
@@ -113,7 +120,10 @@ export function ProjectCard({
               asset={project.hoverImage}
               className="project-card__hover-image"
               alt=""
+              hoverActive={hoverMediaActive}
               loading="lazy"
+              renditionRole={renditionRole}
+              videoPlayback="hover-restart"
               style={{
                 objectPosition:
                   `${project.hoverImage.focalX * 100}% ${project.hoverImage.focalY * 100}%`,

@@ -164,6 +164,7 @@ export type AdminItem = {
 export type AdminAsset = {
   id: string;
   url: string;
+  displayName: string;
   originalFilename: string;
   mimeType: string;
   byteSize: number;
@@ -175,6 +176,7 @@ export type AdminAsset = {
   focalY: number;
   decorative: boolean;
   status: "ready" | "processing" | "failed" | "archived";
+  processingState: "ready" | "processing" | "quarantined" | "failed";
   version: number;
   usageCount: number;
   publishedUsageCount: number;

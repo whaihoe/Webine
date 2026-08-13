@@ -28,7 +28,7 @@ export async function verifyTurnstile(
   fetcher: typeof fetch = fetch,
 ) {
   const configuration = configuredValues(environment);
-  const hosted = environment.VERCEL === "1" || environment.NODE_ENV === "production";
+  const hosted = environment.NODE_ENV === "production";
   if (!configuration.secret || configuration.hostnames.size === 0) {
     if (!hosted) return;
     throw new CmsRepositoryError("TURNSTILE_UNAVAILABLE", "The security check could not be verified.", 503);

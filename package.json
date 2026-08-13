@@ -16,7 +16,8 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "tsc -b && vite build && node scripts/generate-route-documents.mjs",
-    "build:vercel": "npm run check:production-env && npm run build",
+    "build:cloudflare": "npm run check:production-env && tsc -b && vite build && node scripts/generate-route-documents.mjs --require-content",
+    "deploy:cloudflare": "npm run build:cloudflare && wrangler deploy",
     "preview": "vite preview --host 127.0.0.1",
     "check:production-env": "node scripts/check-production-env.mjs",
     "db:migrate": "node scripts/migrate.mjs",
@@ -25,8 +26,12 @@
     "generate:reach-model": "node scripts/generate-reach-model.mjs",
     "generate:deszio-case-study": "node scripts/generate-deszio-case-study.mjs",
     "generate:service-models": "node scripts/optimise-service-models.mjs",
+    "process:media-rendition": "node --experimental-strip-types scripts/process-media-renditions.mjs",
+    "persist:media-renditions": "node scripts/persist-media-renditions.mjs",
+    "export:public-snapshot": "npm run build:test-server && node scripts/export-public-snapshot.mjs",
+    "migrate:vercel-blob-r2": "node scripts/migrate-vercel-blob-to-r2.mjs",
     "publish:deszio": "node scripts/publish-deszio-project.mjs",
-    "lint": "eslint src server api shared dev scripts tests vite.config.ts --ext .ts,.tsx,.mjs --max-warnings 0",
+    "lint": "eslint src server shared dev scripts tests worker.ts vite.config.ts --ext .ts,.tsx,.mjs --max-warnings 0",
     "typecheck:server": "tsc -p tsconfig.server.json",
     "build:test-server": "tsc -p tsconfig.server-test.json",
     "verify": "npm run lint && npm test",
@@ -37,7 +42,6 @@
     "@clerk/react": "^6.12.3",
     "@libsql/client": "^0.17.4",
     "@react-three/fiber": "8.18.0",
-    "@vercel/blob": "^2.6.1",
     "gsap": "3.15.0",
     "lenis": "^1.3.25",
     "react": "18.3.1",
@@ -60,6 +64,7 @@
     "postcss": "8.5.26",
     "tailwindcss": "3.4.17",
     "typescript": "^5.9.3",
-    "vite": "^8.1.4"
+    "vite": "^8.1.4",
+    "wrangler": "^4.36.0"
   }
 }

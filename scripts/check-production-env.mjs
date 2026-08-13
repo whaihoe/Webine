@@ -6,7 +6,11 @@ const requiredVariables = [
   "CLERK_AUTHORIZED_PARTIES",
   "TURSO_DATABASE_URL",
   "TURSO_AUTH_TOKEN",
-  "BLOB_READ_WRITE_TOKEN",
+  "R2_ACCESS_KEY_ID",
+  "R2_SECRET_ACCESS_KEY",
+  "R2_S3_ENDPOINT",
+  "R2_PUBLIC_BASE_URL",
+  "VITE_CONTENT_BASE_URL",
   "ENQUIRY_HASH_SECRET",
   "VITE_TURNSTILE_SITE_KEY",
   "TURNSTILE_SECRET_KEY",
@@ -61,8 +65,42 @@ for (const party of authorisedParties) {
   }
 }
 
+function requireHttpsOrigin(key) {
+  const value = process.env[key]?.trim();
+  if (!value) return;
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "https:" || url.pathname !== "/" || url.search || url.hash) {
+      issues.push(`${key} must be an HTTPS origin without a path, query or fragment`);
+    }
+  } catch {
+    issues.push(`${key} must be a valid HTTPS origin`);
+  }
+}
+
+requireHttpsOrigin("R2_PUBLIC_BASE_URL");
+requireHttpsOrigin("VITE_CONTENT_BASE_URL");
+
+const r2Endpoint = process.env.R2_S3_ENDPOINT?.trim();
+if (r2Endpoint) {
+  try {
+    const url = new URL(r2Endpoint);
+    if (
+      url.protocol !== "https:" ||
+      !url.hostname.endsWith(".r2.cloudflarestorage.com") ||
+      url.pathname.split("/").filter(Boolean).length !== 1 ||
+      url.search ||
+      url.hash
+    ) {
+      issues.push("R2_S3_ENDPOINT must be a bucket-specific Cloudflare R2 HTTPS endpoint");
+    }
+  } catch {
+    issues.push("R2_S3_ENDPOINT must be a valid bucket-specific Cloudflare R2 HTTPS endpoint");
+  }
+}
+
 if (process.env.ADMIN_DEV_BYPASS?.trim().toLowerCase() === "true") {
-  issues.push("ADMIN_DEV_BYPASS must not be enabled in a Vercel deployment");
+  issues.push("ADMIN_DEV_BYPASS must not be enabled in a Cloudflare deployment");
 }
 
 if (process.env.VITE_SITE_URL?.trim() !== "https://www.madebywebine.com") {

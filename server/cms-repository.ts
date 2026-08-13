@@ -13,6 +13,7 @@ import {
   contentBlockAssetIds,
   contentBlockType,
   isMediaContentBlock,
+  normalizeProjectStoryBlocks,
   PROJECT_BENTO_BLOCK_MIN_ASSETS,
   PROJECT_IMAGE_BLOCK_MAX_ASSETS,
 } from "../shared/project-content-blocks.js";
@@ -46,6 +47,15 @@ function parseJsonObject(value: Row[string]): Record<string, unknown> {
   return typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)
     ? parsed as Record<string, unknown>
     : {};
+}
+
+function normalizeProjectStoryData(data: unknown) {
+  if (!data || typeof data !== "object" || Array.isArray(data)) return data;
+  const record = data as Record<string, unknown>;
+  return {
+    ...record,
+    content_blocks: normalizeProjectStoryBlocks(record.content_blocks),
+  };
 }
 
 function parseOptions(value: Row[string]): FieldOption[] | undefined {
@@ -519,6 +529,8 @@ export async function createItem(
     record = { ...(record as Record<string, unknown>), featured_order: highestOrder + 1 };
   }
 
+  if (collectionKey === "projects") record = normalizeProjectStoryData(record);
+
   const collection = await validateItem(collectionKey, record, client);
   const collectionResult = await client.execute({ sql: "SELECT id FROM collections WHERE key = ?", args: [collectionKey] });
   const collectionId = String(collectionResult.rows[0].id);
@@ -567,8 +579,10 @@ export async function updateItem(
   if (current.version !== input.version) {
     throw new CmsRepositoryError("VERSION_CONFLICT", "This item changed after it was opened. Reload before saving.", 409);
   }
-  const collection = await validateItem(collectionKey, input.data, client);
-  const record = input.data as Record<string, unknown>;
+  const record = collectionKey === "projects"
+    ? normalizeProjectStoryData(input.data) as Record<string, unknown>
+    : input.data as Record<string, unknown>;
+  const collection = await validateItem(collectionKey, record, client);
   const collectionResult = await client.execute({ sql: "SELECT id FROM collections WHERE key = ?", args: [collectionKey] });
   const relationships = await itemRelationshipStatements(String(collectionResult.rows[0].id), itemId, collection, record, client);
   let transaction: Awaited<ReturnType<Client["transaction"]>> | undefined;

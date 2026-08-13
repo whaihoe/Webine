@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { changeItemStatus, createItem, updateItem } from "../.test-build/server/cms-repository.js";
-import { archiveAsset, createAsset, getAsset } from "../.test-build/server/media-repository.js";
+import { archiveAsset, createAsset, getAsset, saveAssetRendition, updateAssetProcessingState } from "../.test-build/server/media-repository.js";
 import { listPublicProjects } from "../.test-build/server/public-content.js";
 import { removeTemporaryDirectory } from "./test-utils.mjs";
 
@@ -99,6 +99,9 @@ test("links uploaded media through draft, publish, public query and archive prot
       short_summary: "A complete media and publishing workflow check.", hero_image: "asset_workflow",
       hover_image: "asset_video",
       card_theme: "dark", accent_colour: "#14b8a6", featured: true, featured_order: 4,
+      challenge: { text: "Confirm the workflow keeps media ready and ordered." },
+      approach: { text: "Use the shared Project story composer." },
+      outcome: { text: "Publish a complete case study." },
       content_blocks: [
         { type: "image", assetIds: ["asset_workflow", "asset_portrait", "asset_video"], layout: "wide" },
         { type: "bento", assetIds: ["asset_portrait", "asset_wide"] },
@@ -116,10 +119,11 @@ test("links uploaded media through draft, publish, public query and archive prot
     assert.equal(publicProjects[0].slug, "workflow-project");
     assert.deepEqual(publicProjects.slice(0, 4).map((project) => project.featuredOrder), [4, 3, 2, 1]);
     assert.equal(publicProjects[0].accentColour, "#14b8a6");
-    assert.equal(publicProjects[0].contentBlocks[0].images.length, 3);
-    assert.equal(publicProjects[0].contentBlocks[0].images[2].mimeType, "video/mp4");
-    assert.equal(publicProjects[0].contentBlocks[1].images.length, 2);
-    assert.equal(publicProjects[0].contentBlocks[2].images[0].mimeType, "video/mp4");
+    assert.deepEqual(publicProjects[0].contentBlocks.slice(0, 3).map((block) => block.type), ["challenge", "approach", "outcome"]);
+    assert.equal(publicProjects[0].contentBlocks[3].images.length, 3);
+    assert.equal(publicProjects[0].contentBlocks[3].images[2].mimeType, "video/mp4");
+    assert.equal(publicProjects[0].contentBlocks[4].images.length, 2);
+    assert.equal(publicProjects[0].contentBlocks[5].images[0].mimeType, "video/mp4");
     assert.equal(publicProjects[0].hoverImage.mimeType, "video/mp4");
     await assert.rejects(() => archiveAsset("asset_workflow", "owner", "request_archive", client), (error) => error.code === "ASSET_IN_USE");
 
@@ -149,21 +153,63 @@ test("links uploaded media through draft, publish, public query and archive prot
   });
 });
 
-test("deletes an unreferenced Vercel Blob before archiving its media record", async () => {
+test("requires canonical story copy to publish and persists one entry of each type", async () => {
   await withDatabase(async (client) => {
     await createAsset({
-      id: "asset_blob", provider: "vercel_blob", providerAssetId: "webine/blob-image.webp",
-      deliveryUrl: "https://example.public.blob.vercel-storage.com/webine/blob-image.webp",
-      originalFilename: "blob-image.webp", mimeType: "image/webp", byteSize: 1024,
-      width: 1200, height: 800, altText: "Blob test image", caption: "",
+      id: "asset_story", provider: "external", providerAssetId: "story.png", deliveryUrl: "/story.png",
+      originalFilename: "story.png", mimeType: "image/png", byteSize: 1024, width: 1200, height: 800,
+      altText: "Story image", caption: "", focalX: 0.5, focalY: 0.5, decorative: false,
+    }, "owner", "request_story_asset", client);
+    const base = {
+      title: "Story composer", slug: "story-composer", client: "Concept study", project_kind: "concept",
+      project_type: "category_web", year: 2026, services: ["service_design"],
+      short_summary: "A Project story validation check.", hero_image: "asset_story",
+      card_theme: "light", featured: false,
+    };
+    const incomplete = await createItem("projects", {
+      ...base,
+      content_blocks: [{ id: "story-challenge", type: "challenge" }],
+    }, "owner", "request_incomplete_story", client);
+    await assert.rejects(
+      () => changeItemStatus("projects", incomplete.id, { action: "publish", version: incomplete.version }, "owner", "request_incomplete_publish", client),
+      (error) => error.code === "VALIDATION_FAILED" && error.issues.some((issue) => issue.path === "challenge" && issue.code === "REQUIRED"),
+    );
+
+    const complete = await createItem("projects", {
+      ...base,
+      slug: "complete-story-composer",
+      challenge: { text: "The challenge." },
+      approach: { text: "The approach." },
+      outcome: { text: "The outcome." },
+      content_blocks: [
+        { id: "custom-context", type: "statement", text: "Context" },
+        { id: "story-outcome", type: "outcome" },
+        { id: "story-challenge", type: "challenge" },
+        { id: "duplicate-challenge", type: "challenge" },
+        { id: "story-approach", type: "approach" },
+      ],
+    }, "owner", "request_complete_story", client);
+    assert.deepEqual(complete.data.content_blocks.map((block) => block.type), ["statement", "outcome", "challenge", "approach"]);
+    const published = await changeItemStatus("projects", complete.id, { action: "publish", version: complete.version }, "owner", "request_complete_publish", client);
+    assert.equal(published.status, "published");
+  });
+});
+
+test("deletes an unreferenced R2 object before archiving its media record", async () => {
+  await withDatabase(async (client) => {
+    await createAsset({
+      id: "asset_r2", provider: "r2", providerAssetId: "webine/media/image.webp",
+      deliveryUrl: "https://media.madebywebine.com/webine/media/image.webp",
+      originalFilename: "image.webp", mimeType: "image/webp", byteSize: 1024,
+      width: 1200, height: 800, altText: "R2 test image", caption: "",
       focalX: 0.5, focalY: 0.5, decorative: false,
-    }, "owner", "request_blob_asset", client);
+    }, "owner", "request_r2_asset", client);
     const deleted = [];
 
     const archived = await archiveAsset(
-      "asset_blob",
+      "asset_r2",
       "owner",
-      "request_archive_blob",
+      "request_archive_r2",
       client,
       async (record) => {
         deleted.push(record);
@@ -171,36 +217,64 @@ test("deletes an unreferenced Vercel Blob before archiving its media record", as
     );
 
     assert.deepEqual(deleted, [{
-      provider: "vercel_blob",
-      providerAssetId: "webine/blob-image.webp",
+      provider: "r2",
+      providerAssetId: "webine/media/image.webp",
     }]);
     assert.equal(archived.archived, true);
-    assert.equal((await getAsset("asset_blob", client)).status, "archived");
+    assert.equal((await getAsset("asset_r2", client)).status, "archived");
   });
 });
 
-test("keeps media active when Vercel Blob deletion fails", async () => {
+test("keeps media active when R2 deletion fails", async () => {
   await withDatabase(async (client) => {
     await createAsset({
-      id: "asset_blob_retry", provider: "vercel_blob", providerAssetId: "webine/retry.webp",
-      deliveryUrl: "https://example.public.blob.vercel-storage.com/webine/retry.webp",
+      id: "asset_r2_retry", provider: "r2", providerAssetId: "webine/media/retry.webp",
+      deliveryUrl: "https://media.madebywebine.com/webine/media/retry.webp",
       originalFilename: "retry.webp", mimeType: "image/webp", byteSize: 1024,
       width: 1200, height: 800, altText: "Retry test image", caption: "",
       focalX: 0.5, focalY: 0.5, decorative: false,
-    }, "owner", "request_blob_retry_asset", client);
+    }, "owner", "request_r2_retry_asset", client);
 
     await assert.rejects(
       () => archiveAsset(
-        "asset_blob_retry",
+        "asset_r2_retry",
         "owner",
-        "request_archive_blob_retry",
+        "request_archive_r2_retry",
         client,
         async () => {
-          throw new Error("Blob unavailable");
+          throw new Error("R2 unavailable");
         },
       ),
-      /Blob unavailable/,
+      /R2 unavailable/,
     );
-    assert.equal((await getAsset("asset_blob_retry", client)).status, "ready");
+    assert.equal((await getAsset("asset_r2_retry", client)).status, "ready");
+  });
+});
+
+test("derives a clean display name and only exposes ready assets and renditions publicly", async () => {
+  await withDatabase(async (client) => {
+    const asset = await createAsset({
+      id: "asset_rendition", provider: "r2", providerAssetId: "media/source.mp4", deliveryUrl: "/media/source.mp4",
+      originalFilename: "funnel_walkthrough-final.mp4", mimeType: "video/mp4", byteSize: 2048, width: 1920, height: 1080,
+      altText: "", caption: "Funnel walkthrough", focalX: 0.5, focalY: 0.5, decorative: true,
+      status: "processing", processingState: "quarantined",
+    }, "owner", "request_rendition_asset", client);
+    assert.equal(asset.displayName, "Funnel walkthrough");
+    assert.equal(asset.status, "processing");
+    assert.equal(asset.processingState, "quarantined");
+
+    await saveAssetRendition({
+      assetId: asset.id, role: "landing", deliveryUrl: "/media/landing.mp4", mimeType: "video/mp4",
+      byteSize: 500, width: 960, height: 540, status: "processing",
+    }, client);
+    await updateAssetProcessingState(asset.id, "ready", client);
+    assert.equal((await getAsset(asset.id, client)).processingState, "ready");
+
+    const namedFromFilename = await createAsset({
+      id: "asset_filename", provider: "external", providerAssetId: "quiet-grid.webp", deliveryUrl: "/quiet-grid.webp",
+      originalFilename: "quiet_grid-final.webp", mimeType: "image/webp", byteSize: 1024, width: 1200, height: 800,
+      altText: "", caption: "", focalX: 0.5, focalY: 0.5, decorative: true,
+    }, "owner", "request_filename_asset", client);
+    assert.equal(namedFromFilename.displayName, "quiet grid final");
   });
 });

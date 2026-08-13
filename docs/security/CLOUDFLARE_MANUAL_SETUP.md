@@ -1,4 +1,6 @@
-# Cloudflare manual security setup
+# Historical Cloudflare proxy-to-Vercel security reference
+
+> **Historical only.** These controls describe Cloudflare acting as a proxy in front of the former Vercel deployment. They do not configure the live Worker, R2 or static-hosting platform. Use [the Cloudflare cutover runbook](../cloudflare-cutover-runbook.md) for current operations.
 
 Apply these steps to the Webine zone only after reviewing current traffic. Cloudflare protection applies only to requests passing through proxied DNS records.
 

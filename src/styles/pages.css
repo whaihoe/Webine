@@ -629,7 +629,14 @@
   padding-block: var(--primitive-space-8);
   display: grid;
   gap: var(--primitive-space-4);
+}
+
+.project-case-study__story article[data-show-divider="true"] {
   border-bottom: 1px solid hsl(var(--color-rule));
+}
+
+.project-case-study__story article[data-show-divider="false"] {
+  padding-bottom: 0;
 }
 
 .project-case-study__story h2 {

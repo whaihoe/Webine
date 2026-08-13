@@ -1,5 +1,6 @@
 import {
   contentBlockType,
+  canonicalStoryType,
   type ProjectContentBlock,
 } from "../../../shared/project-content-blocks";
 import {
@@ -76,6 +77,10 @@ export function ProjectStoryBlock({
   const isVideo = type === "video";
   const heading = typeof block.heading === "string" ? block.heading.trim() : "";
   const caption = typeof block.text === "string" ? block.text : "";
+  const canonicalType = canonicalStoryType(block);
+  const defaultHeading = canonicalType
+    ? canonicalType[0].toUpperCase() + canonicalType.slice(1)
+    : type || "Story";
   const layout = isBento ? "bento" : String(block.layout ?? "wide");
   return (
     <article
@@ -84,9 +89,11 @@ export function ProjectStoryBlock({
       data-block-layout={layout}
       data-image-count={images.length}
       data-has-heading={heading ? "true" : "false"}
+      data-story-id={typeof block.id === "string" ? block.id : undefined}
+      data-show-divider={block.showDivider !== false ? "true" : "false"}
       data-gsap-reveal={reveal ? "card" : undefined}
     >
-      {heading || (!isBento && !isImage && !isVideo) ? <h2>{heading || type || "Story"}</h2> : null}
+      {heading || (!isBento && !isImage && !isVideo) ? <h2>{heading || defaultHeading}</h2> : null}
       {isVideo && images[0]?.url ? (
         <figure className="project-story-video">
           <div

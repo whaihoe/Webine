@@ -4,10 +4,8 @@ import { BackArrow } from "../components/BackArrow";
 import { DirectionalArrow } from "../components/DirectionalArrow";
 import { GalaxyBackdrop } from "../components/GalaxyBackdrop";
 import { ProjectCard } from "../components/projects/ProjectCard";
-import {
-  ProjectStoryBlock,
-  type ProjectStoryAsset,
-} from "../components/projects/ProjectStoryBlock";
+import { ProjectStory } from "../components/projects/ProjectStory";
+import type { ProjectStoryAsset } from "../components/projects/ProjectStoryBlock";
 import { ProjectMedia } from "../components/projects/ProjectMedia";
 import { SiteShell } from "../components/SiteShell";
 import type { PublicProject } from "../content/public-projects";
@@ -40,12 +38,6 @@ function ProjectCaseStudy({
     applyPageMetadata(getProjectPageMetadata(project));
   }, [project]);
 
-  const story = [
-    ["About the client", project.aboutClient],
-    ["Challenge", project.challenge],
-    ["Approach", project.approach],
-    ["Outcome", project.outcome],
-  ] as const;
   const facts = [
     ["Client", project.client],
     ["Industry", project.industry],
@@ -101,22 +93,22 @@ function ProjectCaseStudy({
         ) : null}
       </div>
 
-      <div className="site-container project-case-study__story">
-        {story.map(([heading, copy], storyIndex) => copy ? (
-          <article key={heading} data-gsap-reveal="card" data-gsap-delay={storyIndex * 0.06}>
-            <h2>{heading}</h2>
-            <p>{copy}</p>
-          </article>
-        ) : null)}
-        {project.contentBlocks.map((block, blockIndex) => {
+      <ProjectStory
+        aboutClient={project.aboutClient}
+        challenge={project.challenge}
+        approach={project.approach}
+        outcome={project.outcome}
+        blocks={project.contentBlocks}
+        reveal
+        resolveImages={(block) => {
           const images = Array.isArray(block.images)
             ? block.images.filter((image): image is ProjectStoryAsset => Boolean(image) && typeof image === "object")
             : block.image && typeof block.image === "object"
               ? [block.image as ProjectStoryAsset]
               : [];
-          return <ProjectStoryBlock key={`${String(block.type ?? "story")}-${blockIndex}`} block={block} blockIndex={blockIndex} images={images} reveal />;
-        })}
-      </div>
+          return images;
+        }}
+      />
 
       <nav className="site-container project-case-study__nav" aria-label="Adjacent projects" data-gsap-reveal="copy">
         {index > 0

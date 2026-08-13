@@ -74,7 +74,7 @@ function isHoneypotSubmission(value: unknown) {
 function secret() {
   const configured = getEnquiryHashSecret();
   if (configured) return configured;
-  if (process.env.VERCEL === "1" || process.env.NODE_ENV === "production") throw new CmsRepositoryError("ENQUIRY_NOT_CONFIGURED", "The enquiry service is temporarily unavailable.", 503);
+  if (process.env.NODE_ENV === "production") throw new CmsRepositoryError("ENQUIRY_NOT_CONFIGURED", "The enquiry service is temporarily unavailable.", 503);
   return "webine-local-enquiry-secret";
 }
 

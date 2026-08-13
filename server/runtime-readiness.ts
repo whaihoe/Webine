@@ -31,9 +31,9 @@ export function getRuntimeReadiness(
 ): RuntimeReadiness {
   return {
     mediaUploads: {
-      configured: hasValue(environment, "BLOB_READ_WRITE_TOKEN"),
-      label: "Vercel Blob media uploads",
-      requiredVariable: "BLOB_READ_WRITE_TOKEN",
+      configured: ["R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY", "R2_S3_ENDPOINT", "R2_PUBLIC_BASE_URL"].every((key) => hasValue(environment, key)),
+      label: "Cloudflare R2 media uploads",
+      requiredVariable: "R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_S3_ENDPOINT and R2_PUBLIC_BASE_URL",
     },
     enquiries: {
       configured: hasValue(environment, "ENQUIRY_HASH_SECRET"),
@@ -46,12 +46,6 @@ export function getRuntimeReadiness(
       requiredVariable: "Resend email variables or ENQUIRY_NOTIFICATION_WEBHOOK_URL",
     },
   };
-}
-
-export function getBlobReadWriteToken(
-  environment: NodeJS.ProcessEnv = process.env,
-) {
-  return environment.BLOB_READ_WRITE_TOKEN?.trim() ?? "";
 }
 
 export function getEnquiryHashSecret(

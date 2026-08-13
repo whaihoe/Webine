@@ -1,7 +1,8 @@
 import type { Client, Row } from "@libsql/client";
 import type { PublicProject } from "../src/content/public-projects.js";
-import { contentBlockAssetIds } from "../shared/project-content-blocks.js";
+import { contentBlockAssetIds, normalizeProjectStoryBlocks } from "../shared/project-content-blocks.js";
 import { getDatabase } from "./database.js";
+import type { MediaRendition } from "../shared/media-renditions.js";
 
 type PublicAsset = PublicProject["heroImage"];
 
@@ -23,7 +24,7 @@ function projectAccentColour(value: unknown) {
     : "#2563eb";
 }
 
-function mapPublicAsset(row: Row): PublicAsset {
+function mapPublicAsset(row: Row, renditions: MediaRendition[] = []): PublicAsset {
   return {
     id: String(row.id),
     url: String(row.delivery_url),
@@ -33,7 +34,29 @@ function mapPublicAsset(row: Row): PublicAsset {
     width: Number(row.width),
     height: Number(row.height),
     mimeType: String(row.mime_type),
+    renditions,
   };
+}
+
+function mapPublicRendition(row: Row): MediaRendition {
+  return {
+    role: String(row.role) as MediaRendition["role"],
+    url: String(row.delivery_url),
+    mimeType: String(row.mime_type),
+    byteSize: asNumber(row.byte_size),
+    width: asNumber(row.width),
+    height: asNumber(row.height),
+    status: String(row.status) as MediaRendition["status"],
+  };
+}
+
+function renditionMap(rows: Row[]) {
+  const renditions = new Map<string, MediaRendition[]>();
+  rows.forEach((row) => {
+    const assetId = String(row.asset_id);
+    renditions.set(assetId, [...(renditions.get(assetId) ?? []), mapPublicRendition(row)]);
+  });
+  return renditions;
 }
 
 function referenceMap(rows: Row[]) {
@@ -87,14 +110,13 @@ function mapPublicProject(
     completedOn: typeof data.completed_on === "string" ? data.completed_on : undefined,
     platform: typeof data.platform === "string" ? data.platform : undefined,
     aboutClient: textFromStructured(data.about_client),
-    contentBlocks: Array.isArray(data.content_blocks)
-      ? (data.content_blocks as Array<Record<string, unknown>>).map((block) => {
-          const images = contentBlockAssetIds(block)
-            .map((assetId) => assets.get(assetId))
-            .filter((image): image is PublicAsset => Boolean(image));
-          return images.length ? { ...block, image: images[0], images } : block;
-        })
-      : [],
+    contentBlocks: normalizeProjectStoryBlocks(data.content_blocks)
+      .map((block) => {
+        const images = contentBlockAssetIds(block)
+          .map((assetId) => assets.get(assetId))
+          .filter((image): image is PublicAsset => Boolean(image));
+        return images.length ? { ...block, image: images[0], images } : block;
+      }),
     credits: Array.isArray(data.credits) ? data.credits as Array<Record<string, unknown>> : [],
     projectUrl: typeof data.project_url === "string" ? data.project_url : undefined,
     seoTitle: typeof data.seo_title === "string" ? data.seo_title : undefined,
@@ -109,19 +131,21 @@ export async function listPublicProjects(
   options: { featuredOnly?: boolean } = {},
   client: Client = getDatabase(),
 ) {
-  const [itemsResult, assetsResult, referencesResult] = await Promise.all([
+  const [itemsResult, assetsResult, renditionsResult, referencesResult] = await Promise.all([
     client.execute(`SELECT id, slug, published_data_json FROM collection_items
       WHERE collection_id = 'collection_projects' AND status = 'published' AND published_data_json IS NOT NULL`),
-    client.execute("SELECT id, delivery_url, alt_text, focal_x, focal_y, width, height, mime_type FROM assets WHERE status = 'ready'"),
+    client.execute("SELECT id, delivery_url, alt_text, focal_x, focal_y, width, height, mime_type FROM assets WHERE status = 'ready' AND processing_state = 'ready'"),
+    client.execute("SELECT asset_id, role, delivery_url, mime_type, byte_size, width, height, status FROM asset_renditions WHERE status = 'ready'"),
     client.execute(`SELECT item_references.source_item_id, item_references.field_definition_id,
       collection_items.published_data_json FROM item_references
       JOIN collection_items ON collection_items.id = item_references.target_item_id
       WHERE collection_items.status = 'published' ORDER BY item_references.position ASC`),
   ]);
 
-  const assets = new Map(
-    assetsResult.rows.map((row) => [String(row.id), mapPublicAsset(row)]),
-  );
+  const renditions = renditionMap(renditionsResult.rows);
+  const assets = new Map(assetsResult.rows.map((row) => [
+    String(row.id), mapPublicAsset(row, renditions.get(String(row.id))),
+  ]));
   const refs = referenceMap(referencesResult.rows);
   const projects = itemsResult.rows
     .map((row) => mapPublicProject(row, assets, refs))
@@ -155,20 +179,24 @@ export async function getPublicProject(slug: string, client: Client = getDatabas
   [data.hero_image, data.hover_image].forEach((value) => {
     if (typeof value === "string" && value) assetIds.add(value);
   });
-  if (Array.isArray(data.content_blocks)) {
-    data.content_blocks.forEach((block) => {
-      if (!block || typeof block !== "object") return;
-      contentBlockAssetIds(block as Record<string, unknown>).forEach((id) => assetIds.add(id));
-    });
-  }
+  normalizeProjectStoryBlocks(data.content_blocks).forEach((block) => {
+    contentBlockAssetIds(block).forEach((id) => assetIds.add(id));
+  });
 
   const assetIdList = [...assetIds];
-  const [assetsResult, referencesResult] = await Promise.all([
+  const [assetsResult, renditionsResult, referencesResult] = await Promise.all([
     assetIdList.length === 0
       ? Promise.resolve({ rows: [] as Row[] })
       : client.execute({
           sql: `SELECT id, delivery_url, alt_text, focal_x, focal_y, width, height, mime_type
-            FROM assets WHERE status = 'ready' AND id IN (${assetIdList.map(() => "?").join(", ")})`,
+            FROM assets WHERE status = 'ready' AND processing_state = 'ready' AND id IN (${assetIdList.map(() => "?").join(", ")})`,
+          args: assetIdList,
+        }),
+    assetIdList.length === 0
+      ? Promise.resolve({ rows: [] as Row[] })
+      : client.execute({
+          sql: `SELECT asset_id, role, delivery_url, mime_type, byte_size, width, height, status
+            FROM asset_renditions WHERE status = 'ready' AND asset_id IN (${assetIdList.map(() => "?").join(", ")})`,
           args: assetIdList,
         }),
     client.execute({
@@ -180,9 +208,10 @@ export async function getPublicProject(slug: string, client: Client = getDatabas
       args: [String(row.id)],
     }),
   ]);
-  const assets = new Map(
-    assetsResult.rows.map((assetRow) => [String(assetRow.id), mapPublicAsset(assetRow)]),
-  );
+  const renditions = renditionMap(renditionsResult.rows);
+  const assets = new Map(assetsResult.rows.map((assetRow) => [
+    String(assetRow.id), mapPublicAsset(assetRow, renditions.get(String(assetRow.id))),
+  ]));
   return mapPublicProject(row, assets, referenceMap(referencesResult.rows));
 }
 

@@ -78,24 +78,21 @@ test("rejects a non-MP4 payload declared as video", async () => {
   );
 });
 
-test("deletes Vercel Blob media by pathname with the configured token", async () => {
+test("deletes R2 media by object key", async () => {
   const calls = [];
 
   await deleteStoredMedia(
     {
-      provider: "vercel_blob",
+      provider: "r2",
       providerAssetId: "webine/archive-me.webp",
     },
-    { BLOB_READ_WRITE_TOKEN: "test-token" },
-    async (pathname, options) => {
-      calls.push({ pathname, options });
+    {},
+    async (pathname) => {
+      calls.push(pathname);
     },
   );
 
-  assert.deepEqual(calls, [{
-    pathname: "webine/archive-me.webp",
-    options: { token: "test-token" },
-  }]);
+  assert.deepEqual(calls, ["webine/archive-me.webp"]);
 });
 
 test("does not delete media managed by another provider", async () => {
@@ -115,33 +112,16 @@ test("does not delete media managed by another provider", async () => {
   assert.equal(deleteCalled, false);
 });
 
-test("reports missing Blob configuration without attempting deletion", async () => {
+test("maps R2 deletion failures to a retryable repository error", async () => {
   await assert.rejects(
     () => deleteStoredMedia(
       {
-        provider: "vercel_blob",
+        provider: "r2",
         providerAssetId: "webine/archive-me.webp",
       },
       {},
       async () => {
-        throw new Error("should not run");
-      },
-    ),
-    (error) => error.code === "MEDIA_STORAGE_NOT_CONFIGURED"
-      && error.status === 503,
-  );
-});
-
-test("maps Blob deletion failures to a retryable repository error", async () => {
-  await assert.rejects(
-    () => deleteStoredMedia(
-      {
-        provider: "vercel_blob",
-        providerAssetId: "webine/archive-me.webp",
-      },
-      { BLOB_READ_WRITE_TOKEN: "test-token" },
-      async () => {
-        throw new Error("Blob unavailable");
+        throw new Error("R2 unavailable");
       },
     ),
     (error) => error.code === "MEDIA_STORAGE_DELETE_FAILED"

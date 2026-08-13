@@ -15,7 +15,7 @@ export async function routeMediaRequest(request: Request) {
     return new Response("Not found", { status: 404 });
   }
 
-  if (String(asset.provider) !== "external" || process.env.VERCEL === "1") {
+  if (String(asset.provider) !== "external" || process.env.NODE_ENV === "production") {
     return new Response("Not found", { status: 404 });
   }
 

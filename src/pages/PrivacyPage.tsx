@@ -25,7 +25,7 @@ const privacySections = [
     title: "Service providers and sharing",
     content: (
       <>
-        <p>Webine does not sell personal information. Limited information is processed by services that operate the website: Vercel for hosting and media delivery, Turso for database storage, Clerk for protected Admin authentication, Cloudflare Turnstile for abuse checks and Resend when an enquiry notification email is sent.</p>
+        <p>Webine does not sell personal information. Limited information is processed by services that operate the website: Cloudflare for hosting, media delivery and abuse protection, Turso for database storage, Clerk for protected Admin authentication and Resend when an enquiry notification email is sent.</p>
         <p>Information may also be disclosed when required by law, to protect Webine or another person, or as part of a business transfer where appropriate safeguards apply.</p>
       </>
     ),

@@ -37,19 +37,13 @@ test("allows the Admin bypass only in an explicit local runtime", async () => {
 
   assert.equal(resolveAdminAccessConfiguration({
     ADMIN_DEV_BYPASS: "true",
-    NODE_ENV: "development",
-    VERCEL: "1",
-  }).mode, "invalid");
-
-  assert.equal(resolveAdminAccessConfiguration({
-    ADMIN_DEV_BYPASS: "true",
     NODE_ENV: "production",
   }).mode, "invalid");
 });
 
 test("requires every production Clerk security setting", async () => {
   const { resolveAdminAccessConfiguration } = await loadAccessPolicy();
-  const result = resolveAdminAccessConfiguration({ VERCEL: "1" });
+  const result = resolveAdminAccessConfiguration({ NODE_ENV: "production" });
 
   assert.deepEqual(result, {
     mode: "invalid",
@@ -65,11 +59,11 @@ test("requires every production Clerk security setting", async () => {
 test("normalises the Clerk owner and authorised origins", async () => {
   const { resolveAdminAccessConfiguration } = await loadAccessPolicy();
   const result = resolveAdminAccessConfiguration({
-    VERCEL: "1",
+    NODE_ENV: "production",
     ADMIN_USER_ID: " user_owner ",
     CLERK_PUBLISHABLE_KEY: " pk_test_example ",
     CLERK_SECRET_KEY: " sk_test_example ",
-    CLERK_AUTHORIZED_PARTIES: "https://webine.vercel.app/, https://webine.example ",
+    CLERK_AUTHORIZED_PARTIES: "https://preview.madebywebine.com/, https://www.madebywebine.com ",
   });
 
   assert.deepEqual(result, {
@@ -78,8 +72,8 @@ test("normalises the Clerk owner and authorised origins", async () => {
     publishableKey: "pk_test_example",
     secretKey: "sk_test_example",
     authorisedParties: [
-      "https://webine.vercel.app",
-      "https://webine.example",
+      "https://preview.madebywebine.com",
+      "https://www.madebywebine.com",
     ],
   });
 });

@@ -2,17 +2,8 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { authenticateAdminRequest } from "../.test-build/server/auth.js";
-import {
-  assertBlobCompletionMetadata,
-  parseUploadIntent,
-  routeAdminRequest,
-} from "../.test-build/server/api-routes/admin.js";
+import { parseUploadIntent, routeAdminRequest } from "../.test-build/server/api-routes/admin.js";
 import { handleEnquiryRequest } from "../.test-build/server/api-routes/enquiries.js";
-import {
-  routeProjectDocumentRequest,
-  routeProjectRequest,
-} from "../.test-build/server/api-routes/projects.js";
-import { handleSiteSettingsRequest } from "../.test-build/server/api-routes/site-settings.js";
 import { getCanonicalSiteOrigin } from "../.test-build/server/canonical-origin.js";
 import { createEnquiry } from "../.test-build/server/enquiry-service.js";
 import { getPublicProject } from "../.test-build/server/public-content.js";
@@ -46,77 +37,6 @@ function validEnquiry(overrides = {}) {
     ...overrides,
   };
 }
-
-test("rejects invalid public project queries before data access", async () => {
-  let calls = 0;
-  const operations = {
-    list: async () => { calls += 1; return []; },
-    get: async () => { calls += 1; return null; },
-  };
-  for (const query of ["?cacheBust=1", "?featured=true&featured=true", "?featured=false", `?${"a".repeat(300)}=1`]) {
-    const response = await routeProjectRequest(new Request(`https://example.com/api/projects${query}`), operations);
-    assert.equal(response.status, 400);
-  }
-  assert.equal(calls, 0);
-});
-
-test("uses separate browser and CDN cache contracts for public content", async () => {
-  const response = await routeProjectRequest(
-    new Request("https://example.com/api/projects?featured=true"),
-    { list: async () => [], get: async () => null },
-  );
-  assert.equal(response.headers.get("cache-control"), "public, max-age=60");
-  assert.equal(response.headers.get("cdn-cache-control"), "public, s-maxage=300, stale-while-revalidate=3600");
-  assert.equal(response.headers.get("vercel-cdn-cache-control"), "public, s-maxage=300, stale-while-revalidate=3600");
-});
-
-test("serves project-specific HTML and a real noindex response for missing work", async () => {
-  const shell = await readFile(new URL("../dist/works/project/index.html", import.meta.url), "utf8");
-  const project = {
-    slug: "example-project",
-    title: "Example Project",
-    summary: "A truthful example project summary.",
-    label: "Concept project",
-    category: "Website design",
-    year: 2026,
-    heroImage: { url: "https://images.example/example.webp" },
-  };
-  const loadShell = async () => shell;
-  const response = await routeProjectDocumentRequest(
-    new Request("https://www.madebywebine.com/works/example-project"),
-    project.slug,
-    { get: async () => project, loadShell },
-  );
-  const html = await response.text();
-  assert.equal(response.status, 200);
-  assert.equal(response.headers.get("x-robots-tag"), "index, follow");
-  assert.equal((html.match(/<title>/g) ?? []).length, 1);
-  assert.match(html, /<title>Webine • Example Project<\/title>/);
-  assert.match(html, /<link rel="canonical" href="https:\/\/www\.madebywebine\.com\/works\/example-project"/);
-  assert.match(html, /<h1>Example Project<\/h1>/);
-  assert.match(html, /CreativeWork/);
-
-  const missing = await routeProjectDocumentRequest(
-    new Request("https://www.madebywebine.com/works/missing-project"),
-    "missing-project",
-    { get: async () => null, loadShell },
-  );
-  const missingHtml = await missing.text();
-  assert.equal(missing.status, 404);
-  assert.equal(missing.headers.get("x-robots-tag"), "noindex, nofollow");
-  assert.match(missingHtml, /<meta name="robots" content="noindex, nofollow"/);
-  assert.doesNotMatch(missingHtml, /rel="canonical"/);
-});
-
-test("rejects site-settings query variants before loading settings", async () => {
-  let called = false;
-  const response = await handleSiteSettingsRequest(
-    new Request("https://example.com/api/site-settings?cache=miss"),
-    async () => { called = true; return {}; },
-  );
-  assert.equal(response.status, 400);
-  assert.equal(called, false);
-});
 
 test("performs one targeted query for a missing public project", async () => {
   const statements = [];
@@ -167,7 +87,7 @@ test("rejects honeypots and malformed fields before Turnstile or database work",
 
 test("fails Turnstile closed and checks hostname and action", async () => {
   const environment = {
-    VERCEL: "1",
+    NODE_ENV: "production",
     TURNSTILE_SECRET_KEY: "test-secret",
     TURNSTILE_ALLOWED_HOSTNAMES: "madebywebine.com,www.madebywebine.com",
     TURNSTILE_EXPECTED_ACTION: "contact_enquiry",
@@ -230,7 +150,7 @@ test("rejects missing Admin credential carriers before Clerk", async () => {
   const result = await authenticateAdminRequest(
     new Request("https://www.madebywebine.com/api/admin/session"),
     {
-      VERCEL: "1",
+      NODE_ENV: "production",
       ADMIN_USER_ID: "user_owner",
       CLERK_PUBLISHABLE_KEY: "pk_test_example",
       CLERK_SECRET_KEY: "sk_test_example",
@@ -248,7 +168,7 @@ test("rejects unknown Admin paths without authentication", async () => {
 
 test("routes legacy underscore media IDs to the protected archive handler", async () => {
   const names = [
-    "VERCEL",
+    "NODE_ENV",
     "ADMIN_USER_ID",
     "CLERK_PUBLISHABLE_KEY",
     "CLERK_SECRET_KEY",
@@ -256,7 +176,7 @@ test("routes legacy underscore media IDs to the protected archive handler", asyn
   ];
   const previous = Object.fromEntries(names.map((name) => [name, process.env[name]]));
   Object.assign(process.env, {
-    VERCEL: "1",
+    NODE_ENV: "production",
     ADMIN_USER_ID: "user_owner",
     CLERK_PUBLISHABLE_KEY: "pk_test_example",
     CLERK_SECRET_KEY: "sk_test_example",
@@ -285,7 +205,7 @@ test("rejects invalid Admin methods before authentication", async () => {
 
 test("keeps Clerk party and owner checks after the carrier precheck", async () => {
   const environment = {
-    VERCEL: "1",
+    NODE_ENV: "production",
     ADMIN_USER_ID: "user_owner",
     CLERK_PUBLISHABLE_KEY: "pk_test_example",
     CLERK_SECRET_KEY: "sk_test_example",
@@ -326,7 +246,7 @@ test("keeps Clerk party and owner checks after the carrier precheck", async () =
   assert.equal(wrongUser.code, "ADMIN_NOT_ALLOWED");
 });
 
-test("binds Blob upload intent and completion metadata", () => {
+test("binds R2 upload intent to the authorised asset path", () => {
   const assetId = "123e4567-e89b-12d3-a456-426614174000";
   const pathname = `webine/media/${assetId}/example.webp`;
   assert.equal(parseUploadIntent(JSON.stringify({ assetId, mimeType: "image/webp", byteSize: 100 }), pathname).assetId, assetId);
@@ -334,26 +254,13 @@ test("binds Blob upload intent and completion metadata", () => {
     () => parseUploadIntent(JSON.stringify({ assetId: crypto.randomUUID(), mimeType: "image/webp", byteSize: 100 }), pathname),
     (error) => error.code === "MEDIA_UPLOAD_INVALID",
   );
-  const metadata = { pathname, url: "https://store.public.blob.vercel-storage.com/example.webp", contentType: "image/webp", size: 100 };
-  assert.equal(assertBlobCompletionMetadata(pathname, metadata.url, metadata), 15 * 1024 * 1024);
-  assert.throws(
-    () => assertBlobCompletionMetadata(pathname, "https://other.public.blob.vercel-storage.com/example.webp", metadata),
-    (error) => error.code === "MEDIA_PROVIDER_INVALID",
-  );
-  assert.throws(
-    () => assertBlobCompletionMetadata(pathname, metadata.url, { ...metadata, size: 20 * 1024 * 1024 }),
-    (error) => error.code === "MEDIA_INVALID",
-  );
 });
 
 test("report-only CSP removes broad HTTPS script and connection sources", async () => {
-  const configuration = JSON.parse(await readFile(new URL("vercel.json", projectRoot), "utf8"));
-  const globalHeaders = configuration.headers.find((entry) => entry.source === "/(.*)").headers;
-  const reportOnly = globalHeaders.find((header) => header.key === "Content-Security-Policy-Report-Only").value;
-  assert.doesNotMatch(reportOnly, /script-src[^;]*\shttps:\s/);
-  assert.doesNotMatch(reportOnly, /connect-src[^;]*\shttps:\s/);
-  assert.match(reportOnly, /https:\/\/challenges\.cloudflare\.com/);
-  assert.match(reportOnly, /clerk/);
+  const headers = await readFile(new URL("public/_headers", projectRoot), "utf8");
+  assert.doesNotMatch(headers, /script-src[^;]*\shttps:\s/);
+  assert.doesNotMatch(headers, /connect-src[^;]*\shttps:\s/);
+  assert.match(headers, /challenges\.cloudflare\.com/);
 });
 
 test("uses the production canonical origin and static robots file", async () => {
@@ -361,14 +268,10 @@ test("uses the production canonical origin and static robots file", async () => 
     getCanonicalSiteOrigin(new Request("https://attacker.example/sitemap.xml"), { NODE_ENV: "production" }),
     "https://www.madebywebine.com",
   );
-  assert.equal(
-    getCanonicalSiteOrigin(new Request("https://attacker.example/sitemap.xml"), {
-      NODE_ENV: "production",
-      VERCEL_ENV: "preview",
-      VERCEL_BRANCH_URL: "webine-git-security-webine.vercel.app",
-    }),
-    "https://webine-git-security-webine.vercel.app",
-  );
+  assert.equal(getCanonicalSiteOrigin(new Request("https://preview.madebywebine.com/sitemap.xml"), {
+    NODE_ENV: "development",
+    VITE_SITE_URL: "https://preview.madebywebine.com",
+  }), "https://preview.madebywebine.com");
   const robots = await readFile(new URL("public/robots.txt", projectRoot), "utf8");
   assert.match(robots, /Sitemap: https:\/\/www\.madebywebine\.com\/sitemap\.xml/);
   assert.match(robots, /Disallow: \/api\/enquiries/);

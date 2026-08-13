@@ -12,8 +12,13 @@ import type { FieldDefinition } from "../../cms/schema";
 import {
   contentBlockAssetIds,
   contentBlockType,
+  createProjectStoryBlockId,
+  isCanonicalStoryBlock,
+  normalizeProjectStoryBlocks,
+  PROJECT_CANONICAL_STORY_TYPES,
   PROJECT_BENTO_BLOCK_MIN_ASSETS,
   PROJECT_IMAGE_BLOCK_MAX_ASSETS,
+  type ProjectContentBlock,
 } from "../../../shared/project-content-blocks";
 import { AssetFieldControl } from "./AssetFieldControl";
 import { ProjectMediaOverview } from "./ProjectMediaOverview";
@@ -179,8 +184,23 @@ function ReferenceControl({
   );
 }
 
-function ContentBlocksControl({ field, value, onChange }: { field: FieldDefinition; value: unknown; onChange: (value: unknown) => void }) {
-  const blocks = Array.isArray(value) ? value as Array<Record<string, unknown>> : [];
+function ContentBlocksControl({
+  field,
+  value,
+  onChange,
+  canonicalCopy,
+  onCanonicalCopyChange,
+}: {
+  field: FieldDefinition;
+  value: unknown;
+  onChange: (value: unknown) => void;
+  canonicalCopy?: Partial<Record<(typeof PROJECT_CANONICAL_STORY_TYPES)[number], unknown>>;
+  onCanonicalCopyChange?: (type: (typeof PROJECT_CANONICAL_STORY_TYPES)[number], value: unknown) => void;
+}) {
+  const usesProjectStoryComposer = Boolean(canonicalCopy && onCanonicalCopyChange);
+  const blocks = usesProjectStoryComposer
+    ? normalizeProjectStoryBlocks(value)
+    : Array.isArray(value) ? value as ProjectContentBlock[] : [];
   function update(index: number, patch: Record<string, unknown>) {
     onChange(blocks.map((block, blockIndex) => blockIndex === index ? { ...block, ...patch } : block));
   }
@@ -211,10 +231,11 @@ function ContentBlocksControl({ field, value, onChange }: { field: FieldDefiniti
   return <div className="admin-content-blocks">
     {blocks.map((block, index) => {
       const type = contentBlockType(block);
+      const canonicalType = usesProjectStoryComposer && isCanonicalStoryBlock(block) ? block.type : undefined;
       const assetIds = contentBlockAssetIds(block);
       return <article key={index} className="admin-content-block">
-      <div className="admin-content-block__top"><strong>Block {index + 1}</strong><select value={type} onChange={(event) => changeType(index, event.target.value)}><option value="statement">Statement</option><option value="text">Text</option><option value="image">Image</option><option value="bento">Bento</option><option value="video">Video</option></select><button type="button" onClick={() => onChange(blocks.filter((_, blockIndex) => blockIndex !== index))}>Remove</button></div>
-      {type === "image" || type === "bento" || type === "video" ? (
+      <div className="admin-content-block__top"><strong>{canonicalType ? canonicalType[0].toUpperCase() + canonicalType.slice(1) : `Block ${index + 1}`}</strong>{canonicalType ? <span className="admin-field-note">Required story entry</span> : <><select value={type} onChange={(event) => changeType(index, event.target.value)}><option value="statement">Statement</option><option value="text">Text</option><option value="image">Image</option><option value="bento">Bento</option><option value="video">Video</option></select><button type="button" onClick={() => onChange(blocks.filter((_, blockIndex) => blockIndex !== index))}>Remove</button></>}</div>
+      {canonicalType ? <textarea rows={6} value={structuredText(canonicalCopy?.[canonicalType])} placeholder={`${canonicalType[0].toUpperCase() + canonicalType.slice(1)} copy`} onChange={(event) => onCanonicalCopyChange?.(canonicalType, event.target.value ? { text: event.target.value } : undefined)} /> : type === "image" || type === "bento" || type === "video" ? (
         <>
           <AssetFieldControl
             field={{ ...field, key: `${field.key}_${index}`, fieldType: type === "video" ? "image" : "gallery" }}
@@ -236,10 +257,11 @@ function ContentBlocksControl({ field, value, onChange }: { field: FieldDefiniti
           </label> : type === "bento" ? <p className="admin-field-note">Add at least {PROJECT_BENTO_BLOCK_MIN_ASSETS} images. Their landscape, square or portrait proportions shape the responsive bento layout.</p> : <p className="admin-field-note">The MP4 plays silently while it is visible, loops continuously and pauses when it leaves the viewport.</p>}
         </>
       ) : <><input value={typeof block.heading === "string" ? block.heading : ""} placeholder="Optional heading" onChange={(event) => update(index, { heading: event.target.value })} /><textarea rows={type === "statement" ? 3 : 6} value={typeof block.text === "string" ? block.text : ""} placeholder="Block copy" onChange={(event) => update(index, { text: event.target.value })} /></>}
+      <div className="admin-choice-grid"><label><input type="checkbox" checked={block.showDivider !== false} onChange={(event) => update(index, { showDivider: event.target.checked })} /><span>Show divider and bottom spacing</span></label></div>
       <div className="admin-field-card__actions"><button type="button" disabled={index === 0} onClick={() => { const next = [...blocks]; [next[index - 1], next[index]] = [next[index], next[index - 1]]; onChange(next); }}>Move up</button><button type="button" disabled={index === blocks.length - 1} onClick={() => { const next = [...blocks]; [next[index], next[index + 1]] = [next[index + 1], next[index]]; onChange(next); }}>Move down</button></div>
     </article>;
     })}
-    <button className="admin-secondary-action" type="button" onClick={() => onChange([...blocks, { type: "statement", text: "" }])}>Add content block</button>
+    <button className="admin-secondary-action" type="button" onClick={() => onChange([...blocks, { id: createProjectStoryBlockId(), type: "statement", text: "", showDivider: true }])}>Add content block</button>
   </div>;
 }
 
@@ -247,10 +269,14 @@ function GeneratedControl({
   field,
   value,
   onChange,
+  canonicalCopy,
+  onCanonicalCopyChange,
 }: {
   field: FieldDefinition;
   value: unknown;
   onChange: (value: unknown) => void;
+  canonicalCopy?: Partial<Record<(typeof PROJECT_CANONICAL_STORY_TYPES)[number], unknown>>;
+  onCanonicalCopyChange?: (type: (typeof PROJECT_CANONICAL_STORY_TYPES)[number], value: unknown) => void;
 }) {
   if (field.fieldType === "reference" || field.fieldType === "multi_reference") {
     return <ReferenceControl field={field} value={value} onChange={onChange} />;
@@ -261,7 +287,7 @@ function GeneratedControl({
   }
 
   if (field.fieldType === "content_blocks") {
-    return <ContentBlocksControl field={field} value={value} onChange={onChange} />;
+    return <ContentBlocksControl field={field} value={value} onChange={onChange} canonicalCopy={canonicalCopy} onCanonicalCopyChange={onCanonicalCopyChange} />;
   }
 
   if (field.fieldType === "boolean") {
@@ -441,11 +467,23 @@ export function ItemEditor({ collection, item }: ItemEditorProps) {
       ) : null}
       {collection.key === "projects" ? <ProjectMediaOverview data={data} dirty={dirty} /> : null}
       <div className="admin-generated-fields">
-        {collection.fields.map((field) => (
+        {collection.fields.filter((field) => collection.key !== "projects" || !["challenge", "approach", "outcome"].includes(field.key)).map((field) => (
           <fieldset className="admin-field admin-generated-field" id={`field-${field.key}`} key={field.key}>
             <legend>{field.label}{field.required ? <em>Required to publish</em> : null}</legend>
             {field.helpText ? <small>{field.helpText}</small> : null}
-            <GeneratedControl field={field} value={data[field.key]} onChange={(value) => setField(field.key, value)} />
+            <GeneratedControl
+              field={field}
+              value={data[field.key]}
+              onChange={(value) => setField(field.key, value)}
+              canonicalCopy={collection.key === "projects" && field.key === "content_blocks" ? {
+                challenge: data.challenge,
+                approach: data.approach,
+                outcome: data.outcome,
+              } : undefined}
+              onCanonicalCopyChange={collection.key === "projects" && field.key === "content_blocks"
+                ? (type, value) => setField(type, value)
+                : undefined}
+            />
           </fieldset>
         ))}
       </div>

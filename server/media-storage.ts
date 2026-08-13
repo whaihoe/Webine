@@ -1,41 +1,25 @@
-import { del } from "@vercel/blob";
 import { CmsRepositoryError } from "./cms-repository.js";
-import { getBlobReadWriteToken } from "./runtime-readiness.js";
+import { getR2Bucket, type R2Environment } from "./r2-storage.js";
 
 export type MediaStorageRecord = {
   provider: string;
   providerAssetId: string;
 };
 
-type DeleteBlob = (
-  urlOrPathname: string,
-  options: { token: string },
-) => Promise<void>;
-
 export async function deleteStoredMedia(
   record: MediaStorageRecord,
-  environment: NodeJS.ProcessEnv = process.env,
-  deleteBlob: DeleteBlob = del,
+  environment: R2Environment = process.env,
+  deleteObject: (key: string) => Promise<void> = (key) => getR2Bucket(environment).delete(key),
 ) {
-  if (record.provider !== "vercel_blob") {
+  if (record.provider !== "r2") {
     return;
   }
-
-  const token = getBlobReadWriteToken(environment);
-  if (!token) {
-    throw new CmsRepositoryError(
-      "MEDIA_STORAGE_NOT_CONFIGURED",
-      "Vercel Blob is not configured, so the stored file could not be deleted.",
-      503,
-    );
-  }
-
   try {
-    await deleteBlob(record.providerAssetId, { token });
+    await deleteObject(record.providerAssetId);
   } catch {
     throw new CmsRepositoryError(
       "MEDIA_STORAGE_DELETE_FAILED",
-      "The stored media file could not be deleted from Vercel Blob. Try archiving it again.",
+      "The stored media file could not be deleted from R2. Try archiving it again.",
       502,
     );
   }

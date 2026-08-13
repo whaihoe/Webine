@@ -7,5 +7,5 @@
     "sourceMap": false,
     "allowJs": true
   },
-  "include": ["api/**/*.ts", "dev/**/*.ts", "server/**/*.ts", "shared/**/*.mjs", "src/cms/**/*.ts", "src/content/site-settings.ts"]
+  "include": ["dev/**/*.ts", "server/**/*.ts", "worker.ts", "shared/**/*.mjs", "src/cms/**/*.ts", "src/content/site-settings.ts"]
 }

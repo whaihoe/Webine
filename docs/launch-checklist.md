@@ -8,8 +8,8 @@ This checklist keeps code readiness separate from production approval. Do not ma
 |---|---|---|
 | Home, About, Services, Works and Contact implementation | Pass | Production build and route tests |
 | Clerk-protected Admin and preview | Pass in code | Configure production Clerk values and verify deployed login |
-| CMS, media, publishing and public Project flow | Pass locally | Repeat smoke test against Preview Turso and Blob |
-| Contact storage and Admin review | Pass locally | Configure production hash secret and run a Vercel test enquiry |
+| CMS, media, publishing and public Project flow | Pass locally | Repeat smoke test against Preview Turso, R2 media and R2 content snapshots |
+| Contact storage and Admin review | Pass locally | Configure production hash secret and run a Cloudflare Worker test enquiry |
 | Notification delivery | Approved deferred | Enquiries are stored and reviewable in Admin. Configure all three Resend variables after the sending domain is verified |
 | Final commissioned Project content | Approved in progress | Current internal and concept work remains clearly labelled while commissioned projects are added |
 | Contact email and social links | Optional | Add public details through Site Settings or `VITE_PUBLIC_CONTACT_EMAIL` when approved |
@@ -20,11 +20,11 @@ This checklist keeps code readiness separate from production approval. Do not ma
 
 | Gate | Status | Evidence or next action |
 |---|---|---|
-| Vercel project | Ready for reviewed deployment | Confirm the linked branch and deploy the exact reviewed release after local verification |
-| Preview and Production Turso | Configured in Vercel | Apply migrations through `0012_security_hardening.sql`, keep Preview separate and test restore |
-| Clerk | Configured in Vercel | Verify deployed login with the exact owner account and authorised origins |
-| Vercel Blob | Configured in Vercel | Verify one JPEG and GIF upload in Preview before promotion |
-| Secrets | Configured in Vercel | Keep values out of GitHub and verify the production environment gate during deployment |
+| Cloudflare Worker and static assets | Ready for reviewed deployment | Deploy the exact reviewed release with `npm run deploy:cloudflare` after local verification |
+| Preview and Production Turso | Required | Apply every migration in filename order, keep Preview separate and test restore |
+| Clerk | Required in Cloudflare | Verify deployed login with the exact owner account and authorised origins |
+| R2 media and content buckets | Required | Verify one JPEG, GIF and MP4 upload, rendition processing, public delivery and published snapshots in Preview |
+| Worker secrets and bindings | Required | Keep values out of GitHub, configure all required environment names and verify the production environment gate |
 | Analytics | Open | Select a privacy-compatible measurement setup |
 | Backups | Local pass | Configure provider backups and complete a non-production restore |
 | Purchased domain | Pass | `madebywebine.com` permanently redirects to the canonical `www.madebywebine.com` origin through Cloudflare |
@@ -57,13 +57,13 @@ This checklist keeps code readiness separate from production approval. Do not ma
 
 ## Release operation
 
-1. Back up the target database.
-2. Apply migrations.
-3. Create and connect the public `webine-blob` Vercel Blob store to Preview and Production.
-4. Add `ENQUIRY_HASH_SECRET`, confirm every required Clerk and Turso variable and redeploy.
-5. Deploy the exact reviewed Git commit to Preview.
-6. Run Admin, JPEG, GIF, Project and enquiry smoke tests.
+1. Back up the target Turso database and prove a non-production restore.
+2. Apply every migration to Preview, then run `npm run db:migrate` against Production during the approved window.
+3. Create the Preview and Production R2 media and content buckets, configure their bindings, custom domains and least-privilege CORS.
+4. Set the required Worker secrets, confirm `ENQUIRY_HASH_SECRET`, Clerk, Turso, R2 and Turnstile configuration, then run `npm run build:cloudflare`.
+5. Deploy the exact reviewed Git commit to Preview with `npm run deploy:cloudflare -- --env preview`.
+6. Run Admin, JPEG, GIF, MP4, rendition, snapshot, Project and enquiry smoke tests.
 7. Complete the physical-device, accessibility and performance matrix.
-8. Promote the same reviewed source and environment contract to Production.
-9. Verify robots, sitemap, headers, analytics and backups on the public origin.
-10. Connect the purchased domain only after every required row passes.
+8. Deploy the same reviewed source and environment contract to Production with `npm run deploy:cloudflare`.
+9. Verify robots, sitemap, headers, cache behaviour, rate limits, analytics and backups on the public origin.
+10. Change production DNS only after every required row passes. Keep Vercel available through the agreed observation period.

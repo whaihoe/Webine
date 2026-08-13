@@ -7,5 +7,5 @@
     "types": ["node"],
     "isolatedModules": false
   },
-  "include": ["api/**/*.ts", "server/**/*.ts"]
+  "include": ["server/**/*.ts", "worker.ts"]
 }

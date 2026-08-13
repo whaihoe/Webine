@@ -41,7 +41,7 @@ test("uses one metadata convention and a complete Privacy route", async () => {
     readFile(new URL("src/pages/PrivacyPage.tsx", projectRoot), "utf8"),
     readFile(new URL("src/pages/ContactPage.tsx", projectRoot), "utf8"),
     readFile(new URL("src/components/SiteFooter.tsx", projectRoot), "utf8"),
-    readFile(new URL("server/api-routes/sitemap.ts", projectRoot), "utf8"),
+    readFile(new URL("scripts/generate-route-documents.mjs", projectRoot), "utf8"),
   ]);
 
   for (const path of ["/about", "/services", "/works", "/contact", "/privacy"]) {
@@ -60,7 +60,7 @@ test("uses one metadata convention and a complete Privacy route", async () => {
   assert.match(privacy, /Your choices/);
   assert.match(contact, /<Link to="\/privacy">privacy notice<\/Link>/);
   assert.match(footer, /to="\/privacy">Privacy<\/Link>/);
-  assert.match(sitemap, /publicRouteMetadata/);
+  assert.match(sitemap, /sitemap\.xml/);
 });
 
 test("does not load desktop-only hover effects on mobile", async () => {
@@ -256,11 +256,11 @@ test("keeps global route motion purposeful, asset-aware and restorable", async (
 });
 
 test("prepares indexable public metadata and private-route noindex controls", async () => {
-  const [html, metadata, documentMetadata, vercel, robots] = await Promise.all([
+  const [html, metadata, documentMetadata, headers, robots] = await Promise.all([
     readFile(new URL("index.html", projectRoot), "utf8"),
     readFile(new URL("shared/public-route-metadata.json", projectRoot), "utf8"),
     readFile(new URL("src/seo/document-metadata.ts", projectRoot), "utf8"),
-    readFile(new URL("vercel.json", projectRoot), "utf8"),
+    readFile(new URL("public/_headers", projectRoot), "utf8"),
     readFile(new URL("public/robots.txt", projectRoot), "utf8"),
   ]);
   assert.match(html, /property="og:title"/);
@@ -268,15 +268,15 @@ test("prepares indexable public metadata and private-route noindex controls", as
   assert.match(metadata, /"noIndex": true/);
   assert.match(documentMetadata, /noindex, nofollow/);
   assert.match(robots, /Sitemap: https:\/\/www\.madebywebine\.com\/sitemap\.xml/);
-  assert.match(vercel, /\/sitemap\.xml/);
-  assert.match(vercel, /Strict-Transport-Security/);
-  assert.match(vercel, /X-Frame-Options/);
+  assert.match(headers, /Strict-Transport-Security/);
+  assert.match(headers, /X-Frame-Options/);
 });
 
 test("connects published Site Settings to every public content route", async () => {
-  const [app, provider, home, works, contact, footer, closing, process, reach] = await Promise.all([
+  const [app, provider, snapshot, home, works, contact, footer, closing, process, reach] = await Promise.all([
     readFile(new URL("src/App.tsx", projectRoot), "utf8"),
     readFile(new URL("src/content/SiteSettingsProvider.tsx", projectRoot), "utf8"),
+    readFile(new URL("src/content/public-snapshot.ts", projectRoot), "utf8"),
     readFile(new URL("src/pages/HomePage.tsx", projectRoot), "utf8"),
     readFile(new URL("src/pages/WorksPage.tsx", projectRoot), "utf8"),
     readFile(new URL("src/pages/ContactPage.tsx", projectRoot), "utf8"),
@@ -286,7 +286,8 @@ test("connects published Site Settings to every public content route", async () 
     readFile(new URL("src/components/home/ReachSection.tsx", projectRoot), "utf8"),
   ]);
   assert.match(app, /SiteSettingsProvider/);
-  assert.match(provider, /\/api\/site-settings/);
+  assert.match(provider, /loadPublicSnapshot/);
+  assert.match(snapshot, /\/content\/public\.json/);
   for (const source of [home, works, contact, footer, closing, process, reach]) assert.match(source, /useSiteSettings/);
 });
 
@@ -985,7 +986,9 @@ test("extends the Home motion language across Works and Contact without assignin
   assert.match(projectCard, /data-gsap-parallax=\{compact \? undefined : "media"\}/);
   assert.match(projectCard, /imageParallaxAxis=\{compact \? "horizontal" : undefined\}/);
   assert.match(projectMedia, /IntersectionObserver/);
-  assert.match(projectMedia, /muted\s+loop\s+playsInline/);
+  assert.match(projectMedia, /muted/);
+  assert.match(projectMedia, /loop=\{videoPlayback === "viewport-loop"\}/);
+  assert.match(projectMedia, /playsInline/);
   assert.doesNotMatch(projectCard, /work-card__media-backdrop/);
   assert.match(styles, /\.project-card--compact \.project-card__media-motion\s*{[^}]*inset:\s*0 -6%/s);
   assert.match(styles, /\.project-card--compact \.project-card__media :is\(img, video\)\s*{[^}]*object-fit:\s*cover/s);
@@ -1147,18 +1150,18 @@ test("keeps the generated CMS editor protected and out of the public bundle", as
   assert.match(mediaOverview, /Story/);
   assert.match(uploadImage, /export async function uploadAdminMedia/);
   assert.doesNotMatch(uploadImage, /uploadAdminImage/);
-  assert.match(uploadImage, /Authorization: `Bearer \$\{sessionToken\}`/);
-  assert.match(uploadImage, /contentType: file\.type/);
+  assert.match(uploadImage, /\/api\/admin\/media\/upload-token/);
+  assert.match(uploadImage, /Content-Type/);
   assert.match(assetField, /image\/gif/);
   assert.match(mediaLibrary, /image\/gif/);
   assert.match(mediaLibrary, />Archive<\/button>/);
   assert.match(mediaLibrary, /asset\.usageCount > 0/);
   assert.match(mediaLibrary, /permanently deleted/);
   assert.match(mediaLibrary, /Replace or remove this media from all content before archiving it/);
-  assert.match(adminRoutes, /MEDIA_STORAGE_NOT_CONFIGURED/);
+  assert.match(adminRoutes, /createR2UploadUrl/);
   assert.match(adminRoutes, /getRuntimeReadiness/);
   assert.match(mediaRepository, /await removeStoredMedia/);
-  assert.match(mediaStorage, /del/);
+  assert.match(mediaStorage, /getR2Bucket/);
   assert.match(mediaStorage, /MEDIA_STORAGE_DELETE_FAILED/);
   assert.doesNotMatch(itemEditor, /image path|provider URL/i);
   assert.match(adminPage, /collections\/:collectionKey\/schema/);
@@ -1281,7 +1284,7 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
     readFile(new URL("src/components/about/water-ripple/shaders.ts", projectRoot), "utf8"),
     readFile(new URL("src/styles/about.css", projectRoot), "utf8"),
     readFile(new URL("src/config/experience.ts", projectRoot), "utf8"),
-    readFile(new URL("server/api-routes/sitemap.ts", projectRoot), "utf8"),
+    readFile(new URL("scripts/generate-route-documents.mjs", projectRoot), "utf8"),
   ]);
 
   assert.match(app, /path="\/about"/);
@@ -1391,7 +1394,7 @@ test("keeps the About page model-derived, portrait-led and accessible", async ()
   assert.match(portraitStyles, /\.about-hero__frame\s*\{[^}]*will-change:\s*transform, border-radius/s);
   assert.match(portraitStyles, /\.about-head__canvas\s+canvas\s*\{[^}]*width:\s*100%\s*!important/s);
   assert.match(portraitStyles, /\.about-head__visual::before\s*\{[^}]*radial-gradient/s);
-  assert.match(sitemap, /publicRouteMetadata/);
+  assert.match(sitemap, /sitemap\.xml/);
   await Promise.all([
     access(new URL("public/about/simple-head-points.bin", projectRoot)),
     access(new URL("public/about/kidson-portrait.webp", projectRoot)),
@@ -1427,7 +1430,7 @@ test("builds the Services page as six expanding offers with GPU-morphed model pa
     readFile(new URL("src/components/home/ReachSection.tsx", projectRoot), "utf8"),
     readFile(new URL("src/hooks/useExpandablePanel.ts", projectRoot), "utf8"),
     readFile(new URL("public/models/services/manifest.json", projectRoot), "utf8"),
-    readFile(new URL("server/api-routes/sitemap.ts", projectRoot), "utf8"),
+    readFile(new URL("scripts/generate-route-documents.mjs", projectRoot), "utf8"),
   ]);
 
   assert.match(page, /ServicesChapterController/);
@@ -1542,7 +1545,7 @@ test("builds the Services page as six expanding offers with GPU-morphed model pa
     assert.equal(gltf.animations, undefined);
   }
 
-  assert.match(sitemap, /publicRouteMetadata/);
+  assert.match(sitemap, /sitemap\.xml/);
 });
 
 test("includes the approved Webine logo and current system documents", async () => {

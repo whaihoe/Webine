@@ -93,21 +93,16 @@ test("uses a project shell without a conflicting collection canonical", async ()
 });
 
 test("routes static documents and the sitemap without indexing private paths", async () => {
-  const [vercel, robots, sitemap] = await Promise.all([
-    readFile(new URL("vercel.json", projectRoot), "utf8"),
+  const [wrangler, robots, sitemap, headers] = await Promise.all([
+    readFile(new URL("wrangler.toml", projectRoot), "utf8"),
     readFile(new URL("public/robots.txt", projectRoot), "utf8"),
-    readFile(new URL("server/api-routes/sitemap.ts", projectRoot), "utf8"),
+    readFile(new URL("dist/sitemap.xml", projectRoot), "utf8"),
+    readFile(new URL("public/_headers", projectRoot), "utf8"),
   ]);
-
-  const configuration = JSON.parse(vercel);
-  const rewrites = new Map(configuration.rewrites.map((rewrite) => [rewrite.source, rewrite.destination]));
-  for (const route of ["/about", "/services", "/works", "/contact", "/privacy"]) {
-    assert.equal(rewrites.get(route), `${route}/index.html`);
-  }
-  assert.equal(rewrites.get("/works/:slug"), "/api/projects?__webine_document=:slug");
-  assert.equal(rewrites.get("/admin"), "/admin/index.html");
-  assert.equal(rewrites.get("/preview"), "/preview/index.html");
+  assert.match(wrangler, /directory = "\.\/dist"/);
+  assert.match(headers, /\/admin\/\*/);
+  assert.match(headers, /\/preview\/\*/);
   assert.match(robots, /Sitemap: https:\/\/www\.madebywebine\.com\/sitemap\.xml/);
-  assert.match(sitemap, /publicRouteMetadata/);
+  assert.match(sitemap, /https:\/\/www\.madebywebine\.com\/works/);
   assert.doesNotMatch(sitemap, /"\/admin"|"\/preview"/);
 });

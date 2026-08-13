@@ -1,3 +1,17 @@
+import type { MediaRendition } from "../../shared/media-renditions.js";
+
+export type PublicProjectAsset = {
+  id: string;
+  url: string;
+  altText: string;
+  focalX: number;
+  focalY: number;
+  width: number;
+  height: number;
+  mimeType?: string;
+  renditions?: MediaRendition[];
+};
+
 export type PublicProject = {
   id: string;
   slug: string;
@@ -9,8 +23,8 @@ export type PublicProject = {
   year: number;
   services: string[];
   summary: string;
-  heroImage: { id: string; url: string; altText: string; focalX: number; focalY: number; width: number; height: number; mimeType?: string };
-  hoverImage?: { id: string; url: string; altText: string; focalX: number; focalY: number; width: number; height: number; mimeType?: string };
+  heroImage: PublicProjectAsset;
+  hoverImage?: PublicProjectAsset;
   cardTheme: "light" | "dark";
   accentColour: string;
   featured: boolean;

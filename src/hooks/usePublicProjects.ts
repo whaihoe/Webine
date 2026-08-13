@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import type { ApiEnvelope } from "../content/api-envelope";
 import type { PublicProject } from "../content/public-projects";
+import { loadPublicSnapshot } from "../content/public-snapshot";
 
 type State =
   | { status: "loading" }
@@ -11,23 +11,14 @@ export function usePublicProjects(featuredOnly = false) {
   const [attempt, setAttempt] = useState(0);
   const [state, setState] = useState<State>({ status: "loading" });
   useEffect(() => {
-    const controller = new AbortController();
     setState({ status: "loading" });
-    fetch(`/api/projects${featuredOnly ? "?featured=true" : ""}`, {
-      signal: controller.signal,
-      headers: { Accept: "application/json" },
-    })
-      .then(async (response) => {
-        const envelope = await response.json() as ApiEnvelope<PublicProject[]>;
-        if (!response.ok || !envelope.data) {
-          throw new Error(
-            envelope.error?.message ?? "Projects could not be loaded.",
-          );
-        }
-        setState({ status: "ready", projects: envelope.data });
+    let mounted = true;
+    loadPublicSnapshot(attempt > 0)
+      .then((snapshot) => {
+        if (mounted) setState({ status: "ready", projects: featuredOnly ? snapshot.projects.filter((project) => project.featured) : snapshot.projects });
       })
       .catch((error: unknown) => {
-        if (!controller.signal.aborted) {
+        if (mounted) {
           setState({
             status: "error",
             message: error instanceof Error
@@ -36,7 +27,7 @@ export function usePublicProjects(featuredOnly = false) {
           });
         }
       });
-    return () => controller.abort();
+    return () => { mounted = false; };
   }, [attempt, featuredOnly]);
 
   return { ...state, retry: () => setAttempt((value) => value + 1) };

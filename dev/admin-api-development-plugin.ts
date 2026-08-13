@@ -2,12 +2,9 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Plugin, ViteDevServer } from "vite";
 
 const apiRoutes = [
-  { pattern: /^\/api\/admin(?:\/|$)/, modulePath: "/api/admin.ts" },
-  { pattern: /^\/api\/projects(?:\/|$)/, modulePath: "/api/projects.ts" },
-  { pattern: /^\/api\/site-settings\/?$/, modulePath: "/api/site-settings.ts" },
-  { pattern: /^\/api\/enquiries\/?$/, modulePath: "/api/enquiries.ts" },
-  { pattern: /^\/api\/media(?:\/|$)/, modulePath: "/dev/media-development-handler.ts" },
-  { pattern: /^\/sitemap\.xml$/, modulePath: "/api/sitemap.ts" },
+  { pattern: /^\/api\/admin(?:\/|$)/, modulePath: "/dev/worker-development-handler.ts" },
+  { pattern: /^\/api\/enquiries\/?$/, modulePath: "/dev/worker-development-handler.ts" },
+  { pattern: /^\/api\/media(?:\/|$)/, modulePath: "/dev/worker-development-handler.ts" },
 ] as const;
 
 export function resolveAdminApiModule(pathname: string) {
@@ -97,7 +94,7 @@ export function adminApiDevelopmentPlugin(): Plugin {
         const pathname = requestUrl(request).pathname;
         const modulePath = resolveAdminApiModule(pathname);
 
-        if (!pathname.startsWith("/api/") && pathname !== "/sitemap.xml") {
+        if (!pathname.startsWith("/api/")) {
           next();
           return;
         }

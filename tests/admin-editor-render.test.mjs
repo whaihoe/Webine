@@ -118,6 +118,13 @@ test("renders the collection builder and every generated item control", async ()
         ],
       }),
     );
+    const canonicalStoryHtml = renderToStaticMarkup(
+      React.createElement(ProjectStoryBlock, {
+        block: { id: "story-challenge", type: "challenge", text: "A real problem." },
+        blockIndex: 0,
+        images: [],
+      }),
+    );
 
     assert.match(collectionHtml, /Collection details/);
     assert.match(collectionHtml, /Add field/);
@@ -139,6 +146,8 @@ test("renders the collection builder and every generated item control", async ()
     assert.match(bentoHtml, /style="aspect-ratio:1800 \/ 900"/);
     assert.match(bentoHtml, /style="aspect-ratio:800 \/ 1200"/);
     assert.match(bentoHtml, /style="aspect-ratio:1000 \/ 1000"/);
+    assert.match(canonicalStoryHtml, /<h2>Challenge<\/h2>/);
+    assert.match(canonicalStoryHtml, /data-show-divider="true"/);
     assert.equal((itemHtml.match(/<fieldset/g) ?? []).length, fields.length);
     assert.match(workspaceHtml, /aria-label="Webine Admin breadcrumb"/);
     assert.match(workspaceHtml, /href="\/admin"[^>]*>Admin<\/a>/);

@@ -6,7 +6,6 @@ export type AdminAccessEnvironment = {
   CLERK_PUBLISHABLE_KEY?: string;
   CLERK_SECRET_KEY?: string;
   NODE_ENV?: string;
-  VERCEL?: string;
 };
 
 export type AdminAccessConfiguration =
@@ -40,8 +39,7 @@ function normaliseAuthorisedParties(value: string) {
 export function resolveAdminAccessConfiguration(
   environment: AdminAccessEnvironment,
 ): AdminAccessConfiguration {
-  const isLocalRuntime = environment.VERCEL !== "1" &&
-    environment.NODE_ENV !== "production";
+  const isLocalRuntime = environment.NODE_ENV !== "production";
 
   if (isLocalRuntime && environment.ADMIN_DEV_BYPASS === "true") {
     return {

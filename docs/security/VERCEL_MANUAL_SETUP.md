@@ -1,4 +1,6 @@
-# Vercel manual security setup
+# Historical Vercel security and rollback reference
+
+> **Historical only.** This document preserves the prior Vercel security state for an approved rollback during the Cloudflare observation period. It is not a live setup guide. Use [the Cloudflare migration plan](../cloudflare-migration-plan.md) and [the cutover runbook](../cloudflare-cutover-runbook.md) for current operations.
 
 Only use these dashboard steps when the installed CLI or official API cannot apply and verify the setting safely. Names and plan availability can change, so confirm the current project and plan before saving.
 
