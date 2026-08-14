@@ -3,9 +3,13 @@ main = "worker.ts"
 compatibility_date = "2026-08-13"
 compatibility_flags = ["nodejs_compat"]
 workers_dev = false
+
 routes = [
   { pattern = "www.madebywebine.com", custom_domain = true },
 ]
+
+[secrets]
+required = ["TURNSTILE_SECRET"]
 
 [assets]
 directory = "./dist"
@@ -51,6 +55,9 @@ enabled = true
 
 [env.preview]
 name = "webine-preview"
+
+[env.preview.secrets]
+required = ["TURNSTILE_SECRET"]
 
 [[env.preview.r2_buckets]]
 binding = "MEDIA_BUCKET"

@@ -130,14 +130,22 @@ test("maps reused Turnstile tokens to a fresh-challenge response and fails close
     ),
     (error) => error.code === "TURNSTILE_EXPIRED",
   );
+  let missingSecretSiteverifyCalls = 0;
   await assert.rejects(
     () => verifyTurnstile(
       "token",
       new Request("https://www.madebywebine.com/api/enquiries"),
       { TURNSTILE_HOSTNAMES: "www.madebywebine.com" },
+      async (_url, init) => {
+        missingSecretSiteverifyCalls += 1;
+        const body = init?.body instanceof URLSearchParams ? init.body : new URLSearchParams();
+        assert.equal(body.get("secret"), "");
+        return Response.json({ success: false, "error-codes": ["missing-input-secret"] });
+      },
     ),
     (error) => error.code === "TURNSTILE_UNAVAILABLE",
   );
+  assert.equal(missingSecretSiteverifyCalls, 1);
 });
 
 test("passes the Worker Turnstile bindings through the enquiry handler", async () => {
