@@ -2,8 +2,9 @@ import { routeAdminRequest } from "./server/api-routes/admin.js";
 import { handleEnquiryRequest } from "./server/api-routes/enquiries.js";
 import type { R2Environment } from "./server/r2-storage.js";
 import type { ContentBucket } from "./server/public-snapshots.js";
+import type { TurnstileEnvironment } from "./server/turnstile.js";
 
-type WorkerEnvironment = R2Environment & {
+type WorkerEnvironment = R2Environment & TurnstileEnvironment & {
   CONTENT_BUCKET?: ContentBucket;
   ASSETS: Fetcher;
   ADMIN_RATE_LIMITER?: { limit(options: { key: string }): Promise<{ success: boolean }> };
@@ -82,7 +83,7 @@ export default {
     if (url.pathname.startsWith("/api/admin/")) {
       response = await limit(request, environment.ADMIN_RATE_LIMITER) ?? await routeAdminRequest(request, environment);
     } else if (url.pathname === "/api/enquiries") {
-      response = await limit(request, environment.ENQUIRY_RATE_LIMITER) ?? await handleEnquiryRequest(request);
+      response = await limit(request, environment.ENQUIRY_RATE_LIMITER) ?? await handleEnquiryRequest(request, undefined, environment);
     } else if (url.pathname.startsWith("/content/")) {
       const contentUrl = new URL(`${url.pathname}${url.search}`, "https://content.madebywebine.com");
       response = request.method === "GET" || request.method === "HEAD"

@@ -98,7 +98,7 @@ test("fails Turnstile closed and checks hostname and action", async () => {
   );
   await assert.rejects(
     () => verifyTurnstile("token", new Request("https://www.madebywebine.com/api/enquiries"), environment, async () => Response.json({ success: true, hostname: "evil.example", action: "contact_enquiry" })),
-    (error) => error.code === "TURNSTILE_INVALID",
+    (error) => error.code === "TURNSTILE_UNAVAILABLE",
   );
   await verifyTurnstile(
     "token",
@@ -112,6 +112,29 @@ test("fails Turnstile closed and checks hostname and action", async () => {
     }),
     (error) => error.code === "TURNSTILE_INVALID",
   );
+});
+
+test("passes the Worker Turnstile bindings through the enquiry handler", async () => {
+  const environment = {
+    NODE_ENV: "production",
+    TURNSTILE_SECRET_KEY: "worker-secret",
+    TURNSTILE_ALLOWED_HOSTNAMES: "www.madebywebine.com",
+    TURNSTILE_EXPECTED_ACTION: "contact_enquiry",
+  };
+  const request = new Request("https://www.madebywebine.com/api/enquiries", {
+    method: "POST",
+    headers: { origin: "https://www.madebywebine.com", "content-type": "application/json" },
+    body: JSON.stringify(validEnquiry()),
+  });
+  let verificationEnvironment;
+  const response = await handleEnquiryRequest(request, async (_input, verificationRequest, _requestId, _client, verifyHuman) => {
+    await verifyHuman("token", verificationRequest);
+    return { accepted: true, duplicate: false };
+  }, environment, async (_token, _request, receivedEnvironment) => {
+    verificationEnvironment = receivedEnvironment;
+  });
+  assert.equal(response.status, 201);
+  assert.equal(verificationEnvironment, environment);
 });
 
 test("valid Turnstile verification reaches the application limiter", async () => {

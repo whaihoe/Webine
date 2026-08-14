@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { turnstileSiteKey } from "../config/public-runtime";
 
 const TURNSTILE_SCRIPT_ID = "cloudflare-turnstile-script";
@@ -9,6 +9,33 @@ type TurnstileApi = {
   remove: (widgetId: string) => void;
   reset: (widgetId: string) => void;
 };
+
+let turnstileLoader: Promise<TurnstileApi> | null = null;
+
+function loadTurnstile() {
+  if (window.turnstile) return Promise.resolve(window.turnstile);
+  if (turnstileLoader) return turnstileLoader;
+
+  turnstileLoader = new Promise<TurnstileApi>((resolve, reject) => {
+    const existing = document.getElementById(TURNSTILE_SCRIPT_ID) as HTMLScriptElement | null;
+    const script = existing ?? document.createElement("script");
+    const loaded = () => window.turnstile ? resolve(window.turnstile) : reject(new Error("Turnstile did not initialise."));
+    const failed = () => reject(new Error("Turnstile could not load."));
+    script.addEventListener("load", loaded, { once: true });
+    script.addEventListener("error", failed, { once: true });
+    if (!existing) {
+      script.id = TURNSTILE_SCRIPT_ID;
+      script.src = TURNSTILE_SCRIPT_URL;
+      script.async = true;
+      script.defer = true;
+      document.head.append(script);
+    }
+  }).catch((error) => {
+    turnstileLoader = null;
+    throw error;
+  });
+  return turnstileLoader;
+}
 
 declare global {
   interface Window {
@@ -27,6 +54,14 @@ export function TurnstileWidget({ onTokenChange, resetVersion }: TurnstileWidget
   const [status, setStatus] = useState("Security check loading.");
   const siteKey = turnstileSiteKey();
 
+  const resetWidget = useCallback(() => {
+    onTokenChange("");
+    if (widgetIdRef.current && window.turnstile) {
+      window.turnstile.reset(widgetIdRef.current);
+      setStatus("Security check ready.");
+    }
+  }, [onTokenChange]);
+
   useEffect(() => {
     if (!siteKey || !containerRef.current) {
       setStatus(siteKey ? "Security check loading." : "Security check is not configured.");
@@ -34,46 +69,39 @@ export function TurnstileWidget({ onTokenChange, resetVersion }: TurnstileWidget
     }
 
     let active = true;
-    const renderWidget = () => {
-      if (!active || !containerRef.current || !window.turnstile || widgetIdRef.current) return;
-      widgetIdRef.current = window.turnstile.render(containerRef.current, {
-        sitekey: siteKey,
-        action: "contact_enquiry",
-        appearance: "interaction-only",
-        size: "flexible",
-        callback: (token: string) => {
-          onTokenChange(token);
-          setStatus("Security check complete.");
-        },
-        "expired-callback": () => {
-          onTokenChange("");
-          setStatus("Security check expired. Please try it again.");
-        },
-        "error-callback": () => {
-          onTokenChange("");
-          setStatus("Security check could not load. Please try again.");
-        },
-      });
+    onTokenChange("");
+    const renderWidget = async () => {
+      try {
+        const turnstile = await loadTurnstile();
+        if (!active || !containerRef.current || widgetIdRef.current) return;
+        widgetIdRef.current = turnstile.render(containerRef.current, {
+          sitekey: siteKey,
+          action: "contact_enquiry",
+          appearance: "always",
+          size: "flexible",
+          theme: "dark",
+          callback: (token: string) => {
+            onTokenChange(token);
+            setStatus("Security check complete.");
+          },
+          "expired-callback": () => {
+            onTokenChange("");
+            setStatus("Security check expired. Please try it again.");
+          },
+          "error-callback": () => {
+            onTokenChange("");
+            setStatus("Security check could not verify. Please try again.");
+          },
+        });
+      } catch {
+        if (active) setStatus("Security check could not load. Check your connection, then try again.");
+      }
     };
 
-    const existing = document.getElementById(TURNSTILE_SCRIPT_ID) as HTMLScriptElement | null;
-    if (window.turnstile) {
-      renderWidget();
-    } else if (existing) {
-      existing.addEventListener("load", renderWidget);
-    } else {
-      const script = document.createElement("script");
-      script.id = TURNSTILE_SCRIPT_ID;
-      script.src = TURNSTILE_SCRIPT_URL;
-      script.async = true;
-      script.defer = true;
-      script.addEventListener("load", renderWidget);
-      document.head.append(script);
-    }
+    void renderWidget();
 
     return () => {
       active = false;
-      existing?.removeEventListener("load", renderWidget);
       if (widgetIdRef.current && window.turnstile) {
         window.turnstile.remove(widgetIdRef.current);
         widgetIdRef.current = null;
@@ -82,17 +110,16 @@ export function TurnstileWidget({ onTokenChange, resetVersion }: TurnstileWidget
   }, [onTokenChange, siteKey]);
 
   useEffect(() => {
-    if (widgetIdRef.current && window.turnstile) {
-      window.turnstile.reset(widgetIdRef.current);
-      onTokenChange("");
-      setStatus("Security check ready.");
-    }
-  }, [onTokenChange, resetVersion]);
+    if (resetVersion > 0) resetWidget();
+  }, [resetVersion, resetWidget]);
 
   return (
     <div className="contact-form__turnstile" data-gsap-reveal="copy" data-gsap-delay="0.68">
       <div ref={containerRef} />
-      <span className="sr-only" aria-live="polite">{status}</span>
+      <div className="contact-form__turnstile-status" aria-live="polite">
+        <span>{status}</span>
+        {status.includes("could not") || status.includes("expired") ? <button type="button" onClick={resetWidget}>Try again</button> : null}
+      </div>
     </div>
   );
 }

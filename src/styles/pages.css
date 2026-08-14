@@ -1043,13 +1043,41 @@ article[data-block-type="image"]:is([data-image-count="2"], [data-image-count="3
 }
 
 .contact-form__turnstile {
-  min-height: 4.1rem;
+  min-height: 5.5rem;
   display: grid;
-  align-items: center;
+  gap: var(--primitive-space-2);
+  align-items: start;
 }
 
 .contact-form__turnstile > div {
   width: 100%;
+  min-width: 18.75rem;
+}
+
+.contact-form__turnstile-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--primitive-space-3);
+  color: hsl(var(--color-text-secondary));
+  font-size: 0.8125rem;
+}
+
+.contact-form__turnstile-status button {
+  appearance: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: hsl(var(--color-brand));
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+@media (max-width: 23rem) {
+  .contact-form__turnstile > div {
+    min-width: 0;
+  }
 }
 
 .contact-form__consent a,

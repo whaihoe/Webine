@@ -1,5 +1,6 @@
 import { CmsRepositoryError } from "../cms-repository.js";
 import { createEnquiry } from "../enquiry-service.js";
+import { verifyTurnstile, type TurnstileEnvironment } from "../turnstile.js";
 import {
   errorResponse,
   getRequestId,
@@ -11,6 +12,8 @@ import {
 export async function handleEnquiryRequest(
   request: Request,
   submit: typeof createEnquiry = createEnquiry,
+  environment: TurnstileEnvironment = process.env,
+  verifyHuman: typeof verifyTurnstile = verifyTurnstile,
 ) {
   const requestId = getRequestId(request);
 
@@ -40,7 +43,13 @@ export async function handleEnquiryRequest(
 
   try {
     return jsonResponse(
-      await submit(await readJsonRequest(request, 32 * 1024), request, requestId),
+      await submit(
+        await readJsonRequest(request, 32 * 1024),
+        request,
+        requestId,
+        undefined,
+        (token, verificationRequest) => verifyHuman(token, verificationRequest, environment),
+      ),
       requestId,
       201,
     );

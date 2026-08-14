@@ -6,9 +6,17 @@ type TurnstileResult = {
   success?: unknown;
   hostname?: unknown;
   action?: unknown;
+  "error-codes"?: unknown;
 };
 
-function configuredValues(environment: NodeJS.ProcessEnv) {
+export type TurnstileEnvironment = {
+  NODE_ENV?: string;
+  TURNSTILE_SECRET_KEY?: string;
+  TURNSTILE_ALLOWED_HOSTNAMES?: string;
+  TURNSTILE_EXPECTED_ACTION?: string;
+};
+
+function configuredValues(environment: TurnstileEnvironment) {
   return {
     secret: environment.TURNSTILE_SECRET_KEY?.trim() ?? "",
     hostnames: new Set(
@@ -24,7 +32,7 @@ function configuredValues(environment: NodeJS.ProcessEnv) {
 export async function verifyTurnstile(
   token: string,
   request: Request,
-  environment: NodeJS.ProcessEnv = process.env,
+  environment: TurnstileEnvironment = process.env,
   fetcher: typeof fetch = fetch,
 ) {
   const configuration = configuredValues(environment);
@@ -37,7 +45,8 @@ export async function verifyTurnstile(
     throw new CmsRepositoryError("TURNSTILE_REQUIRED", "Complete the security check and try again.", 403);
   }
 
-  const remoteAddress = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+  const remoteAddress = request.headers.get("CF-Connecting-IP")?.trim()
+    || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
     || request.headers.get("x-real-ip")?.trim();
   try {
     const response = await fetcher(SITEVERIFY_URL, {
@@ -55,14 +64,18 @@ export async function verifyTurnstile(
     if (!response.ok) throw new Error("siteverify_http_error");
     const result = await response.json() as TurnstileResult;
     const hostname = typeof result.hostname === "string" ? result.hostname.toLowerCase() : "";
-    if (
-      result.success !== true
-      || !configuration.hostnames.has(hostname)
-      || result.action !== configuration.action
-    ) {
+    if (result.success !== true) {
+      const errors = Array.isArray(result["error-codes"]) ? result["error-codes"] : [];
+      if (errors.includes("invalid-input-secret")) {
+        throw new CmsRepositoryError("TURNSTILE_UNAVAILABLE", "The security check is temporarily unavailable. Please try again later.", 503);
+      }
       throw new Error("siteverify_rejected");
     }
-  } catch {
+    if (!configuration.hostnames.has(hostname) || result.action !== configuration.action) {
+      throw new CmsRepositoryError("TURNSTILE_UNAVAILABLE", "The security check is temporarily unavailable. Please try again later.", 503);
+    }
+  } catch (error) {
+    if (error instanceof CmsRepositoryError) throw error;
     throw new CmsRepositoryError("TURNSTILE_INVALID", "The security check could not be verified. Please try again.", 403);
   }
 }
