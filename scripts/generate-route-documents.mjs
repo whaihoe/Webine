@@ -30,7 +30,10 @@ await writeFile(
   renderProjectShellDocument(template, worksRoute, routes),
 );
 
-const contentBaseUrl = process.env.VITE_CONTENT_BASE_URL?.replace(/\/+$/, "");
+// This is a public, production-owned custom domain, not a secret. Keeping the
+// fallback here prevents Git-triggered builds from silently dropping project
+// route documents when the build environment omits a client-side Vite value.
+const contentBaseUrl = (process.env.VITE_CONTENT_BASE_URL || "https://content.madebywebine.com").replace(/\/+$/, "");
 const requireContentSnapshot = process.argv.includes("--require-content");
 let projects = [];
 if (contentBaseUrl) {

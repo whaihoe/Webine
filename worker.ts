@@ -45,6 +45,24 @@ function privateApplicationDocument(request: Request, environment: WorkerEnviron
   return environment.ASSETS.fetch(new Request(url, request));
 }
 
+const projectRoutePattern = /^\/works\/[a-z0-9]+(?:-[a-z0-9]+)*\/?$/;
+
+async function publicProjectDocument(request: Request, environment: WorkerEnvironment) {
+  const staticResponse = await environment.ASSETS.fetch(request);
+  if (staticResponse.status !== 404) return staticResponse;
+
+  const url = new URL(request.url);
+  if (!projectRoutePattern.test(url.pathname)) return staticResponse;
+
+  // Project documents are generated at build time for SEO. This shell is a
+  // deliberate recovery path for a valid project URL if a deploy did not have
+  // the current content snapshot available while those documents were built.
+  // React then reads the public snapshot and renders the requested project.
+  url.pathname = "/works/project/";
+  url.search = "";
+  return environment.ASSETS.fetch(new Request(url, request));
+}
+
 async function limit(request: Request, limiter: WorkerEnvironment["ADMIN_RATE_LIMITER"] | WorkerEnvironment["ENQUIRY_RATE_LIMITER"]) {
   if (!limiter) {
     return new Response("Rate limiting is unavailable", {
@@ -74,6 +92,8 @@ export default {
       response = await privateApplicationDocument(request, environment);
     } else if (url.pathname === "/preview" || url.pathname.startsWith("/preview/")) {
       response = await privateApplicationDocument(request, environment);
+    } else if (url.pathname.startsWith("/works/")) {
+      response = await publicProjectDocument(request, environment);
     } else {
       // Static Assets owns public documents, generated project pages, sitemap and published snapshots.
       response = await environment.ASSETS.fetch(request);

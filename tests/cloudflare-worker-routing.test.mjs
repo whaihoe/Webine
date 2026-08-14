@@ -4,12 +4,14 @@ import test from "node:test";
 
 const root = new URL("../", import.meta.url);
 
-test("uses static assets first and limits Worker-first routes to APIs, private documents and the legacy content redirect", async () => {
+test("uses static assets first and limits Worker-first routes to APIs, private documents, legacy content redirects and project recovery", async () => {
   const [config, worker] = await Promise.all([readFile(new URL("wrangler.toml", root), "utf8"), readFile(new URL("worker.ts", root), "utf8")]);
   assert.match(config, /directory = "\.\/dist"/);
   assert.match(config, /not_found_handling = "404-page"/);
-  assert.match(config, /run_worker_first = \["\/api\/admin\/\*", "\/api\/enquiries", "\/admin\/\*", "\/preview\/\*", "\/content\/\*"\]/);
+  assert.match(config, /run_worker_first = \["\/api\/admin\/\*", "\/api\/enquiries", "\/admin\/\*", "\/preview\/\*", "\/content\/\*", "\/works\/\*"\]/);
   assert.match(worker, /privateApplicationDocument/);
+  assert.match(worker, /publicProjectDocument/);
+  assert.match(worker, /projectRoutePattern/);
   assert.doesNotMatch(config, /"\/sitemap\.xml"/);
   assert.match(worker, /environment\.ASSETS\.fetch/);
   assert.match(worker, /Rate limiting is unavailable/);
