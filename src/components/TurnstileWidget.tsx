@@ -52,6 +52,7 @@ export function TurnstileWidget({ onTokenChange, resetVersion }: TurnstileWidget
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
   const [status, setStatus] = useState("Security check loading.");
+  const [retryVersion, setRetryVersion] = useState(0);
   const siteKey = turnstileSiteKey();
 
   const resetWidget = useCallback(() => {
@@ -59,7 +60,12 @@ export function TurnstileWidget({ onTokenChange, resetVersion }: TurnstileWidget
     if (widgetIdRef.current && window.turnstile) {
       window.turnstile.reset(widgetIdRef.current);
       setStatus("Security check ready.");
+      return;
     }
+    document.getElementById(TURNSTILE_SCRIPT_ID)?.remove();
+    turnstileLoader = null;
+    setStatus("Security check loading.");
+    setRetryVersion((value) => value + 1);
   }, [onTokenChange]);
 
   useEffect(() => {
@@ -107,7 +113,7 @@ export function TurnstileWidget({ onTokenChange, resetVersion }: TurnstileWidget
         widgetIdRef.current = null;
       }
     };
-  }, [onTokenChange, siteKey]);
+  }, [onTokenChange, retryVersion, siteKey]);
 
   useEffect(() => {
     if (resetVersion > 0) resetWidget();
