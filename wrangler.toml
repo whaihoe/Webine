@@ -1,13 +1,16 @@
 name = "webine"
 main = "worker.ts"
-compatibility_date = "2026-08-14"
-compatibility_flags = ["nodejs_compat", "populate_process_env"]
+compatibility_date = "2026-08-13"
+compatibility_flags = ["nodejs_compat"]
 workers_dev = false
+routes = [
+  { pattern = "www.madebywebine.com", custom_domain = true },
+]
 
 [assets]
 directory = "./dist"
 binding = "ASSETS"
-run_worker_first = ["/api/admin/*", "/api/enquiries", "/admin", "/admin/*", "/preview", "/preview/*"]
+run_worker_first = ["/api/admin/*", "/api/enquiries", "/admin/*", "/preview/*"]
 not_found_handling = "404-page"
 
 [[r2_buckets]]
@@ -32,7 +35,17 @@ simple = { limit = 12, period = 60 }
 
 [vars]
 VITE_SITE_URL = "https://www.madebywebine.com"
+VITE_CLERK_PUBLISHABLE_KEY = "pk_test_YW1wbGUtbWFtbWFsLTk3LmNsZXJrLmFjY291bnRzLmRldiQ"
+VITE_TURNSTILE_SITE_KEY = "0x4AAAAAAEEf_0NxPkZ_uzj1"
+CLERK_PUBLISHABLE_KEY = "pk_test_YW1wbGUtbWFtbWFsLTk3LmNsZXJrLmFjY291bnRzLmRldiQ"
+CLERK_AUTHORIZED_PARTIES = "https://www.madebywebine.com"
+TURNSTILE_ALLOWED_HOSTNAMES = "madebywebine.com,www.madebywebine.com"
 TURNSTILE_EXPECTED_ACTION = "contact_enquiry"
+R2_S3_ENDPOINT = "https://0dd328bb4a534518c56dafc370b5c134.r2.cloudflarestorage.com/webine-media"
+R2_PUBLIC_BASE_URL = "https://media.madebywebine.com"
+
+[observability]
+enabled = true
 
 [env.preview]
 name = "webine-preview"
@@ -57,4 +70,14 @@ simple = { limit = 12, period = 60 }
 
 [env.preview.vars]
 VITE_SITE_URL = "https://preview.madebywebine.com"
+VITE_CLERK_PUBLISHABLE_KEY = "pk_test_YW1wbGUtbWFtbWFsLTk3LmNsZXJrLmFjY291bnRzLmRldiQ"
+VITE_TURNSTILE_SITE_KEY = "0x4AAAAAAEEf_0NxPkZ_uzj1"
+CLERK_PUBLISHABLE_KEY = "pk_test_YW1wbGUtbWFtbWFsLTk3LmNsZXJrLmFjY291bnRzLmRldiQ"
+CLERK_AUTHORIZED_PARTIES = "https://preview.madebywebine.com"
+TURNSTILE_ALLOWED_HOSTNAMES = "preview.madebywebine.com"
 TURNSTILE_EXPECTED_ACTION = "contact_enquiry"
+R2_S3_ENDPOINT = "https://0dd328bb4a534518c56dafc370b5c134.r2.cloudflarestorage.com/webine-media-preview"
+R2_PUBLIC_BASE_URL = "https://media-preview.madebywebine.com"
+
+[env.preview.observability]
+enabled = true

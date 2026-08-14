@@ -1154,6 +1154,11 @@ test("keeps the generated CMS editor protected and out of the public bundle", as
   assert.match(uploadImage, /Content-Type/);
   assert.match(assetField, /image\/gif/);
   assert.match(mediaLibrary, /image\/gif/);
+  assert.match(mediaLibrary, /type="file" multiple/);
+  assert.match(mediaLibrary, /Array\.from\(event\.target\.files \?\? \[\]\)/);
+  assert.match(mediaLibrary, /for \(const \[index, upload\] of batch\.entries\(\)\)/);
+  assert.match(mediaLibrary, /updateDetails\(upload\.id/);
+  assert.match(mediaLibrary, /failed and remain in the queue/);
   assert.match(mediaLibrary, />Archive<\/button>/);
   assert.match(mediaLibrary, /asset\.usageCount > 0/);
   assert.match(mediaLibrary, /permanently deleted/);

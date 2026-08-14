@@ -1,0 +1,10 @@
+name = "webine-apex-redirect"
+main = "apex-redirect-worker.ts"
+compatibility_date = "2026-08-13"
+workers_dev = false
+routes = [
+  { pattern = "madebywebine.com", custom_domain = true },
+]
+
+[observability]
+enabled = true

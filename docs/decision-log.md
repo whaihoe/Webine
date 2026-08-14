@@ -1,5 +1,13 @@
 # Webine decision log
 
+## 2026-08-14, Cloudflare production cutover and immediate R2 media availability
+
+- Split hostname ownership between the main `webine` Worker on `www.madebywebine.com` and the isolated `webine-apex-redirect` Worker on the apex. The 308 redirect preserves path and query, and no wildcard Worker route can intercept the R2 media or content domains.
+- Kept private Admin and preview documents Worker-first for direct nested-route refreshes, while their generated directory documents remain private and noindex.
+- Applied every production Turso migration through `0015` without recreating content. The existing Webine and Deszio projects remain published.
+- Made a byte-verified R2 original immediately selectable after upload. Optional landing, Works and case-study renditions remain a later transfer-size improvement rather than blocking Project editing.
+- Corrected the Clerk owner allowlist to the authenticated Webine owner account and retained strict single-user access.
+
 ## 2026-08-13, newest Project first ordering
 
 - Made the server assign a new Project the next available featured-order number when the editor leaves that field empty, while preserving deliberate manual values.
@@ -897,3 +905,10 @@
 - Replaced the twelve-column Bento row grid on tablet and desktop with balanced masonry-style columns. The former shared row height allowed a tall image to hold later horizontal images down and create large internal holes.
 - Kept every Bento asset at its stored source ratio. Phones retain the existing dense two-column grid, tablet and small desktop use two balanced columns and screens from 80 rem use three balanced columns.
 - Kept the implementation CSS-only because Bento media is non-interactive and its source order remains unchanged in the document. No resize observer, positioning script or separate layout data is required.
+
+## 2026-08-14, bounded Admin media batch uploads
+
+- Extended the existing Media Library and `uploadAdminMedia` owner instead of adding another upload endpoint or storage path. The Project editor's inline asset field remains intentionally single-file.
+- A Media batch accepts up to 40 valid images or MP4 files. Every queued asset owns its alt text or description, caption, decorative state and image focal point before upload.
+- Uploads run sequentially through the existing authenticated R2 token, PUT and completion flow. Successful assets leave the queue, while failures retain their metadata and expose an individual retry error.
+- Exact file duplicates are ignored within the active queue, invalid files are named in the validation message and one library refresh runs after the complete batch.

@@ -7,12 +7,12 @@ Open `/admin` and sign in with the Clerk account whose user ID matches `ADMIN_US
 ## Add media first
 
 1. Open **Media**.
-2. Choose or drag a JPEG, PNG, WebP, AVIF or animated GIF image no larger than 15 MB, or an MP4 no larger than 30 MB. GIFs retain their animation and may contain up to 500 frames.
-3. Add meaningful alt text, or mark the image decorative only when it conveys no information.
-4. Adjust the focal point so responsive crops preserve the important subject.
-5. Complete the upload. The browser uploads directly to R2 using a short-lived signed URL. The asset stays unavailable while its bytes are verified and its renditions are processed. It can be reused only when its status becomes ready.
+2. Choose or drag up to 40 JPEG, PNG, WebP, AVIF, animated GIF or MP4 files. Images may be up to 15 MB and MP4 files up to 30 MB. GIFs retain their animation and may contain up to 500 frames.
+3. Review every queued asset. Add meaningful alt text or a video description, or mark that asset decorative only when it conveys no information. Add an optional caption.
+4. Adjust each image's focal point so responsive crops preserve the important subject.
+5. Complete the upload. The queue uploads sequentially through short-lived R2 signed URLs. Successful assets leave the queue, while a failed asset keeps its metadata for correction and retry. Production originals become reusable after the Worker verifies their stored bytes.
 
-For a newly quarantined Production asset, copy the Asset ID shown on its media card. Download its verified source, generate and save the manifest, then persist the outputs:
+Production uploads are usable immediately after the Worker verifies the original in R2. To reduce delivery size further, copy the Asset ID shown on its media card, download its verified source, generate and save the manifest, then persist the optional outputs:
 
 ```bash
 npm run process:media-rendition -- --input <source-file> --output-dir <output-directory> > <manifest-file>

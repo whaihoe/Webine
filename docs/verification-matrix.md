@@ -431,3 +431,18 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - The production Deszio baseline at 789 by 988 measured a 725-pixel-wide Bento grid and seven source-ratio assets. The former twelve-column layout measured about 1,355 pixels high and left an approximately 218-pixel hole beneath the fifth image because the adjacent phone image controlled the shared row height.
 - Tablet and desktop Bento layouts now balance complete, break-safe image items into two columns. Screens from 80 rem use three columns, while the existing phone grid remains unchanged. All assets retain their inline stored aspect ratio and use `object-fit: contain`.
 - Automated coverage requires the two-column and three-column breakpoints, balanced column fill, break-safe items and removal of the former twelve-column row grid. A final rendered confirmation on the deployed Deszio case study remains part of release QA because production CMS content is not present in the local fixture.
+
+## 2026-08-14 Cloudflare production verification
+
+- The apex returns 308 to the matching `www` path and query. `www` serves the main Worker, while the content and media custom domains remain outside its route ownership.
+- Production `/admin/` and a direct nested Admin route return the generated application shell with private, no-store and noindex headers. The authenticated browser reaches the owner dashboard and Media workspace.
+- The dashboard reports two published projects and two total active projects. Cloudflare R2 uploads, enquiry intake and enquiry notifications all report configured.
+- The Production database reports every migration through `0015_project_story_composer.sql`, including the previously absent privacy, security and Project-order migrations. Both project records remain present.
+- The R2 bucket CORS contract permits only `https://www.madebywebine.com`, `PUT` and `Content-Type`. The complete Node 22 gate passes the client build, lint, both server TypeScript builds and all 112 automated tests.
+
+## 2026-08-14 Admin media batch upload verification
+
+- The Media workspace accepts multiple picker and drag-and-drop files, caps an active batch at 40 and keeps separate metadata and focal-point controls for every queued asset.
+- Batch submission rejects the first non-decorative asset without a description, uploads accepted assets sequentially through the existing R2 upload owner and reports per-file failures without discarding successful uploads.
+- Automated coverage requires the multi-file input, full `FileList` conversion, sequential queue traversal, per-asset detail updates and partial-failure retention.
+- A rendered local Admin check selected two files through the native multi-file chooser, showed two independent metadata and focal-point forms and blocked submission with the exact filename whose description was missing. At 1280 by 720 and 390 by 844, the queue retained zero page-level horizontal overflow, switched from two internal columns to one and logged no application errors.

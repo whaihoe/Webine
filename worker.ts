@@ -34,9 +34,13 @@ function applyHeaders(response: Response, pathname: string) {
   return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
 }
 
-function privateApplicationDocument(request: Request, environment: WorkerEnvironment, pathname: "/admin/index.html" | "/preview/index.html") {
+function privateApplicationDocument(request: Request, environment: WorkerEnvironment) {
   const url = new URL(request.url);
-  url.pathname = pathname;
+  // Ask the Assets binding for the clean directory URL, not index.html, so it
+  // returns the generated private document without a canonical redirect. The
+  // binding call does not re-enter this Worker, and React owns the nested route
+  // after hydration.
+  url.pathname = url.pathname.startsWith("/preview") ? "/preview/" : "/admin/";
   url.search = "";
   return environment.ASSETS.fetch(new Request(url, request));
 }
@@ -62,9 +66,9 @@ export default {
     } else if (url.pathname === "/api/enquiries") {
       response = await limit(request, environment.ENQUIRY_RATE_LIMITER) ?? await handleEnquiryRequest(request);
     } else if (url.pathname === "/admin" || url.pathname.startsWith("/admin/")) {
-      response = await privateApplicationDocument(request, environment, "/admin/index.html");
+      response = await privateApplicationDocument(request, environment);
     } else if (url.pathname === "/preview" || url.pathname.startsWith("/preview/")) {
-      response = await privateApplicationDocument(request, environment, "/preview/index.html");
+      response = await privateApplicationDocument(request, environment);
     } else {
       // Static Assets owns public documents, generated project pages, sitemap and published snapshots.
       response = await environment.ASSETS.fetch(request);

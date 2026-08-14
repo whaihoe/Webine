@@ -4,7 +4,37 @@ import { initialUploadDetails, uploadAdminMedia, type UploadDetails } from "../.
 import { useAdminResource } from "../../admin/useAdminResource";
 import { useAdminMutation } from "../../admin/useAdminMutation";
 import { AdminDataState } from "./AdminDataState";
-import { MAX_IMAGE_SIZE_LABEL, validateMediaFile } from "../../../shared/media-policy";
+import { MAX_IMAGE_SIZE_LABEL, MAX_VIDEO_SIZE_LABEL, validateMediaFile } from "../../../shared/media-policy";
+
+const MAX_BATCH_UPLOADS = 40;
+
+type PendingUpload = {
+  id: string;
+  file: File;
+  details: UploadDetails;
+  progress: number;
+  status: "pending" | "uploading" | "failed";
+  error: string;
+};
+
+function pendingUploadId(file: File) {
+  return `${file.name}:${file.size}:${file.lastModified}:${file.type}`;
+}
+
+function PendingMediaPreview({ upload }: { upload: PendingUpload }) {
+  const [previewUrl, setPreviewUrl] = useState("");
+
+  useEffect(() => {
+    const url = URL.createObjectURL(upload.file);
+    setPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [upload.file]);
+
+  if (!previewUrl) return null;
+  return upload.file.type === "video/mp4"
+    ? <video src={previewUrl} muted loop autoPlay playsInline aria-label={`Preview of ${upload.file.name}`} />
+    : <img src={previewUrl} alt="" style={{ objectPosition: `${upload.details.focalX * 100}% ${upload.details.focalY * 100}%` }} />;
+}
 
 function MediaAssetCard({ asset, onChanged }: { asset: AdminAsset; onChanged: () => void }) {
   const mutateAdminResource = useAdminMutation();
@@ -43,7 +73,7 @@ function MediaAssetCard({ asset, onChanged }: { asset: AdminAsset; onChanged: ()
         <button type="button" disabled={busy || archiveBlocked} onClick={() => void archive()}>Archive</button>
       </div>
       {archiveBlocked ? <small>Replace or remove this media from all content before archiving it.</small> : null}
-      {asset.processingState !== "ready" ? <small>Process all three renditions using this asset ID before assigning it to a Project.</small> : null}
+      {asset.processingState !== "ready" ? <small>This asset is still being verified and cannot be assigned yet.</small> : null}
       {!editing && error ? <p className="admin-form-error" role="alert">{error}</p> : null}
     </div>
     {editing ? <form className="admin-media-card__editor" onSubmit={save}>
@@ -62,92 +92,145 @@ export function MediaLibrary() {
   const mutateAdminResource = useAdminMutation();
   const resource = useAdminResource<AdminAsset[]>("/api/admin/media");
   const inputRef = useRef<HTMLInputElement>(null);
-  const [file, setFile] = useState<File | null>(null);
-  const [details, setDetails] = useState(initialUploadDetails);
-  const [progress, setProgress] = useState(0);
+  const [uploads, setUploads] = useState<PendingUpload[]>([]);
+  const [batchProgress, setBatchProgress] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [previewUrl, setPreviewUrl] = useState("");
+  const [resultMessage, setResultMessage] = useState("");
 
-  useEffect(() => {
-    if (!file) {
-      setPreviewUrl("");
-      return undefined;
-    }
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [file]);
+  function choose(candidates: File[]) {
+    if (candidates.length === 0) return;
+    const existingIds = new Set(uploads.map((upload) => upload.id));
+    const invalid: string[] = [];
+    const additions: PendingUpload[] = [];
 
-  function choose(candidate?: File) {
-    if (!candidate) return;
-    const validationMessage = validateMediaFile(candidate);
-    if (validationMessage) {
-      setFile(null);
-      setError(validationMessage);
-      if (inputRef.current) inputRef.current.value = "";
-      return;
+    for (const candidate of candidates) {
+      const id = pendingUploadId(candidate);
+      if (existingIds.has(id)) continue;
+      const validationMessage = validateMediaFile(candidate);
+      if (validationMessage) {
+        invalid.push(`${candidate.name}: ${validationMessage}`);
+        continue;
+      }
+      if (uploads.length + additions.length >= MAX_BATCH_UPLOADS) {
+        invalid.push(`A batch can contain up to ${MAX_BATCH_UPLOADS} files.`);
+        break;
+      }
+      existingIds.add(id);
+      additions.push({
+        id,
+        file: candidate,
+        details: { ...initialUploadDetails },
+        progress: 0,
+        status: "pending",
+        error: "",
+      });
     }
-    setFile(candidate);
-    setError("");
+
+    if (additions.length > 0) setUploads((current) => [...current, ...additions]);
+    setError(invalid.join(" "));
+    setResultMessage("");
+    if (inputRef.current) inputRef.current.value = "";
+  }
+
+  function updateUpload(id: string, update: (upload: PendingUpload) => PendingUpload) {
+    setUploads((current) => current.map((upload) => upload.id === id ? update(upload) : upload));
+  }
+
+  function updateDetails(id: string, details: UploadDetails) {
+    updateUpload(id, (upload) => ({ ...upload, details, error: "", status: "pending" }));
   }
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    if (!file) return setError("Choose an image or MP4 first.");
-    if (!details.decorative && !details.altText.trim()) return setError("Add a description or mark the media as decorative.");
+    if (uploads.length === 0) return setError("Choose one or more images or MP4 files first.");
+    const missingDescription = uploads.find((upload) => !upload.details.decorative && !upload.details.altText.trim());
+    if (missingDescription) return setError(`Add a description for ${missingDescription.file.name}, or mark it as decorative.`);
+
+    const batch = [...uploads];
+    const uploadedIds = new Set<string>();
+    let failedCount = 0;
     setBusy(true);
-    setProgress(0);
+    setBatchProgress(0);
     setError("");
-    try {
-      await uploadAdminMedia(
-        file,
-        details,
-        setProgress,
-        mutateAdminResource,
-      );
-      setFile(null);
-      setDetails(initialUploadDetails);
-      setProgress(100);
-      if (inputRef.current) inputRef.current.value = "";
-      resource.retry();
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "The media could not be uploaded.");
-    } finally {
-      setBusy(false);
+    setResultMessage("");
+
+    for (const [index, upload] of batch.entries()) {
+      updateUpload(upload.id, (current) => ({ ...current, status: "uploading", progress: 0, error: "" }));
+      try {
+        await uploadAdminMedia(
+          upload.file,
+          upload.details,
+          (progress) => {
+            updateUpload(upload.id, (current) => ({ ...current, progress }));
+            setBatchProgress(Math.round(((index + progress / 100) / batch.length) * 100));
+          },
+          mutateAdminResource,
+        );
+        uploadedIds.add(upload.id);
+      } catch (caught) {
+        failedCount += 1;
+        const message = caught instanceof Error ? caught.message : "The media could not be uploaded.";
+        updateUpload(upload.id, (current) => ({ ...current, status: "failed", error: message }));
+      }
+      setBatchProgress(Math.round(((index + 1) / batch.length) * 100));
     }
+
+    setUploads((current) => current
+      .filter((upload) => !uploadedIds.has(upload.id))
+      .map((upload) => ({ ...upload, status: upload.status === "uploading" ? "pending" : upload.status })));
+    setBusy(false);
+    resource.retry();
+    const uploadedCount = uploadedIds.size;
+    setResultMessage(failedCount > 0
+      ? `${uploadedCount} asset${uploadedCount === 1 ? "" : "s"} uploaded. ${failedCount} failed and remain in the queue.`
+      : `${uploadedCount} asset${uploadedCount === 1 ? "" : "s"} uploaded successfully.`);
   }
 
   function drop(event: DragEvent<HTMLDivElement>) {
     event.preventDefault();
-    choose(event.dataTransfer.files[0]);
+    choose(Array.from(event.dataTransfer.files));
   }
 
   return (
     <div className="admin-media-layout">
       <form className="admin-media-uploader" onSubmit={submit}>
         <div className="admin-dropzone" onDragOver={(event) => event.preventDefault()} onDrop={drop}>
-          <input ref={inputRef} id="media-file" type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/gif,video/mp4" onChange={(event: ChangeEvent<HTMLInputElement>) => choose(event.target.files?.[0])} />
-          <label className="admin-primary-action" htmlFor="media-file">Choose media</label>
-          <p>or drop a JPEG, PNG, WebP, AVIF, animated GIF or MP4 here, up to {MAX_IMAGE_SIZE_LABEL}</p>
+          <input ref={inputRef} id="media-file" type="file" multiple accept="image/jpeg,image/png,image/webp,image/avif,image/gif,video/mp4" onChange={(event: ChangeEvent<HTMLInputElement>) => choose(Array.from(event.target.files ?? []))} />
+          <label className="admin-primary-action" htmlFor="media-file">Choose media files</label>
+          <p>or drop up to {MAX_BATCH_UPLOADS} files here. Images can be up to {MAX_IMAGE_SIZE_LABEL} and MP4 files up to {MAX_VIDEO_SIZE_LABEL}.</p>
         </div>
-        {file ? (
-          <div className="admin-upload-details">
-            {file.type === "video/mp4"
-              ? <video src={previewUrl} muted loop autoPlay playsInline aria-label="New video upload preview" />
-              : <img src={previewUrl} alt="New upload preview" style={{ objectPosition: `${details.focalX * 100}% ${details.focalY * 100}%` }} />}
-            <div className="admin-form-grid">
-              <label className="admin-field admin-field--wide"><span>{file.type === "video/mp4" ? "Description" : "Alt text"}</span><input value={details.altText} disabled={details.decorative} onChange={(event) => setDetails({ ...details, altText: event.target.value })} /></label>
-              <label className="admin-field admin-field--wide"><span>Caption</span><input value={details.caption} onChange={(event) => setDetails({ ...details, caption: event.target.value })} /></label>
-              <label className="admin-inline-check"><input type="checkbox" checked={details.decorative} onChange={(event) => setDetails({ ...details, decorative: event.target.checked, altText: event.target.checked ? "" : details.altText })} /><span>Decorative {file.type === "video/mp4" ? "video" : "image"}</span></label>
-              {file.type !== "video/mp4" ? <label className="admin-field"><span>Horizontal focal point</span><input type="range" min="0" max="1" step="0.01" value={details.focalX} onChange={(event) => setDetails({ ...details, focalX: Number(event.target.value) })} /></label> : null}
-              {file.type !== "video/mp4" ? <label className="admin-field"><span>Vertical focal point</span><input type="range" min="0" max="1" step="0.01" value={details.focalY} onChange={(event) => setDetails({ ...details, focalY: Number(event.target.value) })} /></label> : null}
-            </div>
-            {busy ? <progress max="100" value={progress}>{progress}%</progress> : null}
-            <button className="admin-primary-action" type="submit" disabled={busy}>{busy ? `Uploading ${progress}%` : "Upload to library"}</button>
+        {uploads.length > 0 ? <div className="admin-upload-queue">
+          <div className="admin-upload-queue__heading">
+            <div><strong>{uploads.length} asset{uploads.length === 1 ? "" : "s"} ready</strong><p>Add accurate details before uploading.</p></div>
+            <button type="button" disabled={busy} onClick={() => setUploads([])}>Clear queue</button>
           </div>
-        ) : null}
+          {uploads.map((upload) => {
+            const isVideo = upload.file.type === "video/mp4";
+            return <article className="admin-upload-item" key={upload.id}>
+              <PendingMediaPreview upload={upload} />
+              <div className="admin-upload-item__body">
+                <div className="admin-upload-item__heading">
+                  <div><strong>{upload.file.name}</strong><small>{isVideo ? "MP4 video" : "Image"} · {(upload.file.size / 1024 / 1024).toFixed(1)} MB</small></div>
+                  <button type="button" disabled={busy} onClick={() => setUploads((current) => current.filter((item) => item.id !== upload.id))}>Remove</button>
+                </div>
+                <div className="admin-form-grid">
+                  <label className="admin-field admin-field--wide"><span>{isVideo ? "Description" : "Alt text"}</span><input value={upload.details.altText} disabled={busy || upload.details.decorative} onChange={(event) => updateDetails(upload.id, { ...upload.details, altText: event.target.value })} /></label>
+                  <label className="admin-field admin-field--wide"><span>Caption</span><input value={upload.details.caption} disabled={busy} onChange={(event) => updateDetails(upload.id, { ...upload.details, caption: event.target.value })} /></label>
+                  <label className="admin-inline-check"><input type="checkbox" checked={upload.details.decorative} disabled={busy} onChange={(event) => updateDetails(upload.id, { ...upload.details, decorative: event.target.checked, altText: event.target.checked ? "" : upload.details.altText })} /><span>Decorative {isVideo ? "video" : "image"}</span></label>
+                  {!isVideo ? <label className="admin-field"><span>Horizontal focal point</span><input type="range" min="0" max="1" step="0.01" value={upload.details.focalX} disabled={busy} onChange={(event) => updateDetails(upload.id, { ...upload.details, focalX: Number(event.target.value) })} /></label> : null}
+                  {!isVideo ? <label className="admin-field"><span>Vertical focal point</span><input type="range" min="0" max="1" step="0.01" value={upload.details.focalY} disabled={busy} onChange={(event) => updateDetails(upload.id, { ...upload.details, focalY: Number(event.target.value) })} /></label> : null}
+                </div>
+                {upload.status === "uploading" ? <progress max="100" value={upload.progress}>{upload.progress}%</progress> : null}
+                {upload.error ? <p className="admin-form-error" role="alert">{upload.error}</p> : null}
+              </div>
+            </article>;
+          })}
+          {busy ? <div className="admin-upload-queue__progress"><span>Batch progress</span><progress max="100" value={batchProgress}>{batchProgress}%</progress></div> : null}
+          <button className="admin-primary-action" type="submit" disabled={busy}>{busy ? `Uploading ${batchProgress}%` : `Upload ${uploads.length} asset${uploads.length === 1 ? "" : "s"}`}</button>
+        </div> : null}
         {error ? <p className="admin-form-error" role="alert">{error}</p> : null}
+        {resultMessage ? <p className="admin-form-success" role="status">{resultMessage}</p> : null}
       </form>
 
       <section aria-labelledby="media-assets-heading">

@@ -183,8 +183,13 @@ The default private state file is `.data/vercel-blob-r2-migration.json`. Do not 
    npm run deploy:cloudflare
    ```
 
-3. In **Workers & Pages → webine → Settings → Domains & Routes**, attach `www.madebywebine.com` to the Worker. Confirm it is proxied and uses Full (strict) TLS.
-4. In Cloudflare **Rules → Redirect Rules**, create a permanent apex redirect from `madebywebine.com` to `https://www.madebywebine.com`. Enable Always Use HTTPS. Enable HSTS only after every required hostname is verified over HTTPS.
+3. Deploy the isolated apex redirect Worker:
+
+   ```bash
+   npm run deploy:cloudflare:apex
+   ```
+
+4. Confirm `www.madebywebine.com` is attached only to `webine` and `madebywebine.com` is attached only to `webine-apex-redirect`. The redirect must return 308 while preserving the original path and query. Do not add a wildcard Worker route, because it would intercept the R2 media and content custom domains.
 5. Confirm the R2 media and content custom domains are proxied, HTTPS-ready and match `R2_PUBLIC_BASE_URL` and `VITE_CONTENT_BASE_URL` exactly.
 6. In incognito and in the approved Clerk session, test `/`, `/works`, one `/works/:projectSlug`, `/contact`, `/admin`, `/preview`, `/robots.txt`, `/sitemap.xml`, public media, content snapshots, an upload and an enquiry.
 7. Monitor Worker logs, Security Events, R2 delivery, Turso, Turnstile and Resend through the agreed observation period. Keep the Vercel project and Blob inventory intact.

@@ -1,7 +1,7 @@
 export const MAX_IMAGE_BYTES = 15 * 1024 * 1024;
 export const MAX_IMAGE_SIZE_LABEL = "15 MB";
 export const MAX_VIDEO_BYTES = 30 * 1024 * 1024;
-const MAX_VIDEO_SIZE_LABEL = "30 MB";
+export const MAX_VIDEO_SIZE_LABEL = "30 MB";
 export const MAX_IMAGE_DIMENSION = 12_000;
 export const MAX_GIF_FRAMES = 500;
 

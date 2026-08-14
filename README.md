@@ -25,7 +25,7 @@ Open the local address shown in the terminal, normally `http://127.0.0.1:5173`. 
 
 Admin data APIs use Clerk authentication with a single approved owner ID. The ignored local bypass is development-only. Production always requires the approved Clerk login.
 
-Stages 8 to 20 now provide the schema engine, protected Admin, collection builder, generated forms, shared image and MP4 media library, complete Project workflow, R2-published public snapshots, Works experience, CMS-backed homepage runway, process timeline, working enquiry pipeline and completed closing action. Project lists retain draft, published and archived records, with quick publishing, safe archiving and audited permanent deletion. Local data uses SQLite through libSQL, while Cloudflare Preview and Production use Turso. Local media uses ignored application data. Production uploads use short-lived R2 S3 presigned PUT URLs, then the Worker verifies the stored object before it is eligible for processing. Public media uses the configured R2 custom domain. Archiving an unreferenced R2 asset deletes its object, while referenced assets remain protected.
+Stages 8 to 20 now provide the schema engine, protected Admin, collection builder, generated forms, shared image and MP4 media library, complete Project workflow, R2-published public snapshots, Works experience, CMS-backed homepage runway, process timeline, working enquiry pipeline and completed closing action. Project lists retain draft, published and archived records, with quick publishing, safe archiving and audited permanent deletion. Local data uses SQLite through libSQL, while Cloudflare Preview and Production use Turso. Local media uses ignored application data. Production uploads use short-lived R2 S3 presigned PUT URLs. The Worker verifies the signed intent, stored object, real media signature and dimensions, then makes the original immediately selectable. Optional surface-specific renditions reduce transfer size later without blocking Project editing. Public media uses the configured R2 custom domain. Archiving an unreferenced R2 asset deletes its object, while referenced assets remain protected.
 
 ## Cloudflare environment and deployment
 
@@ -45,6 +45,7 @@ See `docs/cloudflare-cutover-runbook.md` for the exact setup, migration, deploy,
 - `npm run db:backup`, consistent local SQLite backup
 - `npm run db:restore -- /absolute/path/backup.sqlite --confirm`, guarded local restore with an automatic safety copy
 - `npm run deploy:cloudflare`, checked production build followed by Wrangler deployment
+- `npm run deploy:cloudflare:apex`, deploy the isolated path-preserving apex redirect Worker
 - `npm test`, build and foundation checks
 
 ## Current scope

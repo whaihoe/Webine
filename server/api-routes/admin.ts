@@ -439,13 +439,16 @@ async function handleMediaComplete(request: Request, environment: R2Environment)
           focalX: Number(input.focalX ?? 0.5),
           focalY: Number(input.focalY ?? 0.5),
           decorative: input.decorative === true,
-          status: "processing",
-          processingState: "quarantined",
+          // The Worker has already checked the signed upload intent, R2 object
+          // metadata, real byte signature and media dimensions. Make the
+          // verified original available immediately; optional renditions can
+          // replace it per surface without blocking Project editing.
+          status: "ready",
+          processingState: "ready",
         },
         identity.userId,
         requestId,
       );
-      // The rendition processor owns promotion to ready after it records every derivative.
       return jsonResponse(await getAssetByStorage("r2", pathname), requestId, 201);
     },
     { methods: ["POST"] },
