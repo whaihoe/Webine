@@ -74,6 +74,16 @@ export function ContactPage() {
       showWebsiteError(true);
       return;
     }
+    if (!turnstileToken) {
+      setSubmission({ status: "error", message: "Complete the security check and try again." });
+      return;
+    }
+
+    // Treat a Turnstile token as consumed as soon as this request starts. Tokens
+    // are single-use, so this also prevents an accidental second submission from
+    // racing the first request with the same token.
+    const submissionToken = turnstileToken;
+    setTurnstileToken("");
     setSubmission({ status: "submitting", message: "" });
     setFieldErrors({});
 
@@ -86,7 +96,7 @@ export function ContactPage() {
           ...form,
           consentVersion: settings.contact.privacyVersion,
           sourcePage: "/contact",
-          turnstileToken,
+          turnstileToken: submissionToken,
         }),
       });
       const envelope = await response.json() as { data: { accepted: boolean } | null; error: { code: string; message: string } | null };
@@ -96,10 +106,8 @@ export function ContactPage() {
         throw submissionError;
       }
       setForm(initialForm);
-      setTurnstileResetVersion((value) => value + 1);
       setSubmission({ status: "success", message: "Thank you. Your enquiry is safely with Webine and we will reply as soon as possible." });
     } catch (error) {
-      setTurnstileResetVersion((value) => value + 1);
       const code = error instanceof Error && "code" in error ? String(error.code) : "";
       const fields = errorFields[code] ?? [];
       if (fields.length > 0) {
@@ -108,6 +116,11 @@ export function ContactPage() {
         window.requestAnimationFrame(() => document.getElementById(fields[0])?.focus());
       }
       setSubmission({ status: "error", message: error instanceof Error ? error.message : "Your enquiry could not be sent. Please try again." });
+    } finally {
+      // The page remains active after submission, so Spin requires a fresh
+      // challenge before any retry. Resetting here covers success and every
+      // server/network failure without ever reusing the submitted token.
+      setTurnstileResetVersion((value) => value + 1);
     }
   }
 

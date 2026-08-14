@@ -67,7 +67,7 @@ The website fetches JSON from the separate content custom domain, so configure t
 
 ## 4. Configure build variables and Worker secrets
 
-`VITE_CLERK_PUBLISHABLE_KEY`, `VITE_SITE_URL`, `VITE_TURNSTILE_SITE_KEY`, `VITE_CONTENT_BASE_URL` and `VITE_PUBLIC_CONTACT_EMAIL` are public Vite build variables. Supply them only to the secure build environment before `npm run build:cloudflare`; they are compiled into browser assets, so `wrangler secret put` after the build cannot change them. `wrangler.toml` supplies the Worker runtime values for `VITE_SITE_URL` and `TURNSTILE_EXPECTED_ACTION`.
+`VITE_CLERK_PUBLISHABLE_KEY`, `VITE_SITE_URL`, `VITE_TURNSTILE_SITE_KEY`, `VITE_CONTENT_BASE_URL` and `VITE_PUBLIC_CONTACT_EMAIL` are public Vite build variables. Supply them only to the secure build environment before `npm run build:cloudflare`; they are compiled into browser assets, so `wrangler secret put` after the build cannot change them. `wrangler.toml` supplies the Worker runtime values for `VITE_SITE_URL`, `TURNSTILE_HOSTNAMES` and `TURNSTILE_EXPECTED_ACTION`. The matching Turnstile secret is runtime-only and must be stored as the Worker secret `TURNSTILE_SECRET`.
 
 Set each secret interactively. The command prompts for a value and therefore does not put it in the command line:
 
@@ -83,8 +83,7 @@ npx wrangler secret put R2_SECRET_ACCESS_KEY
 npx wrangler secret put R2_S3_ENDPOINT
 npx wrangler secret put R2_PUBLIC_BASE_URL
 npx wrangler secret put ENQUIRY_HASH_SECRET
-npx wrangler secret put TURNSTILE_SECRET_KEY
-npx wrangler secret put TURNSTILE_ALLOWED_HOSTNAMES
+npx wrangler secret put TURNSTILE_SECRET
 npx wrangler secret put RESEND_API_KEY
 npx wrangler secret put ENQUIRY_NOTIFICATION_EMAIL
 npx wrangler secret put ENQUIRY_NOTIFICATION_FROM_EMAIL
@@ -100,7 +99,7 @@ npx wrangler secret put TURSO_DATABASE_URL --env preview
 
 `RESEND_API_KEY`, `ENQUIRY_NOTIFICATION_EMAIL` and `ENQUIRY_NOTIFICATION_FROM_EMAIL` are optional as a group. The webhook variables are an optional alternative. Do not set `BLOB_READ_WRITE_TOKEN`; it belongs only to the historical Vercel deployment. Do not put private values in `VITE_` names.
 
-Before deployment, ensure `CLERK_AUTHORIZED_PARTIES` and `TURNSTILE_ALLOWED_HOSTNAMES` include the exact Preview and Production origins. Keep the historic Vercel origin only for the approved rollback period.
+Before deployment, ensure `CLERK_AUTHORIZED_PARTIES` and the committed `TURNSTILE_HOSTNAMES` values include the exact Preview and Production origins. `TURNSTILE_SECRET` must be the secret paired with site key `0x4AAAAAAEEf_0NxPkZ_uzj1`; do not reuse a secret from an older widget. Keep the historic Vercel origin only for the approved rollback period.
 
 ## 5. Deploy and verify Preview
 

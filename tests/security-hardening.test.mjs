@@ -88,8 +88,8 @@ test("rejects honeypots and malformed fields before Turnstile or database work",
 test("fails Turnstile closed and checks hostname and action", async () => {
   const environment = {
     NODE_ENV: "production",
-    TURNSTILE_SECRET_KEY: "test-secret",
-    TURNSTILE_ALLOWED_HOSTNAMES: "madebywebine.com,www.madebywebine.com",
+    TURNSTILE_SECRET: "test-secret",
+    TURNSTILE_HOSTNAMES: "madebywebine.com,www.madebywebine.com",
     TURNSTILE_EXPECTED_ACTION: "contact_enquiry",
   };
   await assert.rejects(
@@ -98,7 +98,7 @@ test("fails Turnstile closed and checks hostname and action", async () => {
   );
   await assert.rejects(
     () => verifyTurnstile("token", new Request("https://www.madebywebine.com/api/enquiries"), environment, async () => Response.json({ success: true, hostname: "evil.example", action: "contact_enquiry" })),
-    (error) => error.code === "TURNSTILE_UNAVAILABLE",
+    (error) => error.code === "TURNSTILE_INVALID",
   );
   await verifyTurnstile(
     "token",
@@ -110,15 +110,41 @@ test("fails Turnstile closed and checks hostname and action", async () => {
     () => verifyTurnstile("token", new Request("https://www.madebywebine.com/api/enquiries"), environment, async () => {
       throw new DOMException("The operation timed out.", "TimeoutError");
     }),
-    (error) => error.code === "TURNSTILE_INVALID",
+    (error) => error.code === "TURNSTILE_UNAVAILABLE",
+  );
+});
+
+test("maps reused Turnstile tokens to a fresh-challenge response and fails closed when deployed config is missing", async () => {
+  const environment = {
+    NODE_ENV: "production",
+    TURNSTILE_SECRET: "test-secret",
+    TURNSTILE_HOSTNAMES: "www.madebywebine.com",
+    TURNSTILE_EXPECTED_ACTION: "contact_enquiry",
+  };
+  await assert.rejects(
+    () => verifyTurnstile(
+      "used-token",
+      new Request("https://www.madebywebine.com/api/enquiries"),
+      environment,
+      async () => Response.json({ success: false, "error-codes": ["timeout-or-duplicate"] }),
+    ),
+    (error) => error.code === "TURNSTILE_EXPIRED",
+  );
+  await assert.rejects(
+    () => verifyTurnstile(
+      "token",
+      new Request("https://www.madebywebine.com/api/enquiries"),
+      { TURNSTILE_HOSTNAMES: "www.madebywebine.com" },
+    ),
+    (error) => error.code === "TURNSTILE_UNAVAILABLE",
   );
 });
 
 test("passes the Worker Turnstile bindings through the enquiry handler", async () => {
   const environment = {
     NODE_ENV: "production",
-    TURNSTILE_SECRET_KEY: "worker-secret",
-    TURNSTILE_ALLOWED_HOSTNAMES: "www.madebywebine.com",
+    TURNSTILE_SECRET: "worker-secret",
+    TURNSTILE_HOSTNAMES: "www.madebywebine.com",
     TURNSTILE_EXPECTED_ACTION: "contact_enquiry",
   };
   const request = new Request("https://www.madebywebine.com/api/enquiries", {

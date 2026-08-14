@@ -13,8 +13,7 @@ const requiredVariables = [
   "VITE_CONTENT_BASE_URL",
   "ENQUIRY_HASH_SECRET",
   "VITE_TURNSTILE_SITE_KEY",
-  "TURNSTILE_SECRET_KEY",
-  "TURNSTILE_ALLOWED_HOSTNAMES",
+  "TURNSTILE_HOSTNAMES",
   "TURNSTILE_EXPECTED_ACTION",
 ];
 
@@ -108,14 +107,14 @@ if (process.env.VITE_SITE_URL?.trim() !== "https://www.madebywebine.com") {
 }
 
 const turnstileHostnames = new Set(
-  (process.env.TURNSTILE_ALLOWED_HOSTNAMES ?? "")
+  (process.env.TURNSTILE_HOSTNAMES ?? "")
     .split(",")
     .map((value) => value.trim().toLowerCase())
     .filter(Boolean),
 );
 for (const hostname of ["madebywebine.com", "www.madebywebine.com"]) {
   if (!turnstileHostnames.has(hostname)) {
-    issues.push(`TURNSTILE_ALLOWED_HOSTNAMES must include ${hostname}`);
+    issues.push(`TURNSTILE_HOSTNAMES must include ${hostname}`);
   }
 }
 if (process.env.TURNSTILE_EXPECTED_ACTION?.trim() !== "contact_enquiry") {

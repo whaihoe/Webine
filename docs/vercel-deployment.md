@@ -19,8 +19,8 @@ Add these under **Vercel project → Settings → Environment Variables**. Set t
 | `TURSO_AUTH_TOKEN` | Yes | Preview and Production | Private database token |
 | `BLOB_READ_WRITE_TOKEN` | Yes | Preview and Production | Added automatically when the Vercel Blob store is connected |
 | `ENQUIRY_HASH_SECRET` | Yes | Preview and Production | Random secret of at least 32 characters used to hash rate-limit and deduplication keys |
-| `TURNSTILE_SECRET_KEY` | Yes | Preview and Production | Server-only key used to verify Contact tokens with Cloudflare Siteverify |
-| `TURNSTILE_ALLOWED_HOSTNAMES` | Yes | Preview and Production | Exact comma-separated hostnames accepted from Siteverify |
+| `TURNSTILE_SECRET` | Yes | Preview and Production | Server-only key used to verify Contact tokens with Cloudflare Siteverify |
+| `TURNSTILE_HOSTNAMES` | Yes | Preview and Production | Exact comma-separated hostnames accepted from Siteverify |
 | `TURNSTILE_EXPECTED_ACTION` | Yes | Preview and Production | Exact widget action, `contact_enquiry` |
 | `RESEND_API_KEY` | No | Preview and Production | Server-only Resend key used to email the owner when a new enquiry is stored |
 | `ENQUIRY_NOTIFICATION_EMAIL` | No | Preview and Production | Private inbox that receives new-enquiry emails |

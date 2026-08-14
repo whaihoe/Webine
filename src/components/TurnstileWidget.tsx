@@ -86,6 +86,9 @@ export function TurnstileWidget({ onTokenChange, resetVersion }: TurnstileWidget
           appearance: "always",
           size: "flexible",
           theme: "dark",
+          "response-field": false,
+          "refresh-expired": "auto",
+          "refresh-timeout": "auto",
           callback: (token: string) => {
             onTokenChange(token);
             setStatus("Security check complete.");
@@ -93,6 +96,10 @@ export function TurnstileWidget({ onTokenChange, resetVersion }: TurnstileWidget
           "expired-callback": () => {
             onTokenChange("");
             setStatus("Security check expired. Please try it again.");
+          },
+          "timeout-callback": () => {
+            onTokenChange("");
+            setStatus("Security check timed out. Please try again.");
           },
           "error-callback": () => {
             onTokenChange("");
@@ -124,7 +131,7 @@ export function TurnstileWidget({ onTokenChange, resetVersion }: TurnstileWidget
       <div ref={containerRef} />
       <div className="contact-form__turnstile-status" aria-live="polite">
         <span>{status}</span>
-        {status.includes("could not") || status.includes("expired") ? <button type="button" onClick={resetWidget}>Try again</button> : null}
+        {status.includes("could not") || status.includes("expired") || status.includes("timed out") ? <button type="button" onClick={resetWidget}>Try again</button> : null}
       </div>
     </div>
   );
