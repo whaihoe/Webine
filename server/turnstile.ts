@@ -56,7 +56,6 @@ export async function verifyTurnstile(
         secret: configuration.secret,
         response: token,
         ...(remoteAddress ? { remoteip: remoteAddress } : {}),
-        idempotency_key: crypto.randomUUID(),
       }),
       redirect: "error",
       signal: AbortSignal.timeout(5_000),
