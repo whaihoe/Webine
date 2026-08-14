@@ -19,6 +19,7 @@ test("uses one asset-first Cloudflare Worker without Vercel runtime files", asyn
   ]);
   await assert.rejects(access(new URL("vercel.json", root)));
   assert.match(wrangler, /not_found_handling = "404-page"/);
+  assert.match(wrangler, /run_worker_first = \[[^\n]*"\/content\/\*"/);
   assert.match(wrangler, /"\/api\/admin\/\*"/);
   assert.match(wrangler, /"\/admin\/\*"/);
   assert.match(wrangler, /binding = "MEDIA_BUCKET"/);
@@ -36,4 +37,6 @@ test("uses one asset-first Cloudflare Worker without Vercel runtime files", asyn
   assert.match(adminEntry, /clerkPublishableKey\(\)/);
   assert.match(publicSnapshot, /publicContentBaseUrl\(\)/);
   assert.match(turnstile, /turnstileSiteKey\(\)/);
+  assert.match(worker, /https:\/\/content\.madebywebine\.com/);
+  assert.match(worker, /Response\.redirect\(contentUrl, 308\)/);
 });

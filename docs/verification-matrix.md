@@ -455,3 +455,4 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - Production Worker traces then isolated the authenticated Admin failure to a missing `TURSO_DATABASE_URL` binding. The prior known-good value was restored as a secret, the runtime was redeployed and an authenticated browser check loaded the existing Media records without an Admin error.
 - Final production browser verification loaded both published Projects in the required Webine-then-Deszio order, retained direct static documents for both Project routes and reported no new console errors.
 - The static CSP now permits `connect-src` only to the exact account-scoped R2 S3 endpoint used by signed Admin uploads. It does not permit arbitrary Cloudflare storage hosts or a broad HTTPS source.
+- Legacy same-origin `/content/*` requests receive a cacheable permanent redirect to `content.madebywebine.com`, allowing already-cached browser bundles to recover instead of returning a 404.

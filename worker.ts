@@ -65,6 +65,11 @@ export default {
       response = await limit(request, environment.ADMIN_RATE_LIMITER) ?? await routeAdminRequest(request, environment);
     } else if (url.pathname === "/api/enquiries") {
       response = await limit(request, environment.ENQUIRY_RATE_LIMITER) ?? await handleEnquiryRequest(request);
+    } else if (url.pathname.startsWith("/content/")) {
+      const contentUrl = new URL(`${url.pathname}${url.search}`, "https://content.madebywebine.com");
+      response = request.method === "GET" || request.method === "HEAD"
+        ? Response.redirect(contentUrl, 308)
+        : new Response("Method not allowed", { status: 405, headers: { Allow: "GET, HEAD" } });
     } else if (url.pathname === "/admin" || url.pathname.startsWith("/admin/")) {
       response = await privateApplicationDocument(request, environment);
     } else if (url.pathname === "/preview" || url.pathname.startsWith("/preview/")) {
