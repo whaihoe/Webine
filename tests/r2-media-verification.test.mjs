@@ -5,6 +5,13 @@ import { createR2UploadUrl } from "../.test-build/server/r2-storage.js";
 
 const bytes = (value) => value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength);
 const bucket = (value) => ({ get: async () => ({ arrayBuffer: async () => bytes(value) }) });
+const mp4Box = (type, payload = Buffer.alloc(0)) => {
+  const value = Buffer.alloc(8 + payload.byteLength);
+  value.writeUInt32BE(value.byteLength, 0);
+  value.write(type, 4, "ascii");
+  payload.copy(value, 8);
+  return value;
+};
 
 test("parses GIF blocks instead of counting arbitrary comma bytes as frames", async () => {
   const gif = Buffer.from("R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==", "base64");
@@ -32,6 +39,48 @@ test("verifies AVIF identity and spatial dimensions", async () => {
     height: 1000,
     byteSize: avif.byteLength,
   });
+});
+
+test("verifies a large MP4 through bounded R2 metadata ranges", async () => {
+  const trackHeaderPayload = Buffer.alloc(84);
+  trackHeaderPayload.writeUInt32BE(2752 * 65536, trackHeaderPayload.byteLength - 8);
+  trackHeaderPayload.writeUInt32BE(1536 * 65536, trackHeaderPayload.byteLength - 4);
+  const fileType = mp4Box("ftyp", Buffer.from("isom\0\0\0\0isomiso2", "binary"));
+  const movie = mp4Box("moov", mp4Box("trak", mp4Box("tkhd", trackHeaderPayload)));
+  const byteSize = 28 * 1024 * 1024;
+  const mediaDataSize = byteSize - fileType.byteLength - movie.byteLength;
+  const mediaDataHeader = Buffer.alloc(8);
+  mediaDataHeader.writeUInt32BE(mediaDataSize, 0);
+  mediaDataHeader.write("mdat", 4, "ascii");
+  const movieOffset = byteSize - movie.byteLength;
+  const reads = [];
+  const rangedBucket = {
+    head: async () => ({ size: byteSize }),
+    get: async (_key, options) => {
+      assert.ok(options?.range, "MP4 verification must not request the complete object");
+      const { offset, length } = options.range;
+      reads.push({ offset, length });
+      const value = Buffer.alloc(length);
+      for (const segment of [
+        { offset: 0, value: fileType },
+        { offset: fileType.byteLength, value: mediaDataHeader },
+        { offset: movieOffset, value: movie },
+      ]) {
+        const start = Math.max(offset, segment.offset);
+        const end = Math.min(offset + length, segment.offset + segment.value.byteLength);
+        if (end > start) segment.value.copy(value, start - offset, start - segment.offset, end - segment.offset);
+      }
+      return { arrayBuffer: async () => bytes(value) };
+    },
+  };
+
+  assert.deepEqual(await verifyR2Media(rangedBucket, "webine/media/hero.mp4", "video/mp4", byteSize), {
+    width: 2752,
+    height: 1536,
+    byteSize,
+  });
+  assert.equal(reads.length, 4);
+  assert.ok(reads.every(({ length }) => length <= movie.byteLength));
 });
 
 test("preserves the bucket path in presigned R2 upload URLs", async () => {

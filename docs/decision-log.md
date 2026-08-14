@@ -1,5 +1,12 @@
 # Webine decision log
 
+## 2026-08-14, bounded MP4 verification at the Worker boundary
+
+- Replaced whole-object MP4 buffering and byte-by-byte track-header scanning during R2 upload completion with bounded R2 range reads.
+- The verifier now walks validated top-level MP4 boxes, skips the large `mdat` payload and reads only a bounded `moov` metadata box before accepting the stored display dimensions.
+- Kept the existing signed path, MIME type, byte-size, R2 metadata and dimension checks. This changes the verification cost, not the media policy or Admin upload contract.
+- Allowed the exact Cloudflare Web Analytics script host in the static CSP. Automatic analytics continues posting to the already-permitted same-origin `/cdn-cgi/rum` endpoint, without adding a broad HTTPS script or connection source.
+
 ## 2026-08-14, resilient public Cloudflare build configuration
 
 - Kept Clerk's publishable browser key, the content custom-domain origin and Turnstile's public site key behind one client configuration owner. These values are public identifiers, not server credentials.

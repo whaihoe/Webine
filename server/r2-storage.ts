@@ -5,9 +5,13 @@ export type R2ObjectMetadata = {
   httpMetadata?: { contentType?: string };
 };
 
+export type R2GetOptions = {
+  range?: { offset: number; length: number };
+};
+
 export type R2Bucket = {
   head(key: string): Promise<R2ObjectMetadata | null>;
-  get(key: string): Promise<{ arrayBuffer(): Promise<ArrayBuffer> } | null>;
+  get(key: string, options?: R2GetOptions): Promise<{ arrayBuffer(): Promise<ArrayBuffer> } | null>;
   delete(key: string): Promise<void>;
 };
 

@@ -2,6 +2,13 @@
 
 Status updated on 23 July 2026. A local browser pass is not a substitute for physical-device, production or cross-browser evidence.
 
+## 2026-08-14 bounded production MP4 completion
+
+- A synthetic 28 MB MP4 with its `moov` metadata after a large `mdat` payload is verified through four bounded R2 reads. The test bucket rejects any unbounded object request.
+- The verifier returns the stored 2752 by 1536 display dimensions and original byte size without reading the media payload. Top-level box traversal is capped at 64 boxes and the accepted metadata box is capped at 4 MB.
+- Upload authorisation, exact R2 size and MIME checks remain ahead of byte verification, and the shared 30 MB MP4 limit is unchanged.
+- The CSP permits Cloudflare's versioned Web Analytics beacon from `static.cloudflareinsights.com`; the security test still rejects broad `https:` script and connection sources.
+
 ## Viewport and input matrix
 
 | Viewport or input | Status | Evidence still required |

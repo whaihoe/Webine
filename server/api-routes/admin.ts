@@ -419,7 +419,7 @@ async function handleMediaComplete(request: Request, environment: R2Environment)
 
       let media;
       try {
-        media = await verifyR2Media(getR2Bucket(environment), pathname, contentType);
+        media = await verifyR2Media(getR2Bucket(environment), pathname, contentType, metadata.size);
       } catch {
         throw new CmsRepositoryError("MEDIA_INVALID", "The uploaded file could not be verified as the selected media type.", 422);
       }
@@ -470,7 +470,7 @@ async function handleMediaRenditions(request: Request, assetId: string, environm
       const contentType = metadata?.httpMetadata?.contentType ?? "";
       const maximumBytes = contentType === "video/mp4" ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES;
       if (!metadata || !ACCEPTED_MEDIA_TYPES.includes(contentType as typeof ACCEPTED_MEDIA_TYPES[number]) || metadata.size < 1 || metadata.size > maximumBytes) throw new CmsRepositoryError("INVALID_RENDITION", "A rendition object is missing or invalid.", 422);
-      const media = await verifyR2Media(getR2Bucket(environment), pathname, contentType);
+      const media = await verifyR2Media(getR2Bucket(environment), pathname, contentType, metadata.size);
       await saveAssetRendition({ assetId, role, deliveryUrl: getR2DeliveryUrl(pathname, environment), mimeType: contentType, byteSize: media.byteSize, width: media.width, height: media.height, status: "ready" });
     }
     return jsonResponse(await promoteAssetWhenRenditionsReady(assetId), requestId);
