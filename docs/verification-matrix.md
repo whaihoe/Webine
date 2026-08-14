@@ -446,3 +446,12 @@ A 640 × 400 CSS viewport, equivalent to the layout pressure of a 1280 × 800 vi
 - Batch submission rejects the first non-decorative asset without a description, uploads accepted assets sequentially through the existing R2 upload owner and reports per-file failures without discarding successful uploads.
 - Automated coverage requires the multi-file input, full `FileList` conversion, sequential queue traversal, per-asset detail updates and partial-failure retention.
 - A rendered local Admin check selected two files through the native multi-file chooser, showed two independent metadata and focal-point forms and blocked submission with the exact filename whose description was missing. At 1280 by 720 and 390 by 844, the queue retained zero page-level horizontal overflow, switched from two internal columns to one and logged no application errors.
+
+## 2026-08-14 Cloudflare public build configuration recovery
+
+- Production evidence reproduced a same-origin `GET /content/public.json` 404 even though the R2 content custom domain returned the current two-Project snapshot with valid `www` CORS headers.
+- The deployed Admin chunk also contained no Clerk publishable key, so the client could not mount Clerk or offer a valid login. The Clerk frontend API and server-side Worker configuration remained healthy.
+- Regression coverage now requires one public runtime owner and verifies that published snapshots, Clerk Admin and Turnstile consume its production-safe public defaults when a Git build omits `VITE_` values.
+- Production Worker traces then isolated the authenticated Admin failure to a missing `TURSO_DATABASE_URL` binding. The prior known-good value was restored as a secret, the runtime was redeployed and an authenticated browser check loaded the existing Media records without an Admin error.
+- Final production browser verification loaded both published Projects in the required Webine-then-Deszio order, retained direct static documents for both Project routes and reported no new console errors.
+- The static CSP now permits `connect-src` only to the exact account-scoped R2 S3 endpoint used by signed Admin uploads. It does not permit arbitrary Cloudflare storage hosts or a broad HTTPS source.

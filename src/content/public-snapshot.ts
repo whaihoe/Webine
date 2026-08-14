@@ -1,5 +1,6 @@
 import type { ApiEnvelope } from "./api-envelope";
 import type { PublicProject } from "./public-projects";
+import { publicContentBaseUrl } from "../config/public-runtime";
 
 export type PublicSnapshot = {
   projects: PublicProject[];
@@ -10,7 +11,7 @@ let currentRequest: Promise<PublicSnapshot> | null = null;
 
 export function loadPublicSnapshot(refresh = false) {
   if (refresh) currentRequest = null;
-  currentRequest ??= fetch(`${import.meta.env.VITE_CONTENT_BASE_URL ?? ""}/content/public.json`, {
+  currentRequest ??= fetch(`${publicContentBaseUrl()}/content/public.json`, {
     headers: { Accept: "application/json" },
   })
     .then(async (response) => {

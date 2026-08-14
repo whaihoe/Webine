@@ -260,6 +260,7 @@ test("report-only CSP removes broad HTTPS script and connection sources", async 
   const headers = await readFile(new URL("public/_headers", projectRoot), "utf8");
   assert.doesNotMatch(headers, /script-src[^;]*\shttps:\s/);
   assert.doesNotMatch(headers, /connect-src[^;]*\shttps:\s/);
+  assert.match(headers, /connect-src[^;]*https:\/\/0dd328bb4a534518c56dafc370b5c134\.r2\.cloudflarestorage\.com/);
   assert.match(headers, /challenges\.cloudflare\.com/);
 });
 

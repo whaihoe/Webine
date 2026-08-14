@@ -5,13 +5,17 @@ import test from "node:test";
 const root = new URL("../", import.meta.url);
 
 test("uses one asset-first Cloudflare Worker without Vercel runtime files", async () => {
-  const [worker, wrangler, headers, packageJson, env, adminRoutes] = await Promise.all([
+  const [worker, wrangler, headers, packageJson, env, adminRoutes, publicRuntime, adminEntry, publicSnapshot, turnstile] = await Promise.all([
     readFile(new URL("worker.ts", root), "utf8"),
     readFile(new URL("wrangler.toml", root), "utf8"),
     readFile(new URL("public/_headers", root), "utf8"),
     readFile(new URL("package.json", root), "utf8"),
     readFile(new URL(".env.example", root), "utf8"),
     readFile(new URL("server/api-routes/admin.ts", root), "utf8"),
+    readFile(new URL("src/config/public-runtime.ts", root), "utf8"),
+    readFile(new URL("src/admin/AdminEntry.tsx", root), "utf8"),
+    readFile(new URL("src/content/public-snapshot.ts", root), "utf8"),
+    readFile(new URL("src/components/TurnstileWidget.tsx", root), "utf8"),
   ]);
   await assert.rejects(access(new URL("vercel.json", root)));
   assert.match(wrangler, /not_found_handling = "404-page"/);
@@ -26,4 +30,10 @@ test("uses one asset-first Cloudflare Worker without Vercel runtime files", asyn
   assert.doesNotMatch(env, /BLOB_READ_WRITE_TOKEN/);
   assert.match(adminRoutes, /status: "ready",\s+processingState: "ready"/);
   assert.doesNotMatch(adminRoutes, /processingState: "quarantined"/);
+  assert.match(publicRuntime, /https:\/\/content\.madebywebine\.com/);
+  assert.match(publicRuntime, /productionPublicDefaults\.clerkPublishableKey/);
+  assert.match(publicRuntime, /productionPublicDefaults\.turnstileSiteKey/);
+  assert.match(adminEntry, /clerkPublishableKey\(\)/);
+  assert.match(publicSnapshot, /publicContentBaseUrl\(\)/);
+  assert.match(turnstile, /turnstileSiteKey\(\)/);
 });

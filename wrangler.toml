@@ -41,6 +41,8 @@ CLERK_PUBLISHABLE_KEY = "pk_test_YW1wbGUtbWFtbWFsLTk3LmNsZXJrLmFjY291bnRzLmRldiQ
 CLERK_AUTHORIZED_PARTIES = "https://www.madebywebine.com"
 TURNSTILE_ALLOWED_HOSTNAMES = "madebywebine.com,www.madebywebine.com"
 TURNSTILE_EXPECTED_ACTION = "contact_enquiry"
+ENQUIRY_NOTIFICATION_EMAIL = "webinedesigns@gmail.com"
+ENQUIRY_NOTIFICATION_FROM_EMAIL = "enquiries@madebywebine.com"
 R2_S3_ENDPOINT = "https://0dd328bb4a534518c56dafc370b5c134.r2.cloudflarestorage.com/webine-media"
 R2_PUBLIC_BASE_URL = "https://media.madebywebine.com"
 
@@ -76,6 +78,8 @@ CLERK_PUBLISHABLE_KEY = "pk_test_YW1wbGUtbWFtbWFsLTk3LmNsZXJrLmFjY291bnRzLmRldiQ
 CLERK_AUTHORIZED_PARTIES = "https://preview.madebywebine.com"
 TURNSTILE_ALLOWED_HOSTNAMES = "preview.madebywebine.com"
 TURNSTILE_EXPECTED_ACTION = "contact_enquiry"
+ENQUIRY_NOTIFICATION_EMAIL = "webinedesigns@gmail.com"
+ENQUIRY_NOTIFICATION_FROM_EMAIL = "enquiries@madebywebine.com"
 R2_S3_ENDPOINT = "https://0dd328bb4a534518c56dafc370b5c134.r2.cloudflarestorage.com/webine-media-preview"
 R2_PUBLIC_BASE_URL = "https://media-preview.madebywebine.com"
 

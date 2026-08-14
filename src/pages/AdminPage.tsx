@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, Navigate, Route, Routes, useParams } from "react-router-dom";
 import { SignInButton } from "@clerk/react";
+import { clerkPublishableKey } from "../config/public-runtime";
 import type {
   AdminCollectionDefinition,
   AdminCollectionSummary,
@@ -43,7 +44,7 @@ function ResourceError({
   const canSignIn =
     status === 401 &&
     signedIn !== true &&
-    Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
+    Boolean(clerkPublishableKey());
 
   return (
     <>

@@ -1,6 +1,7 @@
 import { ClerkProvider, useAuth } from "@clerk/react";
 import { useCallback, useMemo } from "react";
 import { AdminPage } from "../pages/AdminPage";
+import { clerkPublishableKey } from "../config/public-runtime";
 import { AdminAuthProvider } from "./AdminAuthContext";
 
 function ClerkAdminBridge() {
@@ -28,7 +29,7 @@ function ClerkAdminBridge() {
 }
 
 export default function AdminEntry() {
-  const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+  const publishableKey = clerkPublishableKey();
 
   return publishableKey
     ? (

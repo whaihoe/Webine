@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { turnstileSiteKey } from "../config/public-runtime";
 
 const TURNSTILE_SCRIPT_ID = "cloudflare-turnstile-script";
 const TURNSTILE_SCRIPT_URL = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
@@ -24,8 +25,7 @@ export function TurnstileWidget({ onTokenChange, resetVersion }: TurnstileWidget
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
   const [status, setStatus] = useState("Security check loading.");
-  const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY?.trim()
-    || (import.meta.env.DEV ? "1x00000000000000000000AA" : "");
+  const siteKey = turnstileSiteKey();
 
   useEffect(() => {
     if (!siteKey || !containerRef.current) {

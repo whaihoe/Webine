@@ -1,5 +1,12 @@
 # Webine decision log
 
+## 2026-08-14, resilient public Cloudflare build configuration
+
+- Kept Clerk's publishable browser key, the content custom-domain origin and Turnstile's public site key behind one client configuration owner. These values are public identifiers, not server credentials.
+- Production and Preview still prefer explicit `VITE_` build variables. When a Git-triggered Cloudflare build omits them, the browser now uses the declared Webine public defaults instead of silently disabling Clerk, Turnstile and published Project loading.
+- Local development retains its same-origin content path and official Turnstile test key. No secret or Admin owner identity is compiled into the browser.
+- Restored `TURSO_DATABASE_URL` as a Worker secret so a configuration deploy cannot remove the authenticated Admin database connection. Non-secret enquiry delivery addresses now live in `wrangler.toml` beside the other runtime configuration.
+
 ## 2026-08-14, Cloudflare production cutover and immediate R2 media availability
 
 - Split hostname ownership between the main `webine` Worker on `www.madebywebine.com` and the isolated `webine-apex-redirect` Worker on the apex. The 308 redirect preserves path and query, and no wildcard Worker route can intercept the R2 media or content domains.
