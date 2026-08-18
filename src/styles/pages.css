@@ -1047,6 +1047,7 @@ article[data-block-type="image"]:is([data-image-count="2"], [data-image-count="3
   display: grid;
   gap: var(--primitive-space-2);
   align-items: start;
+  margin-top: var(--primitive-space-5);
 }
 
 .contact-form__turnstile > div {
@@ -2896,5 +2897,64 @@ article[data-block-type="image"]:is([data-image-count="2"], [data-image-count="3
   .reserved-page p:not(.eyebrow),
   .reserved-page__actions {
     grid-column: 7 / 12;
+  }
+}
+
+/* Responsive hero refinements ------------------------------------------------
+   The layout is intentionally four-tiered: mobile, tablet, desktop and wide
+   desktop. Fluid tokens handle the in-between sizes. */
+@media (max-width: 47.99rem) {
+  .hero-section__grid {
+    padding-top: calc(var(--header-height) + var(--primitive-space-8));
+    padding-bottom: var(--primitive-space-12);
+    align-content: center;
+  }
+
+  .hero-section__copy h1 {
+    max-width: 8.6ch;
+    margin-block: var(--primitive-space-5);
+  }
+
+  .hero-section__description {
+    max-width: 32rem;
+  }
+
+  .hero-section__actions {
+    margin-top: var(--primitive-space-6);
+  }
+}
+
+@media (min-width: 48rem) and (max-width: 79.99rem) {
+  .hero-section__copy {
+    grid-column: 1 / 8;
+  }
+
+  .hero-section__copy h1 {
+    max-width: 8.8ch;
+  }
+}
+
+@media (min-width: 80rem) {
+  .hero-section__grid {
+    padding-top: max(var(--primitive-space-16), var(--header-height));
+  }
+
+  .hero-section__copy h1 {
+    max-width: 9ch;
+  }
+}
+
+@media (min-width: 120rem) {
+  .hero-section {
+    min-height: max(100svh, 50rem);
+  }
+
+  .hero-section__copy {
+    grid-column: 1 / 8;
+    max-width: 74rem;
+  }
+
+  .hero-section__description {
+    max-width: 34rem;
   }
 }

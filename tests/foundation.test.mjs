@@ -1562,3 +1562,21 @@ test("includes the approved Webine logo and current system documents", async () 
     access(new URL("docs/particle-architecture.md", projectRoot)),
   ]);
 });
+
+test("keeps page spacing fluid without double-insetting ultra-wide layouts", async () => {
+  const [tokens, layout, pages] = await Promise.all([
+    readFile(new URL("src/styles/tokens/semantic.css", projectRoot), "utf8"),
+    readFile(new URL("src/styles/layout.css", projectRoot), "utf8"),
+    readFile(new URL("src/styles/pages.css", projectRoot), "utf8"),
+  ]);
+
+  assert.doesNotMatch(tokens, /calc\(\(100vw\s*-\s*var\(--layout-max\)\)\s*\/\s*2\)/);
+  assert.match(tokens, /--layout-header-max:\s*94rem/);
+  assert.match(tokens, /@media \(min-width:\s*48rem\)[\s\S]*?\/\* Desktop \*\/[\s\S]*?@media \(min-width:\s*80rem\)/);
+  assert.match(tokens, /\/\* Desktop \*\/[\s\S]*?--layout-max:\s*clamp\(94rem, 92vw, 112rem\)/);
+  assert.match(tokens, /\/\* Wide desktop:[\s\S]*?@media \(min-width:\s*120rem\)/);
+  assert.match(layout, /\.site-header__inner\s*{[^}]*max-width:\s*var\(--layout-header-max\)/s);
+  assert.match(layout, /@media \(min-width:\s*64rem\)[\s\S]*?\.site-header__desktop\s*{[^}]*display:\s*flex/s);
+  assert.match(pages, /Responsive hero refinements/);
+  assert.match(pages, /@media \(min-width:\s*120rem\)[\s\S]*?\.hero-section__copy\s*{[^}]*grid-column:\s*1\s*\/\s*8/s);
+});

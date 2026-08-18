@@ -46,7 +46,7 @@
 
 .site-header__inner {
   width: 100%;
-  max-width: var(--layout-max);
+  max-width: var(--layout-header-max);
   min-height: 3.5rem;
   margin-inline: auto;
   padding: var(--primitive-space-2) var(--primitive-space-5);
@@ -308,7 +308,11 @@
   .site-header__inner {
     padding-inline: var(--primitive-space-3);
   }
+}
 
+/* Tablets keep the compact menu; the full navigation only appears once
+   there is enough horizontal room for it without squeezing the brand. */
+@media (min-width: 64rem) {
   .site-header__desktop {
     display: flex;
     align-items: center;
@@ -318,7 +322,6 @@
   .site-header__mobile {
     display: none;
   }
-
 }
 
 

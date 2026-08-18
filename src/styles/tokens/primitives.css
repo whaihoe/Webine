@@ -57,3 +57,39 @@
   --primitive-duration-chapter: 620ms;
   --primitive-ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+/* Responsive typography tiers. The semantic layer continues to reference
+   these primitives, so every public page scales from one shared system. */
+@media (min-width: 48rem) {
+  :root {
+    --primitive-display-xl: clamp(5rem, 9vw, 7.5rem);
+    --primitive-display-l: clamp(3.75rem, 6.75vw, 5.75rem);
+    --primitive-heading-2: clamp(2.75rem, 4.75vw, 4rem);
+    --primitive-heading-3: clamp(1.75rem, 3vw, 2.35rem);
+    --primitive-body-l: clamp(1.125rem, 1.8vw, 1.375rem);
+    --primitive-body-m: clamp(1.0625rem, 1.45vw, 1.1875rem);
+    --primitive-body: clamp(1rem, 1.25vw, 1.125rem);
+  }
+}
+
+@media (min-width: 80rem) {
+  :root {
+    --primitive-display-xl: clamp(7rem, 8vw, 9.25rem);
+    --primitive-display-l: clamp(5rem, 5.75vw, 6.75rem);
+    --primitive-heading-2: clamp(3.5rem, 4vw, 4.5rem);
+    --primitive-heading-3: clamp(2rem, 2.25vw, 2.5rem);
+    --primitive-body-l: clamp(1.1875rem, 1.25vw, 1.5rem);
+    --primitive-body-m: clamp(1.0625rem, 1vw, 1.25rem);
+    --primitive-body: clamp(1rem, 0.9vw, 1.125rem);
+  }
+}
+
+@media (min-width: 120rem) {
+  :root {
+    --primitive-display-xl: clamp(9.25rem, 6vw, 9.75rem);
+    --primitive-display-l: clamp(6.75rem, 4.75vw, 7.25rem);
+    --primitive-heading-2: clamp(4.5rem, 3.25vw, 4.75rem);
+    --primitive-heading-3: clamp(2.5rem, 1.9vw, 2.625rem);
+    --primitive-body-l: 1.5rem;
+  }
+}

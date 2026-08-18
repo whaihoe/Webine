@@ -34,6 +34,9 @@
 :root {
   --font-primary: var(--primitive-font-primary);
   --font-accent: var(--primitive-font-accent);
+
+  /* Mobile-first type scale. Each larger viewport tier refines the same
+     tokens instead of adding page-specific breakpoint values. */
   --display-xl: var(--primitive-display-xl);
   --display-l: var(--primitive-display-l);
   --heading-2: var(--primitive-heading-2);
@@ -42,9 +45,14 @@
   --body-m: var(--primitive-body-m);
   --body: var(--primitive-body);
   --label: var(--primitive-label);
-  --space-page-x: var(--primitive-space-4);
+
+  /* Keep page padding independent from the centred max-width container.
+     The old ultra-wide rule used the viewport-to-container gap as padding,
+     effectively applying the wide-screen margin twice. */
+  --space-page-x: clamp(1rem, 4vw, 1.5rem);
   --space-section-y: clamp(3.5rem, 8vw, 7rem);
   --layout-max: 94rem;
+  --layout-header-max: 94rem;
   --layout-gutter: var(--primitive-space-3);
   --header-height: 4rem;
   --page-header-clearance: calc(var(--header-height) + clamp(3.5rem, 7vw, 7rem));
@@ -52,26 +60,30 @@
   --focus-ring-offset: 3px;
 }
 
+/* Tablet */
 @media (min-width: 48rem) {
   :root {
-    --space-page-x: var(--primitive-space-8);
+    --space-page-x: clamp(2rem, 4vw, 3rem);
     --space-section-y: clamp(4.5rem, 8vw, 8rem);
     --layout-gutter: var(--primitive-space-5);
     --header-height: 4.5rem;
   }
 }
 
+/* Desktop */
 @media (min-width: 80rem) {
   :root {
-    --space-page-x: var(--primitive-space-12);
+    --layout-max: clamp(94rem, 92vw, 112rem);
+    --space-page-x: clamp(3rem, 5vw, 6rem);
     --space-section-y: clamp(6rem, 9vw, 10rem);
     --layout-gutter: var(--primitive-space-6);
   }
 }
 
-@media (min-width: 100rem) {
+/* Wide desktop: finish the scale without introducing another layout jump.
+   The fluid desktop container has already expanded towards its wide cap. */
+@media (min-width: 120rem) {
   :root {
-    --space-page-x: max(var(--primitive-space-16), calc((100vw - var(--layout-max)) / 2));
     --layout-gutter: 1.75rem;
   }
 }
