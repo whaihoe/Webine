@@ -2,7 +2,7 @@
 
 ## Sign in
 
-Open `/admin` and sign in with the Clerk account whose user ID matches `ADMIN_USER_ID`. The local development identity works only on this machine and is rejected by the Cloudflare production runtime.
+Open `/admin` and sign in with the Clerk account whose user ID is listed in `ADMIN_USER_ID`. Multiple Clerk user IDs can be comma-separated, for example `user_abc, user_xyz`. The local development identity works only on this machine and is rejected by the Cloudflare production runtime.
 
 ## Add media first
 

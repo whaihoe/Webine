@@ -15,10 +15,19 @@ export type AdminAccessConfiguration =
       authorisedParties: string[];
       publishableKey: string;
       secretKey: string;
-      userId: string;
+      userIds: string[];
     }
   | { mode: "invalid"; missing: string[] };
 
+
+function normaliseAdminUserIds(value: string) {
+  return [...new Set(
+    value
+      .split(",")
+      .map((userId) => userId.trim())
+      .filter(Boolean),
+  )];
+}
 
 function normaliseAuthorisedParties(value: string) {
   return [...new Set(
@@ -49,13 +58,18 @@ export function resolveAdminAccessConfiguration(
     };
   }
 
+  const adminUserIds = normaliseAdminUserIds(environment.ADMIN_USER_ID ?? "");
   const required = [
     "ADMIN_USER_ID",
     "CLERK_PUBLISHABLE_KEY",
     "CLERK_SECRET_KEY",
     "CLERK_AUTHORIZED_PARTIES",
   ] as const;
-  const missing = required.filter((key) => !environment[key]?.trim());
+  const missing = required.filter((key) =>
+    key === "ADMIN_USER_ID"
+      ? adminUserIds.length === 0
+      : !environment[key]?.trim(),
+  );
 
   if (missing.length > 0) {
     return { mode: "invalid", missing: [...missing] };
@@ -63,7 +77,7 @@ export function resolveAdminAccessConfiguration(
 
   return {
     mode: "clerk",
-    userId: environment.ADMIN_USER_ID!.trim(),
+    userIds: adminUserIds,
     publishableKey: environment.CLERK_PUBLISHABLE_KEY!.trim(),
     secretKey: environment.CLERK_SECRET_KEY!.trim(),
     authorisedParties: normaliseAuthorisedParties(

@@ -90,7 +90,7 @@ export async function authenticateAdminRequest(
 
     const auth = state.toAuth();
 
-    if (auth.userId !== configuration.userId) {
+    if (!auth.userId || !configuration.userIds.includes(auth.userId)) {
       return {
         ok: false,
         code: "ADMIN_NOT_ALLOWED",

@@ -56,11 +56,27 @@ test("requires every production Clerk security setting", async () => {
   });
 });
 
-test("normalises the Clerk owner and authorised origins", async () => {
+test("rejects an ADMIN_USER_ID list with no actual IDs", async () => {
   const { resolveAdminAccessConfiguration } = await loadAccessPolicy();
   const result = resolveAdminAccessConfiguration({
     NODE_ENV: "production",
-    ADMIN_USER_ID: " user_owner ",
+    ADMIN_USER_ID: " ,  , ",
+    CLERK_PUBLISHABLE_KEY: "pk_test_example",
+    CLERK_SECRET_KEY: "sk_test_example",
+    CLERK_AUTHORIZED_PARTIES: "https://www.madebywebine.com",
+  });
+
+  assert.deepEqual(result, {
+    mode: "invalid",
+    missing: ["ADMIN_USER_ID"],
+  });
+});
+
+test("normalises Clerk Admin user IDs and authorised origins", async () => {
+  const { resolveAdminAccessConfiguration } = await loadAccessPolicy();
+  const result = resolveAdminAccessConfiguration({
+    NODE_ENV: "production",
+    ADMIN_USER_ID: " user_owner, user_editor, user_owner, ",
     CLERK_PUBLISHABLE_KEY: " pk_test_example ",
     CLERK_SECRET_KEY: " sk_test_example ",
     CLERK_AUTHORIZED_PARTIES: "https://preview.madebywebine.com/, https://www.madebywebine.com ",
@@ -68,7 +84,7 @@ test("normalises the Clerk owner and authorised origins", async () => {
 
   assert.deepEqual(result, {
     mode: "clerk",
-    userId: "user_owner",
+    userIds: ["user_owner", "user_editor"],
     publishableKey: "pk_test_example",
     secretKey: "sk_test_example",
     authorisedParties: [

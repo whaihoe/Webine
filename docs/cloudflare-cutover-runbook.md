@@ -74,6 +74,7 @@ Set each secret interactively. The command prompts for a value and therefore doe
 ```bash
 npx wrangler secret put CLERK_PUBLISHABLE_KEY
 npx wrangler secret put CLERK_SECRET_KEY
+# ADMIN_USER_ID accepts one Clerk ID or multiple comma-separated IDs, e.g. user_abc, user_xyz
 npx wrangler secret put ADMIN_USER_ID
 npx wrangler secret put CLERK_AUTHORIZED_PARTIES
 npx wrangler secret put TURSO_DATABASE_URL

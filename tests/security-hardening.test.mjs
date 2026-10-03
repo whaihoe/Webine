@@ -283,6 +283,18 @@ test("keeps Clerk party and owner checks after the carrier precheck", async () =
   assert.equal(valid.ok, true);
   assert.equal(clerkCalls, 1);
 
+  const secondAdmin = await authenticateAdminRequest(
+    new Request("https://www.madebywebine.com/api/admin/session", { headers: { authorization: "Bearer test" } }),
+    { ...environment, ADMIN_USER_ID: "user_owner, user_editor" },
+    () => ({
+      async authenticateRequest() {
+        return { isAuthenticated: true, toAuth: () => ({ userId: "user_editor" }) };
+      },
+    }),
+  );
+  assert.equal(secondAdmin.ok, true);
+  assert.equal(secondAdmin.identity.userId, "user_editor");
+
   const wrongParty = await authenticateAdminRequest(
     new Request("https://preview.example/api/admin/session", { headers: { authorization: "Bearer test" } }),
     environment,

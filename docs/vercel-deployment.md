@@ -13,7 +13,7 @@ Add these under **Vercel project → Settings → Environment Variables**. Set t
 | `VITE_TURNSTILE_SITE_KEY` | Yes | Preview and Production | Public Cloudflare Turnstile widget key compiled into the Contact page |
 | `CLERK_PUBLISHABLE_KEY` | Yes | Preview and Production | The same public Clerk key, used by the server verifier |
 | `CLERK_SECRET_KEY` | Yes | Preview and Production | Private Clerk server key |
-| `ADMIN_USER_ID` | Yes | Preview and Production | Exact Clerk user allowed into Admin |
+| `ADMIN_USER_ID` | Yes | Preview and Production | Clerk user ID(s) allowed into Admin, comma-separated when there is more than one |
 | `CLERK_AUTHORIZED_PARTIES` | Yes | Preview and Production | Comma-separated exact website origins allowed to authenticate |
 | `TURSO_DATABASE_URL` | Yes | Preview and Production | libSQL database connection |
 | `TURSO_AUTH_TOKEN` | Yes | Preview and Production | Private database token |
@@ -42,7 +42,7 @@ When a Turso database is first connected, run the migration command against that
 ### Recommended setup order
 
 1. Create the Clerk application, copy its publishable key into both Clerk publishable-key variables and add the secret key.
-2. Sign in to Clerk once, copy your exact Clerk user ID into `ADMIN_USER_ID` and approve the Vercel origin in `CLERK_AUTHORIZED_PARTIES`.
+2. Sign in to Clerk once, copy the allowed Clerk user ID(s) into `ADMIN_USER_ID` (comma-separated, e.g. `user_abc, user_xyz`) and approve the Vercel origin in `CLERK_AUTHORIZED_PARTIES`.
 3. Create or select the Turso database, add its URL and a newly generated auth token, then apply every file in `migrations/` in filename order.
 4. Link a Vercel Blob store. Vercel should create `BLOB_READ_WRITE_TOKEN` for the selected environments.
 5. Generate `ENQUIRY_HASH_SECRET`. For direct email alerts, create a Resend API key, verify the sending domain and add all three Resend values. The HTTPS webhook remains an alternative.

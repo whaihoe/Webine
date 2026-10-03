@@ -25,6 +25,14 @@ for (const key of requiredVariables) {
   }
 }
 
+const adminUserIds = (process.env.ADMIN_USER_ID ?? "")
+  .split(",")
+  .map((value) => value.trim())
+  .filter(Boolean);
+if (process.env.ADMIN_USER_ID?.trim() && adminUserIds.length === 0) {
+  issues.push("ADMIN_USER_ID must contain at least one Clerk user ID");
+}
+
 const enquirySecret = process.env.ENQUIRY_HASH_SECRET?.trim() ?? "";
 if (enquirySecret && enquirySecret.length < 32) {
   issues.push("ENQUIRY_HASH_SECRET must contain at least 32 characters");
