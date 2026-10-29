@@ -433,7 +433,7 @@
 - Adapted the visual principle rather than its full renderer. Works now uses one fixed CSS `GalaxyBackdrop` across the index and valid case studies, combining a slate-950 field, a broad cyan or blue nebula and deterministic stars without importing a second Three.js bundle.
 - Increased ambient point movement through independent curved drift, scale and twinkle timing. Contact and the Home hero use the lighter 20-point field. Hero layering keeps the field above the grid but below its text and narrative particles.
 - Phones retain 34 Works stars and 12 ordinary ambient points. Rendered checks at 320, 390, 768, 1280 and 1536 CSS-pixel widths confirm fixed Works positioning, zero page-level horizontal overflow and no unintended text clipping.
-- Source and implementation findings are recorded in `research/2026-07-16-lenis-showcase-teardown.md`.
+- Source and implementation findings are recorded in [shared-wiki research](https://github.com/whaihoe/LLM-Wiki/blob/main/research/webine/2026-07-16-lenis-showcase-teardown.md).
 
 ## 2026-07-16, explicit Home hero atmosphere order
 
